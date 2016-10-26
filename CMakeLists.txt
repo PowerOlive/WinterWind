@@ -5,7 +5,7 @@ include_directories(
 	/usr/local/include/jsoncpp
 )
 
-set(LIB_PROJECT_NAME .)
+set(LIB_PROJECT_NAME winterwind)
 set(LIB_SOURCE_FILES
 	utils/base64.cpp
 	utils/semaphore.cpp
