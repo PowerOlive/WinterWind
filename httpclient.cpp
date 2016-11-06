@@ -161,4 +161,6 @@ bool HTTPClient::fetch_json(const std::string &url,
 		std::cerr << "Failed to parse query for " << url << std::endl;
 		return false;
 	}
+
+	return true;
 }
