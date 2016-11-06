@@ -145,10 +145,15 @@ void HTTPClient::fetch_html_tag_value(const std::string &url, const std::string 
 	parser.parse(page_res, xpath, pflag, res);
 }
 
-bool HTTPClient::fetch_json(const std::string &url, Json::Value &res)
+bool HTTPClient::fetch_json(const std::string &url,
+		const std::unordered_map<std::string, std::string> &headers, Json::Value &res)
 {
 	std::string res_str = "";
 	add_http_header("Content-Type", "application/json");
+	for (const auto &header: headers) {
+		add_http_header(header.first, header.second);
+	}
+
 	perform_get(url, res_str, HTTPCLIENT_REQ_SIMPLE);
 
 	Json::Reader reader;
@@ -156,6 +161,4 @@ bool HTTPClient::fetch_json(const std::string &url, Json::Value &res)
 		std::cerr << "Failed to parse query for " << url << std::endl;
 		return false;
 	}
-
-	return true;
 }

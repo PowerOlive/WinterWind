@@ -14,6 +14,7 @@ set(LIB_SOURCE_FILES
 	caldavclient.cpp
 	console.cpp
 	elasticsearchclient.cpp
+	gitlabapiclient.cpp
 	httpclient.cpp
 	namegenerator.cpp
 	postgresqlclient.cpp

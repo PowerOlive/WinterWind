@@ -23,56 +23,45 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "console.h"
+#include <iostream>
+#include "gitlabapiclient.h"
 
-#include <unistd.h>
-#include <cstring>
-#include <vector>
+const std::string GitlabAPIClient::api_v3_endpoint = "/api/v3";
 
-static int kb_hit_return()
+bool GitlabAPIClient::get_issue(const uint32_t project_id, const uint32_t issue_id,
+		Json::Value &result)
 {
-	struct timeval tv;
-	fd_set fds;
-	tv.tv_sec = 0;
-	tv.tv_usec = 0;
-	FD_ZERO(&fds);
-	FD_SET(STDIN_FILENO, &fds);
-	select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv);
-	return FD_ISSET(STDIN_FILENO, &fds);
+	Json::Value tmp_result;
+	std::unordered_map<std::string, std::string> headers;
+	headers["PRIVATE-TOKEN"] = m_api_token;
+
+	fetch_json(m_server_uri + api_v3_endpoint + "/projects/"
+		+ std::to_string(project_id) + "/issues?iid=" + std::to_string(issue_id),
+		headers, tmp_result);
+
+	if (tmp_result.empty() || tmp_result.size() == 0) {
+		return false;
+	}
+
+	result = tmp_result[0];
+	return true;
 }
 
-void* ConsoleThread::run()
+bool GitlabAPIClient::get_merge_request(const uint32_t project_id, const uint32_t issue_id,
+		Json::Value &result)
 {
-	Thread::SetThreadName("ConsoleThread");
+	Json::Value tmp_result;
+	std::unordered_map<std::string, std::string> headers;
+	headers["PRIVATE-TOKEN"] = m_api_token;
 
-	ThreadStarted();
+	fetch_json(m_server_uri + api_v3_endpoint + "/projects/"
+			   + std::to_string(project_id) + "/merge_requests?iid=" + std::to_string(issue_id),
+			   headers, tmp_result);
 
-	std::cout << m_prompt << "> ";
-	std::cout.flush();
-
-	while (!stopRequested()) {
-		while (!kb_hit_return()) {
-			std::this_thread::sleep_for(std::chrono::milliseconds(5));
-		}
-
-		char commandbuf[256] = {0};
-		char* command_str = fgets(commandbuf, sizeof(commandbuf), stdin);
-		if (command_str != NULL) {
-			for (int x = 0; command_str[x]; ++x) {
-				if (command_str[x] == '\r' || command_str[x] == '\n') {
-					command_str[x] = 0;
-					break;
-				}
-			}
-
-			if (command_str[0] != 0) {
-				CommandToProcessPtr cmd(new CommandToProcess(COMMAND_CHANNEL_STDIN,
-					std::string(command_str)));
-				m_console_handler->enqueue(cmd);
-			}
-			std::cout << m_prompt << "> ";
-			std::cout.flush();
-		}
+	if (tmp_result.empty() || tmp_result.size() == 0) {
+		return false;
 	}
-	return NULL;
+
+	result = tmp_result[0];
+	return true;
 }

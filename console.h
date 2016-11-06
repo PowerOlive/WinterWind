@@ -42,15 +42,15 @@ enum CommandChannel
 struct CommandToProcess
 {
 public:
-	CommandToProcess(CommandChannel ch, const char* cmd):
-		channel(ch), command(std::string(cmd)) {}
+	CommandToProcess(CommandChannel ch, const std::string &cmd):
+		channel(ch), command(cmd) {}
 
 	CommandToProcess(CommandChannel ch, const char* ch_extra_info,
-			const char* w, const char* cmd):
+			const char* w, const std::string &cmd):
 		channel(ch),
 		channel_extra_info(std::string(ch_extra_info)),
 		who(std::string(w)),
-		command(std::string(cmd)) {}
+		command(cmd) {}
 
 	CommandToProcess(const CommandToProcess &c):
 		channel(c.channel),
