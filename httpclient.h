@@ -90,7 +90,7 @@ public:
 			std::vector<std::string> &res, int32_t pflag = XMLPARSER_XML_SIMPLE);
 	bool fetch_json(const std::string &url, Json::Value &res)
 	{
-		fetch_json(url, {}, res);
+		return fetch_json(url, {}, res);
 	}
 
 	bool fetch_json(const std::string &url,
