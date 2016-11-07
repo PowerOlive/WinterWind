@@ -41,7 +41,7 @@ bool GitlabAPIClient::get_issues(const uint32_t project_id, const std::string &f
 			   + std::to_string(project_id) + "/issues"
 			   + (filter.length() ? "?" + filter : ""), tmp_result);
 
-	if (tmp_result.empty() || tmp_result.size() == 0) {
+	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
 		return false;
 	}
 
@@ -83,12 +83,12 @@ bool GitlabAPIClient::get_merge_requests(const uint32_t project_id, const std::s
 		Json::Value &result)
 {
 	Json::Value tmp_result;
-	add_http_header("PRIVATE-TOKEN", m_api_token);
+	//add_http_header("PRIVATE-TOKEN", m_api_token);
 	fetch_json(m_server_uri + api_v3_endpoint + "/projects/"
 				+ std::to_string(project_id) + "/merge_requests"
 				+ (filter.length() ? "?" + filter : ""), tmp_result);
 
-	if (tmp_result.empty() || tmp_result.size() == 0) {
+	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
 		return false;
 	}
 
