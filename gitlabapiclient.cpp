@@ -103,7 +103,7 @@ bool GitlabAPIClient::create_issue(const uint32_t project_id, const std::string 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
 	perform_post(m_server_uri + api_v3_endpoint + "/projects/"
 			+ std::to_string(project_id) + "/issues", post_datas, res);
-	return m_http_code == 200;
+	return m_http_code == 201;
 }
 
 bool GitlabAPIClient::close_issue(const uint32_t project_id, const uint32_t issue_id)
@@ -213,7 +213,7 @@ bool GitlabAPIClient::create_label(const uint32_t project_id, const std::string 
 	perform_post(m_server_uri + api_v3_endpoint + "/projects/"
 			+ std::to_string(project_id) + "/labels",
 			"name=" + encoded_label + "&color=" + color_id, res);
-	return m_http_code == 200;
+	return m_http_code == 201;
 }
 
 bool GitlabAPIClient::delete_label(const uint32_t project_id, const std::string &label)
