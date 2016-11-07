@@ -55,6 +55,7 @@ public:
 	bool get_issue(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
 	bool get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
 	bool create_issue(const uint32_t project_id, const std::string &title, const GitlabIssue &issue);
+	bool close_issue(const uint32_t project_id, const uint32_t issue_id);
 	bool delete_issue(const uint32_t project_id, const uint32_t issue_id);
 
 	// Merge requests
