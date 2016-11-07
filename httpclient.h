@@ -57,6 +57,12 @@ public:
 		flag = HTTPCLIENT_REQ_SIMPLE, HTTPClientMethod method = HTTPCLIENT_METHOD_GET,
 		const std::string &post_data = "");
 
+	inline void perform_post(const std::string &url, const std::string &post_data,
+		std::string &res, int32_t flag = HTTPCLIENT_REQ_SIMPLE)
+	{
+		perform_request(url, res, flag, HTTPCLIENT_METHOD_GET, post_data);
+	}
+
 	inline void perform_get(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
@@ -103,6 +109,8 @@ public:
 	}
 
 	long get_http_code() const { return m_http_code; }
+
+	void http_string_escape(const std::string &src, std::string &dst);
 protected:
 	static size_t curl_writer(char *data, size_t size, size_t nmemb, void *user_data);
 

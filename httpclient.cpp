@@ -166,3 +166,15 @@ bool HTTPClient::fetch_json(const std::string &url,
 
 	return true;
 }
+
+void HTTPClient::http_string_escape(const std::string &src, std::string &dst)
+{
+	CURL *curl = curl_easy_init();
+	if (char *output = curl_easy_escape(curl, src.c_str(), src.length())) {
+		dst = std::string(output);
+		curl_free(output);
+	}
+
+	curl_easy_cleanup(curl);
+	curl_global_cleanup();
+}

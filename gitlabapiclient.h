@@ -27,6 +27,22 @@
 
 #include "httpclient.h"
 
+struct GitlabIssue
+{
+public:
+	GitlabIssue(const std::string &desc, bool c = false, const std::string &dd = "",
+		const std::vector<std::string> &l = {}):
+		description(desc),
+		confidential(c),
+		due_date(dd),
+		labels(l) {}
+
+	std::string description = "";
+	bool confidential = false;
+	std::string due_date = "";
+	std::vector<std::string> labels = {};
+};
+
 class GitlabAPIClient: public HTTPClient
 {
 public:
@@ -38,6 +54,7 @@ public:
 	// Issues
 	bool get_issue(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
 	bool get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
+	bool create_issue(const uint32_t project_id, const std::string &title, const GitlabIssue &issue);
 	bool delete_issue(const uint32_t project_id, const uint32_t issue_id);
 
 	// Merge requests

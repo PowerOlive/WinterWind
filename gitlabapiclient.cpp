@@ -61,6 +61,51 @@ bool GitlabAPIClient::get_issue(const uint32_t project_id, const uint32_t issue_
 	return false;
 }
 
+bool GitlabAPIClient::create_issue(const uint32_t project_id, const std::string &title,
+		const GitlabIssue &issue)
+{
+	std::string res = "", encoded_title = "", post_datas = "title=";
+
+	http_string_escape(title, encoded_title);
+
+	post_datas += encoded_title;
+	if (issue.confidential) {
+		post_datas += "&confidential=true";
+	}
+
+	if (!issue.description.empty()) {
+		std::string encoded_desc = "";
+		http_string_escape(issue.description, encoded_desc);
+		post_datas += "&description=" + encoded_desc;
+	}
+
+	if (!issue.due_date.empty()) {
+		std::string encoded_date = "";
+		http_string_escape(issue.due_date, encoded_date);
+		post_datas += "&due_date=" + encoded_date;
+	}
+
+	if (issue.labels.size() > 0) {
+		std::string encoded_labels = "";
+		for (const auto &l : issue.labels) {
+			if (!encoded_labels.empty()) {
+				encoded_labels.append(",");
+			}
+
+			std::string encoded_label= "";
+			http_string_escape(l, encoded_label);
+			encoded_labels.append(encoded_label);
+		}
+
+		post_datas += "&labels=" + encoded_labels;
+	}
+
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	perform_post(m_server_uri + api_v3_endpoint + "/projects/"
+			+ std::to_string(project_id) + "/issues", post_datas, res);
+	std::cout << res << std::endl;
+}
+
 bool GitlabAPIClient::delete_issue(const uint32_t project_id, const uint32_t issue_id)
 {
 	Json::Value issue_result;
