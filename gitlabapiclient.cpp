@@ -28,22 +28,71 @@
 
 const std::string GitlabAPIClient::api_v3_endpoint = "/api/v3";
 
-bool GitlabAPIClient::get_issue(const uint32_t project_id, const uint32_t issue_id,
+/*
+ * Issues
+ */
+
+bool GitlabAPIClient::get_issues(const uint32_t project_id, const std::string &filter,
 		Json::Value &result)
 {
 	Json::Value tmp_result;
-	std::unordered_map<std::string, std::string> headers;
-	headers["PRIVATE-TOKEN"] = m_api_token;
-
+	add_http_header("PRIVATE-TOKEN", m_api_token);
 	fetch_json(m_server_uri + api_v3_endpoint + "/projects/"
-		+ std::to_string(project_id) + "/issues?iid=" + std::to_string(issue_id),
-		headers, tmp_result);
+			   + std::to_string(project_id) + "/issues"
+			   + (filter.length() ? "?" + filter : ""), tmp_result);
 
 	if (tmp_result.empty() || tmp_result.size() == 0) {
 		return false;
 	}
 
-	result = tmp_result[0];
+	result = tmp_result;
+	return true;
+}
+
+bool GitlabAPIClient::get_issue(const uint32_t project_id, const uint32_t issue_id,
+		Json::Value &result)
+{
+	Json::Value tmp_result;
+	if (get_issues(project_id, "iid=" + std::to_string(issue_id), tmp_result)) {
+		result = tmp_result[0];
+		return true;
+	}
+
+	return false;
+}
+
+bool GitlabAPIClient::delete_issue(const uint32_t project_id, const uint32_t issue_id)
+{
+	Json::Value issue_result;
+	if (!get_issue(project_id, issue_id, issue_result)) {
+		return false;
+	}
+
+	std::string res;
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	perform_delete(m_server_uri + api_v3_endpoint + "/projects/"
+			+ std::to_string(project_id) + "/issues/" + issue_result["id"].asString(), res);
+	return true;
+}
+
+/*
+ * Merge requests
+ */
+
+bool GitlabAPIClient::get_merge_requests(const uint32_t project_id, const std::string &filter,
+		Json::Value &result)
+{
+	Json::Value tmp_result;
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	fetch_json(m_server_uri + api_v3_endpoint + "/projects/"
+				+ std::to_string(project_id) + "/merge_requests"
+				+ (filter.length() ? "?" + filter : ""), tmp_result);
+
+	if (tmp_result.empty() || tmp_result.size() == 0) {
+		return false;
+	}
+
+	result = tmp_result;
 	return true;
 }
 
@@ -51,17 +100,40 @@ bool GitlabAPIClient::get_merge_request(const uint32_t project_id, const uint32_
 		Json::Value &result)
 {
 	Json::Value tmp_result;
-	std::unordered_map<std::string, std::string> headers;
-	headers["PRIVATE-TOKEN"] = m_api_token;
+	if (get_merge_requests(project_id, "iid=" + std::to_string(issue_id), tmp_result)) {
+		std::cout << tmp_result.toStyledString() << std::endl;
+		result = tmp_result[0];
+		return true;
+	}
+	return false;
+}
 
-	fetch_json(m_server_uri + api_v3_endpoint + "/projects/"
-			   + std::to_string(project_id) + "/merge_requests?iid=" + std::to_string(issue_id),
-			   headers, tmp_result);
-
-	if (tmp_result.empty() || tmp_result.size() == 0) {
+bool GitlabAPIClient::close_merge_request(const uint32_t project_id, const uint32_t issue_id)
+{
+	Json::Value mr_result;
+	if (!get_merge_request(project_id, issue_id, mr_result)) {
 		return false;
 	}
 
-	result = tmp_result[0];
+	std::string res;
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	perform_put(m_server_uri + api_v3_endpoint + "/projects/"
+			+ std::to_string(project_id) + "/merge_requests/" + mr_result["id"].asString(),
+			res, HTTPCLIENT_REQ_SIMPLE, "state_event=close");
+	return true;
+}
+
+bool GitlabAPIClient::delete_merge_request(const uint32_t project_id, const uint32_t issue_id)
+{
+	Json::Value mr_result;
+	if (!get_merge_request(project_id, issue_id, mr_result)) {
+		return false;
+	}
+
+	std::string res;
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	perform_delete(m_server_uri + api_v3_endpoint + "/projects/"
+			+ std::to_string(project_id) + "/merge_requests/"
+			+ mr_result["id"].asString(), res);
 	return true;
 }

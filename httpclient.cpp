@@ -146,7 +146,7 @@ void HTTPClient::fetch_html_tag_value(const std::string &url, const std::string 
 }
 
 bool HTTPClient::fetch_json(const std::string &url,
-		const std::unordered_map<std::string, std::string> &headers, Json::Value &res)
+		const HTTPHeadersMap &headers, Json::Value &res)
 {
 	std::string res_str = "";
 	add_http_header("Content-Type", "application/json");

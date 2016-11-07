@@ -46,6 +46,7 @@ enum HTTPClientReqFlag {
 	HTTPCLIENT_REQ_KEEP_HEADER_CACHE_AFTER_REQUEST = 0x08,
 };
 
+typedef std::unordered_map<std::string, std::string> HTTPHeadersMap;
 class HTTPClient
 {
 public:
@@ -94,7 +95,7 @@ public:
 	}
 
 	bool fetch_json(const std::string &url,
-			const std::unordered_map<std::string, std::string> &headers, Json::Value &res);
+			const HTTPHeadersMap &headers, Json::Value &res);
 
 	void add_http_header(const std::string &header, const std::string &value)
 	{
