@@ -49,6 +49,7 @@ void HTTPClient::perform_request(const std::string &url, std::string &res,
 		int32_t flag, HTTPClientMethod method, const std::string &post_data)
 {
 	CURL *curl = curl_easy_init();
+	m_http_code = 0;
 
 	struct curl_slist *chunk = NULL;
 
@@ -116,6 +117,7 @@ void HTTPClient::perform_request(const std::string &url, std::string &res,
 #endif
 
 	CURLcode r = curl_easy_perform(curl);
+	curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &m_http_code);
 
 	if (chunk) {
 		curl_slist_free_all(chunk);

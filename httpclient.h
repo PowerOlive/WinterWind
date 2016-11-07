@@ -102,12 +102,14 @@ public:
 		m_http_headers[header] = value;
 	}
 
+	long get_http_code() const { return m_http_code; }
 protected:
 	static size_t curl_writer(char *data, size_t size, size_t nmemb, void *user_data);
 
 	std::string m_username = "";
 	std::string m_password = "";
 	std::unordered_map<std::string, std::string> m_http_headers;
+	long m_http_code = 0;
 private:
 	uint32_t m_maxfilesize = 0;
 };
