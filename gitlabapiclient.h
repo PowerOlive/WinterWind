@@ -63,6 +63,10 @@ public:
 	bool get_merge_requests(const uint32_t project_id, const std::string &filter, Json::Value &result);
 	bool close_merge_request(const uint32_t project_id, const uint32_t issue_id);
 	bool delete_merge_request(const uint32_t project_id, const uint32_t issue_id);
+
+	// Labels
+	bool create_label(const uint32_t project_id, const std::string &label, const std::string &color_id);
+	bool delete_label(const uint32_t project_id, const std::string &label);
 private:
 	std::string m_server_uri = "https://gitlab.com";
 	std::string m_api_token = "";

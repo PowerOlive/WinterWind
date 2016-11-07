@@ -103,7 +103,7 @@ bool GitlabAPIClient::create_issue(const uint32_t project_id, const std::string 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
 	perform_post(m_server_uri + api_v3_endpoint + "/projects/"
 			+ std::to_string(project_id) + "/issues", post_datas, res);
-	std::cout << res << std::endl;
+	return m_http_code == 200;
 }
 
 bool GitlabAPIClient::close_issue(const uint32_t project_id, const uint32_t issue_id)
@@ -118,7 +118,7 @@ bool GitlabAPIClient::close_issue(const uint32_t project_id, const uint32_t issu
 	perform_put(m_server_uri + api_v3_endpoint + "/projects/"
 				+ std::to_string(project_id) + "/issues/" + issue_res["id"].asString(),
 				res, HTTPCLIENT_REQ_SIMPLE, "state_event=close");
-	return true;
+	return m_http_code == 200;
 }
 
 bool GitlabAPIClient::delete_issue(const uint32_t project_id, const uint32_t issue_id)
@@ -132,7 +132,7 @@ bool GitlabAPIClient::delete_issue(const uint32_t project_id, const uint32_t iss
 	add_http_header("PRIVATE-TOKEN", m_api_token);
 	perform_delete(m_server_uri + api_v3_endpoint + "/projects/"
 			+ std::to_string(project_id) + "/issues/" + issue_result["id"].asString(), res);
-	return true;
+	return m_http_code == 200;
 }
 
 /*
@@ -180,7 +180,7 @@ bool GitlabAPIClient::close_merge_request(const uint32_t project_id, const uint3
 	perform_put(m_server_uri + api_v3_endpoint + "/projects/"
 			+ std::to_string(project_id) + "/merge_requests/" + mr_result["id"].asString(),
 			res, HTTPCLIENT_REQ_SIMPLE, "state_event=close");
-	return true;
+	return m_http_code == 200;
 }
 
 bool GitlabAPIClient::delete_merge_request(const uint32_t project_id, const uint32_t issue_id)
@@ -195,5 +195,35 @@ bool GitlabAPIClient::delete_merge_request(const uint32_t project_id, const uint
 	perform_delete(m_server_uri + api_v3_endpoint + "/projects/"
 			+ std::to_string(project_id) + "/merge_requests/"
 			+ mr_result["id"].asString(), res);
-	return true;
+	return m_http_code == 200;
+}
+
+/*
+ * Labels
+ */
+
+bool GitlabAPIClient::create_label(const uint32_t project_id, const std::string &label,
+		const std::string &color_id)
+{
+	std::string encoded_label = "";
+	http_string_escape(label, encoded_label);
+
+	std::string res;
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	perform_post(m_server_uri + api_v3_endpoint + "/projects/"
+			+ std::to_string(project_id) + "/labels",
+			"name=" + encoded_label + "&color=" + color_id, res);
+	return m_http_code == 200;
+}
+
+bool GitlabAPIClient::delete_label(const uint32_t project_id, const std::string &label)
+{
+	std::string encoded_label = "";
+	http_string_escape(label, encoded_label);
+
+	std::string res;
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	perform_delete(m_server_uri + api_v3_endpoint + "/projects/"
+				   + std::to_string(project_id) + "/labels?name=" + encoded_label, res);
+	return m_http_code == 200;
 }
