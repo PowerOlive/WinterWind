@@ -167,6 +167,28 @@ bool HTTPClient::fetch_json(const std::string &url,
 	return true;
 }
 
+bool HTTPClient::post_json(const std::string &url, const std::string &post_data,
+		Json::Value &res)
+{
+	std::string res_str = "";
+	add_http_header("Content-Type", "application/json");
+	perform_post(url, post_data, res_str);
+
+	if (m_http_code == 400) {
+		std::cerr << "Bad request for " << url << ", error was: '" << res_str
+				<< "'" <<std::endl;
+		return false;
+	}
+
+	Json::Reader reader;
+	if (res_str.empty() || !reader.parse(res_str, res)) {
+		std::cerr << "Failed to parse query for " << url << std::endl;
+		return false;
+	}
+
+	return true;
+}
+
 void HTTPClient::http_string_escape(const std::string &src, std::string &dst)
 {
 	CURL *curl = curl_easy_init();

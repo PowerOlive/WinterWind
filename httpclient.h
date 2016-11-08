@@ -108,6 +108,8 @@ public:
 		m_http_headers[header] = value;
 	}
 
+	bool post_json(const std::string &url, const std::string &post_data, Json::Value &res);
+
 	long get_http_code() const { return m_http_code; }
 
 	void http_string_escape(const std::string &src, std::string &dst);
