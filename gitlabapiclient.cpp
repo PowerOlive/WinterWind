@@ -203,16 +203,19 @@ bool GitlabAPIClient::delete_merge_request(const uint32_t project_id, const uint
  */
 
 bool GitlabAPIClient::create_label(const uint32_t project_id, const std::string &label,
-		const std::string &color_id)
+		const std::string &color_id, Json::Value &res)
 {
-	std::string encoded_label = "";
-	http_string_escape(label, encoded_label);
+	Json::Value request;
+	request["name"] = label;
+	request["color"] = color_id;
 
-	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	perform_post(m_server_uri + api_v3_endpoint + "/projects/"
+	if (!post_json(m_server_uri + api_v3_endpoint + "/projects/"
 			+ std::to_string(project_id) + "/labels",
-			"name=" + encoded_label + "&color=" + color_id, res);
+			request.toStyledString(), res)) {
+		return false;
+	}
+
 	return m_http_code == 201;
 }
 
@@ -226,4 +229,30 @@ bool GitlabAPIClient::delete_label(const uint32_t project_id, const std::string 
 	perform_delete(m_server_uri + api_v3_endpoint + "/projects/"
 				   + std::to_string(project_id) + "/labels?name=" + encoded_label, res);
 	return m_http_code == 200;
+}
+
+/*
+ * Groups
+ */
+
+bool GitlabAPIClient::create_group(const GitlabGroup &group, Json::Value &res)
+{
+	Json::Value request;
+	request["name"] = group.name;
+	request["path"] = group.path;
+	if (!group.description.empty()) {
+		request["description"] = group.description;
+	}
+
+	request["visibility_level"] = (uint16_t) group.visibility;
+	request["lfs_enabled"] = group.enable_lfs;
+	request["request_access_enabled"] = group.access_requests;
+
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	if (!post_json(m_server_uri + api_v3_endpoint + "/groups",
+			request.toStyledString(), res)) {
+		return false;
+	}
+
+	return m_http_code != 201;
 }

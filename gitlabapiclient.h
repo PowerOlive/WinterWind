@@ -43,6 +43,23 @@ public:
 	std::vector<std::string> labels = {};
 };
 
+enum GitlabGroupVisibility
+{
+	GITLAB_GROUP_PRIVATE = 0,
+	GITLAB_GROUP_INTERNAL = 10,
+	GITLAB_GROUP_PUBLIC = 20,
+};
+
+struct GitlabGroup
+{
+	std::string name = "";
+	std::string path = "";
+	std::string description = "";
+	GitlabGroupVisibility visibility = GITLAB_GROUP_PRIVATE;
+	bool enable_lfs = false;
+	bool access_requests = true;
+};
+
 class GitlabAPIClient: public HTTPClient
 {
 public:
@@ -65,8 +82,12 @@ public:
 	bool delete_merge_request(const uint32_t project_id, const uint32_t issue_id);
 
 	// Labels
-	bool create_label(const uint32_t project_id, const std::string &label, const std::string &color_id);
+	bool create_label(const uint32_t project_id, const std::string &label,
+			const std::string &color_id, Json::Value &res);
 	bool delete_label(const uint32_t project_id, const std::string &label);
+
+	// Groups
+	bool create_group(const GitlabGroup &group, Json::Value &res);
 private:
 	std::string m_server_uri = "https://gitlab.com";
 	std::string m_api_token = "";
