@@ -25,44 +25,71 @@
 
 option(ENABLE_POSTGRESQL "PostgreSQL features" TRUE)
 
+option(ENABLE_CONSOLE "Enable console features" TRUE)
 option(ENABLE_HTTP "Enable HTTP features" TRUE)
 option(ENABLE_CALDAV "Enable caldav client (requires ENABLE_HTTP)" TRUE)
 option(ENABLE_ELASTICSEARCH "Enable Elasticsearch client features (requires ENABLE_HTTP)" TRUE)
 option(ENABLE_GITLAB "Enable gitlab client (requires ENABLE_HTTP)" TRUE)
 option(ENABLE_REDIS "Enable redis client" TRUE)
+option(ENABLE_NAMEGENERATOR "Enable embedded name generator" TRUE)
 
 set(SRC_FILES
 	utils/base64.cpp
 	utils/semaphore.cpp
 	utils/stringutils.cpp
 	utils/threads.cpp
-
-	console.cpp
-	namegenerator.cpp
 	xmlparser.cpp)
+
+set(HEADER_FILES
+	../include/utils/base64.h
+	../include/utils/classhelpers.h
+	../include/utils/exception.h
+	../include/utils/macros.h
+	../include/utils/semaphore.h
+	../include/utils/stringutils.h
+	../include/utils/threads.h
+	../include/utils/threadsafequeue.h
+	../include/utils/time.h
+	../include/xmlparser.h)
+
+if (ENABLE_CONSOLE)
+	set(SRC_FILES ${SRC_FILES} console.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ../include/console.h)
+endif()
 
 if (ENABLE_POSTGRESQL)
 	set(SRC_FILES ${SRC_FILES} postgresqlclient.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ../include/postgresqlclient.h)
 endif()
 
 if (ENABLE_HTTP)
 	set(SRC_FILES ${SRC_FILES} httpclient.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ../include/httpclient.h)
 
 	if (ENABLE_CALDAV)
 		set(SRC_FILES ${SRC_FILES} caldavclient.cpp)
+		set(HEADER_FILES ${HEADER_FILES} ../include/caldavclient.h)
 	endif()
 
 	if (ENABLE_ELASTICSEARCH)
 		set(SRC_FILES ${SRC_FILES} elasticsearchclient.cpp)
+		set(HEADER_FILES ${HEADER_FILES} ../include/elasticsearchclient.h)
 	endif()
 
 	if (ENABLE_GITLAB)
 		set(SRC_FILES ${SRC_FILES} gitlabapiclient.cpp)
+		set(HEADER_FILES ${HEADER_FILES} ../include/gitlabapiclient.h)
 	endif()
+endif()
+
+if (ENABLE_NAMEGENERATOR)
+	set(SRC_FILES ${SRC_FILES} namegenerator.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ../include/namegenerator.h)
 endif()
 
 if (ENABLE_REDIS)
 	set(SRC_FILES ${SRC_FILES} redisclient.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ../include/redisclient.h)
 endif()
 
 set(PROJECT_LIBS
@@ -78,8 +105,7 @@ set(PROJECT_LIBS
 add_library(winterwind SHARED ${SRC_FILES})
 target_link_libraries(winterwind ${PROJECT_LIBS})
 
-install(DIRECTORY ../include/ DESTINATION ${INCLUDEDIR}
-	FILES_MATCHING PATTERN "*.h")
+install(FILES ${HEADER_FILES} DESTINATION ${INCLUDEDIR})
 
 install(TARGETS winterwind
 	LIBRARY DESTINATION ${LIBDIR}
