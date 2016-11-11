@@ -1,0 +1,22 @@
+---
+image: docker.io/nerzhul/archlinux:2016.10.01
+before_script:
+  - pacman --noconfirm -Sy openssl hiredis cppunit postgresql
+# These are already included in image
+# - pacman --noconfirm -S libxml2 jsoncpp curl
+
+gcc5:
+  stage: build
+  script:
+    - mkdir -p build
+    - cd build
+    - cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc ..
+    - make -j4
+
+clang:
+  stage: build
+  script:
+    - mkdir -p build
+    - cd build
+    - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ..
+    - make -j4

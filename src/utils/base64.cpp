@@ -24,13 +24,13 @@
    René Nyffenegger rene.nyffenegger@adp-gmbh.ch
 */
 
-#include "base64.h"
+#include "utils/base64.h"
 #include <iostream>
 
 static const std::string base64_chars =
 	"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"abcdefghijklmnopqrstuvwxyz"
-		"0123456789+/";
+	"abcdefghijklmnopqrstuvwxyz"
+	"0123456789+/";
 
 
 static inline bool is_base64(unsigned char c) {

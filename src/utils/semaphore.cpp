@@ -23,50 +23,71 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "stringutils.h"
+#include "utils/semaphore.h"
 
-#define IF_WORD_SEPARATOR if (c == ' ' || c == '\'' || c == '\n' || c == '\t' || \
-	c == ';' || c == '\r' || c == '!' || c == '?' || c == ',' || c == '.' || \
-	c == '/' || c == ':')
+#include <iostream>
+#include <cassert>
 
-extern uint32_t count_words(const std::string &str)
+#define UNUSED(expr) do { (void)(expr); } while (0)
+
+#include <sys/time.h>
+
+
+Semaphore::Semaphore(int val)
 {
-	bool prev_was_word_separator = false;
-	uint32_t word_count = 1;
-	for (const auto &c: str) {
-		IF_WORD_SEPARATOR {
-			if (!prev_was_word_separator) {
-				word_count++;
-			}
-			prev_was_word_separator = true;
-		}
-		else {
-			prev_was_word_separator = false;
-		}
-	}
-
-	return word_count;
+	int ret = sem_init(&semaphore, 0, val);
+	assert(!ret);
+	UNUSED(ret);
 }
 
-extern void split_string_to_words(const std::string &str, std::vector<std::string> &res)
+
+Semaphore::~Semaphore()
 {
-	std::string buf = "";
-	bool prev_was_word_separator = false;
-	for (const auto &c: str) {
-		IF_WORD_SEPARATOR {
-			if (!prev_was_word_separator) {
-				res.push_back(buf);
-				buf.clear();
-			}
-			prev_was_word_separator = true;
-		}
-		else {
-			buf += c;
-			prev_was_word_separator = false;
-		}
+	int ret = sem_destroy(&semaphore);
+#ifdef __ANDROID__
+	// Workaround for broken bionic semaphore implementation!
+	assert(!ret || errno == EBUSY);
+#else
+	assert(!ret);
+#endif
+}
+
+
+void Semaphore::post(unsigned int num)
+{
+	assert(num > 0);
+	for (unsigned i = 0; i < num; i++) {
+		int ret = sem_post(&semaphore);
+		assert(!ret);
+		UNUSED(ret);
+	}
+}
+
+
+void Semaphore::wait()
+{
+	int ret = sem_wait(&semaphore);
+	assert(!ret);
+	UNUSED(ret);
+}
+
+
+bool Semaphore::wait(unsigned int time_ms)
+{
+	struct timespec wait_time;
+	struct timeval now;
+
+	if (gettimeofday(&now, NULL) == -1) {
+		std::cerr << "Semaphore::wait(ms): Unable to get time with gettimeofday!" << std::endl;
+		abort();
 	}
 
-	if (!prev_was_word_separator) {
-		res.push_back(buf);
-	}
+	wait_time.tv_nsec = ((time_ms % 1000) * 1000 * 1000) + (now.tv_usec * 1000);
+	wait_time.tv_sec = (time_ms / 1000) + (wait_time.tv_nsec / (1000 * 1000 * 1000)) + now.tv_sec;
+	wait_time.tv_nsec %= 1000 * 1000 * 1000;
+
+	int ret = sem_timedwait(&semaphore, &wait_time);
+
+	assert(!ret || (errno == ETIMEDOUT || errno == EINTR));
+	return !ret;
 }

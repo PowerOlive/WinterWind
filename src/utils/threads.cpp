@@ -23,7 +23,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "threads.h"
+#include "utils/threads.h"
 #include <string>
 #include <pthread.h>
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
