@@ -54,6 +54,26 @@ public:
 	std::vector<std::string> labels = {};
 };
 
+struct GitlabTag
+{
+public:
+	GitlabTag(const std::string &n, const std::string &r):
+		name(n),
+		ref(r) {}
+
+	GitlabTag(const std::string &n, const std::string &r, const std::string &m,
+			const std::string &rd):
+		name(n),
+		ref(r),
+		message(m),
+		release_description(rd) {}
+
+	std::string name = "";
+	std::string ref = "";
+	std::string message = "";
+	std::string release_description = "";
+};
+
 enum GitlabGroupVisibility
 {
 	GITLAB_GROUP_PRIVATE = 0,
@@ -63,6 +83,11 @@ enum GitlabGroupVisibility
 
 struct GitlabGroup
 {
+public:
+	GitlabGroup(const std::string &n, const std::string &p):
+		name(n),
+		path(p) {}
+
 	std::string name = "";
 	std::string path = "";
 	std::string description = "";
@@ -98,6 +123,10 @@ public:
 	bool create_label(const uint32_t project_id, const std::string &label,
 			const std::string &color_id, Json::Value &res);
 	bool delete_label(const uint32_t project_id, const std::string &label);
+
+	// Tags
+	const GitlabRetCod create_tag(const uint32_t project_id, const GitlabTag &tag);
+	const GitlabRetCod delete_tag(const uint32_t project_id, const std::string &tag_name);
 
 	// Groups
 	bool create_group(const GitlabGroup &group, Json::Value &res);

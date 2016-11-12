@@ -265,6 +265,41 @@ bool GitlabAPIClient::delete_label(const uint32_t project_id, const std::string 
 }
 
 /*
+ * Tags
+ */
+
+const GitlabRetCod GitlabAPIClient::create_tag(const uint32_t project_id,
+		const GitlabTag &tag)
+{
+	Json::Value request, res;
+	request["tag_name"] = tag.name;
+	request["ref"] = tag.ref;
+	request["message"] = tag.message;
+	request["release_description"] = tag.release_description;
+
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	if (!post_json(m_server_uri + api_v3_endpoint + "/projects/"
+				   + std::to_string(project_id) + "/labels",
+				   request.toStyledString(), res)) {
+		return GITLAB_RC_INVALID_RESPONSE;
+	}
+
+	return (m_http_code == 201 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
+}
+const GitlabRetCod GitlabAPIClient::delete_tag(const uint32_t project_id,
+		const std::string &tag_name)
+{
+	std::string encoded_tag = "";
+	http_string_escape(tag_name, encoded_tag);
+
+	std::string res;
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	perform_delete(m_server_uri + api_v3_endpoint + "/projects/"
+				   + std::to_string(project_id) + "/tags/" + encoded_tag, res);
+	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_UNK_OBJECT);
+}
+
+/*
  * Groups
  */
 
@@ -287,5 +322,5 @@ bool GitlabAPIClient::create_group(const GitlabGroup &group, Json::Value &res)
 		return false;
 	}
 
-	return m_http_code != 201;
+	return m_http_code == 201;
 }
