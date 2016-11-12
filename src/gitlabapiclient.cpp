@@ -55,7 +55,7 @@ bool GitlabAPIClient::get_issue(const uint32_t project_id, const uint32_t issue_
 	Json::Value tmp_result;
 	if (get_issues(project_id, "iid=" + std::to_string(issue_id), tmp_result)) {
 		result = tmp_result[0];
-		return true;
+		return tmp_result[0].isMember("id");
 	}
 
 	return false;
@@ -68,25 +68,58 @@ const GitlabRetCod GitlabAPIClient::create_issue(const uint32_t project_id,
 		return GITLAB_RC_INVALID_PARAMS;
 	}
 
-	std::string res = "", encoded_title = "", post_datas = "title=";
+	std::string res = "", post_data = "";
+	build_issue_data(issue, post_data);
+
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	perform_post(m_server_uri + api_v3_endpoint + "/projects/"
+			+ std::to_string(project_id) + "/issues", post_data, res);
+	return (m_http_code == 201 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
+}
+
+const GitlabRetCod GitlabAPIClient::modify_issue(const uint32_t project_id,
+		const uint32_t issue_id, const GitlabIssue &issue)
+{
+	if (issue.title.empty()) {
+		return GITLAB_RC_INVALID_PARAMS;
+	}
+
+	Json::Value issue_res;
+	if (!get_issue(project_id, issue_id, issue_res)) {
+		return GITLAB_RC_UNK_OBJECT;
+	}
+
+	std::string res = "", post_data = "";
+	build_issue_data(issue, post_data);
+
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	perform_put(m_server_uri + api_v3_endpoint + "/projects/"
+				 + std::to_string(project_id) + "/issues/" + issue_res.asString(), res,
+				HTTPCLIENT_REQ_SIMPLE, post_data);
+	return (m_http_code == 201 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
+}
+
+void GitlabAPIClient::build_issue_data(const GitlabIssue &issue, std::string &post_data)
+{
+	std::string encoded_title = "";
 
 	http_string_escape(issue.title, encoded_title);
 
-	post_datas += encoded_title;
+	post_data += "title=" + encoded_title;
 	if (issue.confidential) {
-		post_datas += "&confidential=true";
+		post_data += "&confidential=true";
 	}
 
 	if (!issue.description.empty()) {
 		std::string encoded_desc = "";
 		http_string_escape(issue.description, encoded_desc);
-		post_datas += "&description=" + encoded_desc;
+		post_data += "&description=" + encoded_desc;
 	}
 
 	if (!issue.due_date.empty()) {
 		std::string encoded_date = "";
 		http_string_escape(issue.due_date, encoded_date);
-		post_datas += "&due_date=" + encoded_date;
+		post_data += "&due_date=" + encoded_date;
 	}
 
 	if (issue.labels.size() > 0) {
@@ -101,13 +134,8 @@ const GitlabRetCod GitlabAPIClient::create_issue(const uint32_t project_id,
 			encoded_labels.append(encoded_label);
 		}
 
-		post_datas += "&labels=" + encoded_labels;
+		post_data += "&labels=" + encoded_labels;
 	}
-
-	add_http_header("PRIVATE-TOKEN", m_api_token);
-	perform_post(m_server_uri + api_v3_endpoint + "/projects/"
-			+ std::to_string(project_id) + "/issues", post_datas, res);
-	return (m_http_code == 201 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 
 const GitlabRetCod GitlabAPIClient::close_issue(const uint32_t project_id,

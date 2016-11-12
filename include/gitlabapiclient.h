@@ -83,6 +83,8 @@ public:
 	bool get_issue(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
 	bool get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
 	const GitlabRetCod create_issue(const uint32_t project_id, const GitlabIssue &issue);
+	const GitlabRetCod modify_issue(const uint32_t project_id, const uint32_t issue_id,
+			const GitlabIssue &issue);
 	const GitlabRetCod close_issue(const uint32_t project_id, const uint32_t issue_id);
 	const GitlabRetCod delete_issue(const uint32_t project_id, const uint32_t issue_id);
 
@@ -100,6 +102,8 @@ public:
 	// Groups
 	bool create_group(const GitlabGroup &group, Json::Value &res);
 private:
+	void build_issue_data(const GitlabIssue &issue, std::string &post_data);
+
 	std::string m_server_uri = "https://gitlab.com";
 	std::string m_api_token = "";
 	static const std::string api_v3_endpoint;
