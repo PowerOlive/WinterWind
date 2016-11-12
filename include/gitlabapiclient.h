@@ -129,7 +129,10 @@ public:
 	const GitlabRetCod delete_tag(const uint32_t project_id, const std::string &tag_name);
 
 	// Groups
+	const GitlabRetCod get_groups(const std::string &filter, Json::Value &result);
+	const GitlabRetCod get_group(const std::string &name, Json::Value &result);
 	bool create_group(const GitlabGroup &group, Json::Value &res);
+	const GitlabRetCod delete_group(const std::string &name);
 private:
 	void build_issue_data(const GitlabIssue &issue, std::string &post_data);
 

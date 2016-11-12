@@ -176,7 +176,7 @@ bool GitlabAPIClient::get_merge_requests(const uint32_t project_id, const std::s
 		Json::Value &result)
 {
 	Json::Value tmp_result;
-	//add_http_header("PRIVATE-TOKEN", m_api_token);
+	add_http_header("PRIVATE-TOKEN", m_api_token);
 	fetch_json(m_server_uri + api_v3_endpoint + "/projects/"
 				+ std::to_string(project_id) + "/merge_requests"
 				+ (filter.length() ? "?" + filter : ""), tmp_result);
@@ -194,7 +194,6 @@ bool GitlabAPIClient::get_merge_request(const uint32_t project_id, const uint32_
 {
 	Json::Value tmp_result;
 	if (get_merge_requests(project_id, "iid=" + std::to_string(issue_id), tmp_result)) {
-		std::cout << tmp_result.toStyledString() << std::endl;
 		result = tmp_result[0];
 		return true;
 	}
@@ -286,6 +285,7 @@ const GitlabRetCod GitlabAPIClient::create_tag(const uint32_t project_id,
 
 	return (m_http_code == 201 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
+
 const GitlabRetCod GitlabAPIClient::delete_tag(const uint32_t project_id,
 		const std::string &tag_name)
 {
@@ -302,6 +302,39 @@ const GitlabRetCod GitlabAPIClient::delete_tag(const uint32_t project_id,
 /*
  * Groups
  */
+
+const GitlabRetCod GitlabAPIClient::get_groups(const std::string &filter, Json::Value &result)
+{
+	Json::Value tmp_result;
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	fetch_json(m_server_uri + api_v3_endpoint + "/groups"
+			   + (filter.length() ? "?" + filter : ""), tmp_result);
+
+	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
+		return GITLAB_RC_INVALID_RESPONSE;
+	}
+
+	result = tmp_result;
+	return GITLAB_RC_OK;
+}
+
+const GitlabRetCod GitlabAPIClient::get_group(const std::string &name, Json::Value &result)
+{
+	if (name.empty()) {
+		return GITLAB_RC_INVALID_PARAMS;
+	}
+
+	Json::Value tmp_result;
+	const GitlabRetCod rc = get_groups("search=" + name, tmp_result);
+	if (rc == GITLAB_RC_OK) {
+		if (!tmp_result[0].isMember("id")) {
+			return GITLAB_RC_INVALID_RESPONSE;
+		}
+
+		result = tmp_result[0];
+	}
+	return rc;
+}
 
 bool GitlabAPIClient::create_group(const GitlabGroup &group, Json::Value &res)
 {
@@ -323,4 +356,20 @@ bool GitlabAPIClient::create_group(const GitlabGroup &group, Json::Value &res)
 	}
 
 	return m_http_code == 201;
+}
+
+const GitlabRetCod GitlabAPIClient::delete_group(const std::string &name)
+{
+	Json::Value result;
+	GitlabRetCod rc = get_group(name, result);
+	if (rc != GITLAB_RC_OK) {
+		return rc;
+	}
+
+	std::string res;
+	add_http_header("PRIVATE-TOKEN", m_api_token);
+	perform_delete(m_server_uri + api_v3_endpoint + "/groups/"
+				   + result["id"].asString(), res);
+
+	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
