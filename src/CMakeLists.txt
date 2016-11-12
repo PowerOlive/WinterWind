@@ -52,6 +52,10 @@ set(HEADER_FILES
 	../include/utils/time.h
 	../include/xmlparser.h)
 
+set(PROJECT_LIBS
+	jsoncpp
+	xml2)
+
 if (ENABLE_CONSOLE)
 	set(SRC_FILES ${SRC_FILES} console.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ../include/console.h)
@@ -60,11 +64,13 @@ endif()
 if (ENABLE_POSTGRESQL)
 	set(SRC_FILES ${SRC_FILES} postgresqlclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ../include/postgresqlclient.h)
+	set(PROJECT_LIBS ${PROJECT_LIBS} pq)
 endif()
 
 if (ENABLE_HTTP)
 	set(SRC_FILES ${SRC_FILES} httpclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ../include/httpclient.h)
+	set(PROJECT_LIBS ${PROJECT_LIBS} crypto curl ssl)
 
 	if (ENABLE_CALDAV)
 		set(SRC_FILES ${SRC_FILES} caldavclient.cpp)
@@ -90,17 +96,9 @@ endif()
 if (ENABLE_REDIS)
 	set(SRC_FILES ${SRC_FILES} redisclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ../include/redisclient.h)
+	set(PROJECT_LIBS ${PROJECT_LIBS} hiredis)
 endif()
 
-set(PROJECT_LIBS
-	crypto
-	curl
-	hiredis
-	jsoncpp
-	pq
-	ssl
-	xml2
-)
 
 add_library(winterwind SHARED ${SRC_FILES})
 target_link_libraries(winterwind ${PROJECT_LIBS})
