@@ -373,3 +373,15 @@ const GitlabRetCod GitlabAPIClient::delete_group(const std::string &name)
 
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
+
+const GitlabRetCod GitlabAPIClient::delete_groups(const std::vector<std::string> &groups)
+{
+	for (const auto &g: groups) {
+		const GitlabRetCod rc = delete_group(g);
+		if (rc != GITLAB_RC_OK) {
+			return rc;
+		}
+	}
+
+	return GITLAB_RC_OK;
+}

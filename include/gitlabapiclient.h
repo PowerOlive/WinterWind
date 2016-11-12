@@ -133,6 +133,7 @@ public:
 	const GitlabRetCod get_group(const std::string &name, Json::Value &result);
 	bool create_group(const GitlabGroup &group, Json::Value &res);
 	const GitlabRetCod delete_group(const std::string &name);
+	const GitlabRetCod delete_groups(const std::vector<std::string> &groups);
 private:
 	void build_issue_data(const GitlabIssue &issue, std::string &post_data);
 

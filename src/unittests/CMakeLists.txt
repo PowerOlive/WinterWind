@@ -22,21 +22,10 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.0)
-project(winterwind)
+add_executable(winterwind_unittests main.cpp)
+target_link_libraries(winterwind_unittests cppunit winterwind)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
-set(BINDIR "${CMAKE_INSTALL_PREFIX}/bin")
-set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/winterwind")
-
-include_directories(
-	/usr/include/libxml2
-	/usr/include/jsoncpp
-	/usr/local/include/libxml2
-	/usr/local/include/jsoncpp
-	${CMAKE_CURRENT_SOURCE_DIR}/include
+install(TARGETS winterwind_unittests
+        RUNTIME DESTINATION ${BINDIR}
+        BUNDLE DESTINATION .
 )
-
-add_subdirectory(src)
-

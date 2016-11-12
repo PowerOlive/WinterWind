@@ -22,7 +22,6 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 option(ENABLE_POSTGRESQL "PostgreSQL features" TRUE)
 
 option(ENABLE_CONSOLE "Enable console features" TRUE)
@@ -32,6 +31,8 @@ option(ENABLE_ELASTICSEARCH "Enable Elasticsearch client features (requires ENAB
 option(ENABLE_GITLAB "Enable gitlab client (requires ENABLE_HTTP)" TRUE)
 option(ENABLE_REDIS "Enable redis client" TRUE)
 option(ENABLE_NAMEGENERATOR "Enable embedded name generator" TRUE)
+
+option(ENABLE_UNITTESTS "Enable library unittests" FALSE)
 
 set(SRC_FILES
 	utils/base64.cpp
@@ -102,6 +103,10 @@ endif()
 
 add_library(winterwind SHARED ${SRC_FILES})
 target_link_libraries(winterwind ${PROJECT_LIBS})
+
+if (ENABLE_UNITTESTS)
+	add_subdirectory(unittests)
+endif()
 
 install(FILES ${HEADER_FILES} DESTINATION ${INCLUDEDIR})
 
