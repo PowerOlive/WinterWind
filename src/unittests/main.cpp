@@ -97,7 +97,7 @@ protected:
 	{
 		CPPUNIT_ASSERT(m_gitlab_client->delete_groups({
 				"ww_testgroup_default_" + RUN_TIMESTAMP,
-				"ww_testgroup_default2_" + RUN_TIMESTAMP }) == GITLAB_RC_OK);
+				"ww_testgroup2_default_" + RUN_TIMESTAMP }) == GITLAB_RC_OK);
 	}
 private:
 	GitlabAPIClient *m_gitlab_client = nullptr;
