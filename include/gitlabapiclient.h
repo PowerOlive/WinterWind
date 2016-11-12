@@ -27,16 +27,27 @@
 
 #include "httpclient.h"
 
+enum GitlabRetCod
+{
+	GITLAB_RC_OK = 0,
+	GITLAB_RC_INVALID_PARAMS,
+	GITLAB_RC_INVALID_RESPONSE,
+	GITLAB_RC_UNK_OBJECT,
+};
+
 struct GitlabIssue
 {
 public:
-	GitlabIssue(const std::string &desc, bool c = false, const std::string &dd = "",
+	GitlabIssue(const std::string &t): title(t) {}
+	GitlabIssue(const std::string &t, const std::string &desc, bool c = false, const std::string &dd = "",
 		const std::vector<std::string> &l = {}):
+		title(t),
 		description(desc),
 		confidential(c),
 		due_date(dd),
 		labels(l) {}
 
+	std::string title = "";
 	std::string description = "";
 	bool confidential = false;
 	std::string due_date = "";
@@ -71,15 +82,15 @@ public:
 	// Issues
 	bool get_issue(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
 	bool get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
-	bool create_issue(const uint32_t project_id, const std::string &title, const GitlabIssue &issue);
-	bool close_issue(const uint32_t project_id, const uint32_t issue_id);
-	bool delete_issue(const uint32_t project_id, const uint32_t issue_id);
+	const GitlabRetCod create_issue(const uint32_t project_id, const GitlabIssue &issue);
+	const GitlabRetCod close_issue(const uint32_t project_id, const uint32_t issue_id);
+	const GitlabRetCod delete_issue(const uint32_t project_id, const uint32_t issue_id);
 
 	// Merge requests
 	bool get_merge_request(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
 	bool get_merge_requests(const uint32_t project_id, const std::string &filter, Json::Value &result);
-	bool close_merge_request(const uint32_t project_id, const uint32_t issue_id);
-	bool delete_merge_request(const uint32_t project_id, const uint32_t issue_id);
+	const GitlabRetCod close_merge_request(const uint32_t project_id, const uint32_t issue_id);
+	const GitlabRetCod delete_merge_request(const uint32_t project_id, const uint32_t issue_id);
 
 	// Labels
 	bool create_label(const uint32_t project_id, const std::string &label,
