@@ -10,7 +10,7 @@ gcc5:
   script:
     - mkdir -p build
     - cd build
-    - cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc ..
+    - cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DENABLE_UNITTESTS=1 ..
     - make -j4
     - ./src/unittests/winterwind_unittests $GITLAB_API_KEY
 
@@ -19,6 +19,6 @@ clang:
   script:
     - mkdir -p build
     - cd build
-    - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang ..
+    - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DENABLE_UNITTESTS=1 ..
     - make -j4
     - ./src/unittests/winterwind_unittests $GITLAB_API_KEY
