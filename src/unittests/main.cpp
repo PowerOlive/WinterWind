@@ -65,6 +65,14 @@ public:
 		// Should be done at the end
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test3 - Removal", remove_group);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test3 - Removal (multiple)", remove_groups);
+
+		/*
+		 * Gitlab client TODO
+		 * - labels
+		 * - tags
+		 * - issues
+		 * - merge requests
+		 */
 		return suiteOfTests;
 	}
 

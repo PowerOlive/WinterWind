@@ -314,8 +314,15 @@ const GitlabRetCod GitlabAPIClient::get_namespaces(const std::string &name,
 	fetch_json(m_server_uri + api_v3_endpoint + "/namespaces"
 			   + (name.length() ? "?search=" + name : ""), tmp_result);
 
-	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
+	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0
+			|| !tmp_result.isArray()) {
 		return GITLAB_RC_INVALID_RESPONSE;
+	}
+
+	for (const auto &n: tmp_result) {
+		if (!n.isMember("id") || !n.isMember("path") || !n.isMember("kind")) {
+			return GITLAB_RC_INVALID_RESPONSE;
+		}
 	}
 
 	result = tmp_result;
@@ -331,14 +338,18 @@ const GitlabRetCod GitlabAPIClient::get_namespace(const std::string &name,
 
 	Json::Value tmp_result;
 	const GitlabRetCod rc = get_namespaces(name, tmp_result);
-	if (rc == GITLAB_RC_OK) {
-		if (!tmp_result[0].isMember("id")) {
-			return GITLAB_RC_INVALID_RESPONSE;
-		}
-
-		result = tmp_result[0];
+	if (rc != GITLAB_RC_OK) {
+		return rc;
 	}
-	return rc;
+
+	for (const auto &n: tmp_result) {
+		if (n["path"].asString() == name) {
+			result = n;
+			return GITLAB_RC_OK;
+		}
+	}
+
+	return GITLAB_RC_UNK_OBJECT;
 }
 
 /*
@@ -352,8 +363,15 @@ const GitlabRetCod GitlabAPIClient::get_groups(const std::string &filter, Json::
 	fetch_json(m_server_uri + api_v3_endpoint + "/groups"
 			   + (filter.length() ? "?" + filter : ""), tmp_result);
 
-	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
+	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0
+			|| !tmp_result.isArray()) {
 		return GITLAB_RC_INVALID_RESPONSE;
+	}
+
+	for (const auto &g: tmp_result) {
+		if (!g.isMember("id") || !g.isMember("name")) {
+			return GITLAB_RC_INVALID_RESPONSE;
+		}
 	}
 
 	result = tmp_result;
@@ -368,14 +386,18 @@ const GitlabRetCod GitlabAPIClient::get_group(const std::string &name, Json::Val
 
 	Json::Value tmp_result;
 	const GitlabRetCod rc = get_groups("search=" + name, tmp_result);
-	if (rc == GITLAB_RC_OK) {
-		if (!tmp_result[0].isMember("id")) {
-			return GITLAB_RC_INVALID_RESPONSE;
-		}
-
-		result = tmp_result[0];
+	if (rc != GITLAB_RC_OK) {
+		return rc;
 	}
-	return rc;
+
+	for (const auto &g: tmp_result) {
+		if (g["name"].asString() == name) {
+			result = g;
+			return GITLAB_RC_OK;
+		}
+	}
+
+	return GITLAB_RC_UNK_OBJECT;
 }
 
 bool GitlabAPIClient::create_group(const GitlabGroup &group, Json::Value &res)
@@ -488,8 +510,15 @@ const GitlabRetCod GitlabAPIClient::get_projects(const std::string &name,
 		return GITLAB_RC_INVALID_RESPONSE;
 	}
 
-	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
+	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0
+			|| !tmp_result.isArray()) {
 		return GITLAB_RC_INVALID_RESPONSE;
+	}
+
+	for (const auto &p: tmp_result) {
+		if (!p.isMember("id") || !p.isMember("name") || !p.isMember("http_url_to_repo")) {
+			return GITLAB_RC_INVALID_RESPONSE;
+		}
 	}
 
 	result = tmp_result;
@@ -505,14 +534,18 @@ const GitlabRetCod GitlabAPIClient::get_project(const std::string &name,
 
 	Json::Value tmp_result;
 	const GitlabRetCod rc = get_projects(name, tmp_result, search_scope);
-	if (rc == GITLAB_RC_OK) {
-		if (!tmp_result[0].isMember("id")) {
-			return GITLAB_RC_INVALID_RESPONSE;
-		}
-
-		result = tmp_result[0];
+	if (rc != GITLAB_RC_OK) {
+		return rc;
 	}
-	return rc;
+
+	for (const auto &p: tmp_result) {
+		if (p["name"].asString() == name) {
+			result = p;
+			return GITLAB_RC_OK;
+		}
+	}
+
+	return GITLAB_RC_UNK_OBJECT;
 }
 
 const GitlabRetCod GitlabAPIClient::delete_project(const std::string &name)
