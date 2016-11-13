@@ -81,6 +81,13 @@ enum GitlabGroupVisibility
 	GITLAB_GROUP_PUBLIC = 20,
 };
 
+enum GitlabProjectVisibility
+{
+	GITLAB_PROJECT_PRIVATE = 0,
+	GITLAB_PROJECT_INTERNAL = 10,
+	GITLAB_PROJECT_PUBLIC = 20,
+};
+
 struct GitlabGroup
 {
 public:
@@ -94,6 +101,40 @@ public:
 	GitlabGroupVisibility visibility = GITLAB_GROUP_PRIVATE;
 	bool enable_lfs = false;
 	bool access_requests = true;
+};
+
+struct GitlabProject
+{
+public:
+	GitlabProject(const std::string &n):
+		name(n) {}
+
+	std::string name = "";
+	std::string path = "";
+	uint32_t namespace_id = 0;
+	std::string description = "";
+	bool issues_enabled = true;
+	bool merge_requests_enabled = true;
+	bool builds_enabled = true;
+	bool wiki_enabled = true;
+	bool snippets_enabled = true;
+	bool container_registry_enabled = false;
+	bool shared_runners_enabled = false;
+	GitlabProjectVisibility visibility_level = GITLAB_PROJECT_PUBLIC;
+	bool public_builds = true;
+	bool only_allow_merge_if_build_succeeds = false;
+	bool only_allow_merge_if_all_discussions_are_resolved = false;
+	bool lfs_enabled = false;
+	bool request_access_enabled = true;
+};
+
+enum GitlabProjectSearchScope
+{
+	GITLAB_PROJECT_SS_STANDARD,
+	GITLAB_PROJECT_SS_ALL,
+	GITLAB_PROJECT_SS_VISIBLE,
+	GITLAB_PROJECT_SS_OWNED,
+	GITLAB_PROJECT_SS_STARRED,
 };
 
 class GitlabAPIClient: public HTTPClient
@@ -128,12 +169,25 @@ public:
 	const GitlabRetCod create_tag(const uint32_t project_id, const GitlabTag &tag);
 	const GitlabRetCod delete_tag(const uint32_t project_id, const std::string &tag_name);
 
+	// Namespaces
+	const GitlabRetCod get_namespaces(const std::string &name, Json::Value &result);
+	const GitlabRetCod get_namespace(const std::string &name, Json::Value &result);
+
 	// Groups
 	const GitlabRetCod get_groups(const std::string &filter, Json::Value &result);
 	const GitlabRetCod get_group(const std::string &name, Json::Value &result);
 	bool create_group(const GitlabGroup &group, Json::Value &res);
 	const GitlabRetCod delete_group(const std::string &name);
 	const GitlabRetCod delete_groups(const std::vector<std::string> &groups);
+
+	// Projects
+	const GitlabRetCod create_project(const GitlabProject &project, Json::Value &res);
+	const GitlabRetCod get_projects(const std::string &name, Json::Value &result,
+			GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+	const GitlabRetCod get_project(const std::string &name, Json::Value &result,
+			GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+	const GitlabRetCod delete_project(const std::string &name);
+	const GitlabRetCod delete_projects(const std::vector<std::string> &projects);
 private:
 	void build_issue_data(const GitlabIssue &issue, std::string &post_data);
 
