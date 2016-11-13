@@ -161,9 +161,18 @@ public:
 	const GitlabRetCod delete_merge_request(const uint32_t project_id, const uint32_t issue_id);
 
 	// Labels
-	bool create_label(const uint32_t project_id, const std::string &label,
+	const GitlabRetCod get_labels(const uint32_t project_id, Json::Value &result);
+	const GitlabRetCod get_label(const uint32_t project_id, const std::string &name,
+			Json::Value &result);
+	const GitlabRetCod get_label(const std::string &ns, const std::string &project,
+			const std::string &name, Json::Value &result);
+	const GitlabRetCod create_label(const uint32_t project_id, const std::string &label,
 			const std::string &color_id, Json::Value &res);
-	bool delete_label(const uint32_t project_id, const std::string &label);
+	const GitlabRetCod create_label(const std::string &ns, const std::string &project,
+			const std::string &label, const std::string &color_id, Json::Value &res);
+	const GitlabRetCod delete_label(const uint32_t project_id, const std::string &label);
+	const GitlabRetCod delete_label(const std::string &ns, const std::string &project,
+			const std::string &label);
 
 	// Tags
 	const GitlabRetCod create_tag(const uint32_t project_id, const GitlabTag &tag);
@@ -185,6 +194,9 @@ public:
 	const GitlabRetCod get_projects(const std::string &name, Json::Value &result,
 			GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod get_project(const std::string &name, Json::Value &result,
+			GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+	const GitlabRetCod get_project_ns(const std::string &name, const std::string &ns,
+			Json::Value &result,
 			GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod delete_project(const std::string &name);
 	const GitlabRetCod delete_projects(const std::vector<std::string> &projects);

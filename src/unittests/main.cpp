@@ -59,10 +59,14 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "Project - Test2 - Creation (parameters)", create_project);
 		CPPUNIT_ADDTEST(WinterWindTests, "Project - Test3 - Get (multiple)", get_projects);
 		CPPUNIT_ADDTEST(WinterWindTests, "Project - Test4 - Get", get_project);
-		CPPUNIT_ADDTEST(WinterWindTests, "Project - Test5 - Removal", remove_project);
-		CPPUNIT_ADDTEST(WinterWindTests, "Project - Test6 - Removal (multiple)", remove_projects);
+		CPPUNIT_ADDTEST(WinterWindTests, "Project - Test5 - Get (with namespace)", get_project_ns);
+		CPPUNIT_ADDTEST(WinterWindTests, "Label - Test1 - Creation", create_label);
+		CPPUNIT_ADDTEST(WinterWindTests, "Label - Test2 - Get", get_label);
+		CPPUNIT_ADDTEST(WinterWindTests, "Label - Test3 - Removal", remove_label);
 
 		// Should be done at the end
+		CPPUNIT_ADDTEST(WinterWindTests, "Project - Test5 - Removal", remove_project);
+		CPPUNIT_ADDTEST(WinterWindTests, "Project - Test6 - Removal (multiple)", remove_projects);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test3 - Removal", remove_group);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test3 - Removal (multiple)", remove_groups);
 
@@ -99,7 +103,7 @@ protected:
 	void create_group()
 	{
 		Json::Value res;
-		GitlabGroup g("ww_testgroup_" + RUN_TIMESTAMP, "ww_testgroup_" + RUN_TIMESTAMP);
+		GitlabGroup g(TEST_GROUP, TEST_GROUP);
 		g.description = "test";
 		g.visibility = GITLAB_GROUP_PUBLIC;
 		CPPUNIT_ASSERT(m_gitlab_client->create_group(g, res));
@@ -114,7 +118,7 @@ protected:
 
 	void remove_group()
 	{
-		CPPUNIT_ASSERT(m_gitlab_client->delete_group("ww_testgroup_" + RUN_TIMESTAMP) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(m_gitlab_client->delete_group(TEST_GROUP) == GITLAB_RC_OK);
 	}
 
 	void remove_groups()
@@ -178,6 +182,14 @@ protected:
 		CPPUNIT_ASSERT(res.isMember("name_with_namespace"));
 	}
 
+	void get_project_ns()
+	{
+		Json::Value res;
+		CPPUNIT_ASSERT(m_gitlab_client->get_project_ns(
+			"ww_testproj_" + RUN_TIMESTAMP, TEST_GROUP, res) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(res.isMember("avatar_url"));
+	}
+
 	void remove_project()
 	{
 		CPPUNIT_ASSERT(m_gitlab_client->delete_project(
@@ -190,9 +202,34 @@ protected:
 				"ww_testproj1_default_" + RUN_TIMESTAMP,
 				"ww_testproj2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
 	}
+
+	void create_label()
+	{
+		Json::Value result;
+		CPPUNIT_ASSERT(m_gitlab_client->create_label(TEST_GROUP,
+				"ww_testproj_" + RUN_TIMESTAMP, TEST_LABEL, TEST_COLOR, result)
+				== GITLAB_RC_OK);
+	}
+
+	void get_label()
+	{
+		Json::Value result;
+		CPPUNIT_ASSERT(m_gitlab_client->get_label(TEST_GROUP,
+				"ww_testproj_" + RUN_TIMESTAMP, TEST_LABEL, result) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(result.isMember("color") && result["color"].asString() == TEST_COLOR);
+	}
+
+	void remove_label()
+	{
+		CPPUNIT_ASSERT(m_gitlab_client->delete_label(TEST_GROUP,
+				"ww_testproj_" + RUN_TIMESTAMP, TEST_LABEL) == GITLAB_RC_OK);
+	}
 private:
 	GitlabAPIClient *m_gitlab_client = nullptr;
 	uint32_t m_testing_namespace_id = 0;
+	std::string TEST_COLOR = "#005577";
+	std::string TEST_GROUP = "ww_testgroup_" + RUN_TIMESTAMP;
+	std::string TEST_LABEL = "test_label_1";
 };
 
 int main(int argc, const char* argv[])
