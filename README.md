@@ -44,10 +44,10 @@ You need a full C++11 compliant compiler to use this library (GCC 5.1 or Clang 3
 
 * __ENABLE_CONSOLE__: enable ConsoleThread support
 * __ENABLE_POSTGRESQL__: enable Postgresql C++ client
-* __ENABLE_HTTP__: enable HTTP client support
-* __ENABLE_CALDAV__: enable caldav client support (needs ENABLE_HTTP)
-* __ENABLE_ELASTICSEARCH__: enable Elasticsearch client support (needs ENABLE_HTTP)
-* __ENABLE_GITLAB__: enable Gitlab client support (needs ENABLE_HTTP)
+* __ENABLE_HTTPCLIENT__: enable HTTP client support
+* __ENABLE_CALDAV__: enable caldav client support (needs ENABLE_HTTPCLIENT)
+* __ENABLE_ELASTICSEARCH__: enable Elasticsearch client support (needs ENABLE_HTTPCLIENT)
+* __ENABLE_GITLAB__: enable Gitlab client support (needs ENABLE_HTTPCLIENT)
 * __ENABLE_NAMEGENERATOR__: enable Name Generator support
 * __ENABLE_REDIS__: enable Redis client support
 

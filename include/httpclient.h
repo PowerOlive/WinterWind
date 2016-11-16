@@ -28,18 +28,11 @@
 #include <string>
 #include <json/json.h>
 #include <unordered_map>
+#include "httpcommon.h"
 #include "xmlparser.h"
 
-enum HTTPClientMethod {
-	HTTPCLIENT_METHOD_DELETE,
-	HTTPCLIENT_METHOD_GET,
-	HTTPCLIENT_METHOD_HEAD,
-	HTTPCLIENT_METHOD_PATCH,
-	HTTPCLIENT_METHOD_PROPFIND,
-	HTTPCLIENT_METHOD_PUT,
-};
-
-enum HTTPClientReqFlag {
+enum HTTPClientReqFlag
+{
 	HTTPCLIENT_REQ_SIMPLE = 0x01,
 	HTTPCLIENT_REQ_AUTH = 0x02,
 	HTTPCLIENT_REQ_NO_VERIFY_PEER = 0x04,
@@ -54,43 +47,43 @@ public:
 	virtual ~HTTPClient();
 
 	void perform_request(const std::string &url, std::string &res, int32_t
-		flag = HTTPCLIENT_REQ_SIMPLE, HTTPClientMethod method = HTTPCLIENT_METHOD_GET,
+		flag = HTTPCLIENT_REQ_SIMPLE, HTTPMethod method = HTTP_METHOD_GET,
 		const std::string &post_data = "");
 
 	inline void perform_post(const std::string &url, const std::string &post_data,
 		std::string &res, int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		perform_request(url, res, flag, HTTPCLIENT_METHOD_GET, post_data);
+		perform_request(url, res, flag, HTTP_METHOD_GET, post_data);
 	}
 
 	inline void perform_get(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		perform_request(url, res, flag, HTTPCLIENT_METHOD_GET, "");
+		perform_request(url, res, flag, HTTP_METHOD_GET, "");
 	}
 
 	inline void perform_delete(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		perform_request(url, res, flag, HTTPCLIENT_METHOD_DELETE, "");
+		perform_request(url, res, flag, HTTP_METHOD_DELETE, "");
 	}
 
 	inline void perform_head(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		perform_request(url, res, flag, HTTPCLIENT_METHOD_HEAD, "");
+		perform_request(url, res, flag, HTTP_METHOD_HEAD, "");
 	}
 
 	inline void perform_propfind(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE, const std::string &post_data = "")
 	{
-		perform_request(url, res, flag, HTTPCLIENT_METHOD_PROPFIND, post_data);
+		perform_request(url, res, flag, HTTP_METHOD_PROPFIND, post_data);
 	}
 
 	inline void perform_put(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE, const std::string &post_data = "")
 	{
-		perform_request(url, res, flag, HTTPCLIENT_METHOD_PUT, post_data);
+		perform_request(url, res, flag, HTTP_METHOD_PUT, post_data);
 	}
 
 	void fetch_html_tag_value(const std::string &url, const std::string &xpath,

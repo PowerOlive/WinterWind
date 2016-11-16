@@ -92,7 +92,7 @@ void ElasticsearchClient::create_doc(const std::string &index, const std::string
 	const ElasticsearchNode &node = get_fresh_node();
 	std::string res;
 	perform_request(node.http_addr + "/" + index + "/" + type + "/", res,
-		HTTPCLIENT_REQ_SIMPLE, HTTPCLIENT_METHOD_GET, doc.toStyledString());
+		HTTPCLIENT_REQ_SIMPLE, HTTP_METHOD_GET, doc.toStyledString());
 }
 
 void ElasticsearchClient::insert_doc(const std::string &index, const std::string &type,
