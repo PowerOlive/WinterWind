@@ -29,6 +29,9 @@
 #define ADD_REQ_FIELD_IF_NOT_EMPTY(r, n, f) \
 	if (!f.empty()) { r[n] = f; }
 
+#define GITLAB_RC_HTTP_CODE(c) \
+	m_http_code == 503 ? GITLAB_RC_SERVICE_UNAVAILABLE : GITLAB_RC_##c
+
 const std::string GitlabAPIClient::api_v3_endpoint = "/api/v3";
 
 /*
@@ -45,7 +48,7 @@ const GitlabRetCod GitlabAPIClient::get_issues(const uint32_t project_id, const 
 			   + (filter.length() ? "?" + filter : ""), tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
-		return GITLAB_RC_INVALID_RESPONSE;
+		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);
 	}
 
 	result = tmp_result;
@@ -61,7 +64,20 @@ const GitlabRetCod GitlabAPIClient::get_issue(const uint32_t project_id, const u
 		return tmp_result[0].isMember("id") ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE;
 	}
 
-	return GITLAB_RC_UNK_OBJECT;
+	return GITLAB_RC_NOT_FOUND;
+}
+
+const GitlabRetCod GitlabAPIClient::get_issue(const std::string &ns,
+		const std::string &project, const uint32_t issue_id, Json::Value &result,
+		GitlabProjectSearchScope search_scope)
+{
+	Json::Value p_result;
+	GitlabRetCod rc = get_project_ns(project, ns, p_result, search_scope);
+	if (rc != GITLAB_RC_OK) {
+		return rc;
+	}
+
+	return get_issue(p_result["id"].asUInt(), issue_id, result);
 }
 
 const GitlabRetCod GitlabAPIClient::create_issue(const uint32_t project_id,
@@ -89,7 +105,7 @@ const GitlabRetCod GitlabAPIClient::modify_issue(const uint32_t project_id,
 
 	Json::Value issue_res;
 	if (!get_issue(project_id, issue_id, issue_res)) {
-		return GITLAB_RC_UNK_OBJECT;
+		return GITLAB_RC_NOT_FOUND;
 	}
 
 	std::string res = "", post_data = "";
@@ -146,7 +162,7 @@ const GitlabRetCod GitlabAPIClient::close_issue(const uint32_t project_id,
 {
 	Json::Value issue_res;
 	if (!get_issue(project_id, issue_id, issue_res)) {
-		return GITLAB_RC_UNK_OBJECT;
+		return GITLAB_RC_NOT_FOUND;
 	}
 
 	std::string res;
@@ -161,7 +177,7 @@ const GitlabRetCod GitlabAPIClient::delete_issue(const uint32_t project_id, cons
 {
 	Json::Value issue_result;
 	if (!get_issue(project_id, issue_id, issue_result)) {
-		return GITLAB_RC_UNK_OBJECT;
+		return GITLAB_RC_NOT_FOUND;
 	}
 
 	std::string res;
@@ -185,7 +201,7 @@ const GitlabRetCod GitlabAPIClient::get_merge_requests(const uint32_t project_id
 				+ (filter.length() ? "?" + filter : ""), tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
-		return GITLAB_RC_INVALID_RESPONSE;
+		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);
 	}
 
 	result = tmp_result;
@@ -200,14 +216,14 @@ const GitlabRetCod GitlabAPIClient::get_merge_request(const uint32_t project_id,
 		result = tmp_result[0];
 		return GITLAB_RC_OK;
 	}
-	return GITLAB_RC_UNK_OBJECT;
+	return GITLAB_RC_NOT_FOUND;
 }
 
 const GitlabRetCod GitlabAPIClient::close_merge_request(const uint32_t project_id, const uint32_t issue_id)
 {
 	Json::Value mr_result;
 	if (!get_merge_request(project_id, issue_id, mr_result)) {
-		return GITLAB_RC_UNK_OBJECT;
+		return GITLAB_RC_NOT_FOUND;
 	}
 
 	std::string res;
@@ -222,7 +238,7 @@ const GitlabRetCod GitlabAPIClient::delete_merge_request(const uint32_t project_
 {
 	Json::Value mr_result;
 	if (!get_merge_request(project_id, issue_id, mr_result)) {
-		return GITLAB_RC_UNK_OBJECT;
+		return GITLAB_RC_NOT_FOUND;
 	}
 
 	std::string res;
@@ -247,7 +263,7 @@ const GitlabRetCod GitlabAPIClient::get_labels(const uint32_t project_id,
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0
 		|| !tmp_result.isArray()) {
-		return GITLAB_RC_INVALID_RESPONSE;
+		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);;
 	}
 
 	for (const auto &l: tmp_result) {
@@ -280,7 +296,7 @@ const GitlabRetCod GitlabAPIClient::get_label(const uint32_t project_id,
 		}
 	}
 
-	return GITLAB_RC_UNK_OBJECT;
+	return GITLAB_RC_NOT_FOUND;
 }
 
 const GitlabRetCod GitlabAPIClient::create_label(const uint32_t project_id,
@@ -385,7 +401,7 @@ const GitlabRetCod GitlabAPIClient::delete_tag(const uint32_t project_id,
 	add_http_header("PRIVATE-TOKEN", m_api_token);
 	perform_delete(m_server_uri + api_v3_endpoint + "/projects/"
 				   + std::to_string(project_id) + "/tags/" + encoded_tag, res);
-	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_UNK_OBJECT);
+	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_NOT_FOUND);
 }
 
 /*
@@ -402,7 +418,7 @@ const GitlabRetCod GitlabAPIClient::get_namespaces(const std::string &name,
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0
 			|| !tmp_result.isArray()) {
-		return GITLAB_RC_INVALID_RESPONSE;
+		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);;
 	}
 
 	for (const auto &n: tmp_result) {
@@ -435,7 +451,7 @@ const GitlabRetCod GitlabAPIClient::get_namespace(const std::string &name,
 		}
 	}
 
-	return GITLAB_RC_UNK_OBJECT;
+	return GITLAB_RC_NOT_FOUND;
 }
 
 /*
@@ -451,7 +467,7 @@ const GitlabRetCod GitlabAPIClient::get_groups(const std::string &filter, Json::
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0
 			|| !tmp_result.isArray()) {
-		return GITLAB_RC_INVALID_RESPONSE;
+		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);
 	}
 
 	for (const auto &g: tmp_result) {
@@ -483,7 +499,7 @@ const GitlabRetCod GitlabAPIClient::get_group(const std::string &name, Json::Val
 		}
 	}
 
-	return GITLAB_RC_UNK_OBJECT;
+	return GITLAB_RC_NOT_FOUND;
 }
 
 bool GitlabAPIClient::create_group(const GitlabGroup &group, Json::Value &res)
@@ -593,7 +609,7 @@ const GitlabRetCod GitlabAPIClient::get_projects(const std::string &name,
 	add_http_header("PRIVATE-TOKEN", m_api_token);
 	if (!fetch_json(m_server_uri + api_v3_endpoint + "/projects" + endpoint_suffix,
 			tmp_result)) {
-		return GITLAB_RC_INVALID_RESPONSE;
+		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);;
 	}
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0
@@ -633,7 +649,7 @@ const GitlabRetCod GitlabAPIClient::get_project(const std::string &name,
 		}
 	}
 
-	return GITLAB_RC_UNK_OBJECT;
+	return GITLAB_RC_NOT_FOUND;
 }
 
 const GitlabRetCod GitlabAPIClient::get_project_ns(const std::string &name,
@@ -656,7 +672,7 @@ const GitlabRetCod GitlabAPIClient::get_project_ns(const std::string &name,
 		}
 	}
 
-	return GITLAB_RC_UNK_OBJECT;
+	return GITLAB_RC_NOT_FOUND;
 }
 
 const GitlabRetCod GitlabAPIClient::delete_project(const std::string &name)

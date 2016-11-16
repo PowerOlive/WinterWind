@@ -32,7 +32,8 @@ enum GitlabRetCod
 	GITLAB_RC_OK = 0,
 	GITLAB_RC_INVALID_PARAMS,
 	GITLAB_RC_INVALID_RESPONSE,
-	GITLAB_RC_UNK_OBJECT,
+	GITLAB_RC_SERVICE_UNAVAILABLE,
+	GITLAB_RC_NOT_FOUND,
 };
 
 struct GitlabIssue
@@ -148,6 +149,9 @@ public:
 	// Issues
 	const GitlabRetCod get_issue(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
 	const GitlabRetCod get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
+	const GitlabRetCod get_issue(const std::string &ns, const std::string &project,
+			const uint32_t issue_id, Json::Value &result,
+			GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod create_issue(const uint32_t project_id, const GitlabIssue &issue);
 	const GitlabRetCod modify_issue(const uint32_t project_id, const uint32_t issue_id,
 			const GitlabIssue &issue);
