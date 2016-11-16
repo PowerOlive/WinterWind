@@ -35,7 +35,7 @@ const std::string GitlabAPIClient::api_v3_endpoint = "/api/v3";
  * Issues
  */
 
-bool GitlabAPIClient::get_issues(const uint32_t project_id, const std::string &filter,
+const GitlabRetCod GitlabAPIClient::get_issues(const uint32_t project_id, const std::string &filter,
 		Json::Value &result)
 {
 	Json::Value tmp_result;
@@ -45,23 +45,23 @@ bool GitlabAPIClient::get_issues(const uint32_t project_id, const std::string &f
 			   + (filter.length() ? "?" + filter : ""), tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
-		return false;
+		return GITLAB_RC_INVALID_RESPONSE;
 	}
 
 	result = tmp_result;
-	return true;
+	return GITLAB_RC_OK;
 }
 
-bool GitlabAPIClient::get_issue(const uint32_t project_id, const uint32_t issue_id,
+const GitlabRetCod GitlabAPIClient::get_issue(const uint32_t project_id, const uint32_t issue_id,
 		Json::Value &result)
 {
 	Json::Value tmp_result;
 	if (get_issues(project_id, "iid=" + std::to_string(issue_id), tmp_result)) {
 		result = tmp_result[0];
-		return tmp_result[0].isMember("id");
+		return tmp_result[0].isMember("id") ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE;
 	}
 
-	return false;
+	return GITLAB_RC_UNK_OBJECT;
 }
 
 const GitlabRetCod GitlabAPIClient::create_issue(const uint32_t project_id,
@@ -175,7 +175,7 @@ const GitlabRetCod GitlabAPIClient::delete_issue(const uint32_t project_id, cons
  * Merge requests
  */
 
-bool GitlabAPIClient::get_merge_requests(const uint32_t project_id, const std::string &filter,
+const GitlabRetCod GitlabAPIClient::get_merge_requests(const uint32_t project_id, const std::string &filter,
 		Json::Value &result)
 {
 	Json::Value tmp_result;
@@ -185,22 +185,22 @@ bool GitlabAPIClient::get_merge_requests(const uint32_t project_id, const std::s
 				+ (filter.length() ? "?" + filter : ""), tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
-		return false;
+		return GITLAB_RC_INVALID_RESPONSE;
 	}
 
 	result = tmp_result;
-	return true;
+	return GITLAB_RC_OK;
 }
 
-bool GitlabAPIClient::get_merge_request(const uint32_t project_id, const uint32_t issue_id,
+const GitlabRetCod GitlabAPIClient::get_merge_request(const uint32_t project_id, const uint32_t issue_id,
 		Json::Value &result)
 {
 	Json::Value tmp_result;
 	if (get_merge_requests(project_id, "iid=" + std::to_string(issue_id), tmp_result)) {
 		result = tmp_result[0];
-		return true;
+		return GITLAB_RC_OK;
 	}
-	return false;
+	return GITLAB_RC_UNK_OBJECT;
 }
 
 const GitlabRetCod GitlabAPIClient::close_merge_request(const uint32_t project_id, const uint32_t issue_id)

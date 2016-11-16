@@ -146,8 +146,8 @@ public:
 	{}
 
 	// Issues
-	bool get_issue(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
-	bool get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
+	const GitlabRetCod get_issue(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
+	const GitlabRetCod get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
 	const GitlabRetCod create_issue(const uint32_t project_id, const GitlabIssue &issue);
 	const GitlabRetCod modify_issue(const uint32_t project_id, const uint32_t issue_id,
 			const GitlabIssue &issue);
@@ -155,8 +155,8 @@ public:
 	const GitlabRetCod delete_issue(const uint32_t project_id, const uint32_t issue_id);
 
 	// Merge requests
-	bool get_merge_request(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
-	bool get_merge_requests(const uint32_t project_id, const std::string &filter, Json::Value &result);
+	const GitlabRetCod get_merge_request(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
+	const GitlabRetCod get_merge_requests(const uint32_t project_id, const std::string &filter, Json::Value &result);
 	const GitlabRetCod close_merge_request(const uint32_t project_id, const uint32_t issue_id);
 	const GitlabRetCod delete_merge_request(const uint32_t project_id, const uint32_t issue_id);
 
