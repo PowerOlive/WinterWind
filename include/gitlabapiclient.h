@@ -151,7 +151,7 @@ public:
 	const GitlabRetCod get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
 	const GitlabRetCod get_issue(const std::string &ns, const std::string &project,
 			const uint32_t issue_id, Json::Value &result,
-			GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+			const GitlabProjectSearchScope proj_search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod create_issue(const uint32_t project_id, const GitlabIssue &issue);
 	const GitlabRetCod modify_issue(const uint32_t project_id, const uint32_t issue_id,
 			const GitlabIssue &issue);
@@ -169,7 +169,8 @@ public:
 	const GitlabRetCod get_label(const uint32_t project_id, const std::string &name,
 			Json::Value &result);
 	const GitlabRetCod get_label(const std::string &ns, const std::string &project,
-			const std::string &name, Json::Value &result);
+			const std::string &name, Json::Value &result,
+			const GitlabProjectSearchScope proj_search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod create_label(const uint32_t project_id, const std::string &label,
 			const std::string &color_id, Json::Value &res);
 	const GitlabRetCod create_label(const std::string &ns, const std::string &project,
@@ -196,12 +197,12 @@ public:
 	// Projects
 	const GitlabRetCod create_project(const GitlabProject &project, Json::Value &res);
 	const GitlabRetCod get_projects(const std::string &name, Json::Value &result,
-			GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+			const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod get_project(const std::string &name, Json::Value &result,
-			GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+			const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod get_project_ns(const std::string &name, const std::string &ns,
 			Json::Value &result,
-			GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+			const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod delete_project(const std::string &name);
 	const GitlabRetCod delete_projects(const std::vector<std::string> &projects);
 private:

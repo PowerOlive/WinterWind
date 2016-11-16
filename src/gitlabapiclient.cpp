@@ -69,10 +69,10 @@ const GitlabRetCod GitlabAPIClient::get_issue(const uint32_t project_id, const u
 
 const GitlabRetCod GitlabAPIClient::get_issue(const std::string &ns,
 		const std::string &project, const uint32_t issue_id, Json::Value &result,
-		GitlabProjectSearchScope search_scope)
+		const GitlabProjectSearchScope proj_search_scope)
 {
 	Json::Value p_result;
-	GitlabRetCod rc = get_project_ns(project, ns, p_result, search_scope);
+	GitlabRetCod rc = get_project_ns(project, ns, p_result, proj_search_scope);
 	if (rc != GITLAB_RC_OK) {
 		return rc;
 	}
@@ -330,10 +330,11 @@ const GitlabRetCod GitlabAPIClient::create_label(const std::string &ns,
 }
 
 const GitlabRetCod GitlabAPIClient::get_label(const std::string &ns,
-		const std::string &project, const std::string &name, Json::Value &result)
+		const std::string &project, const std::string &name, Json::Value &result,
+		const GitlabProjectSearchScope proj_search_scope)
 {
 	Json::Value p_result;
-	GitlabRetCod rc = get_project_ns(project, ns, p_result);
+	GitlabRetCod rc = get_project_ns(project, ns, p_result, proj_search_scope);
 	if (rc != GITLAB_RC_OK) {
 		return rc;
 	}
@@ -588,7 +589,7 @@ const GitlabRetCod GitlabAPIClient::create_project(const GitlabProject &project,
 }
 
 const GitlabRetCod GitlabAPIClient::get_projects(const std::string &name,
-		Json::Value &result, GitlabProjectSearchScope search_scope)
+		Json::Value &result, const GitlabProjectSearchScope search_scope)
 {
 	Json::Value tmp_result;
 	std::string endpoint_suffix = "";
@@ -630,7 +631,7 @@ const GitlabRetCod GitlabAPIClient::get_projects(const std::string &name,
 }
 
 const GitlabRetCod GitlabAPIClient::get_project(const std::string &name,
-		Json::Value &result, GitlabProjectSearchScope search_scope)
+		Json::Value &result, const GitlabProjectSearchScope search_scope)
 {
 	if (name.empty()) {
 		return GITLAB_RC_INVALID_PARAMS;
@@ -653,7 +654,8 @@ const GitlabRetCod GitlabAPIClient::get_project(const std::string &name,
 }
 
 const GitlabRetCod GitlabAPIClient::get_project_ns(const std::string &name,
-		const std::string &ns, Json::Value &result, GitlabProjectSearchScope search_scope)
+		const std::string &ns, Json::Value &result,
+		const GitlabProjectSearchScope search_scope)
 {
 	if (name.empty()) {
 		return GITLAB_RC_INVALID_PARAMS;
