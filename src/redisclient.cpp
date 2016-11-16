@@ -81,7 +81,7 @@ void RedisClient::connect()
 }
 
 #define REDIS_REPLY_HANDLER if (!reply) { \
-	std::cout << "Redis " << __FUNCTION__ << " error: " << m_context->errstr \
+	std::cerr << "Redis " << __FUNCTION__ << " error: " << m_context->errstr \
 			<< std::endl; \
 	return false; \
 }
