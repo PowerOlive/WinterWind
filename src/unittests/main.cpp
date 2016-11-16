@@ -72,7 +72,6 @@ public:
 
 		/*
 		 * Gitlab client TODO
-		 * - labels
 		 * - tags
 		 * - issues
 		 * - merge requests
