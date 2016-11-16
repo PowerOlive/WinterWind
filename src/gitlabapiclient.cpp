@@ -59,7 +59,8 @@ const GitlabRetCod GitlabAPIClient::get_issue(const uint32_t project_id, const u
 		Json::Value &result)
 {
 	Json::Value tmp_result;
-	if (get_issues(project_id, "iid=" + std::to_string(issue_id), tmp_result)) {
+	if (get_issues(project_id, "iid=" + std::to_string(issue_id), tmp_result)
+			== GITLAB_RC_OK) {
 		result = tmp_result[0];
 		return tmp_result[0].isMember("id") ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE;
 	}
@@ -212,7 +213,8 @@ const GitlabRetCod GitlabAPIClient::get_merge_request(const uint32_t project_id,
 		Json::Value &result)
 {
 	Json::Value tmp_result;
-	if (get_merge_requests(project_id, "iid=" + std::to_string(issue_id), tmp_result)) {
+	if (get_merge_requests(project_id, "iid=" + std::to_string(issue_id), tmp_result)
+			== GITLAB_RC_OK) {
 		result = tmp_result[0];
 		return GITLAB_RC_OK;
 	}
