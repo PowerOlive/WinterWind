@@ -59,13 +59,7 @@ public:
 			const char *url, const char *method, const char *version,
 			const char *upload_data, size_t *upload_data_size, void **ptr);
 
-	bool handle_get(MHD_Connection *conn, const std::string &url, std::string &result);
-	bool handle_post(MHD_Connection *conn, const std::string &url, std::string &result);
-	bool handle_put(MHD_Connection *conn, const std::string &url, std::string &result);
-	bool handle_patch(MHD_Connection *conn, const std::string &url, std::string &result);
-	bool handle_propfind(MHD_Connection *conn, const std::string &url, std::string &result);
-	bool handle_delete(MHD_Connection *conn, const std::string &url, std::string &result);
-	bool handle_head(MHD_Connection *conn, const std::string &url, std::string &result);
+	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, std::string &result);
 
 	void register_handler(HTTPMethod method, const std::string &url,
 		const std::function<bool(const HTTPQueryParams &, std::string &)> &hdl, const std::vector<std::string> &qp)

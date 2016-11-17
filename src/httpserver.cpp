@@ -93,18 +93,8 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 
 	*ptr = NULL; /* clear context pointer */
 
-	std::string url_str(url);
 	std::string result = "";
-	switch (http_method) {
-		case HTTP_METHOD_GET: httpd->handle_get(connection, url_str, result); break;
-		case HTTP_METHOD_POST: httpd->handle_post(connection, url_str, result); break;
-		case HTTP_METHOD_PUT: httpd->handle_put(connection, url_str, result); break;
-		case HTTP_METHOD_PATCH: httpd->handle_patch(connection, url_str, result); break;
-		case HTTP_METHOD_PROPFIND: httpd->handle_propfind(connection, url_str, result); break;
-		case HTTP_METHOD_DELETE: httpd->handle_delete(connection, url_str, result); break;
-		case HTTP_METHOD_HEAD: httpd->handle_head(connection, url_str, result); break;
-		default: assert(false); // This should not happen
-	}
+	httpd->handle_query(http_method, connection, std::string(url), result);
 
 	response = MHD_create_response_from_buffer(result.length(),
 			(void*) result.c_str(), MHD_RESPMEM_PERSISTENT);
@@ -113,11 +103,11 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 	return ret;
 }
 
-bool HTTPServer::handle_get(MHD_Connection *conn, const std::string &url, std::string &result)
+bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, std::string &result)
 {
 	std::cout << url << std::endl;
-	HTTPServerReqHandlerMap::const_iterator url_handler = m_handlers[HTTP_METHOD_GET].find(url);
-	if (url_handler == m_handlers[HTTP_METHOD_GET].end()) {
+	HTTPServerReqHandlerMap::const_iterator url_handler = m_handlers[m].find(url);
+	if (url_handler == m_handlers[m].end()) {
 		return false;
 	}
 
@@ -130,64 +120,3 @@ bool HTTPServer::handle_get(MHD_Connection *conn, const std::string &url, std::s
 
 	return url_handler->second.handler(rp, result);
 }
-
-bool HTTPServer::handle_delete(MHD_Connection *conn, const std::string &url, std::string &result)
-{
-	HTTPServerReqHandlerMap &url_handler = m_handlers[HTTP_METHOD_DELETE];
-	if (url_handler.find(url) == url_handler.end()) {
-		return false;
-	}
-
-	return true;
-}
-
-bool HTTPServer::handle_head(MHD_Connection *conn, const std::string &url, std::string &result)
-{
-	HTTPServerReqHandlerMap &url_handler = m_handlers[HTTP_METHOD_HEAD];
-	if (url_handler.find(url) == url_handler.end()) {
-		return false;
-	}
-
-	return true;
-}
-
-bool HTTPServer::handle_patch(MHD_Connection *conn, const std::string &url, std::string &result)
-{
-	HTTPServerReqHandlerMap &url_handler = m_handlers[HTTP_METHOD_PATCH];
-	if (url_handler.find(url) == url_handler.end()) {
-		return false;
-	}
-
-	return true;
-}
-
-bool HTTPServer::handle_post(MHD_Connection *conn, const std::string &url, std::string &result)
-{
-	HTTPServerReqHandlerMap &url_handler = m_handlers[HTTP_METHOD_POST];
-	if (url_handler.find(url) == url_handler.end()) {
-		return false;
-	}
-
-	return true;
-}
-
-bool HTTPServer::handle_put(MHD_Connection *conn, const std::string &url, std::string &result)
-{
-	HTTPServerReqHandlerMap &url_handler = m_handlers[HTTP_METHOD_PUT];
-	if (url_handler.find(url) == url_handler.end()) {
-		return false;
-	}
-
-	return true;
-}
-
-bool HTTPServer::handle_propfind(MHD_Connection *conn, const std::string &url, std::string &result)
-{
-	HTTPServerReqHandlerMap &url_handler = m_handlers[HTTP_METHOD_PROPFIND];
-	if (url_handler.find(url) == url_handler.end()) {
-		return false;
-	}
-
-	return true;
-}
-
