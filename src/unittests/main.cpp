@@ -100,6 +100,7 @@ protected:
 	bool httpserver_testhandler(const HTTPQueryParams &, std::string &res)
 	{
 		res = HTTPSERVER_TEST01_STR;
+		return true;
 	}
 
 	void httpserver_handle_get()
