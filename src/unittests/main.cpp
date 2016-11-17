@@ -97,6 +97,8 @@ public:
 			&WinterWindTests::httpserver_testhandler2, this)
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest3.html",
 			&WinterWindTests::httpserver_testhandler3, this)
+		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest4.html",
+			&WinterWindTests::httpserver_testhandler4, this)
 	}
 
 	/// Teardown method
@@ -126,6 +128,17 @@ protected:
 
 		const auto it = q.get_params.find("UnitTestParam");
 		if (it != q.get_params.end() && it->second == "thisistestparam") {
+			res = "yes";
+		}
+		return true;
+	}
+
+	bool httpserver_testhandler4(const HTTPQuery &q, std::string &res)
+	{
+		res = "no";
+
+		const auto it = q.post_data.find("post_param");
+		if (it != q.post_data.end() && it->second == "ilikedogs") {
 			res = "yes";
 		}
 		return true;
