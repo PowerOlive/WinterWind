@@ -41,12 +41,15 @@ struct HTTPQueryParams
 	std::unordered_map<std::string, std::string> query_params;
 };
 
+typedef std::function<bool(const HTTPQueryParams &, std::string &)> HTTPServerRequestHandler;
 struct HTTPServerReqHandler
 {
-	typedef std::function<bool(const HTTPQueryParams &, std::string &)> HTTPServerRequestHandler;
 	HTTPServerRequestHandler handler;
 	std::vector<std::string> query_parameters;
 };
+#define BIND_HTTPSERVER_HANDLER(m, u, hdl, obj, params) \
+	http_test.register_handler(HTTP_METHOD_##m, u, \
+		std::bind(hdl, obj, std::placeholders::_1, std::placeholders::_2), params);
 
 typedef std::unordered_map<std::string, HTTPServerReqHandler> HTTPServerReqHandlerMap;
 class HTTPServer
@@ -62,7 +65,7 @@ public:
 	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, std::string &result);
 
 	void register_handler(HTTPMethod method, const std::string &url,
-		const std::function<bool(const HTTPQueryParams &, std::string &)> &hdl, const std::vector<std::string> &qp)
+		const HTTPServerRequestHandler &hdl, const std::vector<std::string> &qp)
 	{
 		m_handlers[method][url] = {hdl, qp};
 	}

@@ -35,8 +35,6 @@ HTTPServer::HTTPServer(const uint16_t http_port): m_http_port(http_port)
 {
 	m_mhd_daemon = MHD_start_daemon(MHD_USE_THREAD_PER_CONNECTION, m_http_port, NULL,
 			NULL, &HTTPServer::request_handler, this, MHD_OPTION_END);
-
-	register_handler(HTTP_METHOD_GET, "/toto.html", nullptr, {"tutu"});
 }
 
 HTTPServer::~HTTPServer()
@@ -105,7 +103,8 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 
 bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, std::string &result)
 {
-	std::cout << url << std::endl;
+	assert(m < HTTP_METHOD_MAX);
+
 	HTTPServerReqHandlerMap::const_iterator url_handler = m_handlers[m].find(url);
 	if (url_handler == m_handlers[m].end()) {
 		return false;
