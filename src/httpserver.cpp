@@ -120,23 +120,29 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 
 	// Read which params we want and store them
 	HTTPQuery q;
-	for (const auto &p: url_handler->second.handler_params_query.params) {
-		const char *qp_res = MHD_lookup_connection_value(conn,
-				MHD_GET_ARGUMENT_KIND, p.c_str());
-		q.params[p] = qp_res != NULL ? std::string(qp_res) : "";
-	}
 
 	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_headers, &q);
+	MHD_get_connection_values(conn, MHD_GET_ARGUMENT_KIND, &HTTPServer::mhd_iter_getargs, &q);
 
-	return url_handler->second.handler(q, result);
+	return url_handler->second(q, result);
 }
 
-int HTTPServer::mhd_iter_headers(void *cls, enum MHD_ValueKind kind,
-	const char *key, const char *value)
+int HTTPServer::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key,
+	const char *value)
 {
 	HTTPQuery *q = (HTTPQuery *) cls;
 	if (q && key && value) {
 		q->headers[std::string(key)] = std::string(value);
+	}
+	return MHD_YES; // continue iteration
+}
+
+int HTTPServer::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key,
+	const char *value)
+{
+	HTTPQuery *q = (HTTPQuery *) cls;
+	if (q && key && value) {
+		q->get_params[std::string(key)] = std::string(value);
 	}
 	return MHD_YES; // continue iteration
 }

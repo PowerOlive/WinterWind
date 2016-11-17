@@ -53,7 +53,8 @@ public:
 	{
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handling simple GET", httpserver_handle_get);
-		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers ", httpserver_header);
+		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers", httpserver_header);
+		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test get params", httpserver_getparam);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test1 - Creation", create_default_groups);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test2 - Creation (parameters)", create_group);
@@ -91,9 +92,11 @@ public:
 		m_gitlab_client = new GitlabAPIClient("https://gitlab.com", GITLAB_TOKEN);
 		m_http_server = new HTTPServer(58080);
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
-			&WinterWindTests::httpserver_testhandler, this, {})
+			&WinterWindTests::httpserver_testhandler, this)
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest2.html",
-			&WinterWindTests::httpserver_testhandler2, this, {})
+			&WinterWindTests::httpserver_testhandler2, this)
+		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest3.html",
+			&WinterWindTests::httpserver_testhandler3, this)
 	}
 
 	/// Teardown method
@@ -117,6 +120,17 @@ protected:
 		return true;
 	}
 
+	bool httpserver_testhandler3(const HTTPQuery &q, std::string &res)
+	{
+		res = "no";
+
+		const auto it = q.get_params.find("UnitTestParam");
+		if (it != q.get_params.end() && it->second == "thisistestparam") {
+			res = "yes";
+		}
+		return true;
+	}
+
 	void httpserver_handle_get()
 	{
 		HTTPClient cli;
@@ -131,6 +145,14 @@ protected:
 		std::string res;
 		cli.add_http_header("UnitTest-Header", "1");
 		cli.perform_get("http://localhost:58080/unittest2.html", res);
+		CPPUNIT_ASSERT(res == "yes");
+	}
+
+	void httpserver_getparam()
+	{
+		HTTPClient cli;
+		std::string res;
+		cli.perform_get("http://localhost:58080/unittest3.html?UnitTestParam=thisistestparam", res);
 		CPPUNIT_ASSERT(res == "yes");
 	}
 

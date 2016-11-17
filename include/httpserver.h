@@ -34,33 +34,19 @@
 #include <microhttpd.h>
 #include "httpcommon.h"
 
-/*
- * HTTPHandler Param Query
- * This structure contain parameters sent to MHD to retrieve some informations
- */
-struct HTTPHandlerPQ
-{
-	std::vector<std::string> params;
-};
-
 struct HTTPQuery
 {
 	std::unordered_map<std::string, std::string> headers;
-	std::unordered_map<std::string, std::string> params;
+	std::unordered_map<std::string, std::string> get_params;
 };
 
 typedef std::function<bool(const HTTPQuery &, std::string &)> HTTPServerRequestHandler;
-struct HTTPServerReqHandler
-{
-	HTTPServerRequestHandler handler;
-	HTTPHandlerPQ handler_params_query;
-};
 
-#define BIND_HTTPSERVER_HANDLER(s, m, u, hdl, obj, params) \
+#define BIND_HTTPSERVER_HANDLER(s, m, u, hdl, obj) \
 	s->register_handler(HTTP_METHOD_##m, u, \
-		std::bind(hdl, obj, std::placeholders::_1, std::placeholders::_2), params);
+		std::bind(hdl, obj, std::placeholders::_1, std::placeholders::_2));
 
-typedef std::unordered_map<std::string, HTTPServerReqHandler> HTTPServerReqHandlerMap;
+typedef std::unordered_map<std::string, HTTPServerRequestHandler> HTTPServerReqHandlerMap;
 class HTTPServer
 {
 public:
@@ -72,19 +58,21 @@ public:
 			const char *upload_data, size_t *upload_data_size, void **ptr);
 
 	static void request_completed(void *cls, struct MHD_Connection *connection,
-					   void **con_cls, MHD_RequestTerminationCode toe);
+			void **con_cls, MHD_RequestTerminationCode toe);
 
 	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, std::string &result);
 
 	void register_handler(HTTPMethod method, const std::string &url,
-		const HTTPServerRequestHandler &hdl, const HTTPHandlerPQ &pq)
+		const HTTPServerRequestHandler &hdl)
 	{
-		m_handlers[method][url] = {hdl, pq};
+		m_handlers[method][url] = hdl;
 	}
 
 	uint16_t get_port() const { return m_http_port; }
 private:
-	static int mhd_iter_headers(void *cls, enum MHD_ValueKind kind, const char *key,
+	static int mhd_iter_headers(void *cls, MHD_ValueKind kind, const char *key,
+		const char *value);
+	static int mhd_iter_getargs(void *cls, MHD_ValueKind kind, const char *key,
 		const char *value);
 	MHD_Daemon *m_mhd_daemon = nullptr;
 
