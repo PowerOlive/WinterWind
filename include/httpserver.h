@@ -34,17 +34,28 @@
 #include <microhttpd.h>
 #include "httpcommon.h"
 
-struct HTTPQueryParams
+/*
+ * HTTPHandler Param Query
+ * This structure contain parameters sent to MHD to retrieve some informations
+ */
+struct HTTPHandlerPQ
 {
-	std::unordered_map<std::string, std::string> query_params;
+	std::vector<std::string> params;
 };
 
-typedef std::function<bool(const HTTPQueryParams &, std::string &)> HTTPServerRequestHandler;
+struct HTTPQuery
+{
+	std::unordered_map<std::string, std::string> headers;
+	std::unordered_map<std::string, std::string> params;
+};
+
+typedef std::function<bool(const HTTPQuery &, std::string &)> HTTPServerRequestHandler;
 struct HTTPServerReqHandler
 {
 	HTTPServerRequestHandler handler;
-	std::vector<std::string> query_parameters;
+	HTTPHandlerPQ handler_params_query;
 };
+
 #define BIND_HTTPSERVER_HANDLER(s, m, u, hdl, obj, params) \
 	s->register_handler(HTTP_METHOD_##m, u, \
 		std::bind(hdl, obj, std::placeholders::_1, std::placeholders::_2), params);
@@ -66,13 +77,14 @@ public:
 	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, std::string &result);
 
 	void register_handler(HTTPMethod method, const std::string &url,
-		const HTTPServerRequestHandler &hdl, const std::vector<std::string> &qp)
+		const HTTPServerRequestHandler &hdl, const HTTPHandlerPQ &pq)
 	{
-		m_handlers[method][url] = {hdl, qp};
+		m_handlers[method][url] = {hdl, pq};
 	}
 
 	uint16_t get_port() const { return m_http_port; }
 private:
+	static int mhd_iter_strings(void *cls, enum MHD_ValueKind kind, const char *key, const char *value);
 	MHD_Daemon *m_mhd_daemon = nullptr;
 
 	HTTPServerReqHandlerMap m_handlers[HTTP_METHOD_MAX];

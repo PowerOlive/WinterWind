@@ -53,6 +53,7 @@ public:
 	{
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handling simple GET", httpserver_handle_get);
+		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers ", httpserver_header);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test1 - Creation", create_default_groups);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test2 - Creation (parameters)", create_group);
@@ -91,15 +92,28 @@ public:
 		m_http_server = new HTTPServer(58080);
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
 			&WinterWindTests::httpserver_testhandler, this, {})
+		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest2.html",
+			&WinterWindTests::httpserver_testhandler2, this, {})
 	}
 
 	/// Teardown method
 	void tearDown() {}
 
 protected:
-	bool httpserver_testhandler(const HTTPQueryParams &, std::string &res)
+	bool httpserver_testhandler(const HTTPQuery &q, std::string &res)
 	{
 		res = HTTPSERVER_TEST01_STR;
+		return true;
+	}
+
+	bool httpserver_testhandler2(const HTTPQuery &q, std::string &res)
+	{
+		res = "no";
+
+		const auto it = q.headers.find("UnitTest-Header");
+		if (it != q.headers.end() && it->second == "1") {
+			res = "yes";
+		}
 		return true;
 	}
 
@@ -109,6 +123,15 @@ protected:
 		std::string res;
 		cli.perform_get("http://localhost:58080/unittest.html", res);
 		CPPUNIT_ASSERT(res == HTTPSERVER_TEST01_STR);
+	}
+
+	void httpserver_header()
+	{
+		HTTPClient cli;
+		std::string res;
+		cli.add_http_header("UnitTest-Header", "1");
+		cli.perform_get("http://localhost:58080/unittest2.html", res);
+		CPPUNIT_ASSERT(res == "yes");
 	}
 
 	void create_default_groups()
