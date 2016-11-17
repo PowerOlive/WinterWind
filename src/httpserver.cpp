@@ -27,7 +27,7 @@
 #include <cstring>
 #include <cassert>
 #include <iostream>
-#include <malloc.h>
+#include <stdlib.h>
 
 static const char* NOT_FOUND_PAGE = "<html><head><title>Not found</title></head><body><h1>No resource found at this address.</h1></body></html>";
 
