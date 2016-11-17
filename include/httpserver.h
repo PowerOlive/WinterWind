@@ -36,8 +36,10 @@
 
 struct HTTPQuery
 {
+	std::string url = "";
 	std::unordered_map<std::string, std::string> headers;
 	std::unordered_map<std::string, std::string> get_params;
+	std::unordered_map<std::string, std::string> post_data;
 };
 
 typedef std::function<bool(const HTTPQuery &, std::string &)> HTTPServerRequestHandler;
@@ -60,8 +62,6 @@ public:
 	static void request_completed(void *cls, struct MHD_Connection *connection,
 			void **con_cls, MHD_RequestTerminationCode toe);
 
-	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, std::string &result);
-
 	void register_handler(HTTPMethod method, const std::string &url,
 		const HTTPServerRequestHandler &hdl)
 	{
@@ -74,6 +74,11 @@ private:
 		const char *value);
 	static int mhd_iter_getargs(void *cls, MHD_ValueKind kind, const char *key,
 		const char *value);
+	bool parse_post_data(const std::string &data, HTTPQuery &q);
+
+	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url,
+		const std::string &upload_data, std::string &result);
+
 	MHD_Daemon *m_mhd_daemon = nullptr;
 
 	HTTPServerReqHandlerMap m_handlers[HTTP_METHOD_MAX];

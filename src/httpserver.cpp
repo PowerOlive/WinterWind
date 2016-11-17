@@ -28,8 +28,11 @@
 #include <cassert>
 #include <iostream>
 #include <stdlib.h>
+#include <sstream>
+#include "utils/stringutils.h"
 
 static const char* NOT_FOUND_PAGE = "<html><head><title>Not found</title></head><body><h1>No resource found at this address.</h1></body></html>";
+static const char* BAD_REQUEST = "<html><head><title>Bad request</title></head><body><h1>Bad request</h1></body></html>";
 
 HTTPServer::HTTPServer(const uint16_t http_port): m_http_port(http_port)
 {
@@ -45,13 +48,18 @@ HTTPServer::~HTTPServer()
 	}
 }
 
+struct HTTPRequestSession
+{
+	std::string result = "";
+	bool data_handled = false;
+};
+
 int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connection,
 	const char *url, const char *method, const char *version, const char *upload_data,
 	size_t *upload_data_size, void **con_cls)
 {
 	HTTPServer *httpd = (HTTPServer *) http_server;
 	HTTPMethod http_method;
-	static int dummy;
 	struct MHD_Response *response;
 	int ret;
 
@@ -80,36 +88,47 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 		return MHD_NO; /* unexpected method */
 	}
 
-	if (&dummy != *con_cls) {
+	if (*con_cls == NULL) {
 		/* The first time only the headers are valid,
-		   do not respond in the first round...*/
-		*con_cls = &dummy;
+		   do not respond in the first round...
+		   Just init our response*/
+		HTTPRequestSession *session = new HTTPRequestSession();
+		*con_cls = session;
 		return MHD_YES;
 	}
 
-	if (http_method == HTTP_METHOD_GET && *upload_data_size != 0) {
-		return MHD_NO; /* upload data in a GET!? */
+	// Handle request
+	HTTPRequestSession *session = (HTTPRequestSession *) *con_cls;
+	if (!session->data_handled && !httpd->handle_query(http_method, connection, std::string(url),
+		std::string(upload_data, *upload_data_size), session->result)) {
+		session->result = std::string(BAD_REQUEST);
 	}
 
-	*con_cls = NULL; /* clear context pointer */
+	// When post data is available, reinit the data_size because this function
+	// is called another time. And mark the current session as handled
+	if (*upload_data_size > 0) {
+		*upload_data_size = 0;
+		session->data_handled = true;
+		return MHD_YES;
+	}
 
-	std::string result = "";
-	httpd->handle_query(http_method, connection, std::string(url), result);
-
-	response = MHD_create_response_from_buffer(result.length(),
-			(void*) result.c_str(), MHD_RESPMEM_MUST_COPY);
+	response = MHD_create_response_from_buffer(session->result.length(),
+		(void *) session->result.c_str(), MHD_RESPMEM_MUST_COPY);
 	ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
 	MHD_destroy_response(response);
+
+	delete session;
+	*con_cls = NULL; /* clear context pointer */
 	return ret;
 }
 
 void HTTPServer::request_completed(void *cls, struct MHD_Connection *connection,
 		void **con_cls, MHD_RequestTerminationCode toe)
 {
-	// @TODO callback on request complete ?
 }
 
-bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, std::string &result)
+bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url,
+	const std::string &upload_data, std::string &result)
 {
 	assert(m < HTTP_METHOD_MAX);
 
@@ -121,8 +140,19 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	// Read which params we want and store them
 	HTTPQuery q;
 
+	q.url = url;
 	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_headers, &q);
 	MHD_get_connection_values(conn, MHD_GET_ARGUMENT_KIND, &HTTPServer::mhd_iter_getargs, &q);
+
+	const auto ct_itr = q.headers.find("Content-Type");
+	if (ct_itr != q.headers.end()) {
+		if (ct_itr->second == "application/x-www-form-urlencoded") {
+			// Abort if upload_data is invalid
+			if (!parse_post_data(upload_data, q)) {
+				return false;
+			}
+		}
+	}
 
 	return url_handler->second(q, result);
 }
@@ -145,4 +175,29 @@ int HTTPServer::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key,
 		q->get_params[std::string(key)] = std::string(value);
 	}
 	return MHD_YES; // continue iteration
+}
+
+bool HTTPServer::parse_post_data(const std::string &data, HTTPQuery &q)
+{
+	std::vector<std::string> first_split;
+	str_split(data, '&', first_split);
+
+	for (const auto &s: first_split) {
+		// If this post data is empty, abort
+		if (s.empty()) {
+			return false;
+		}
+
+		std::vector<std::string> kv;
+		str_split(s, '=', kv);
+
+		// If the key value pair is invalid, abort
+		if (kv.size() != 2 || kv[0].empty() || kv[1].empty()) {
+			return false;
+		}
+
+		q.post_data[kv[0]] = kv[1];
+	}
+
+	return true;
 }

@@ -54,9 +54,10 @@ public:
 	{
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test1 - Split string", split_string);
-		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handling simple GET", httpserver_handle_get);
+		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handle GET", httpserver_handle_get);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers", httpserver_header);
-		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test get params", httpserver_getparam);
+		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test3 - Test get params", httpserver_getparam);
+		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handle POST", httpserver_handle_post);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test1 - Creation", create_default_groups);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test2 - Creation (parameters)", create_group);
@@ -140,6 +141,7 @@ protected:
 		if (it != q.get_params.end() && it->second == "thisistestparam") {
 			res = "yes";
 		}
+
 		return true;
 	}
 
@@ -151,6 +153,7 @@ protected:
 		if (it != q.post_data.end() && it->second == "ilikedogs") {
 			res = "yes";
 		}
+
 		return true;
 	}
 
@@ -176,6 +179,15 @@ protected:
 		HTTPClient cli;
 		std::string res;
 		cli.perform_get("http://localhost:58080/unittest3.html?UnitTestParam=thisistestparam", res);
+		CPPUNIT_ASSERT(res == "yes");
+	}
+
+	void httpserver_handle_post()
+	{
+		HTTPClient cli;
+		std::string res;
+		cli.add_http_header("Content-Type", "application/x-www-form-urlencoded");
+		cli.perform_post("http://localhost:58080/unittest4.html", "post_param=ilikedogs", res);
 		CPPUNIT_ASSERT(res == "yes");
 	}
 
