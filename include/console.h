@@ -60,6 +60,7 @@ typedef std::shared_ptr<CommandToProcess> CommandToProcessPtr;
 
 enum ChatCommandFlag
 {
+	CHATCMD_FLAG_NONE = 0x0000,
 	CHATCMD_FLAG_LOCAL = 0x0001,
 	CHATCMD_FLAG_REMOTE = 0x0002,
 	CHATCMD_FLAG_ARG_DYNAMIC = 0x0010,
