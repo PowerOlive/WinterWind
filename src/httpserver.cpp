@@ -113,8 +113,9 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	// Read which params we want and store them
 	HTTPQueryParams rp;
 	for (const auto &p: url_handler->second.query_parameters) {
-		rp.query_params[p] = std::string(MHD_lookup_connection_value(conn,
-				MHD_GET_ARGUMENT_KIND, p.c_str()));
+		const char *qp_res = MHD_lookup_connection_value(conn,
+				MHD_GET_ARGUMENT_KIND, p.c_str());
+		rp.query_params[p] = qp_res != NULL ? std::string(qp_res) : "";
 	}
 
 	return url_handler->second.handler(rp, result);
