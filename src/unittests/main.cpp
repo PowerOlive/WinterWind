@@ -31,6 +31,7 @@
 
 
 #include <gitlabapiclient.h>
+#include <httpserver.h>
 
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
@@ -45,11 +46,14 @@ public:
 	virtual ~WinterWindTests()
 	{
 		delete m_gitlab_client;
+		delete m_http_server;
 	}
 
 	static CppUnit::Test *suite()
 	{
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
+		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handling simple GET", httpserver_handle_get);
+
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test1 - Creation", create_default_groups);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test2 - Creation (parameters)", create_group);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test3 - Get", get_group);
@@ -71,6 +75,7 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test3 - Removal (multiple)", remove_groups);
 
 		/*
+		 * Test HTTPClient TODO
 		 * Gitlab client TODO
 		 * - tags
 		 * - issues
@@ -83,12 +88,28 @@ public:
 	void setUp()
 	{
 		m_gitlab_client = new GitlabAPIClient("https://gitlab.com", GITLAB_TOKEN);
+		m_http_server = new HTTPServer(58080);
+		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
+			&WinterWindTests::httpserver_testhandler, this, {})
 	}
 
 	/// Teardown method
 	void tearDown() {}
 
 protected:
+	bool httpserver_testhandler(const HTTPQueryParams &, std::string &res)
+	{
+		res = HTTPSERVER_TEST01_STR;
+	}
+
+	void httpserver_handle_get()
+	{
+		HTTPClient cli;
+		std::string res;
+		cli.perform_get("http://localhost:58080/unittest.html", res);
+		CPPUNIT_ASSERT(res == HTTPSERVER_TEST01_STR);
+	}
+
 	void create_default_groups()
 	{
 		Json::Value res;
@@ -225,10 +246,12 @@ protected:
 	}
 private:
 	GitlabAPIClient *m_gitlab_client = nullptr;
+	HTTPServer *m_http_server = nullptr;
 	uint32_t m_testing_namespace_id = 0;
 	std::string TEST_COLOR = "#005577";
 	std::string TEST_GROUP = "ww_testgroup_" + RUN_TIMESTAMP;
 	std::string TEST_LABEL = "test_label_1";
+	std::string HTTPSERVER_TEST01_STR = "<h1>unittest_result</h1>";
 };
 
 int main(int argc, const char* argv[])

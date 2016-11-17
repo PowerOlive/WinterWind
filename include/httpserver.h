@@ -31,10 +31,8 @@
 #include <unordered_map>
 #include <vector>
 #include <functional>
+#include <microhttpd.h>
 #include "httpcommon.h"
-
-struct MHD_Daemon;
-struct MHD_Connection;
 
 struct HTTPQueryParams
 {
@@ -47,8 +45,8 @@ struct HTTPServerReqHandler
 	HTTPServerRequestHandler handler;
 	std::vector<std::string> query_parameters;
 };
-#define BIND_HTTPSERVER_HANDLER(m, u, hdl, obj, params) \
-	http_test.register_handler(HTTP_METHOD_##m, u, \
+#define BIND_HTTPSERVER_HANDLER(s, m, u, hdl, obj, params) \
+	s->register_handler(HTTP_METHOD_##m, u, \
 		std::bind(hdl, obj, std::placeholders::_1, std::placeholders::_2), params);
 
 typedef std::unordered_map<std::string, HTTPServerReqHandler> HTTPServerReqHandlerMap;
@@ -62,6 +60,9 @@ public:
 			const char *url, const char *method, const char *version,
 			const char *upload_data, size_t *upload_data_size, void **ptr);
 
+	static void request_completed(void *cls, struct MHD_Connection *connection,
+					   void **con_cls, MHD_RequestTerminationCode toe);
+
 	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, std::string &result);
 
 	void register_handler(HTTPMethod method, const std::string &url,
@@ -69,6 +70,8 @@ public:
 	{
 		m_handlers[method][url] = {hdl, qp};
 	}
+
+	uint16_t get_port() const { return m_http_port; }
 private:
 	MHD_Daemon *m_mhd_daemon = nullptr;
 

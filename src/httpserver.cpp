@@ -24,17 +24,18 @@
  */
 
 #include "httpserver.h"
-#include <microhttpd.h>
 #include <cstring>
 #include <cassert>
 #include <iostream>
+#include <malloc.h>
 
-static const char* NOT_FOUND_PAGE = "<html><head><title>Not found</title></head><h1>No resource found at this address.</h1></html>";
+static const char* NOT_FOUND_PAGE = "<html><head><title>Not found</title></head><body><h1>No resource found at this address.</h1></body></html>";
 
 HTTPServer::HTTPServer(const uint16_t http_port): m_http_port(http_port)
 {
 	m_mhd_daemon = MHD_start_daemon(MHD_USE_THREAD_PER_CONNECTION, m_http_port, NULL,
-			NULL, &HTTPServer::request_handler, this, MHD_OPTION_END);
+			NULL, &HTTPServer::request_handler, this, MHD_OPTION_NOTIFY_COMPLETED,
+			&HTTPServer::request_completed, NULL, MHD_OPTION_END);
 }
 
 HTTPServer::~HTTPServer()
@@ -46,7 +47,7 @@ HTTPServer::~HTTPServer()
 
 int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connection,
 	const char *url, const char *method, const char *version, const char *upload_data,
-	size_t *upload_data_size, void **ptr)
+	size_t *upload_data_size, void **con_cls)
 {
 	HTTPServer *httpd = (HTTPServer *) http_server;
 	HTTPMethod http_method;
@@ -79,26 +80,33 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 		return MHD_NO; /* unexpected method */
 	}
 
-	if (&dummy != *ptr) {
+	if (&dummy != *con_cls) {
 		/* The first time only the headers are valid,
-		   do not respond in the first round... */
-		*ptr = &dummy;
+		   do not respond in the first round...*/
+		*con_cls = &dummy;
 		return MHD_YES;
 	}
+
 	if (http_method == HTTP_METHOD_GET && *upload_data_size != 0) {
 		return MHD_NO; /* upload data in a GET!? */
 	}
 
-	*ptr = NULL; /* clear context pointer */
+	*con_cls = NULL; /* clear context pointer */
 
 	std::string result = "";
 	httpd->handle_query(http_method, connection, std::string(url), result);
 
 	response = MHD_create_response_from_buffer(result.length(),
-			(void*) result.c_str(), MHD_RESPMEM_PERSISTENT);
+			(void*) result.c_str(), MHD_RESPMEM_MUST_COPY);
 	ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
 	MHD_destroy_response(response);
 	return ret;
+}
+
+void HTTPServer::request_completed(void *cls, struct MHD_Connection *connection,
+		void **con_cls, MHD_RequestTerminationCode toe)
+{
+	// @TODO callback on request complete ?
 }
 
 bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, std::string &result)
