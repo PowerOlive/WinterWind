@@ -126,13 +126,13 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 		q.params[p] = qp_res != NULL ? std::string(qp_res) : "";
 	}
 
-	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_strings, &q);
+	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_headers, &q);
 
 	return url_handler->second.handler(q, result);
 }
 
-int HTTPServer::mhd_iter_strings(void *cls, enum MHD_ValueKind kind,
-		const char *key, const char *value)
+int HTTPServer::mhd_iter_headers(void *cls, enum MHD_ValueKind kind,
+	const char *key, const char *value)
 {
 	HTTPQuery *q = (HTTPQuery *) cls;
 	if (q && key && value) {

@@ -84,7 +84,8 @@ public:
 
 	uint16_t get_port() const { return m_http_port; }
 private:
-	static int mhd_iter_strings(void *cls, enum MHD_ValueKind kind, const char *key, const char *value);
+	static int mhd_iter_headers(void *cls, enum MHD_ValueKind kind, const char *key,
+		const char *value);
 	MHD_Daemon *m_mhd_daemon = nullptr;
 
 	HTTPServerReqHandlerMap m_handlers[HTTP_METHOD_MAX];
