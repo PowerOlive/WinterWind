@@ -89,8 +89,8 @@ struct ChatCommand
 	ChatCommandRequestHandler handler;
 	ChatCommand* childCommand;
 	int flags = 0x0000;
-	const std::string help;
-	const bool show_help;
+	const std::string help = "";
+	const bool show_help = true;
 };
 
 enum ChatCommandSearchResult
