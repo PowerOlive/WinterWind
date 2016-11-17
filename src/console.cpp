@@ -66,8 +66,7 @@ void* ConsoleThread::run()
 			}
 
 			if (command_str[0] != 0) {
-				CommandToProcessPtr cmd(new CommandToProcess(COMMAND_CHANNEL_STDIN,
-					std::string(command_str)));
+				CommandToProcessPtr cmd(new CommandToProcess(1,	std::string(command_str)));
 				m_console_handler->enqueue(cmd);
 			}
 			std::cout << m_prompt << "> ";

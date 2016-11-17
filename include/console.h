@@ -31,34 +31,26 @@
 
 class ConsoleHandler;
 
-enum CommandChannel
-{
-	COMMAND_CHANNEL_NONE,
-	COMMAND_CHANNEL_UNITTESTS,
-	COMMAND_CHANNEL_STDIN,
-	COMMAND_CHANNEL_IRC,
-};
-
 struct CommandToProcess
 {
 public:
-	CommandToProcess(CommandChannel ch, const std::string &cmd):
-		channel(ch), command(cmd) {}
+	CommandToProcess(uint16_t ch_id, const std::string &cmd):
+		channel_id(ch_id), command(cmd) {}
 
-	CommandToProcess(CommandChannel ch, const char* ch_extra_info,
+	CommandToProcess(uint16_t ch_id, const char* ch_extra_info,
 			const char* w, const std::string &cmd):
-		channel(ch),
+		channel_id(ch_id),
 		channel_extra_info(std::string(ch_extra_info)),
 		who(std::string(w)),
 		command(cmd) {}
 
 	CommandToProcess(const CommandToProcess &c):
-		channel(c.channel),
+		channel_id(c.channel_id),
 		channel_extra_info(c.channel_extra_info),
 		who(c.who),
 		command(c.command) {}
 
-	CommandChannel channel = COMMAND_CHANNEL_NONE;
+	uint16_t channel_id = 0;
 	std::string channel_extra_info = "";
 	std::string who = "";
 	std::string command = "";
@@ -66,19 +58,12 @@ public:
 
 typedef std::shared_ptr<CommandToProcess> CommandToProcessPtr;
 
-enum RemoteCommandType
+enum ChatCommandFlag
 {
-	REMOTECOMMAND_NONE,
-	REMOTECOMMAND_ONLY,
-	REMOTECOMMAND_BOTH,
-};
-
-enum CommandArgsMode
-{
-	COMMANDARGS_NONE,
-	COMMANDARGS_BOTH,
-	COMMANDARGS_DYNAMIC,
-	COMMANDARGS_STATIC,
+	CHATCMD_FLAG_LOCAL = 0x0001,
+	CHATCMD_FLAG_REMOTE = 0x0002,
+	CHATCMD_FLAG_ARG_DYNAMIC = 0x0010,
+	CHATCMD_FLAG_ARG_STATIC = 0x0020,
 };
 
 struct ChatCommandHandlerArg
@@ -91,14 +76,14 @@ public:
 	std::string args = "";
 };
 
-template <class C>
+typedef std::function<bool(const ChatCommandHandlerArg&, std::stringstream &)> ChatCommandRequestHandler;
+
 struct ChatCommand
 {
 	const char* name;
-	bool (C::*handler)(const ChatCommandHandlerArg& c_arg, std::stringstream &ss);
+	ChatCommandRequestHandler handler;
 	ChatCommand* childCommand;
-	RemoteCommandType rct;
-	CommandArgsMode cam;
+	int flags = 0x0000;
 	const std::string help;
 	const bool show_help;
 };
