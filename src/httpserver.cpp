@@ -89,9 +89,9 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 	}
 
 	if (*con_cls == NULL) {
-		/* The first time only the headers are valid,
-		   do not respond in the first round...
-		   Just init our response*/
+		// The first time only the headers are valid,
+		//   do not respond in the first round...
+		//   Just init our response
 		HTTPRequestSession *session = new HTTPRequestSession();
 		*con_cls = session;
 		return MHD_YES;
@@ -117,8 +117,9 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 	ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
 	MHD_destroy_response(response);
 
+	// clear context pointer
 	delete session;
-	*con_cls = NULL; /* clear context pointer */
+	*con_cls = NULL;
 	return ret;
 }
 
