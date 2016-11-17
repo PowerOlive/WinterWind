@@ -23,11 +23,22 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <sstream>
 #include "utils/stringutils.h"
 
 #define IF_WORD_SEPARATOR if (c == ' ' || c == '\'' || c == '\n' || c == '\t' || \
 	c == ';' || c == '\r' || c == '!' || c == '?' || c == ',' || c == '.' || \
 	c == '/' || c == ':')
+
+extern void str_split(const std::string &str, char delim, std::vector<std::string> &res)
+{
+	std::stringstream ss;
+	ss.str(str);
+	std::string item;
+	while (std::getline(ss, item, delim)) {
+		res.push_back(item);
+	}
+}
 
 extern uint32_t count_words(const std::string &str)
 {

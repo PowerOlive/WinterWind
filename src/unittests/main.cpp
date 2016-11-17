@@ -32,6 +32,7 @@
 
 #include <gitlabapiclient.h>
 #include <httpserver.h>
+#include <utils/stringutils.h>
 
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
@@ -52,6 +53,7 @@ public:
 	static CppUnit::Test *suite()
 	{
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
+		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test1 - Split string", split_string);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handling simple GET", httpserver_handle_get);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers", httpserver_header);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test get params", httpserver_getparam);
@@ -105,6 +107,14 @@ public:
 	void tearDown() {}
 
 protected:
+	void split_string()
+	{
+		std::string orig = "hello, this is winterwind.";
+		std::vector<std::string> res;
+		str_split(orig, ' ', res);
+		CPPUNIT_ASSERT(res.size() == 4 && res[2] == "is");
+	}
+
 	bool httpserver_testhandler(const HTTPQuery &q, std::string &res)
 	{
 		res = HTTPSERVER_TEST01_STR;
