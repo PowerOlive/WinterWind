@@ -32,17 +32,40 @@
 #include <vector>
 #include <functional>
 #include <microhttpd.h>
+#include <json/json.h>
+#include <memory>
 #include "httpcommon.h"
+
+enum HTTPQueryType
+{
+	HTTPQUERY_TYPE_NONE,
+	HTTPQUERY_TYPE_FORM,
+	HTTPQUERY_TYPE_JSON,
+};
 
 struct HTTPQuery
 {
 	std::string url = "";
 	std::unordered_map<std::string, std::string> headers;
 	std::unordered_map<std::string, std::string> get_params;
-	std::unordered_map<std::string, std::string> post_data;
+	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_NONE; }
 };
 
-typedef std::function<bool(const HTTPQuery &, std::string &)> HTTPServerRequestHandler;
+struct HTTPFormQuery: public HTTPQuery
+{
+	std::unordered_map<std::string, std::string> post_data;
+	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_FORM; }
+};
+
+struct HTTPJsonQuery: public HTTPQuery
+{
+	Json::Value query;
+	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_JSON; }
+};
+
+typedef std::shared_ptr<HTTPQuery> HTTPQueryPtr;
+
+typedef std::function<bool(const HTTPQueryPtr, std::string &)> HTTPServerRequestHandler;
 
 #define BIND_HTTPSERVER_HANDLER(s, m, u, hdl, obj) \
 	s->register_handler(HTTP_METHOD_##m, u, \
@@ -74,7 +97,7 @@ private:
 		const char *value);
 	static int mhd_iter_getargs(void *cls, MHD_ValueKind kind, const char *key,
 		const char *value);
-	bool parse_post_data(const std::string &data, HTTPQuery &q);
+	bool parse_post_data(const std::string &data, HTTPQueryPtr q);
 
 	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url,
 		const std::string &upload_data, std::string &result);

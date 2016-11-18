@@ -138,22 +138,29 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 		return false;
 	}
 
+	HTTPQueryPtr q;
+
 	// Read which params we want and store them
-	HTTPQuery q;
-
-	q.url = url;
-	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_headers, &q);
-	MHD_get_connection_values(conn, MHD_GET_ARGUMENT_KIND, &HTTPServer::mhd_iter_getargs, &q);
-
-	const auto ct_itr = q.headers.find("Content-Type");
-	if (ct_itr != q.headers.end()) {
-		if (ct_itr->second == "application/x-www-form-urlencoded") {
-			// Abort if upload_data is invalid
-			if (!parse_post_data(upload_data, q)) {
-				return false;
-			}
+	const char* content_type = MHD_lookup_connection_value(conn, MHD_HEADER_KIND, "Content-Type");
+	if (!content_type) {
+		q = HTTPQueryPtr(new HTTPQuery());
+	}
+	else if (strcmp(content_type, "application/x-www-form-urlencoded") == 0) {
+		q = HTTPQueryPtr(new HTTPFormQuery());
+		if (!parse_post_data(upload_data, q)) {
+			return false;
 		}
 	}
+	else if (strcmp(content_type, "application/json") == 0) {
+		q = HTTPQueryPtr(new HTTPJsonQuery());
+	}
+	else {
+		q = HTTPQueryPtr(new HTTPQuery());
+	}
+
+	q->url = url;
+	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_headers, q.get());
+	MHD_get_connection_values(conn, MHD_GET_ARGUMENT_KIND, &HTTPServer::mhd_iter_getargs, q.get());
 
 	return url_handler->second(q, result);
 }
@@ -178,8 +185,10 @@ int HTTPServer::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key,
 	return MHD_YES; // continue iteration
 }
 
-bool HTTPServer::parse_post_data(const std::string &data, HTTPQuery &q)
+bool HTTPServer::parse_post_data(const std::string &data, HTTPQueryPtr q)
 {
+	HTTPFormQuery *qf = dynamic_cast<HTTPFormQuery *>(q.get());
+	assert(qf);
 	std::vector<std::string> first_split;
 	str_split(data, '&', first_split);
 
@@ -197,7 +206,7 @@ bool HTTPServer::parse_post_data(const std::string &data, HTTPQuery &q)
 			return false;
 		}
 
-		q.post_data[kv[0]] = kv[1];
+		qf->post_data[kv[0]] = kv[1];
 	}
 
 	return true;

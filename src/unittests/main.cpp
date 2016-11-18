@@ -116,41 +116,45 @@ protected:
 		CPPUNIT_ASSERT(res.size() == 4 && res[2] == "is");
 	}
 
-	bool httpserver_testhandler(const HTTPQuery &q, std::string &res)
+	bool httpserver_testhandler(const HTTPQueryPtr q, std::string &res)
 	{
 		res = HTTPSERVER_TEST01_STR;
 		return true;
 	}
 
-	bool httpserver_testhandler2(const HTTPQuery &q, std::string &res)
+	bool httpserver_testhandler2(const HTTPQueryPtr q, std::string &res)
 	{
 		res = "no";
 
-		const auto it = q.headers.find("UnitTest-Header");
-		if (it != q.headers.end() && it->second == "1") {
+		const auto it = q->headers.find("UnitTest-Header");
+		if (it != q->headers.end() && it->second == "1") {
 			res = "yes";
 		}
 		return true;
 	}
 
-	bool httpserver_testhandler3(const HTTPQuery &q, std::string &res)
+	bool httpserver_testhandler3(const HTTPQueryPtr q, std::string &res)
 	{
 		res = "no";
 
-		const auto it = q.get_params.find("UnitTestParam");
-		if (it != q.get_params.end() && it->second == "thisistestparam") {
+		const auto it = q->get_params.find("UnitTestParam");
+		if (it != q->get_params.end() && it->second == "thisistestparam") {
 			res = "yes";
 		}
 
 		return true;
 	}
 
-	bool httpserver_testhandler4(const HTTPQuery &q, std::string &res)
+	bool httpserver_testhandler4(const HTTPQueryPtr q, std::string &res)
 	{
 		res = "no";
+		CPPUNIT_ASSERT(q->get_type() == HTTPQUERY_TYPE_FORM);
 
-		const auto it = q.post_data.find("post_param");
-		if (it != q.post_data.end() && it->second == "ilikedogs") {
+		HTTPFormQuery *fq = dynamic_cast<HTTPFormQuery *>(q.get());
+		CPPUNIT_ASSERT(fq);
+
+		const auto it = fq->post_data.find("post_param");
+		if (it != fq->post_data.end() && it->second == "ilikedogs") {
 			res = "yes";
 		}
 
