@@ -27,7 +27,6 @@
 #include <cstring>
 #include <cassert>
 #include <iostream>
-#include <stdlib.h>
 #include <sstream>
 #include "utils/stringutils.h"
 
@@ -52,6 +51,7 @@ struct HTTPRequestSession
 {
 	std::string result = "";
 	bool data_handled = false;
+	int http_code = MHD_HTTP_OK;
 };
 
 int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connection,
@@ -102,6 +102,7 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 	if (!session->data_handled && !httpd->handle_query(http_method, connection, std::string(url),
 		std::string(upload_data, *upload_data_size), session->result)) {
 		session->result = std::string(BAD_REQUEST);
+		session->http_code = MHD_HTTP_BAD_REQUEST;
 	}
 
 	// When post data is available, reinit the data_size because this function
@@ -114,7 +115,7 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 
 	response = MHD_create_response_from_buffer(session->result.length(),
 		(void *) session->result.c_str(), MHD_RESPMEM_MUST_COPY);
-	ret = MHD_queue_response(connection, MHD_HTTP_OK, response);
+	ret = MHD_queue_response(connection, session->http_code, response);
 	MHD_destroy_response(response);
 
 	// clear context pointer
@@ -152,7 +153,12 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 		}
 	}
 	else if (strcmp(content_type, "application/json") == 0) {
-		q = HTTPQueryPtr(new HTTPJsonQuery());
+		HTTPJsonQuery *jq = new HTTPJsonQuery();
+		q = HTTPQueryPtr(jq);
+		Json::Reader reader;
+		if (!reader.parse(upload_data, jq->json_query)) {
+			return false;
+		}
 	}
 	else {
 		q = HTTPQueryPtr(new HTTPQuery());

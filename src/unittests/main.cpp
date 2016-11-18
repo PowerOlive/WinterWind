@@ -57,7 +57,8 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handle GET", httpserver_handle_get);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers", httpserver_header);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test3 - Test get params", httpserver_getparam);
-		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handle POST", httpserver_handle_post);
+		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test4 - Handle POST (form encoded)", httpserver_handle_post);
+		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test5 - Handle POST (json)", httpserver_handle_post_json);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test1 - Creation", create_default_groups);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test2 - Creation (parameters)", create_group);
@@ -102,6 +103,8 @@ public:
 			&WinterWindTests::httpserver_testhandler3, this)
 		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest4.html",
 			&WinterWindTests::httpserver_testhandler4, this)
+		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest5.html",
+			&WinterWindTests::httpserver_testhandler5, this)
 	}
 
 	/// Teardown method
@@ -161,6 +164,24 @@ protected:
 		return true;
 	}
 
+	bool httpserver_testhandler5(const HTTPQueryPtr q, std::string &res)
+	{
+		Json::Value json_res;
+		json_res["status"] = "no";
+		CPPUNIT_ASSERT(q->get_type() == HTTPQUERY_TYPE_JSON);
+
+		HTTPJsonQuery *jq = dynamic_cast<HTTPJsonQuery *>(q.get());
+		CPPUNIT_ASSERT(jq);
+
+		if (jq->json_query.isMember("json_param")
+			&& jq->json_query["json_param"].asString() == "catsarebeautiful") {
+			json_res["status"] = "yes";
+		}
+
+		res = json_res.toStyledString();
+		return true;
+	}
+
 	void httpserver_handle_get()
 	{
 		HTTPClient cli;
@@ -193,6 +214,16 @@ protected:
 		cli.add_http_header("Content-Type", "application/x-www-form-urlencoded");
 		cli.perform_post("http://localhost:58080/unittest4.html", "post_param=ilikedogs", res);
 		CPPUNIT_ASSERT(res == "yes");
+	}
+
+	void httpserver_handle_post_json()
+	{
+		HTTPClient cli;
+		Json::Value query;
+		query["json_param"] = "catsarebeautiful";
+		Json::Value res;
+		cli.post_json("http://localhost:58080/unittest5.html", query.toStyledString(), res);
+		CPPUNIT_ASSERT(res.isMember("status") && res["status"] == "yes");
 	}
 
 	void create_default_groups()

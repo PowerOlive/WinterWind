@@ -59,7 +59,7 @@ struct HTTPFormQuery: public HTTPQuery
 
 struct HTTPJsonQuery: public HTTPQuery
 {
-	Json::Value query;
+	Json::Value json_query;
 	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_JSON; }
 };
 
