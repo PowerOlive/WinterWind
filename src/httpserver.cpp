@@ -51,7 +51,7 @@ struct HTTPRequestSession
 {
 	std::string result = "";
 	bool data_handled = false;
-	int http_code = MHD_HTTP_OK;
+	uint32_t http_code = MHD_HTTP_OK;
 };
 
 int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connection,
