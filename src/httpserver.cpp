@@ -176,7 +176,7 @@ int HTTPServer::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key,
 {
 	HTTPQuery *q = (HTTPQuery *) cls;
 	if (q && key && value) {
-		q->headers[std::string(key)] = std::string(value);
+		q->headers[std::string(key, strlen(key))] = std::string(value, strlen(value));
 	}
 	return MHD_YES; // continue iteration
 }
@@ -186,7 +186,7 @@ int HTTPServer::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key,
 {
 	HTTPQuery *q = (HTTPQuery *) cls;
 	if (q && key && value) {
-		q->get_params[std::string(key)] = std::string(value);
+		q->get_params[std::string(key, strlen(key))] = std::string(value, strlen(value));
 	}
 	return MHD_YES; // continue iteration
 }
