@@ -168,7 +168,11 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_headers, q.get());
 	MHD_get_connection_values(conn, MHD_GET_ARGUMENT_KIND, &HTTPServer::mhd_iter_getargs, q.get());
 
-	return url_handler->second(q, result);
+	bool handler_res = url_handler->second(q, result);
+	if (handler_res && result.empty() && strcmp(content_type, "application/json") == 0) {
+		result = "{}";
+	}
+	return handler_res;
 }
 
 int HTTPServer::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key,
