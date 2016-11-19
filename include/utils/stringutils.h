@@ -42,6 +42,7 @@ T join(const A &begin, const A &end, const T &t)
 }
 
 extern void str_split(const std::string &str, char delim, std::vector<std::string> &res);
+extern void str_remove_substr(std::string &src, const std::string &pattern);
 
 extern uint32_t count_words(const std::string &str);
 extern void split_string_to_words(const std::string &str, std::vector<std::string> &res);

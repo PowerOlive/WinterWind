@@ -54,6 +54,7 @@ public:
 	{
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test1 - Split string", split_string);
+		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test2 - Remove substring", remove_substring);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handle GET", httpserver_handle_get);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers", httpserver_header);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test3 - Test get params", httpserver_getparam);
@@ -117,6 +118,14 @@ protected:
 		std::vector<std::string> res;
 		str_split(orig, ' ', res);
 		CPPUNIT_ASSERT(res.size() == 4 && res[2] == "is");
+	}
+
+	void remove_substring()
+	{
+		std::string orig = "The world is mine, the world is not yours";
+		std::string to_alter = orig;
+		str_remove_substr(to_alter, "world ");
+		CPPUNIT_ASSERT(to_alter == "The is mine, the is not yours");
 	}
 
 	bool httpserver_testhandler(const HTTPQueryPtr q, std::string &res)
