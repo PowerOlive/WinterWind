@@ -187,7 +187,8 @@ protected:
 			json_res["status"] = "yes";
 		}
 
-		res = json_res.toStyledString();
+		Json::FastWriter writer;
+		res = writer.write(json_res);
 		return true;
 	}
 
@@ -231,7 +232,8 @@ protected:
 		Json::Value query;
 		query["json_param"] = "catsarebeautiful";
 		Json::Value res;
-		cli.post_json("http://localhost:58080/unittest5.html", query.toStyledString(), res);
+		Json::FastWriter writer;
+		cli.post_json("http://localhost:58080/unittest5.html", writer.write(query), res);
 		CPPUNIT_ASSERT(res.isMember("status") && res["status"] == "yes");
 	}
 

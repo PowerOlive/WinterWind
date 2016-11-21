@@ -309,9 +309,10 @@ const GitlabRetCod GitlabAPIClient::create_label(const uint32_t project_id,
 	request["color"] = color_id;
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
+	Json::FastWriter writer;
 	if (!post_json(m_server_uri + api_v3_endpoint + "/projects/"
 			+ std::to_string(project_id) + "/labels",
-			request.toStyledString(), res)) {
+			writer.write(request), res)) {
 		return GITLAB_RC_INVALID_RESPONSE;
 	}
 
@@ -385,9 +386,10 @@ const GitlabRetCod GitlabAPIClient::create_tag(const uint32_t project_id,
 	request["release_description"] = tag.release_description;
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
+	Json::FastWriter writer;
 	if (!post_json(m_server_uri + api_v3_endpoint + "/projects/"
 				   + std::to_string(project_id) + "/labels",
-				   request.toStyledString(), res)) {
+				   writer.write(request), res)) {
 		return GITLAB_RC_INVALID_RESPONSE;
 	}
 
@@ -517,8 +519,9 @@ bool GitlabAPIClient::create_group(const GitlabGroup &group, Json::Value &res)
 	request["request_access_enabled"] = group.access_requests;
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
+	Json::FastWriter writer;
 	if (!post_json(m_server_uri + api_v3_endpoint + "/groups",
-			request.toStyledString(), res)) {
+			writer.write(request), res)) {
 		return false;
 	}
 
@@ -582,8 +585,9 @@ const GitlabRetCod GitlabAPIClient::create_project(const GitlabProject &project,
 	request["request_access_enabled"] = project.request_access_enabled;
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
+	Json::FastWriter writer;
 	if (!post_json(m_server_uri + api_v3_endpoint + "/projects",
-				   request.toStyledString(), res)) {
+			writer.write(request), res)) {
 		return GITLAB_RC_INVALID_RESPONSE;
 	}
 
