@@ -139,7 +139,9 @@ void ElasticsearchBulkAction::toJson(Json::FastWriter &writer, std::string &res)
 	Json::Value action_res;
 	std::string action_type = bulkaction_str_mapping[action];
 	action_res[action_type] = Json::Value();
-	action_res[action_type]["_index"] = index;
+	if (!index.empty()) {
+		action_res[action_type]["_index"] = index;
+	}
 
 	if (!type.empty()) {
 		action_res[action_type]["_type"] = type;

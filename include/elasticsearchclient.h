@@ -66,12 +66,17 @@ enum ElasticsearchBulkActionType
 
 struct ElasticsearchBulkAction
 {
-	ElasticsearchBulkActionType action;
+public:
+	ElasticsearchBulkAction(const ElasticsearchBulkActionType a):
+		action(a)
+	{}
 	std::string index = "";
 	std::string type = "";
 	std::string doc_id = "";
 	Json::Value doc;
 	void toJson(Json::FastWriter &writer, std::string &res);
+private:
+	ElasticsearchBulkActionType action;
 };
 
 typedef std::shared_ptr<ElasticsearchBulkAction> ElasticsearchBulkActionPtr;

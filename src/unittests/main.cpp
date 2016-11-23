@@ -245,8 +245,7 @@ protected:
 
 	void es_bulk_to_json()
 	{
-		ElasticsearchBulkAction action;
-		action.action = ESBULK_AT_INDEX;
+		ElasticsearchBulkAction action(ESBULK_AT_INDEX);
 		action.index = "library";
 		action.type = "book";
 		action.doc_id = "7";
@@ -262,8 +261,7 @@ protected:
 
 	void es_bulk_update_to_json()
 	{
-		ElasticsearchBulkAction action;
-		action.action = ESBULK_AT_UPDATE;
+		ElasticsearchBulkAction action(ESBULK_AT_UPDATE);
 		action.index = "car";
 		action.type = "truck";
 		action.doc_id = "666";
@@ -279,8 +277,7 @@ protected:
 
 	void es_bulk_delete_to_json()
 	{
-		ElasticsearchBulkAction action;
-		action.action = ESBULK_AT_DELETE;
+		ElasticsearchBulkAction action(ESBULK_AT_DELETE);
 		action.index = "food";
 		action.type = "meat";
 		action.doc_id = "5877";
