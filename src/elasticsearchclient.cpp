@@ -23,6 +23,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <cassert>
 #include "elasticsearchclient.h"
 
 #define ES_URL_CLUSTER_STATE "/_cluster/state"
@@ -32,6 +33,13 @@ ElasticsearchClient::ElasticsearchClient(const std::string &url):
 	HTTPClient(100 * 1024), m_init_url(url)
 {
 	discover_cluster();
+}
+
+ElasticsearchClient::~ElasticsearchClient()
+{
+	while (!m_bulk_queue.empty()) {
+		m_bulk_queue.pop();
+	}
 }
 
 void ElasticsearchClient::discover_cluster()
@@ -112,4 +120,60 @@ void ElasticsearchClient::delete_doc(const std::string &index,
 	const ElasticsearchNode &node = get_fresh_node();
 	std::string res;
 	perform_delete(node.http_addr + "/" + index + "/" + type + "/" + doc_id, res);
+}
+
+// related to ElasticsearchBulkActionType
+static const std::string bulkaction_str_mapping[ESBULK_AT_MAX] =
+{
+	"create",
+	"delete",
+	"index",
+	"update"
+};
+
+void ElasticsearchBulkAction::toJson(Json::FastWriter &writer, std::string &res)
+{
+	// This should not happen
+	assert(action < ESBULK_AT_MAX);
+
+	Json::Value action_res;
+	std::string action_type = bulkaction_str_mapping[action];
+	action_res[action_type] = Json::Value();
+	action_res[action_type]["_index"] = index;
+
+	if (!type.empty()) {
+		action_res[action_type]["_type"] = type;
+	}
+
+	if (!doc_id.empty()) {
+		action_res[action_type]["_id"] = doc_id;
+	}
+
+	res += writer.write(action_res);
+
+	if (action == ESBULK_AT_CREATE || action == ESBULK_AT_INDEX) {
+		res += writer.write(doc);
+	}
+	else if (action == ESBULK_AT_UPDATE) {
+		Json::Value update;
+		update["doc"] = doc;
+		res += writer.write(update);
+	}
+}
+
+void ElasticsearchClient::process_bulkaction_queue(uint32_t actions_limit)
+{
+	const ElasticsearchNode &node = get_fresh_node();
+	std::string post_data = "", res = "";
+
+	uint32_t processed_actions = 0;
+	Json::FastWriter writer;
+	while (!m_bulk_queue.empty() && (actions_limit == 0 ||
+		processed_actions < actions_limit)) {
+		processed_actions++;
+		const ElasticsearchBulkActionPtr &action = m_bulk_queue.front();
+		action->toJson(writer, res);
+		m_bulk_queue.pop();
+	}
+	perform_post(node.http_addr + "/_bulk", post_data, res);
 }

@@ -33,6 +33,7 @@
 #include <gitlabapiclient.h>
 #include <httpserver.h>
 #include <utils/stringutils.h>
+#include <elasticsearchclient.h>
 
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
@@ -55,11 +56,16 @@ public:
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test1 - Split string", split_string);
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test2 - Remove substring", remove_substring);
+
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handle GET", httpserver_handle_get);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers", httpserver_header);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test3 - Test get params", httpserver_getparam);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test4 - Handle POST (form encoded)", httpserver_handle_post);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test5 - Handle POST (json)", httpserver_handle_post_json);
+
+		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test1 - ElasticsearchBulkAction Index/Create to JSON", es_bulk_to_json);
+		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test2 - ElasticsearchBulkAction Update to JSON", es_bulk_update_to_json);
+		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test3 - ElasticsearchBulkAction Delete to JSON", es_bulk_delete_to_json);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test1 - Creation", create_default_groups);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test2 - Creation (parameters)", create_group);
@@ -235,6 +241,55 @@ protected:
 		Json::FastWriter writer;
 		cli.post_json("http://localhost:58080/unittest5.html", writer.write(query), res);
 		CPPUNIT_ASSERT(res.isMember("status") && res["status"] == "yes");
+	}
+
+	void es_bulk_to_json()
+	{
+		ElasticsearchBulkAction action;
+		action.action = ESBULK_AT_INDEX;
+		action.index = "library";
+		action.type = "book";
+		action.doc_id = "7";
+		action.doc["title"] = "A great history";
+
+		Json::FastWriter writer;
+		std::string res = "";
+		action.toJson(writer, res);
+
+		CPPUNIT_ASSERT(res == "{\"index\":{\"_id\":\"7\",\"_index\":\"library\",\"_type\":\"book\"}}\n"
+			"{\"title\":\"A great history\"}\n");
+	}
+
+	void es_bulk_update_to_json()
+	{
+		ElasticsearchBulkAction action;
+		action.action = ESBULK_AT_UPDATE;
+		action.index = "car";
+		action.type = "truck";
+		action.doc_id = "666";
+		action.doc["engine"] = "Toyota";
+
+		Json::FastWriter writer;
+		std::string res = "";
+		action.toJson(writer, res);
+
+		CPPUNIT_ASSERT(res == "{\"update\":{\"_id\":\"666\",\"_index\":\"car\",\"_type\":\"truck\"}}\n"
+			"{\"doc\":{\"engine\":\"Toyota\"}}\n");
+	}
+
+	void es_bulk_delete_to_json()
+	{
+		ElasticsearchBulkAction action;
+		action.action = ESBULK_AT_DELETE;
+		action.index = "food";
+		action.type = "meat";
+		action.doc_id = "5877";
+
+		Json::FastWriter writer;
+		std::string res = "";
+		action.toJson(writer, res);
+
+		CPPUNIT_ASSERT(res == "{\"delete\":{\"_id\":\"5877\",\"_index\":\"food\",\"_type\":\"meat\"}}\n");
 	}
 
 	void create_default_groups()

@@ -26,6 +26,8 @@
 #pragma once
 
 #include <chrono>
+#include <memory>
+#include <queue>
 #include "httpclient.h"
 #include "utils/classhelpers.h"
 #include "utils/exception.h"
@@ -53,11 +55,32 @@ public:
 	};
 };
 
+enum ElasticsearchBulkActionType
+{
+	ESBULK_AT_CREATE,
+	ESBULK_AT_DELETE,
+	ESBULK_AT_INDEX,
+	ESBULK_AT_UPDATE,
+	ESBULK_AT_MAX,
+};
+
+struct ElasticsearchBulkAction
+{
+	ElasticsearchBulkActionType action;
+	std::string index = "";
+	std::string type = "";
+	std::string doc_id = "";
+	Json::Value doc;
+	void toJson(Json::FastWriter &writer, std::string &res);
+};
+
+typedef std::shared_ptr<ElasticsearchBulkAction> ElasticsearchBulkActionPtr;
+
 class ElasticsearchClient: public HTTPClient
 {
 public:
 	ElasticsearchClient(const std::string &url);
-	~ElasticsearchClient() {}
+	~ElasticsearchClient();
 
 	void discover_cluster();
 
@@ -68,6 +91,12 @@ public:
 	void delete_doc(const std::string &index, const std::string &type,
 		const std::string &doc_id);
 
+	void add_bulkaction_to_queue(ElasticsearchBulkActionPtr action)
+	{
+		m_bulk_queue.push(action);
+	}
+
+	void process_bulkaction_queue(uint32_t actions_limit = 0);
 private:
 	// This function permits to obtain a fresh node on which perform a query
 	const ElasticsearchNode &get_fresh_node();
@@ -76,6 +105,7 @@ private:
 	std::chrono::time_point<std::chrono::system_clock> m_last_discovery_time;
 
 	std::vector<ElasticsearchNode> m_nodes;
+	std::queue<ElasticsearchBulkActionPtr> m_bulk_queue;
 
 	CL_HELPER_VAR_GET(std::string, cluster_name, "");
 };
