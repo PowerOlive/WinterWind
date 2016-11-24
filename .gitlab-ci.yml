@@ -1,5 +1,8 @@
 ---
 image: docker.io/nerzhul/archlinux:2016.10.01
+services:
+  - elasticsearch:2.4.2
+
 before_script:
   - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd
 # These are already included in image
