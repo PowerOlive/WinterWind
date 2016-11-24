@@ -28,6 +28,7 @@
 #include <string>
 #include <my_global.h>
 #include <mysql.h>
+#include <vector>
 #include "utils/exception.h"
 
 class MySQLException: public BaseException
@@ -47,7 +48,8 @@ public:
 	void connect();
 	void disconnect();
 
-	bool query(const std::string &query);
+	void query(const std::string &query);
+	void list_tables(std::vector<std::string> &result);
 private:
 	MYSQL *m_conn = nullptr;
 	std::string m_host = "localhost";

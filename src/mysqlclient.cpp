@@ -59,10 +59,29 @@ void MySQLClient::disconnect()
 	}
 }
 
-bool MySQLClient::query(const std::string &query)
+void MySQLClient::query(const std::string &query)
 {
 	if (mysql_query(m_conn, query.c_str()) != 0) {
 		throw MySQLException("MySQL Exception: query failed " +
 			std::string(mysql_error(m_conn)));
+	}
+}
+
+void MySQLClient::list_tables(std::vector<std::string> &result)
+{
+	query("SHOW TABLES");
+
+	MYSQL_RES *mysql_res = mysql_store_result(m_conn);
+	if (mysql_res == NULL) {
+		throw MySQLException("MySQL Exception: mysql_store_result failed " +
+			std::string(mysql_error(m_conn)));
+	}
+
+	int num_fields = mysql_num_fields(mysql_res);
+	MYSQL_ROW row;
+	while ((row = mysql_fetch_row(mysql_res))) {
+		for(int i = 0; i < num_fields; i++) {
+			result.push_back(row[i] ? row[i] : "NULL");
+		}
 	}
 }

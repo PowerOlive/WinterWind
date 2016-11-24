@@ -34,6 +34,7 @@
 #include <httpserver.h>
 #include <utils/stringutils.h>
 #include <elasticsearchclient.h>
+#include <mysqlclient.h>
 
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
@@ -518,6 +519,11 @@ int main(int argc, const char* argv[])
 	if (argc >= 3) {
 		ES_HOST = std::string(argv[2]);
 	}
+
+	MySQLClient myclient("192.168.122.198", "ci", "cipwd", 3306, "test");
+	std::vector<std::string> tables = {};
+	myclient.list_tables(tables);
+	exit(0);
 
 	CppUnit::TextUi::TestRunner runner;
 	runner.addTest(WinterWindTests::suite());
