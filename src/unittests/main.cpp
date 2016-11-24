@@ -520,11 +520,6 @@ int main(int argc, const char* argv[])
 		ES_HOST = std::string(argv[2]);
 	}
 
-	MySQLClient myclient("192.168.122.198", "ci", "cipwd", 3306, "test");
-	std::vector<std::string> tables = {};
-	myclient.list_tables(tables);
-	exit(0);
-
 	CppUnit::TextUi::TestRunner runner;
 	runner.addTest(WinterWindTests::suite());
 	std::cout << "Starting unittests...." << std::endl;

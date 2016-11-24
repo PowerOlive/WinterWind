@@ -50,6 +50,7 @@ public:
 
 	void query(const std::string &query);
 	void list_tables(std::vector<std::string> &result);
+	bool get_table_definition(const std::string &table, std::string &res);
 private:
 	MYSQL *m_conn = nullptr;
 	std::string m_host = "localhost";
