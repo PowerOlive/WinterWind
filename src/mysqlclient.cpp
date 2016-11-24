@@ -23,6 +23,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
+#include <cstring>
+#include <stdlib.h>
 #include "mysqlclient.h"
 
 #define MYSQL_STORE_RES(_res) \
@@ -37,6 +40,7 @@
 	MYSQL_ROW _row; \
 	while ((_row = mysql_fetch_row(_res)))
 
+#define MYSQLROW_TO_STRING(_row, i) _row[i] ? std::string(_row[i], strlen(_row[i])) : "NULL"
 
 MySQLClient::MySQLClient(const std::string &host, const std::string &user,
 	const std::string &password, uint16_t port, const std::string &db):
@@ -107,5 +111,55 @@ bool MySQLClient::get_table_definition(const std::string &table, std::string &re
 		}
 	}
 
+	return true;
+}
+
+bool MySQLClient::explain(const std::string &q, std::vector<MySQLExplainEntry> &res)
+{
+	if (q.empty()) {
+		return false;
+	}
+
+	query("EXPLAIN " + q);
+
+	MYSQL_STORE_RES(mysql_res)
+	MYSQL_FIELD *field;
+	MYSQL_ROWLOOP(mysql_res, row) {
+		MySQLExplainEntry entry;
+		for (int i = 0; i < num_fields; i++) {
+			field = mysql_fetch_field(mysql_res);
+			if (strcmp(field->name, "id") == 0) {
+				entry.id = row[i] ? atoi(row[i]) : 0;
+			}
+			else if (strcmp(field->name, "select_type") == 0) {
+				entry.select_type = MYSQLROW_TO_STRING(row, i);
+			}
+			else if (strcmp(field->name, "table") == 0) {
+				entry.table = MYSQLROW_TO_STRING(row, i);
+			}
+			else if (strcmp(field->name, "type") == 0) {
+				entry.type = MYSQLROW_TO_STRING(row, i);
+			}
+			else if (strcmp(field->name, "possible_keys") == 0) {
+				entry.possible_keys = MYSQLROW_TO_STRING(row, i);
+			}
+			else if (strcmp(field->name, "key") == 0) {
+				entry.key = MYSQLROW_TO_STRING(row, i);
+			}
+			else if (strcmp(field->name, "key_len") == 0) {
+				entry.key_len = row[i] ? atoi(row[i]) : 0;
+			}
+			else if (strcmp(field->name, "ref") == 0) {
+				entry.ref = MYSQLROW_TO_STRING(row, i);
+			}
+			else if (strcmp(field->name, "rows") == 0) {
+				entry.rows = row[i] ? atoi(row[i]) : 0;
+			}
+			else if (strcmp(field->name, "Extra") == 0) {
+				entry.extra = MYSQLROW_TO_STRING(row, i);
+			}
+		}
+		res.push_back(entry);
+	}
 	return true;
 }

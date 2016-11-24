@@ -31,6 +31,20 @@
 #include <vector>
 #include "utils/exception.h"
 
+struct MySQLExplainEntry
+{
+	uint16_t id;
+	std::string select_type;
+	std::string table;
+	std::string type;
+	std::string possible_keys;
+	std::string key;
+	uint32 key_len;
+	std::string ref;
+	uint64 rows;
+	std::string extra;
+};
+
 class MySQLException: public BaseException
 {
 public:
@@ -51,6 +65,7 @@ public:
 	void query(const std::string &query);
 	void list_tables(std::vector<std::string> &result);
 	bool get_table_definition(const std::string &table, std::string &res);
+	bool explain(const std::string &q, std::vector<MySQLExplainEntry> &res);
 private:
 	MYSQL *m_conn = nullptr;
 	std::string m_host = "localhost";
