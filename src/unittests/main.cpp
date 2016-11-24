@@ -68,7 +68,8 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test2 - ElasticsearchBulkAction Update to JSON", es_bulk_update_to_json);
 		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test3 - ElasticsearchBulkAction Delete to JSON", es_bulk_delete_to_json);
 		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test4 - ElasticsearchBulkAction Index data", es_bulk_play_index);
-		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test4 - ElasticsearchBulkAction Update data", es_bulk_play_update);
+		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test5 - ElasticsearchBulkAction Update data", es_bulk_play_update);
+		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test6 - ElasticsearchBulkAction Delete data", es_bulk_play_delete);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test1 - Creation", create_default_groups);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test2 - Creation (parameters)", create_group);
@@ -333,7 +334,26 @@ protected:
 		client.add_bulkaction_to_queue(action2);
 		client.process_bulkaction_queue(bulk_res);
 
-		std::cout << bulk_res << std::endl;
+		Json::Reader reader;
+		Json::Value es_res;
+		CPPUNIT_ASSERT(reader.parse(bulk_res, es_res));
+		CPPUNIT_ASSERT(es_res.isMember("errors"));
+		CPPUNIT_ASSERT(es_res["errors"].isBool());
+		CPPUNIT_ASSERT(!es_res["errors"].asBool());
+	}
+
+	void es_bulk_play_delete()
+	{
+		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_DELETE));
+		action->index = "library";
+		action->type = "book";
+		action->doc_id = "7";
+
+		std::string bulk_res = "";
+		ElasticsearchClient client("http://" + ES_HOST + ":9200");
+		client.add_bulkaction_to_queue(action);
+		client.process_bulkaction_queue(bulk_res);
+
 		Json::Reader reader;
 		Json::Value es_res;
 		CPPUNIT_ASSERT(reader.parse(bulk_res, es_res));
