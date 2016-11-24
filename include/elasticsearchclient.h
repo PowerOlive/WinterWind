@@ -101,7 +101,7 @@ public:
 		m_bulk_queue.push(action);
 	}
 
-	void process_bulkaction_queue(uint32_t actions_limit = 0);
+	void process_bulkaction_queue(std::string &res, uint32_t actions_limit = 0);
 private:
 	// This function permits to obtain a fresh node on which perform a query
 	const ElasticsearchNode &get_fresh_node();

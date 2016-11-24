@@ -15,7 +15,7 @@ gcc5:
     - cd build
     - cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DENABLE_UNITTESTS=1 ..
     - make -j4
-    - ./src/unittests/winterwind_unittests $GITLAB_API_KEY
+    - ./src/unittests/winterwind_unittests $GITLAB_API_KEY elasticsearch
 
 clang:
   stage: build
@@ -24,4 +24,4 @@ clang:
     - cd build
     - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DENABLE_UNITTESTS=1 ..
     - make -j4
-    - ./src/unittests/winterwind_unittests $GITLAB_API_KEY
+    - ./src/unittests/winterwind_unittests $GITLAB_API_KEY elasticsearch

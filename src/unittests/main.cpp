@@ -39,6 +39,7 @@
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
 
 static std::string GITLAB_TOKEN = "";
+static std::string ES_HOST = "localhost";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
 
 class WinterWindTests: public CppUnit::TestFixture
@@ -66,6 +67,8 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test1 - ElasticsearchBulkAction Index/Create to JSON", es_bulk_to_json);
 		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test2 - ElasticsearchBulkAction Update to JSON", es_bulk_update_to_json);
 		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test3 - ElasticsearchBulkAction Delete to JSON", es_bulk_delete_to_json);
+		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test4 - ElasticsearchBulkAction Index data", es_bulk_play_index);
+		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test4 - ElasticsearchBulkAction Update data", es_bulk_play_update);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test1 - Creation", create_default_groups);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test2 - Creation (parameters)", create_group);
@@ -289,6 +292,56 @@ protected:
 		CPPUNIT_ASSERT(res == "{\"delete\":{\"_id\":\"5877\",\"_index\":\"food\",\"_type\":\"meat\"}}\n");
 	}
 
+	void es_bulk_play_index()
+	{
+		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_INDEX));
+		action->index = "library";
+		action->type = "book";
+		action->doc_id = "7";
+		action->doc["title"] = "A great history";
+
+		std::string bulk_res = "";
+		ElasticsearchClient client("http://" + ES_HOST + ":9200");
+		client.add_bulkaction_to_queue(action);
+		client.process_bulkaction_queue(bulk_res);
+
+		Json::Reader reader;
+		Json::Value es_res;
+		CPPUNIT_ASSERT(reader.parse(bulk_res, es_res));
+		CPPUNIT_ASSERT(es_res.isMember("errors"));
+		CPPUNIT_ASSERT(es_res["errors"].isBool());
+		CPPUNIT_ASSERT(!es_res["errors"].asBool());
+	}
+
+	void es_bulk_play_update()
+	{
+		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_UPDATE));
+		action->index = "library";
+		action->type = "book";
+		action->doc_id = "7";
+		action->doc["title"] = "A great history (version 2)";
+
+		ElasticsearchBulkActionPtr action2(new ElasticsearchBulkAction(ESBULK_AT_UPDATE));
+		action2->index = "library";
+		action2->type = "book";
+		action2->doc_id = "7";
+		action2->doc["title"] = "A great history (version 3)";
+
+		std::string bulk_res = "";
+		ElasticsearchClient client("http://" + ES_HOST + ":9200");
+		client.add_bulkaction_to_queue(action);
+		client.add_bulkaction_to_queue(action2);
+		client.process_bulkaction_queue(bulk_res);
+
+		std::cout << bulk_res << std::endl;
+		Json::Reader reader;
+		Json::Value es_res;
+		CPPUNIT_ASSERT(reader.parse(bulk_res, es_res));
+		CPPUNIT_ASSERT(es_res.isMember("errors"));
+		CPPUNIT_ASSERT(es_res["errors"].isBool());
+		CPPUNIT_ASSERT(!es_res["errors"].asBool());
+	}
+
 	void create_default_groups()
 	{
 		Json::Value res;
@@ -441,6 +494,10 @@ int main(int argc, const char* argv[])
 	}
 
 	GITLAB_TOKEN = std::string(argv[1]);
+
+	if (argc >= 3) {
+		ES_HOST = std::string(argv[2]);
+	}
 
 	CppUnit::TextUi::TestRunner runner;
 	runner.addTest(WinterWindTests::suite());

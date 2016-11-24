@@ -163,10 +163,10 @@ void ElasticsearchBulkAction::toJson(Json::FastWriter &writer, std::string &res)
 	}
 }
 
-void ElasticsearchClient::process_bulkaction_queue(uint32_t actions_limit)
+void ElasticsearchClient::process_bulkaction_queue(std::string &res, uint32_t actions_limit)
 {
 	const ElasticsearchNode &node = get_fresh_node();
-	std::string post_data = "", res = "";
+	std::string post_data = "";
 
 	uint32_t processed_actions = 0;
 	Json::FastWriter writer;
@@ -174,8 +174,9 @@ void ElasticsearchClient::process_bulkaction_queue(uint32_t actions_limit)
 		processed_actions < actions_limit)) {
 		processed_actions++;
 		const ElasticsearchBulkActionPtr &action = m_bulk_queue.front();
-		action->toJson(writer, res);
+		action->toJson(writer, post_data);
 		m_bulk_queue.pop();
 	}
+
 	perform_post(node.http_addr + "/_bulk", post_data, res);
 }
