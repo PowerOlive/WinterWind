@@ -23,7 +23,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 option(ENABLE_POSTGRESQL "PostgreSQL features" TRUE)
-
+option(ENABLE_MYSQL "MySQL features" TRUE)
 option(ENABLE_CONSOLE "Enable console features" TRUE)
 option(ENABLE_HTTPCLIENT "Enable HTTP client features" TRUE)
 option(ENABLE_HTTPSERVER "Enable HTTP server features" TRUE)
@@ -67,6 +67,12 @@ if (ENABLE_POSTGRESQL)
 	set(SRC_FILES ${SRC_FILES} postgresqlclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ../include/postgresqlclient.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} pq)
+endif()
+
+if (ENABLE_MYSQL)
+	set(SRC_FILES ${SRC_FILES} mysqlclient.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ../include/mysqlclient.h)
+	set(PROJECT_LIBS ${PROJECT_LIBS} mysqlclient)
 endif()
 
 if (ENABLE_HTTPCLIENT)

@@ -33,6 +33,7 @@ set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/winterwind")
 include_directories(
 	/usr/include/libxml2
 	/usr/include/jsoncpp
+	/usr/include/mysql
 	/usr/local/include/libxml2
 	/usr/local/include/jsoncpp
 	${CMAKE_CURRENT_SOURCE_DIR}/include
