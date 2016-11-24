@@ -94,6 +94,8 @@ void MySQLClient::list_tables(std::vector<std::string> &result)
 			result.push_back(row[i] ? row[i] : "NULL");
 		}
 	}
+
+	mysql_free_result(mysql_res);
 }
 
 bool MySQLClient::get_table_definition(const std::string &table, std::string &res)
@@ -111,6 +113,7 @@ bool MySQLClient::get_table_definition(const std::string &table, std::string &re
 		}
 	}
 
+	mysql_free_result(mysql_res);
 	return true;
 }
 
@@ -161,5 +164,7 @@ bool MySQLClient::explain(const std::string &q, std::vector<MySQLExplainEntry> &
 		}
 		res.push_back(entry);
 	}
+
+	mysql_free_result(mysql_res);
 	return true;
 }
