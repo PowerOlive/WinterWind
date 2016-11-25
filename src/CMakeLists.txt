@@ -25,6 +25,7 @@
 option(ENABLE_POSTGRESQL "PostgreSQL features" TRUE)
 option(ENABLE_MYSQL "MySQL features" TRUE)
 option(ENABLE_CONSOLE "Enable console features" TRUE)
+option(ENABLE_READLINE "Enable readline features (requires ENABLE_CONSOLE)" TRUE)
 option(ENABLE_HTTPCLIENT "Enable HTTP client features" TRUE)
 option(ENABLE_HTTPSERVER "Enable HTTP server features" TRUE)
 option(ENABLE_CALDAV "Enable caldav client (requires ENABLE_HTTPCLIENT)" TRUE)
@@ -58,9 +59,15 @@ set(PROJECT_LIBS
 	jsoncpp
 	xml2)
 
+set(READLINE 0)
+
 if (ENABLE_CONSOLE)
 	set(SRC_FILES ${SRC_FILES} console.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ../include/console.h)
+	if (ENABLE_READLINE)
+		set(PROJECT_LIBS ${PROJECT_LIBS} readline)
+		set(READLINE 1)
+	endif()
 endif()
 
 if (ENABLE_POSTGRESQL)
@@ -113,6 +120,15 @@ if (ENABLE_REDIS)
 	set(PROJECT_LIBS ${PROJECT_LIBS} hiredis)
 endif()
 
+
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in"
+	"${PROJECT_BINARY_DIR}/include/cmake_config.h"
+)
+
+include_directories(
+	${PROJECT_BINARY_DIR}/include
+)
 
 add_library(winterwind SHARED ${SRC_FILES})
 target_link_libraries(winterwind ${PROJECT_LIBS})

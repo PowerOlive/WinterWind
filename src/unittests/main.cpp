@@ -34,7 +34,6 @@
 #include <httpserver.h>
 #include <utils/stringutils.h>
 #include <elasticsearchclient.h>
-#include <mysqlclient.h>
 
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));

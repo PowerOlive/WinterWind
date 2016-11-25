@@ -122,6 +122,10 @@ public:
 
 	void * run();
 private:
+	char *rl_gets();
+
 	ConsoleHandler* m_console_handler = nullptr;
 	std::string m_prompt = "";
+
+	char *m_line_read = nullptr;
 };

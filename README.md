@@ -24,6 +24,7 @@ This library provides high level interfaces to some interesting API or features
 
 * High level XML parser
 * Name generator
+* Console thread
 
 # Requirements
 
@@ -43,6 +44,7 @@ You need a full C++11 compliant compiler to use this library (GCC 5.1 or Clang 3
 # Compilation options
 
 * __ENABLE_CONSOLE__: enable ConsoleThread support
+* __ENABLE_READLINE__: enable Readline library support (needs ENABLE_CONSOLE)
 * __ENABLE_POSTGRESQL__: enable Postgresql C++ client
 * __ENABLE_HTTPCLIENT__: enable HTTP client support
 * __ENABLE_CALDAV__: enable caldav client support (needs ENABLE_HTTPCLIENT)
