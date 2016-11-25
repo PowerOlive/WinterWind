@@ -123,11 +123,11 @@ endif()
 
 configure_file(
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in"
-	"${PROJECT_BINARY_DIR}/include/cmake_config.h"
+	"${PROJECT_BINARY_DIR}/winterwind/include/cmake_config.h"
 )
 
 include_directories(
-	${PROJECT_BINARY_DIR}/include
+	${PROJECT_BINARY_DIR}/winterwind/include
 )
 
 add_library(winterwind SHARED ${SRC_FILES})
