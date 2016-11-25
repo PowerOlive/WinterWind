@@ -125,18 +125,7 @@ public:
 	void * run();
 
 	std::string get_completion(uint32_t index);
-protected:
-	void add_completion(const std::string &completion)
-	{
-		std::lock_guard<std::mutex> lock(m_mutex);
-		for (const auto &c: m_completions) {
-			if (c == completion) {
-				return;
-			}
-		}
-		m_completions.push_back(completion);
-	}
-
+	void add_completion(const std::string &completion);
 private:
 	char *rl_gets();
 

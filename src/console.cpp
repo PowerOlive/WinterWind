@@ -125,6 +125,17 @@ std::string ConsoleThread::get_completion(uint32_t index)
 	return index < m_completions.size() ? m_completions[index] : "";
 }
 
+void ConsoleThread::add_completion(const std::string &completion)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	for (const auto &c: m_completions) {
+		if (c == completion) {
+			return;
+		}
+	}
+	m_completions.push_back(completion);
+}
+
 void* ConsoleThread::run()
 {
 	Thread::SetThreadName(m_thread_name);
