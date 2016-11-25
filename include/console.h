@@ -124,6 +124,7 @@ public:
 
 	void * run();
 
+	// These functions only have effect is ENABLE_READLINE is true
 	std::string get_completion(uint32_t index);
 	void add_completion(const std::string &completion);
 private:
