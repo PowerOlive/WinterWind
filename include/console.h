@@ -28,6 +28,7 @@
 #include "utils/threads.h"
 #include <iostream>
 #include <memory>
+#include <vector>
 
 class ConsoleHandler;
 
@@ -115,17 +116,35 @@ protected:
 class ConsoleThread: public Thread
 {
 public:
-	ConsoleThread(ConsoleHandler *hdl, const std::string &&prompt):
-		Thread(), m_console_handler(hdl), m_prompt(prompt) {}
+	ConsoleThread(ConsoleHandler *hdl, const std::string &&prompt,
+		const std::string &thread_name = "ConsoleThread"):
+		Thread(), m_thread_name(thread_name), m_console_handler(hdl), m_prompt(prompt) {}
 
 	~ConsoleThread() {}
 
 	void * run();
+
+	std::string get_completion(uint32_t index);
+protected:
+	void add_completion(const std::string &completion)
+	{
+		std::lock_guard<std::mutex> lock(m_mutex);
+		for (const auto &c: m_completions) {
+			if (c == completion) {
+				return;
+			}
+		}
+		m_completions.push_back(completion);
+	}
+
 private:
 	char *rl_gets();
 
+	std::string m_thread_name = "ConsoleThread";
 	ConsoleHandler* m_console_handler = nullptr;
 	std::string m_prompt = "";
+	std::vector<std::string> m_completions = {};
+	std::mutex m_mutex;
 
 	char *m_line_read = nullptr;
 };

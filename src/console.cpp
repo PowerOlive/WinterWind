@@ -35,7 +35,9 @@
 #include <stdlib.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <cassert>
 
+static ConsoleThread *g_console_thread = nullptr;
 char *ConsoleThread::rl_gets()
 {
 	/* If the buffer has already been allocated, return the memory
@@ -48,12 +50,59 @@ char *ConsoleThread::rl_gets()
 
 	/* Get a line from the user. */
 	m_line_read = readline(m_prompt.c_str());
+	rl_bind_key('\t', rl_complete);
 
 	/* If the line has any text in it, save it on the history. */
 	if (m_line_read && *m_line_read)
 		add_history(m_line_read);
 
 	return (m_line_read);
+}
+
+inline static char *dupstr(const std::string &s)
+{
+	char *r = (char*) malloc(s.length() + 1);
+	strcpy(r, s.c_str());
+	return r;
+}
+
+static char* console_rl_generator(const char *text, int state)
+{
+	// The console thread should be pointed
+	assert(g_console_thread);
+	static uint32_t list_index, len;
+	std::string name = "";
+
+	if (!state) {
+		list_index = 0;
+		len = (int) strlen(text);
+	}
+
+	name = g_console_thread->get_completion(list_index);
+	while (!name.empty()) {
+		list_index++;
+		if (strncmp (name.c_str(), text, len) == 0)
+			return dupstr(name);
+		name = g_console_thread->get_completion(list_index);
+	}
+
+	/* If no names matched, then return NULL. */
+	return NULL;
+
+}
+
+static char** rl_completion(const char *text, int start, int end)
+{
+	char **matches;
+
+	matches = NULL;
+
+	if (start == 0)
+		matches = rl_completion_matches((char*)text, &console_rl_generator);
+	else
+		rl_bind_key('\t', rl_abort);
+
+	return (matches);
 }
 #else
 char *ConsoleThread::rl_gets() { assert(false); return nullptr; }
@@ -70,13 +119,22 @@ static int kb_hit_return()
 }
 #endif
 
+std::string ConsoleThread::get_completion(uint32_t index)
+{
+	std::lock_guard<std::mutex> lock(m_mutex);
+	return index < m_completions.size() ? m_completions[index] : "";
+}
+
 void* ConsoleThread::run()
 {
-	Thread::SetThreadName("ConsoleThread");
+	Thread::SetThreadName(m_thread_name);
 
 	ThreadStarted();
 
-#if !READLINE
+#if READLINE
+	g_console_thread = this;
+	rl_attempted_completion_function = rl_completion;
+#else
 	std::cout << m_prompt;
 	std::cout.flush();
 #endif
@@ -111,5 +169,9 @@ void* ConsoleThread::run()
 #endif
 		}
 	}
+
+#if READLINE
+	g_console_thread = nullptr;
+#endif
 	return NULL;
 }

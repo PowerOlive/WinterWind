@@ -34,6 +34,7 @@
 #include <httpserver.h>
 #include <utils/stringutils.h>
 #include <elasticsearchclient.h>
+#include <console.h>
 
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
@@ -518,6 +519,10 @@ int main(int argc, const char* argv[])
 	if (argc >= 3) {
 		ES_HOST = std::string(argv[2]);
 	}
+
+	ConsoleThread ct(nullptr, "prompt> ");
+	ct.start();
+	while(true) {}
 
 	CppUnit::TextUi::TestRunner runner;
 	runner.addTest(WinterWindTests::suite());
