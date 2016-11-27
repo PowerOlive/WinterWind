@@ -8,20 +8,51 @@ before_script:
 # These are already included in image
 # - pacman --noconfirm -S libxml2 jsoncpp curl
 
-gcc5:
+stages:
+  - build
+  - unittests
+
+build:gcc6:
   stage: build
+  environment: staging
+  artifacts:
+    when: on_success
+    expire_in: 1 day
+    paths:
+      - build/
   script:
     - mkdir -p build
     - cd build
     - cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DENABLE_UNITTESTS=1 ..
     - make -j4
-    - ./src/unittests/winterwind_unittests $GITLAB_API_KEY elasticsearch
 
-clang:
+build:clang:
   stage: build
+  environment: staging
+  artifacts:
+    when: on_success
+    expire_in: 1 day
+    paths:
+      - build/
   script:
     - mkdir -p build
     - cd build
     - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DENABLE_UNITTESTS=1 ..
     - make -j4
+
+.unittests_template: &unittests_definition
+  stage: unittests
+  environment: staging
+  script:
+    - cd build
     - ./src/unittests/winterwind_unittests $GITLAB_API_KEY elasticsearch
+
+unittests:gcc6:
+  <<: *unittests_definition
+  dependencies:
+    - build:gcc6
+
+unittests:clang:
+  <<: *unittests_definition
+  dependencies:
+    - build:clang
