@@ -520,10 +520,6 @@ int main(int argc, const char* argv[])
 		ES_HOST = std::string(argv[2]);
 	}
 
-	ConsoleThread ct(nullptr, "prompt> ");
-	ct.start();
-	while(true) {}
-
 	CppUnit::TextUi::TestRunner runner;
 	runner.addTest(WinterWindTests::suite());
 	std::cout << "Starting unittests...." << std::endl;
