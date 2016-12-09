@@ -58,7 +58,7 @@ void CaldavClient::load_calendars()
 	add_http_header("Content-Type", "application/xml; charset=utf-8");
 	add_http_header("Depth", "1");
 	add_http_header("Prefer", "return-minimal");
-	perform_propfind(m_url + "/calendars/" + m_username + "/", res, reqflag,
+	_propfind(m_url + "/calendars/" + m_username + "/", res, reqflag,
 			calendar_list_request);
 
 	reqflag |= XMLPARSER_XML_SIMPLE | XMLPARSER_XML_STRIP_NEWLINE;

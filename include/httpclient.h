@@ -46,54 +46,54 @@ public:
 	HTTPClient(uint32_t max_file_size = 1024 * 1024);
 	virtual ~HTTPClient();
 
-	void perform_request(const std::string &url, std::string &res, int32_t
+	void request(const std::string &url, std::string &res, int32_t
 		flag = HTTPCLIENT_REQ_SIMPLE, HTTPMethod method = HTTP_METHOD_GET,
 		const std::string &post_data = "");
 
-	inline void perform_post(const std::string &url, const std::string &post_data,
+	inline void _post(const std::string &url, const std::string &post_data,
 		std::string &res, int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		perform_request(url, res, flag, HTTP_METHOD_GET, post_data);
+		request(url, res, flag, HTTP_METHOD_POST, post_data);
 	}
 
-	inline void perform_get(const std::string &url, std::string &res,
+	inline void _get(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		perform_request(url, res, flag, HTTP_METHOD_GET, "");
+		request(url, res, flag, HTTP_METHOD_GET, "");
 	}
 
-	inline void perform_delete(const std::string &url, std::string &res,
+	inline void _delete(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		perform_request(url, res, flag, HTTP_METHOD_DELETE, "");
+		request(url, res, flag, HTTP_METHOD_DELETE, "");
 	}
 
-	inline void perform_head(const std::string &url, std::string &res,
+	inline void _head(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		perform_request(url, res, flag, HTTP_METHOD_HEAD, "");
+		request(url, res, flag, HTTP_METHOD_HEAD, "");
 	}
 
-	inline void perform_propfind(const std::string &url, std::string &res,
+	inline void _propfind(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE, const std::string &post_data = "")
 	{
-		perform_request(url, res, flag, HTTP_METHOD_PROPFIND, post_data);
+		request(url, res, flag, HTTP_METHOD_PROPFIND, post_data);
 	}
 
-	inline void perform_put(const std::string &url, std::string &res,
+	inline void _put(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE, const std::string &post_data = "")
 	{
-		perform_request(url, res, flag, HTTP_METHOD_PUT, post_data);
+		request(url, res, flag, HTTP_METHOD_PUT, post_data);
 	}
 
-	void fetch_html_tag_value(const std::string &url, const std::string &xpath,
+	void get_html_tag_value(const std::string &url, const std::string &xpath,
 			std::vector<std::string> &res, int32_t pflag = XMLPARSER_XML_SIMPLE);
 	bool fetch_json(const std::string &url, Json::Value &res)
 	{
-		return fetch_json(url, {}, res);
+		return _get_json(url, {}, res);
 	}
 
-	bool fetch_json(const std::string &url,
+	bool _get_json(const std::string &url,
 			const HTTPHeadersMap &headers, Json::Value &res);
 
 	void add_http_header(const std::string &header, const std::string &value)
@@ -101,7 +101,7 @@ public:
 		m_http_headers[header] = value;
 	}
 
-	bool post_json(const std::string &url, const std::string &post_data, Json::Value &res);
+	bool _post_json(const std::string &url, const Json::Value &data, Json::Value &res);
 
 	long get_http_code() const { return m_http_code; }
 
@@ -113,6 +113,10 @@ protected:
 	std::string m_password = "";
 	std::unordered_map<std::string, std::string> m_http_headers;
 	long m_http_code = 0;
+	Json::Reader *m_json_reader = nullptr;
+	Json::Writer *json_writer();
+	Json::Reader *json_reader();
 private:
+	Json::FastWriter *m_json_writer = nullptr;
 	uint32_t m_maxfilesize = 0;
 };

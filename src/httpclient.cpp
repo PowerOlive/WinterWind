@@ -36,6 +36,26 @@ HTTPClient::HTTPClient(uint32_t max_file_size):
 
 HTTPClient::~HTTPClient()
 {
+	delete m_json_writer;
+	delete m_json_reader;
+}
+
+Json::Writer *HTTPClient::json_writer()
+{
+	if (!m_json_writer) {
+        m_json_writer = new Json::FastWriter();
+	}
+
+	return m_json_writer;
+}
+
+Json::Reader *HTTPClient::json_reader()
+{
+	if (!m_json_reader) {
+		m_json_reader = new Json::Reader();
+	}
+
+	return m_json_reader;
 }
 
 size_t HTTPClient::curl_writer(char *data, size_t size, size_t nmemb,
@@ -45,7 +65,7 @@ size_t HTTPClient::curl_writer(char *data, size_t size, size_t nmemb,
 	return realsize;
 }
 
-void HTTPClient::perform_request(const std::string &url, std::string &res,
+void HTTPClient::request(const std::string &url, std::string &res,
 		int32_t flag, HTTPMethod method, const std::string &post_data)
 {
 	CURL *curl = curl_easy_init();
@@ -87,6 +107,7 @@ void HTTPClient::perform_request(const std::string &url, std::string &res,
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
+		case HTTP_METHOD_POST:
 		case HTTP_METHOD_GET:
 		default: break;
 	}
@@ -136,18 +157,18 @@ void HTTPClient::perform_request(const std::string &url, std::string &res,
 	}
 }
 
-void HTTPClient::fetch_html_tag_value(const std::string &url, const std::string &xpath,
+void HTTPClient::get_html_tag_value(const std::string &url, const std::string &xpath,
 		std::vector<std::string> &res, int32_t pflag)
 {
 	std::string page_res = "";
 	assert(!((pflag & XMLPARSER_XML_SIMPLE) && (pflag & XMLPARSER_XML_WITHOUT_TAGS)));
-	perform_get(url, page_res);
+	_get(url, page_res);
 
 	XMLParser parser(XMLPARSER_MODE_HTML);
 	parser.parse(page_res, xpath, pflag, res);
 }
 
-bool HTTPClient::fetch_json(const std::string &url,
+bool HTTPClient::_get_json(const std::string &url,
 		const HTTPHeadersMap &headers, Json::Value &res)
 {
 	std::string res_str = "";
@@ -156,10 +177,9 @@ bool HTTPClient::fetch_json(const std::string &url,
 		add_http_header(header.first, header.second);
 	}
 
-	perform_get(url, res_str, HTTPCLIENT_REQ_SIMPLE);
+	_get(url, res_str, HTTPCLIENT_REQ_SIMPLE);
 
-	Json::Reader reader;
-	if (!reader.parse(res_str, res)) {
+	if (!json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << std::endl;
 		return false;
 	}
@@ -167,12 +187,12 @@ bool HTTPClient::fetch_json(const std::string &url,
 	return true;
 }
 
-bool HTTPClient::post_json(const std::string &url, const std::string &post_data,
+bool HTTPClient::_post_json(const std::string &url, const Json::Value &data,
 		Json::Value &res)
 {
 	std::string res_str = "";
 	add_http_header("Content-Type", "application/json");
-	perform_post(url, post_data, res_str);
+	_post(url, json_writer()->write(data), res_str);
 
 	if (m_http_code == 400) {
 		std::cerr << "Bad request for " << url << ", error was: '" << res_str
@@ -180,8 +200,7 @@ bool HTTPClient::post_json(const std::string &url, const std::string &post_data,
 		return false;
 	}
 
-	Json::Reader reader;
-	if (res_str.empty() || !reader.parse(res_str, res)) {
+	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << std::endl;
 		return false;
 	}

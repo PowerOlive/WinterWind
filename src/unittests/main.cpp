@@ -207,7 +207,7 @@ protected:
 	{
 		HTTPClient cli;
 		std::string res;
-		cli.perform_get("http://localhost:58080/unittest.html", res);
+		cli._get("http://localhost:58080/unittest.html", res);
 		CPPUNIT_ASSERT(res == HTTPSERVER_TEST01_STR);
 	}
 
@@ -216,7 +216,7 @@ protected:
 		HTTPClient cli;
 		std::string res;
 		cli.add_http_header("UnitTest-Header", "1");
-		cli.perform_get("http://localhost:58080/unittest2.html", res);
+		cli._get("http://localhost:58080/unittest2.html", res);
 		CPPUNIT_ASSERT(res == "yes");
 	}
 
@@ -224,7 +224,7 @@ protected:
 	{
 		HTTPClient cli;
 		std::string res;
-		cli.perform_get("http://localhost:58080/unittest3.html?UnitTestParam=thisistestparam", res);
+		cli._get("http://localhost:58080/unittest3.html?UnitTestParam=thisistestparam", res);
 		CPPUNIT_ASSERT(res == "yes");
 	}
 
@@ -233,7 +233,7 @@ protected:
 		HTTPClient cli;
 		std::string res;
 		cli.add_http_header("Content-Type", "application/x-www-form-urlencoded");
-		cli.perform_post("http://localhost:58080/unittest4.html", "post_param=ilikedogs", res);
+		cli._post("http://localhost:58080/unittest4.html", "post_param=ilikedogs", res);
 		CPPUNIT_ASSERT(res == "yes");
 	}
 
@@ -243,8 +243,7 @@ protected:
 		Json::Value query;
 		query["json_param"] = "catsarebeautiful";
 		Json::Value res;
-		Json::FastWriter writer;
-		cli.post_json("http://localhost:58080/unittest5.html", writer.write(query), res);
+		cli._post_json("http://localhost:58080/unittest5.html", query, res);
 		CPPUNIT_ASSERT(res.isMember("status") && res["status"] == "yes");
 	}
 
