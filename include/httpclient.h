@@ -59,19 +59,19 @@ public:
 	inline void _get(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		request(url, res, flag, HTTP_METHOD_GET, "");
+		request(url, res, flag, HTTP_METHOD_GET);
 	}
 
 	inline void _delete(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		request(url, res, flag, HTTP_METHOD_DELETE, "");
+		request(url, res, flag, HTTP_METHOD_DELETE);
 	}
 
 	inline void _head(const std::string &url, std::string &res,
 		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
-		request(url, res, flag, HTTP_METHOD_HEAD, "");
+		request(url, res, flag, HTTP_METHOD_HEAD);
 	}
 
 	inline void _propfind(const std::string &url, std::string &res,
@@ -88,13 +88,9 @@ public:
 
 	void get_html_tag_value(const std::string &url, const std::string &xpath,
 			std::vector<std::string> &res, int32_t pflag = XMLPARSER_XML_SIMPLE);
-	bool fetch_json(const std::string &url, Json::Value &res)
-	{
-		return _get_json(url, {}, res);
-	}
 
-	bool _get_json(const std::string &url,
-			const HTTPHeadersMap &headers, Json::Value &res);
+	bool _get_json(const std::string &url, Json::Value &res,
+		const HTTPHeadersMap &headers = {});
 
 	void add_http_header(const std::string &header, const std::string &value)
 	{
@@ -113,10 +109,10 @@ protected:
 	std::string m_password = "";
 	std::unordered_map<std::string, std::string> m_http_headers;
 	long m_http_code = 0;
-	Json::Reader *m_json_reader = nullptr;
 	Json::Writer *json_writer();
 	Json::Reader *json_reader();
 private:
 	Json::FastWriter *m_json_writer = nullptr;
+	Json::Reader *m_json_reader = nullptr;
 	uint32_t m_maxfilesize = 0;
 };

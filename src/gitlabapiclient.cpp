@@ -43,7 +43,7 @@ const GitlabRetCod GitlabAPIClient::get_issues(const uint32_t project_id, const 
 {
 	Json::Value tmp_result;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	fetch_json(m_server_uri + api_v3_endpoint + "/projects/"
+	_get_json(m_server_uri + api_v3_endpoint + "/projects/"
 			   + std::to_string(project_id) + "/issues"
 			   + (filter.length() ? "?" + filter : ""), tmp_result);
 
@@ -197,7 +197,7 @@ const GitlabRetCod GitlabAPIClient::get_merge_requests(const uint32_t project_id
 {
 	Json::Value tmp_result;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	fetch_json(m_server_uri + api_v3_endpoint + "/projects/"
+	_get_json(m_server_uri + api_v3_endpoint + "/projects/"
 				+ std::to_string(project_id) + "/merge_requests"
 				+ (filter.length() ? "?" + filter : ""), tmp_result);
 
@@ -260,7 +260,7 @@ const GitlabRetCod GitlabAPIClient::get_labels(const uint32_t project_id,
 {
 	Json::Value tmp_result;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	fetch_json(m_server_uri + api_v3_endpoint + "/projects/"
+	_get_json(m_server_uri + api_v3_endpoint + "/projects/"
 			   + std::to_string(project_id) + "/labels", tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0
@@ -416,7 +416,7 @@ const GitlabRetCod GitlabAPIClient::get_namespaces(const std::string &name,
 {
 	Json::Value tmp_result;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	fetch_json(m_server_uri + api_v3_endpoint + "/namespaces"
+	_get_json(m_server_uri + api_v3_endpoint + "/namespaces"
 			   + (name.length() ? "?search=" + name : ""), tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0
@@ -465,7 +465,7 @@ const GitlabRetCod GitlabAPIClient::get_groups(const std::string &filter, Json::
 {
 	Json::Value tmp_result;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	fetch_json(m_server_uri + api_v3_endpoint + "/groups"
+	_get_json(m_server_uri + api_v3_endpoint + "/groups"
 			   + (filter.length() ? "?" + filter : ""), tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0
@@ -611,7 +611,7 @@ const GitlabRetCod GitlabAPIClient::get_projects(const std::string &name,
 	}
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	if (!fetch_json(m_server_uri + api_v3_endpoint + "/projects" + endpoint_suffix,
+	if (!_get_json(m_server_uri + api_v3_endpoint + "/projects" + endpoint_suffix,
 			tmp_result)) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);;
 	}

@@ -45,14 +45,14 @@ ElasticsearchClient::~ElasticsearchClient()
 void ElasticsearchClient::discover_cluster()
 {
 	Json::Value res;
-	if (!fetch_json(m_init_url + ES_URL_CLUSTER_STATE, res) ||
+	if (!_get_json(m_init_url + ES_URL_CLUSTER_STATE, res) ||
 		!res.isMember("cluster_name") || !res["cluster_name"].isString()) {
 		throw ElasticsearchException("Unable to parse Elasticsearch cluster state");
 	}
 
 	m_cluster_name = res["cluster_name"].asString();
 
-	if (!fetch_json(m_init_url + ES_URL_NODES, res) ||
+	if (!_get_json(m_init_url + ES_URL_NODES, res) ||
 		!res.isMember("nodes") || !res["nodes"].isObject()) {
 		throw ElasticsearchException("Unable to parse Elasticsearch nodes");
 	}

@@ -168,8 +168,7 @@ void HTTPClient::get_html_tag_value(const std::string &url, const std::string &x
 	parser.parse(page_res, xpath, pflag, res);
 }
 
-bool HTTPClient::_get_json(const std::string &url,
-		const HTTPHeadersMap &headers, Json::Value &res)
+bool HTTPClient::_get_json(const std::string &url, Json::Value &res, const HTTPHeadersMap &headers)
 {
 	std::string res_str = "";
 	add_http_header("Content-Type", "application/json");
