@@ -22,10 +22,11 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.2)
 project(winterwind)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(BINDIR "${CMAKE_INSTALL_PREFIX}/bin")
 set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/winterwind")
@@ -36,6 +37,7 @@ include_directories(
 	/usr/include/mysql
 	/usr/local/include/libxml2
 	/usr/local/include/jsoncpp
+	/usr/local/include/mysql
 	${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
