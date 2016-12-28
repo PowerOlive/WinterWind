@@ -30,9 +30,17 @@
 #include <string>
 #include <sstream>
 
-#define START_CHRONO const std::chrono::time_point<std::chrono::system_clock> start_time = std::chrono::system_clock::now();
-#define END_CHRONO const std::chrono::time_point<std::chrono::system_clock> end_time = std::chrono::system_clock::now();
-#define CHRONO_DURATION const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+#define NOW std::chrono::system_clock::now()
+#define START_CHRONO const std::chrono::time_point<std::chrono::system_clock> start_time = NOW;
+#define END_CHRONO const std::chrono::time_point<std::chrono::system_clock> end_time = NOW;
+
+inline void chrono_duration(const std::chrono::time_point<std::chrono::system_clock> &start_time,
+	const std::chrono::time_point<std::chrono::system_clock> &end_time, double &result)
+{
+	const std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+	result = elapsed_seconds.count();
+}
+
 #define PERIODIC_FUNCTION(F, TV, T, I) \
 	T -= I; \
 	if (T <= I) { \
@@ -44,16 +52,17 @@ inline std::string readable_chrono_duration
 	(std::chrono::time_point<std::chrono::system_clock> start_time,
 	 std::chrono::time_point<std::chrono::system_clock> end_time)
 {
-	CHRONO_DURATION;
+	double elapsed_seconds;
+	chrono_duration(start_time, end_time, elapsed_seconds);
 	std::stringstream ss;
-	if (elapsed_seconds.count() * 1000.f < 1.0f) {
-		ss << elapsed_seconds.count() * 1000.f * 1000.0f << "µs";
+	if (elapsed_seconds * 1000.f < 1.0f) {
+		ss << elapsed_seconds * 1000.f * 1000.0f << "µs";
 	}
-	else if (elapsed_seconds.count() < 1.0f) {
-		ss << elapsed_seconds.count() * 1000.f << "ms";
+	else if (elapsed_seconds < 1.0f) {
+		ss << elapsed_seconds * 1000.f << "ms";
 	}
 	else {
-		ss << elapsed_seconds.count() << "s";
+		ss << elapsed_seconds << "s";
 	}
 
 	return ss.str();
