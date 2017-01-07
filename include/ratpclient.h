@@ -60,5 +60,5 @@ public:
 	const RATPScheduleList &get_next_trains(const RATPLine line, const std::string &stop,
 		const uint8_t direction);
 private:
-	std::unordered_map<RATPLine, RATPStopMap> m_stop_cache;
+	std::map<RATPLine, RATPStopMap> m_stop_cache;
 };
