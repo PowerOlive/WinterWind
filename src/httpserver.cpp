@@ -35,7 +35,7 @@ static const char* BAD_REQUEST = "<html><head><title>Bad request</title></head><
 
 HTTPServer::HTTPServer(const uint16_t http_port): m_http_port(http_port)
 {
-	m_mhd_daemon = MHD_start_daemon(MHD_USE_THREAD_PER_CONNECTION, m_http_port, NULL,
+	m_mhd_daemon = MHD_start_daemon(MHD_USE_POLL_INTERNALLY, m_http_port, NULL,
 			NULL, &HTTPServer::request_handler, this, MHD_OPTION_NOTIFY_COMPLETED,
 			&HTTPServer::request_completed, NULL, MHD_OPTION_END);
 }
