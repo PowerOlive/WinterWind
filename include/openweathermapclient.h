@@ -35,6 +35,8 @@ struct Weather
 	uint8_t humidity = 0;
 	time_t sunrise = 0;
 	time_t sunset = 0;
+
+	Weather &operator>>(Json::Value &res);
 };
 
 enum OpenWeatherMapReturnCode

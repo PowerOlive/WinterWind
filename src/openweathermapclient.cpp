@@ -27,6 +27,16 @@
 #include <iostream>
 #include "openweathermapclient.h"
 
+Weather &Weather::operator>>(Json::Value &res)
+{
+	res["city"] = city;
+	res["description"] = weather_desc;
+	res["temperature"] = temperature;
+	res["humidity"] = (int) humidity;
+	res["sunrise"] = (int) sunrise;
+	res["sunset"] = (int) sunset;
+	return *this;
+}
 OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weather &result)
 {
 	// @TODO: add a cache

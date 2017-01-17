@@ -35,6 +35,7 @@
 #include <utils/stringutils.h>
 #include <elasticsearchclient.h>
 #include <console.h>
+#include <openweathermapclient.h>
 
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
@@ -58,6 +59,8 @@ public:
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test1 - Split string", split_string);
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test2 - Remove substring", remove_substring);
+
+		CPPUNIT_ADDTEST(WinterWindTests, "Weather - Test1", weather_to_json);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handle GET", httpserver_handle_get);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers", httpserver_header);
@@ -137,6 +140,23 @@ protected:
 		std::string to_alter = orig;
 		str_remove_substr(to_alter, "world ");
 		CPPUNIT_ASSERT(to_alter == "The is mine, the is not yours");
+	}
+
+	void weather_to_json()
+	{
+		Weather w;
+		w.sunset = 150;
+		w.sunrise = 188;
+		w.humidity = 4;
+		w.temperature = 25.0f;
+		w.city = "test_city";
+		Json::Value res;
+		w >> res;
+		CPPUNIT_ASSERT(res["sunset"].asUInt() == 150);
+		CPPUNIT_ASSERT(res["sunrise"].asUInt() == 188);
+		CPPUNIT_ASSERT(res["humidity"].asInt() == 4);
+		CPPUNIT_ASSERT(res["temperature"].asFloat() == 25.0f);
+		CPPUNIT_ASSERT(res["city"].asString() == "test_city");
 	}
 
 	bool httpserver_testhandler(const HTTPQueryPtr q, std::string &res)
