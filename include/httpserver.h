@@ -64,6 +64,13 @@ struct HTTPJsonQuery: public HTTPQuery
 	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_JSON; }
 };
 
+struct HTTPRequestSession
+{
+	std::string result = "";
+	bool data_handled = false;
+	uint32_t http_code = MHD_HTTP_OK;
+};
+
 typedef std::shared_ptr<HTTPQuery> HTTPQueryPtr;
 
 typedef std::function<HTTPResponse *(const HTTPQueryPtr)> HTTPServerRequestHandler;
@@ -101,7 +108,7 @@ private:
 	bool parse_post_data(const std::string &data, HTTPQueryPtr q);
 
 	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url,
-		const std::string &upload_data, std::string &result);
+		const std::string &upload_data, HTTPRequestSession *session);
 
 	MHD_Daemon *m_mhd_daemon = nullptr;
 

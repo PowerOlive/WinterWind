@@ -47,13 +47,6 @@ HTTPServer::~HTTPServer()
 	}
 }
 
-struct HTTPRequestSession
-{
-	std::string result = "";
-	bool data_handled = false;
-	uint32_t http_code = MHD_HTTP_OK;
-};
-
 int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connection,
 	const char *url, const char *method, const char *version, const char *upload_data,
 	size_t *upload_data_size, void **con_cls)
@@ -100,7 +93,7 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 	// Handle request
 	HTTPRequestSession *session = (HTTPRequestSession *) *con_cls;
 	if (!session->data_handled && !httpd->handle_query(http_method, connection, std::string(url),
-		std::string(upload_data, *upload_data_size), session->result)) {
+		std::string(upload_data, *upload_data_size), session)) {
 		session->result = std::string(BAD_REQUEST);
 		session->http_code = MHD_HTTP_BAD_REQUEST;
 	}
@@ -130,7 +123,7 @@ void HTTPServer::request_completed(void *cls, struct MHD_Connection *connection,
 }
 
 bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url,
-	const std::string &upload_data, std::string &result)
+	const std::string &upload_data, HTTPRequestSession *session)
 {
 	assert(m < HTTP_METHOD_MAX);
 
@@ -171,7 +164,7 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	HTTPResponse *http_response = url_handler->second(q);
 	if (!http_response) {
 		if (content_type && strcmp(content_type, "application/json") == 0) {
-			result = "{}";
+			session->result = "{}";
 		}
 
 		return false;
@@ -179,12 +172,12 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 
 	switch (http_response->get_type()) {
 		case HTTPRESPONSE_RAW:
-			*http_response >> result;
+			*http_response >> session->result;
 			break;
 		case HTTPRESPONSE_JSON: {
 			JSONHTTPResponse *json_reponse = dynamic_cast<JSONHTTPResponse *>(http_response);
 			assert(json_reponse); // this should not happen
-			*json_reponse >> result;
+			*json_reponse >> session->result;
 			break;
 		}
 		default: assert(false); // this should not happen
