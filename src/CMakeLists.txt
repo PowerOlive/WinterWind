@@ -116,8 +116,15 @@ if (ENABLE_HTTPCLIENT)
 endif()
 
 if(ENABLE_HTTPSERVER)
-	set(SRC_FILES ${SRC_FILES} httpserver.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ../include/httpserver.h ../include/httpcommon.h)
+	set(SRC_FILES ${SRC_FILES}
+		httpresponse.cpp
+		httpserver.cpp
+	)
+	set(HEADER_FILES ${HEADER_FILES}
+		../include/httpcommon.h
+		../include/httpresponse.h
+		../include/httpserver.h
+	)
 	set(PROJECT_LIBS ${PROJECT_LIBS} microhttpd)
 endif()
 

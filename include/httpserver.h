@@ -35,6 +35,7 @@
 #include <json/json.h>
 #include <memory>
 #include "httpcommon.h"
+#include "httpresponse.h"
 
 enum HTTPQueryType
 {
@@ -65,7 +66,7 @@ struct HTTPJsonQuery: public HTTPQuery
 
 typedef std::shared_ptr<HTTPQuery> HTTPQueryPtr;
 
-typedef std::function<bool(const HTTPQueryPtr, std::string &)> HTTPServerRequestHandler;
+typedef std::function<HTTPResponse *(const HTTPQueryPtr)> HTTPServerRequestHandler;
 
 #define BIND_HTTPSERVER_HANDLER(s, m, u, hdl, obj) \
 	s->register_handler(HTTP_METHOD_##m, u, \
