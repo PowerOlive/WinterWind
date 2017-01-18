@@ -77,7 +77,7 @@ typedef std::function<HTTPResponse *(const HTTPQueryPtr)> HTTPServerRequestHandl
 
 #define BIND_HTTPSERVER_HANDLER(s, m, u, hdl, obj) \
 	s->register_handler(HTTP_METHOD_##m, u, \
-		std::bind(hdl, obj, std::placeholders::_1, std::placeholders::_2));
+		std::bind(hdl, obj, std::placeholders::_1));
 
 typedef std::unordered_map<std::string, HTTPServerRequestHandler> HTTPServerReqHandlerMap;
 class HTTPServer

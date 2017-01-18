@@ -159,38 +159,37 @@ protected:
 		CPPUNIT_ASSERT(res["city"].asString() == "test_city");
 	}
 
-	bool httpserver_testhandler(const HTTPQueryPtr q, std::string &res)
+	HTTPResponse *httpserver_testhandler(const HTTPQueryPtr q)
 	{
-		res = HTTPSERVER_TEST01_STR;
-		return true;
+		return new HTTPResponse(HTTPSERVER_TEST01_STR);
 	}
 
-	bool httpserver_testhandler2(const HTTPQueryPtr q, std::string &res)
+	HTTPResponse *httpserver_testhandler2(const HTTPQueryPtr q)
 	{
-		res = "no";
+		std::string res = "no";
 
 		const auto it = q->headers.find("UnitTest-Header");
 		if (it != q->headers.end() && it->second == "1") {
 			res = "yes";
 		}
-		return true;
+		return new HTTPResponse(res);
 	}
 
-	bool httpserver_testhandler3(const HTTPQueryPtr q, std::string &res)
+	HTTPResponse *httpserver_testhandler3(const HTTPQueryPtr q)
 	{
-		res = "no";
+		std::string res = "no";
 
 		const auto it = q->get_params.find("UnitTestParam");
 		if (it != q->get_params.end() && it->second == "thisistestparam") {
 			res = "yes";
 		}
 
-		return true;
+		return new HTTPResponse(res);
 	}
 
-	bool httpserver_testhandler4(const HTTPQueryPtr q, std::string &res)
+	HTTPResponse *httpserver_testhandler4(const HTTPQueryPtr q)
 	{
-		res = "no";
+		std::string res = "no";
 		CPPUNIT_ASSERT(q->get_type() == HTTPQUERY_TYPE_FORM);
 
 		HTTPFormQuery *fq = dynamic_cast<HTTPFormQuery *>(q.get());
@@ -201,10 +200,10 @@ protected:
 			res = "yes";
 		}
 
-		return true;
+		return new HTTPResponse(res);
 	}
 
-	bool httpserver_testhandler5(const HTTPQueryPtr q, std::string &res)
+	HTTPResponse *httpserver_testhandler5(const HTTPQueryPtr q)
 	{
 		Json::Value json_res;
 		json_res["status"] = "no";
@@ -218,9 +217,7 @@ protected:
 			json_res["status"] = "yes";
 		}
 
-		Json::FastWriter writer;
-		res = writer.write(json_res);
-		return true;
+		return new JSONHTTPResponse(json_res);
 	}
 
 	void httpserver_handle_get()
