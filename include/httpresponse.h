@@ -53,6 +53,11 @@ class JSONHTTPResponse: public HTTPResponse
 {
 public:
 	JSONHTTPResponse(): HTTPResponse() {}
+	JSONHTTPResponse(const Json::Value &r):
+		HTTPResponse(),
+		m_json_response(r)
+	{}
+
 	virtual ~JSONHTTPResponse() {}
 
 	JSONHTTPResponse &operator<<(const Json::Value &r);
