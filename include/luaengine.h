@@ -27,6 +27,7 @@
 
 #include <string>
 #include <lua.hpp>
+#include "cmake_config.h"
 
 enum LuaReturnCode
 {
@@ -44,10 +45,25 @@ public:
 	// Lua wrappers
 	void newtable();
 	void setglobal(const std::string &name);
+	int getglobal(const std::string &name);
+	bool isfunction(int index);
+	void pop(int index = 1);
+
+	template<typename T> T read(int index) const;
+	template<typename T> static T read(lua_State *l, int index);
 
 	LuaReturnCode init_winterwind_bindings();
 
-	LuaReturnCode loadScript(const std::string &file);
+	LuaReturnCode load_script(const std::string &file);
+
+	void register_function(const char *name, lua_CFunction f, int top);
+
+#if UNITTESTS
+	bool run_unittests();
+#endif
+
+	// Handlers
+	static int l_get_ratp_schedules(lua_State *L);
 protected:
 	lua_State *m_lua = nullptr;
 };

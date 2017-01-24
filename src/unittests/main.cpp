@@ -38,6 +38,8 @@
 #include <openweathermapclient.h>
 #include <luaengine.h>
 
+#include "unittests_config.h"
+
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
 
@@ -150,6 +152,9 @@ protected:
 		LuaEngine L;
 		LuaReturnCode  rc = L.init_winterwind_bindings();
 		CPPUNIT_ASSERT(rc == LUA_RC_OK);
+		rc = L.load_script(UNITTESTS_LUA_FILE);
+		CPPUNIT_ASSERT(rc == LUA_RC_OK);
+		CPPUNIT_ASSERT(L.run_unittests());
 	}
 
 	void weather_to_json()

@@ -22,6 +22,13 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+set(UNITTESTS_LUA_FILE ${CMAKE_CURRENT_SOURCE_DIR}/unittests.lua)
+
+configure_file(
+	"${CMAKE_CURRENT_SOURCE_DIR}/unittests_config.h.in"
+	"${PROJECT_BINARY_DIR}/winterwind/include/unittests_config.h"
+)
+
 add_executable(winterwind_unittests main.cpp)
 target_link_libraries(winterwind_unittests cppunit winterwind)
 

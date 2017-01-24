@@ -25,5 +25,4 @@
 
 #pragma once
 
-#cmakedefine READLINE @READLINE@
-#cmakedefine UNITTESTS @UNITTESTS@
+#cmakedefine UNITTESTS_LUA_FILE "@UNITTESTS_LUA_FILE@"

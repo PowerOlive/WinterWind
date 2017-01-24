@@ -146,6 +146,10 @@ if (ENABLE_LUA_ENGINE)
 	set(PROJECT_LIBS ${PROJECT_LIBS} lua)
 endif()
 
+set(UNITTESTS 0)
+if (ENABLE_UNITTESTS)
+	set(UNITTESTS 1)
+endif()
 
 configure_file(
 	"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in"
@@ -160,6 +164,7 @@ add_library(winterwind SHARED ${SRC_FILES})
 target_link_libraries(winterwind ${PROJECT_LIBS})
 
 if (ENABLE_UNITTESTS)
+	set(UNITTESTS 1)
 	add_subdirectory(unittests)
 endif()
 
