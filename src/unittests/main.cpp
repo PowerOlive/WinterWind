@@ -36,6 +36,7 @@
 #include <elasticsearchclient.h>
 #include <console.h>
 #include <openweathermapclient.h>
+#include <luaengine.h>
 
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
@@ -59,6 +60,8 @@ public:
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test1 - Split string", split_string);
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test2 - Remove substring", remove_substring);
+
+		CPPUNIT_ADDTEST(WinterWindTests, "LuaEngine - Test1 - Load winterwind engine", lua_winterwind_engine);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Weather - Test1", weather_to_json);
 
@@ -140,6 +143,13 @@ protected:
 		std::string to_alter = orig;
 		str_remove_substr(to_alter, "world ");
 		CPPUNIT_ASSERT(to_alter == "The is mine, the is not yours");
+	}
+
+	void lua_winterwind_engine()
+	{
+		LuaEngine L;
+		LuaReturnCode  rc = L.init_winterwind_bindings();
+		CPPUNIT_ASSERT(rc == LUA_RC_OK);
 	}
 
 	void weather_to_json()

@@ -35,6 +35,7 @@ option(ENABLE_OWMCLIENT "Enable OpenWeatherMap client (requires ENABLE_HTTPCLIEN
 option(ENABLE_RATPCLIENT "Enable RATP client (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_REDIS "Enable redis client" TRUE)
 option(ENABLE_NAMEGENERATOR "Enable embedded name generator" TRUE)
+option(ENABLE_LUA_ENGINE "Enable lua engine" TRUE)
 
 option(ENABLE_UNITTESTS "Enable library unittests" FALSE)
 
@@ -137,6 +138,12 @@ if (ENABLE_REDIS)
 	set(SRC_FILES ${SRC_FILES} redisclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ../include/redisclient.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} hiredis)
+endif()
+
+if (ENABLE_LUA_ENGINE)
+	set(SRC_FILES ${SRC_FILES} luaengine.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ../include/luaengine.h)
+	set(PROJECT_LIBS ${PROJECT_LIBS} lua)
 endif()
 
 
