@@ -48,4 +48,6 @@ private:
 	static int gc_object(lua_State *L);
 
 	static int l_get(lua_State *L);
+	static int l_delete(lua_State *L);
+	static int l_head(lua_State *L);
 };

@@ -14,11 +14,25 @@ end
 
 function test_http_client()
 	local http = core.create_httpclient()
-	local res = http:get("http://google.fr")
-	if res.code == 200 then
-		return true
+	local res = http:get("http://www.google.fr")
+	if res.code ~= 200 then
+		print("test_http_client: get test failed (rc: " .. res.code .. ")")
+		return false
 	end
-	return false
+
+	res = http:delete("http://www.amazon.com/")
+	if res.code ~= 200 then
+		print("test_http_client: delete test failed (rc: " .. res.code .. ")")
+		return false
+	end
+
+-- Doesn't work, blocked at the request's end
+--	res = http:head("http://www.cnn.com")
+--	if res.code ~= 200 then
+--		print("test_http_client: head test failed (rc: " .. res.code .. ")")
+--		return false
+--	end
+	return true
 end
 
 function run_unittests()
