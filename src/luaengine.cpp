@@ -125,16 +125,18 @@ int LuaEngine::l_get_ratp_schedules(lua_State *L)
 	}
 
 	const auto schedules = ratp.get_next_trains(RATP_LINE_RER_B, "Palaiseau Villebon", 1);
+	lua_createtable(L, schedules.size(), 0);
+	int table_idx = lua_gettop(L);
 	uint8_t idx = 0;
 	for (const auto &sched: schedules) {
-		newtable();
+		lua_newtable(L);
 		lua_pushstring(L, sched.destination.c_str());
 		lua_setfield(L, -2, "destination");
 
 		lua_pushstring(L, sched.hour.c_str());
 		lua_setfield(L, -2, "hour");
 
-		lua_rawseti(L, -2, idx);
+		lua_rawseti(L, table_idx, idx);
 		idx++;
 	}
 	return 1;
