@@ -4,7 +4,7 @@ services:
   - elasticsearch:2.4.2
 
 before_script:
-  - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient
+  - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient lua
 # These are already included in image
 # - pacman --noconfirm -S libxml2 jsoncpp curl
 
