@@ -23,56 +23,39 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include <iostream>
+#include "ratpclient.h"
+#include "luaengine.h"
 
-#include <string>
-#include <lua.hpp>
-#include "cmake_config.h"
-
-#define luamethod(class, name) {#name, class::l_##name}
-
-enum LuaReturnCode
+int LuaEngine::l_get_ratp_schedules(lua_State *L)
 {
-	LUA_RC_OK,
-	LUA_RC_LOADFILE_ERROR,
-	LUA_RC_LOADFILE_CONTENT_ERROR,
-};
+	if (!lua_isinteger(L, -1)) {
+		lua_pop(L, 1);
+		return 0;
+	}
 
-class LuaEngine
-{
-public:
-	LuaEngine();
-	~LuaEngine();
+	int line_raw = read<int>(L, -1);
+	lua_pop(L, 1);
 
-	// Lua wrappers
-	void newtable();
-	void setglobal(const std::string &name);
-	int getglobal(const std::string &name);
-	bool isfunction(int index);
-	void pop(int index = 1);
+	if (line_raw != RATP_LINE_RER_A && line_raw != RATP_LINE_RER_B) {
+		std::cerr << "Lua: " << __FUNCTION__ << ": Invalid RATP Line ID" << std::endl;
+		return 0;
+	}
 
-	template<typename T> T read(int index) const;
-	template<typename T> static T read(lua_State *l, int index);
+	const auto schedules = RATPClient().get_next_trains(RATP_LINE_RER_B, "Palaiseau Villebon", 1);
+	lua_createtable(L, schedules.size(), 0);
+	int table_idx = lua_gettop(L);
+	uint8_t idx = 0;
+	for (const auto &sched: schedules) {
+		lua_newtable(L);
+		lua_pushstring(L, sched.destination.c_str());
+		lua_setfield(L, -2, "destination");
 
-	LuaReturnCode init_winterwind_bindings();
+		lua_pushstring(L, sched.hour.c_str());
+		lua_setfield(L, -2, "hour");
 
-	LuaReturnCode load_script(const std::string &file);
-
-	void register_function(const char *name, lua_CFunction f, int top);
-
-#if UNITTESTS
-	bool run_unittests();
-#endif
-
-	// Handlers
-#if ENABLE_HTTPCLIENT
-	static int l_create_httpclient(lua_State *L);
-#if ENABLE_RATPCLIENT
-	static int l_get_ratp_schedules(lua_State *L);
-#endif
-#endif
-protected:
-	lua_State *m_lua = nullptr;
-};
-
-
+		lua_rawseti(L, table_idx, idx);
+		idx++;
+	}
+	return 1;
+}

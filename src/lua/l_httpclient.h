@@ -25,54 +25,27 @@
 
 #pragma once
 
-#include <string>
+#include <httpclient.h>
 #include <lua.hpp>
-#include "cmake_config.h"
 
-#define luamethod(class, name) {#name, class::l_##name}
+class HTTPClientLuaRef {
+private:
+	HTTPClient *m_object;
 
-enum LuaReturnCode
-{
-	LUA_RC_OK,
-	LUA_RC_LOADFILE_ERROR,
-	LUA_RC_LOADFILE_CONTENT_ERROR,
-};
-
-class LuaEngine
-{
+	static const char className[];
+	static const luaL_Reg methods[];
 public:
-	LuaEngine();
-	~LuaEngine();
+	HTTPClientLuaRef(HTTPClient *object);
+	~HTTPClientLuaRef() {}
 
-	// Lua wrappers
-	void newtable();
-	void setglobal(const std::string &name);
-	int getglobal(const std::string &name);
-	bool isfunction(int index);
-	void pop(int index = 1);
+	static void Register(lua_State *L);
+	static void create(lua_State *L, HTTPClient *object);
 
-	template<typename T> T read(int index) const;
-	template<typename T> static T read(lua_State *l, int index);
+	static HTTPClientLuaRef *checkobject(lua_State *L, int narg);
+	static HTTPClient* getobject(HTTPClientLuaRef *ref);
+private:
+	// garbage collector
+	static int gc_object(lua_State *L);
 
-	LuaReturnCode init_winterwind_bindings();
-
-	LuaReturnCode load_script(const std::string &file);
-
-	void register_function(const char *name, lua_CFunction f, int top);
-
-#if UNITTESTS
-	bool run_unittests();
-#endif
-
-	// Handlers
-#if ENABLE_HTTPCLIENT
-	static int l_create_httpclient(lua_State *L);
-#if ENABLE_RATPCLIENT
-	static int l_get_ratp_schedules(lua_State *L);
-#endif
-#endif
-protected:
-	lua_State *m_lua = nullptr;
+	static int l_get(lua_State *L);
 };
-
-

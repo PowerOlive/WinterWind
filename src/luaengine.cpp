@@ -24,8 +24,8 @@
  */
 
 #include <iostream>
-#include <ratpclient.h>
 #include "luaengine.h"
+#include "lua/l_httpclient.h"
 
 LuaEngine::LuaEngine()
 {
@@ -107,41 +107,6 @@ void LuaEngine::register_function(const char *name, lua_CFunction f, int top)
 	lua_settable(m_lua, top);
 }
 
-int LuaEngine::l_get_ratp_schedules(lua_State *L)
-{
-	RATPClient ratp;
-
-	if (!lua_isinteger(L, -1)) {
-		lua_pop(L, 1);
-		return 0;
-	}
-
-	int line_raw = read<int>(L, -1);
-	lua_pop(L, 1);
-
-	if (line_raw != RATP_LINE_RER_A && line_raw != RATP_LINE_RER_B) {
-		std::cerr << "Lua: " << __FUNCTION__ << ": Invalid RATP Line ID" << std::endl;
-		return 0;
-	}
-
-	const auto schedules = ratp.get_next_trains(RATP_LINE_RER_B, "Palaiseau Villebon", 1);
-	lua_createtable(L, schedules.size(), 0);
-	int table_idx = lua_gettop(L);
-	uint8_t idx = 0;
-	for (const auto &sched: schedules) {
-		lua_newtable(L);
-		lua_pushstring(L, sched.destination.c_str());
-		lua_setfield(L, -2, "destination");
-
-		lua_pushstring(L, sched.hour.c_str());
-		lua_setfield(L, -2, "hour");
-
-		lua_rawseti(L, table_idx, idx);
-		idx++;
-	}
-	return 1;
-}
-
 LuaReturnCode LuaEngine::init_winterwind_bindings()
 {
 	// Initialize global
@@ -150,12 +115,17 @@ LuaReturnCode LuaEngine::init_winterwind_bindings()
 
 	getglobal("core");
 	int top = lua_gettop(m_lua);
+#ifdef ENABLE_HTTPCLIENT
+	HTTPClientLuaRef::Register(m_lua);
+	REGISTER_LUA_FCT(create_httpclient);
+#ifdef ENABLE_RATPCLIENT
 	REGISTER_LUA_FCT(get_ratp_schedules);
+#endif
+#endif
 
 	pop(1);
 	return LUA_RC_OK;
 }
-
 
 #if UNITTESTS
 bool LuaEngine::run_unittests()
