@@ -4,7 +4,12 @@ function run_unittests()
 	if schedules == nil then
 		return false
 	end
-	print(schedules)
+	for i = 1, #schedules do
+		if schedules[i].destination == nil or schedules[i].hour == nil then
+			return false
+		end
+	end
+
 	return true
 end
 
