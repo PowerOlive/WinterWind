@@ -64,6 +64,7 @@ struct PostgreSQLTableField
 struct PostgreSQLTableDefinition
 {
 	std::vector<PostgreSQLTableField> fields;
+	std::unordered_map<std::string, std::string> indexes;
 };
 
 class PostgreSQLClient
@@ -80,8 +81,8 @@ public:
 
 	void show_schemas(std::vector<std::string> &res);
 	void show_tables(const std::string &schema, std::vector<std::string> &res);
-	void show_create_table(const std::string &schema, const std::string &db,
-		const std::string &table, PostgreSQLTableDefinition &definition);
+	void show_create_table(const std::string &schema, const std::string &table,
+		PostgreSQLTableDefinition &definition);
 protected:
 	void check_db_connection();
 	void set_client_encoding(const std::string &encoding);
@@ -90,6 +91,10 @@ protected:
 	inline int pg_to_int(PGresult *res, int row, int col)
 	{
 		return atoi(PQgetvalue(res, row, col));
+	}
+
+	inline const std::string pg_to_string(PGresult *res, int row, int col) {
+		return std::string(PQgetvalue(res, row, col), PQgetlength(res, row, col));
 	}
 
 	inline const uint32_t pg_to_uint(PGresult *res, int row, int col) {

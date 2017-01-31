@@ -151,7 +151,9 @@ void PostgreSQLClient::register_embedded_statements()
 		"WHERE schemaname=$1");
 	register_statement("show_create_table", "SELECT column_name, data_type, is_nullable, "
 		"column_default FROM information_schema.columns WHERE table_schema = $1 AND "
-		"table_catalog = $2 AND table_name = $3 ORDER BY ordinal_position");
+		"table_name = $2 ORDER BY ordinal_position");
+	register_statement("show_create_table_indexes", "SELECT indexname, indexdef "
+		"FROM pg_indexes WHERE schemaname=$1 AND tablename=$2");
 }
 
 void PostgreSQLClient::show_schemas(std::vector<std::string> &res)
@@ -179,13 +181,13 @@ void PostgreSQLClient::show_tables(const std::string &schema, std::vector<std::s
 	}
 }
 
-void PostgreSQLClient::show_create_table(const std::string &schema, const std::string &db,
+void PostgreSQLClient::show_create_table(const std::string &schema,
 	const std::string &table, PostgreSQLTableDefinition &definition)
 {
 	check_db_connection();
 
-	const char *values[] { schema.c_str(), db.c_str(), table.c_str() };
-	PostgreSQLResult result(exec_prepared("show_create_table", 3,
+	const char *values[] { schema.c_str(), table.c_str() };
+	PostgreSQLResult result(exec_prepared("show_create_table", 2,
 		values, NULL, NULL, false, false));
 	int32_t nbres = PQntuples(*result);
 	for (int32_t i = 0; i < nbres; i++) {
@@ -195,5 +197,12 @@ void PostgreSQLClient::show_create_table(const std::string &schema, const std::s
 		field.is_nullable = strcmp(PQgetvalue(*result, i, 2), "YES") == 0;
 		field.column_default = PQgetvalue(*result, i, 3);
 		definition.fields.push_back(field);
+	}
+
+	PostgreSQLResult result_idx(exec_prepared("show_create_table_indexes", 2,
+		values, NULL, NULL, false, false));
+	nbres = PQntuples(*result_idx);
+	for (int32_t i = 0; i < nbres; i++) {
+		definition.indexes[pg_to_string(*result_idx, i, 0)] = pg_to_string(*result_idx, i, 1);
 	}
 }
