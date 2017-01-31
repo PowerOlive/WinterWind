@@ -29,6 +29,7 @@
 #include <libpq-fe.h>
 #include <unordered_map>
 #include <stdlib.h>
+#include <vector>
 #include "utils/exception.h"
 
 class PostgreSQLException: public BaseException
@@ -36,6 +37,33 @@ class PostgreSQLException: public BaseException
 public:
 	PostgreSQLException(const std::string &what): BaseException(what) {}
 	~PostgreSQLException() throw() {}
+};
+
+/**
+ * RAII class for PostgreSQL results
+ */
+class PostgreSQLResult
+{
+public:
+	PostgreSQLResult(PGresult *result): m_result(result) {}
+	~PostgreSQLResult() { PQclear(m_result); }
+
+	PGresult * operator*() { return m_result; }
+private:
+	PGresult *m_result = nullptr;
+};
+
+struct PostgreSQLTableField
+{
+	std::string column_name = "";
+	std::string data_type = "";
+	bool is_nullable = false;
+	std::string column_default = "";
+};
+
+struct PostgreSQLTableDefinition
+{
+	std::vector<PostgreSQLTableField> fields;
 };
 
 class PostgreSQLClient
@@ -48,15 +76,16 @@ public:
 	void begin();
 	void commit();
 	bool register_statement(const std::string &stn, const std::string &st);
-	PGresult *exec_prepared(const char *stmtName, const int paramsNumber,
-			const char **params, const int *paramsLengths = NULL,
-			const int *paramsFormats = NULL,
-			bool clear = true, bool nobinary = true)
-	{
-		return check_results(PQexecPrepared(m_conn, stmtName, paramsNumber,
-				(const char* const*) params, paramsLengths, paramsFormats,
-				nobinary ? 1 : 0), clear);
-	}
+	void register_embedded_statements();
+
+	void show_schemas(std::vector<std::string> &res);
+	void show_tables(const std::string &schema, std::vector<std::string> &res);
+	void show_create_table(const std::string &schema, const std::string &db,
+		const std::string &table, PostgreSQLTableDefinition &definition);
+protected:
+	void check_db_connection();
+	void set_client_encoding(const std::string &encoding);
+	PGresult *check_results(PGresult *result, bool clear = true);
 
 	inline int pg_to_int(PGresult *res, int row, int col)
 	{
@@ -76,10 +105,15 @@ public:
 		return (const int64_t) atoll((char*) data);
 	}
 
-protected:
-	void check_db_connection();
-	void set_client_encoding(const std::string &encoding);
-	PGresult *check_results(PGresult *result, bool clear = true);
+	PGresult *exec_prepared(const char *stmtName, const int paramsNumber,
+		const char **params, const int *paramsLengths = NULL,
+		const int *paramsFormats = NULL,
+		bool clear = true, bool nobinary = true)
+	{
+		return check_results(PQexecPrepared(m_conn, stmtName, paramsNumber,
+			(const char* const*) params, paramsLengths, paramsFormats,
+			nobinary ? 1 : 0), clear);
+	}
 
 private:
 	void connect();

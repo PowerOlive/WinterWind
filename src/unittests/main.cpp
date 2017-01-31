@@ -37,6 +37,7 @@
 #include <console.h>
 #include <openweathermapclient.h>
 #include <luaengine.h>
+#include <postgresqlclient.h>
 
 #include "unittests_config.h"
 
@@ -106,6 +107,7 @@ public:
 		 * - tags
 		 * - issues
 		 * - merge requests
+		 * PostgreSQL client
 		 */
 		return suiteOfTests;
 	}

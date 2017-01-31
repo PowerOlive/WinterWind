@@ -26,6 +26,8 @@
 #include <sstream>
 #include <iostream>
 #include <array>
+#include <memory>
+#include <cstring>
 #include "postgresqlclient.h"
 
 PostgreSQLClient::PostgreSQLClient(const std::string &connect_string,
@@ -141,4 +143,57 @@ bool PostgreSQLClient::register_statement(const std::string &stn, const std::str
 
 	m_statements[stn] = st;
 	return true;
+}
+
+void PostgreSQLClient::register_embedded_statements()
+{
+	register_statement("list_tables_into_schema", "SELECT tablename FROM pg_tables "
+		"WHERE schemaname=$1");
+	register_statement("show_create_table", "SELECT column_name, data_type, is_nullable, "
+		"column_default FROM information_schema.columns WHERE table_schema = $1 AND "
+		"table_catalog = $2 AND table_name = $3 ORDER BY ordinal_position");
+}
+
+void PostgreSQLClient::show_schemas(std::vector<std::string> &res)
+{
+	check_db_connection();
+
+	PostgreSQLResult result(PQexec(m_conn, "select nspname from pg_catalog.pg_namespace"));
+
+	int32_t nbres = PQntuples(*result);
+	for (int32_t i = 0; i < nbres; i++) {
+		res.push_back(PQgetvalue(*result, i, 0));
+	}
+}
+
+void PostgreSQLClient::show_tables(const std::string &schema, std::vector<std::string> &res)
+{
+	check_db_connection();
+
+	const char *values[] { schema.c_str() };
+	PostgreSQLResult result(exec_prepared("list_tables_into_schema", 1,
+		values, NULL, NULL, false, false));
+	int32_t nbres = PQntuples(*result);
+	for (int32_t i = 0; i < nbres; i++) {
+		res.push_back(PQgetvalue(*result, i, 0));
+	}
+}
+
+void PostgreSQLClient::show_create_table(const std::string &schema, const std::string &db,
+	const std::string &table, PostgreSQLTableDefinition &definition)
+{
+	check_db_connection();
+
+	const char *values[] { schema.c_str(), db.c_str(), table.c_str() };
+	PostgreSQLResult result(exec_prepared("show_create_table", 3,
+		values, NULL, NULL, false, false));
+	int32_t nbres = PQntuples(*result);
+	for (int32_t i = 0; i < nbres; i++) {
+		PostgreSQLTableField field = {};
+		field.column_name = PQgetvalue(*result, i, 0);
+		field.data_type = PQgetvalue(*result, i, 1);
+		field.is_nullable = strcmp(PQgetvalue(*result, i, 2), "YES") == 0;
+		field.column_default = PQgetvalue(*result, i, 3);
+		definition.fields.push_back(field);
+	}
 }
