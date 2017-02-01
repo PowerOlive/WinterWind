@@ -56,6 +56,7 @@ public:
 	{
 		delete m_gitlab_client;
 		delete m_http_server;
+		delete m_pg_client;
 	}
 
 	static CppUnit::Test *suite()
@@ -64,7 +65,9 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test1 - Split string", split_string);
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test2 - Remove substring", remove_substring);
 
-		CPPUNIT_ADDTEST(WinterWindTests, "LuaEngine - Test1 - Load winterwind engine", lua_winterwind_engine);
+		CPPUNIT_ADDTEST(WinterWindTests, "LuaEngine - Test1 - Load winterwind engine", lua_winterwind_engine)
+
+		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test1 - Embedded statements registring", register_embedded_statements)
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Weather - Test1", weather_to_json);
 
@@ -117,6 +120,7 @@ public:
 	{
 		m_gitlab_client = new GitlabAPIClient("https://gitlab.com", GITLAB_TOKEN);
 		m_http_server = new HTTPServer(58080);
+		m_pg_client = new PostgreSQLClient("host=postgres user=unittests dbname=unittests_db password=un1Ttests");
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
 			&WinterWindTests::httpserver_testhandler, this)
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest2.html",
@@ -157,6 +161,12 @@ protected:
 		rc = L.load_script(UNITTESTS_LUA_FILE);
 		CPPUNIT_ASSERT(rc == LUA_RC_OK);
 		CPPUNIT_ASSERT(L.run_unittests());
+	}
+
+	void register_embedded_statements()
+	{
+		m_pg_client->register_embedded_statements();
+		CPPUNIT_ASSERT(true == true);
 	}
 
 	void weather_to_json()
@@ -533,6 +543,7 @@ protected:
 private:
 	GitlabAPIClient *m_gitlab_client = nullptr;
 	HTTPServer *m_http_server = nullptr;
+	PostgreSQLClient *m_pg_client = nullptr;
 	uint32_t m_testing_namespace_id = 0;
 	std::string TEST_COLOR = "#005577";
 	std::string TEST_GROUP = "ww_testgroup_" + RUN_TIMESTAMP;
