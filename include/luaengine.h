@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
+ * Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -30,6 +30,7 @@
 #include "cmake_config.h"
 
 #define luamethod(class, name) {#name, class::l_##name}
+#define REGISTER_LUA_FCT(name) register_function(#name, l_##name, top)
 
 enum LuaReturnCode
 {
@@ -70,6 +71,9 @@ public:
 #if ENABLE_RATPCLIENT
 	static int l_get_ratp_schedules(lua_State *L);
 #endif
+#endif
+#if ENABLE_POSTGRESQL
+	static int l_create_postgresql_client(lua_State *L);
 #endif
 protected:
 	lua_State *m_lua = nullptr;

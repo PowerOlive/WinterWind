@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
+ * Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -44,6 +44,8 @@
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
 
+#define INIT_PG_CLIENT PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db password=un1Ttests");
+
 static std::string GITLAB_TOKEN = "";
 static std::string ES_HOST = "localhost";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
@@ -64,7 +66,8 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test1 - Split string", split_string);
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test2 - Remove substring", remove_substring);
 
-		CPPUNIT_ADDTEST(WinterWindTests, "LuaEngine - Test1 - Load winterwind engine", lua_winterwind_engine);
+		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test1 - Embedded statements registring", pg_register_embedded_statements)
+		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test2 - Register custom statement", pg_register_custom_statement)
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Weather - Test1", weather_to_json);
 
@@ -100,6 +103,8 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "Project - Test6 - Removal (multiple)", remove_projects);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test3 - Removal", remove_group);
 		CPPUNIT_ADDTEST(WinterWindTests, "Group - Test3 - Removal (multiple)", remove_groups);
+
+		CPPUNIT_ADDTEST(WinterWindTests, "LuaEngine - Test1 - Load winterwind engine", lua_winterwind_engine)
 
 		/*
 		 * Test HTTPClient TODO
@@ -157,6 +162,20 @@ protected:
 		rc = L.load_script(UNITTESTS_LUA_FILE);
 		CPPUNIT_ASSERT(rc == LUA_RC_OK);
 		CPPUNIT_ASSERT(L.run_unittests());
+	}
+
+	void pg_register_embedded_statements()
+	{
+		INIT_PG_CLIENT
+		pg.register_embedded_statements();
+		CPPUNIT_ASSERT(true == true);
+	}
+
+	void pg_register_custom_statement()
+	{
+		INIT_PG_CLIENT
+		CPPUNIT_ASSERT(pg.register_statement("test_stmt", "SELECT * FROM pg_indexes"));
+		CPPUNIT_ASSERT(!pg.register_statement("test_stmt", "SELECT * FROM pg_indexes"));
 	}
 
 	void weather_to_json()

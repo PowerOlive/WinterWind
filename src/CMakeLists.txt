@@ -1,4 +1,4 @@
-# Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
+# Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,7 @@ if (ENABLE_CONSOLE)
 endif()
 
 if (ENABLE_POSTGRESQL)
+	set(ENABLE_POSTGRESQL 1)
 	set(SRC_FILES ${SRC_FILES} postgresqlclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ../include/postgresqlclient.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} pq)

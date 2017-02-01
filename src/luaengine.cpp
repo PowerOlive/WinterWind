@@ -26,6 +26,7 @@
 #include <iostream>
 #include "luaengine.h"
 #include "lua/l_httpclient.h"
+#include "lua/l_pgclient.h"
 
 LuaEngine::LuaEngine()
 {
@@ -98,8 +99,6 @@ LuaReturnCode LuaEngine::load_script(const std::string &file)
 	return LUA_RC_OK;
 }
 
-#define REGISTER_LUA_FCT(name) register_function(#name, l_##name, top)
-
 void LuaEngine::register_function(const char *name, lua_CFunction f, int top)
 {
 	lua_pushstring(m_lua, name);
@@ -115,6 +114,8 @@ LuaReturnCode LuaEngine::init_winterwind_bindings()
 
 	getglobal("core");
 	int top = lua_gettop(m_lua);
+
+	// HTTP
 #ifdef ENABLE_HTTPCLIENT
 	HTTPClientLuaRef::Register(m_lua);
 	REGISTER_LUA_FCT(create_httpclient);
@@ -123,6 +124,11 @@ LuaReturnCode LuaEngine::init_winterwind_bindings()
 #endif
 #endif
 
+	// PostgreSQL
+#ifdef ENABLE_POSTGRESQL
+	PostgreSQLClientLuaRef::Register(m_lua);
+	REGISTER_LUA_FCT(create_postgresql_client);
+#endif
 	pop(1);
 	return LUA_RC_OK;
 }
