@@ -1,7 +1,13 @@
 ---
 image: docker.io/nerzhul/archlinux:2016.10.01
 services:
-  - elasticsearch:2.4.2
+  - elasticsearch:2.4.3
+  - postgres:latest
+
+variables:
+  POSTGRES_DB: unittests_db
+  POSTGRES_USER: unittests
+  POSTGRES_PASSWORD: "un1Ttests"
 
 before_script:
   - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient lua
