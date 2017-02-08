@@ -39,18 +39,21 @@ public:
 	~PostgreSQLException() throw() {}
 };
 
+class PostgreSQLClient;
 /**
  * RAII class for PostgreSQL results
  */
 class PostgreSQLResult
 {
 public:
-	PostgreSQLResult(PGresult *result): m_result(result) {}
+	PostgreSQLResult(PostgreSQLClient *client, PGresult *result);
 	~PostgreSQLResult() { PQclear(m_result); }
 
 	PGresult * operator*() { return m_result; }
+	ExecStatusType get_status() const { return m_status; }
 private:
 	PGresult *m_result = nullptr;
+	ExecStatusType m_status = PGRES_COMMAND_OK;
 };
 
 struct PostgreSQLTableField
@@ -69,6 +72,7 @@ struct PostgreSQLTableDefinition
 
 class PostgreSQLClient
 {
+	friend class PostgreSQLResult;
 public:
 	PostgreSQLClient(const std::string &connect_string,
 		int32_t minimum_db_version = 90500);
@@ -80,12 +84,17 @@ public:
 	bool register_statement(const std::string &stn, const std::string &st);
 	void register_embedded_statements();
 
-	void show_schemas(std::vector<std::string> &res);
-	void show_tables(const std::string &schema, std::vector<std::string> &res);
-	void show_create_table(const std::string &schema, const std::string &table,
+	ExecStatusType show_schemas(std::vector<std::string> &res);
+	ExecStatusType create_schema(const std::string &name);
+	ExecStatusType drop_schema(const std::string &name, bool if_exists=false);
+	ExecStatusType show_tables(const std::string &schema, std::vector<std::string> &res);
+	ExecStatusType show_create_table(const std::string &schema, const std::string &table,
 		PostgreSQLTableDefinition &definition);
 
-	void add_admin_views(const std::string &schema = "admin");
+	ExecStatusType add_admin_views(const std::string &schema = "admin");
+	void escape_string(const std::string &param, std::string &res);
+
+	const std::string &get_last_error() const { return m_last_error; }
 protected:
 	void check_db_connection();
 	void set_client_encoding(const std::string &encoding);
@@ -130,6 +139,8 @@ private:
 	PGconn *m_conn = nullptr;
 	int32_t m_pgversion = 0;
 	int32_t m_min_pgversion = 0;
+
+	std::string m_last_error = "";
 
 	std::unordered_map<std::string, std::string> m_statements;
 };

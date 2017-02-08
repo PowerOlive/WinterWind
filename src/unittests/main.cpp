@@ -69,6 +69,9 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test1 - Embedded statements registring", pg_register_embedded_statements)
 		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test2 - Register custom statement", pg_register_custom_statement)
 		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test3 - Add admin views", pg_add_admin_views)
+		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test4 - Drop schema", pg_drop_schema)
+		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test5 - Create schema", pg_create_schema)
+		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test6 - Show tables", pg_show_tables)
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Weather - Test1", weather_to_json);
 
@@ -182,8 +185,31 @@ protected:
 	void pg_add_admin_views()
 	{
 		INIT_PG_CLIENT
-		pg.add_admin_views("public");
-		CPPUNIT_ASSERT(true == true);
+		CPPUNIT_ASSERT(pg.add_admin_views("public") == PGRES_COMMAND_OK);
+	}
+
+	void pg_drop_schema()
+	{
+		INIT_PG_CLIENT
+		pg.register_embedded_statements();
+		CPPUNIT_ASSERT(pg.drop_schema("test_schema", true) == PGRES_COMMAND_OK);
+	}
+
+	void pg_create_schema()
+	{
+		INIT_PG_CLIENT
+		pg.register_embedded_statements();
+		CPPUNIT_ASSERT(pg.create_schema("test_schema") == PGRES_COMMAND_OK);
+		CPPUNIT_ASSERT(pg.create_schema("test_schema") != PGRES_COMMAND_OK);
+		CPPUNIT_ASSERT(pg.drop_schema("test_schema") == PGRES_COMMAND_OK);
+	}
+
+	void pg_show_tables()
+	{
+		INIT_PG_CLIENT
+		pg.register_embedded_statements();
+		std::vector<std::string> res;
+		CPPUNIT_ASSERT(pg.show_tables("public", res) == PGRES_TUPLES_OK);
 	}
 
 	void weather_to_json()
