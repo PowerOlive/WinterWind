@@ -62,14 +62,30 @@ bool LuaEngine::isfunction(int index)
 template<>
 float LuaEngine::read(int index) const { return (float) lua_tonumber(m_lua, index); }
 template<>
-int LuaEngine::read(int index) const { return (int) lua_tointeger(m_lua, index); }
+double LuaEngine::read(int index) const { return lua_tonumber(m_lua, index); }
+
 template<>
 bool LuaEngine::read(int index) const { return (bool) lua_toboolean(m_lua, index); }
 
 template<>
 float LuaEngine::read(lua_State* L, int index) { return (float) lua_tonumber(L, index); }
 template<>
-int LuaEngine::read(lua_State* L, int index) { return (int) lua_tointeger(L, index); }
+uint8_t LuaEngine::read(lua_State* L, int index) { return (uint8_t) lua_tointeger(L, index); }
+template<>
+int8_t LuaEngine::read(lua_State* L, int index) { return (int8_t) lua_tointeger(L, index); }
+template<>
+uint16_t LuaEngine::read(lua_State* L, int index) { return (uint16_t) lua_tointeger(L, index); }
+template<>
+int16_t LuaEngine::read(lua_State* L, int index) { return (int16_t) lua_tointeger(L, index); }
+template<>
+uint32_t LuaEngine::read(lua_State* L, int index) { return (uint32_t) lua_tointeger(L, index); }
+template<>
+int32_t LuaEngine::read(lua_State* L, int index) { return (int32_t) lua_tointeger(L, index); }
+template<>
+uint64_t LuaEngine::read(lua_State* L, int index) { return (uint64_t) lua_tointeger(L, index); }
+template<>
+int64_t LuaEngine::read(lua_State* L, int index) { return (int64_t) lua_tointeger(L, index); }
+
 template<>
 bool LuaEngine::read(lua_State* L, int index) { return (bool) lua_toboolean(L, index); }
 
