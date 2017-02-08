@@ -68,6 +68,7 @@ public:
 
 		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test1 - Embedded statements registring", pg_register_embedded_statements)
 		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test2 - Register custom statement", pg_register_custom_statement)
+		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test3 - Add admin views", pg_add_admin_views)
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Weather - Test1", weather_to_json);
 
@@ -176,6 +177,13 @@ protected:
 		INIT_PG_CLIENT
 		CPPUNIT_ASSERT(pg.register_statement("test_stmt", "SELECT * FROM pg_indexes"));
 		CPPUNIT_ASSERT(!pg.register_statement("test_stmt", "SELECT * FROM pg_indexes"));
+	}
+
+	void pg_add_admin_views()
+	{
+		INIT_PG_CLIENT
+		pg.add_admin_views("public");
+		CPPUNIT_ASSERT(true == true);
 	}
 
 	void weather_to_json()

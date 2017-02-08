@@ -206,3 +206,120 @@ void PostgreSQLClient::show_create_table(const std::string &schema,
 		definition.indexes[pg_to_string(*result_idx, i, 0)] = pg_to_string(*result_idx, i, 1);
 	}
 }
+
+void PostgreSQLClient::add_admin_views(const std::string &schema)
+{
+	check_db_connection();
+
+	// @TODO
+	// create_schema(schema)
+	// use schema
+	{
+		PostgreSQLResult result(PQexec(m_conn, "CREATE OR REPLACE VIEW view_relations_size AS\n"
+				"SELECT\n"
+				"    c.relname AS name,\n"
+				"    c.reltuples::bigint AS tuples,\n"
+				"    pg_relation_size(c.oid) AS table_size,\n"
+				"    pg_total_relation_size(c.oid)-pg_relation_size(c.oid) - (CASE WHEN c.reltoastrelid <> 0 THEN \n"
+				"    pg_relation_size(c.reltoastrelid) ELSE 0 END) AS index_size,\n"
+				"    CASE WHEN c.reltoastrelid <> 0 THEN pg_relation_size(c.reltoastrelid) ELSE 0 END AS toast_size,\n"
+				"    pg_total_relation_size(c.oid) AS total_size\n"
+				"FROM\n"
+				"    pg_catalog.pg_class c\n"
+				"JOIN\n"
+				"    pg_catalog.pg_roles r ON r.oid = c.relowner\n"
+				"LEFT JOIN\n"
+				"    pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n"
+				"WHERE\n"
+				"    c.relkind = 'r'\n"
+				"AND n.nspname NOT IN ('pg_catalog', 'pg_toast')\n"
+				"AND pg_catalog.pg_table_is_visible(c.oid)\n"
+				"ORDER BY total_size DESC"));
+	}
+
+	{
+		PostgreSQLResult result(PQexec(m_conn, "CREATE OR REPLACE VIEW view_relations_size_pretty AS\n"
+				"SELECT\n"
+				"    name,\n"
+				"    tuples,\n"
+				"    pg_size_pretty(table_size) AS table_size,\n"
+				"    pg_size_pretty(index_size) AS index_size,\n"
+				"    pg_size_pretty(toast_size) AS toast_size,\n"
+				"    pg_size_pretty(total_size) AS total_size\n"
+				"FROM view_relations_size"));
+	}
+
+	{
+		PostgreSQLResult result(PQexec(m_conn, "CREATE OR REPLACE VIEW object_privileges AS\n"
+				"SELECT  objtype,\n"
+				"        schemaname,\n"
+				"        objname,\n"
+				"        owner,\n"
+				"        objuser,\n"
+				"        privs,\n"
+				"        string_agg(\n"
+				"            (case   privs_individual\n"
+				"                    when 'arwdDxt' then 'All'\n"
+				"                    when '*' then 'Grant'\n"
+				"                    when 'r' then 'SELECT'\n"
+				"                    when 'w' then 'UPDATE'\n"
+				"                    when 'a' then 'INSERT'\n"
+				"                    when 'd' then 'DELETE'\n"
+				"                    when 'D' then 'TRUNCATE'\n"
+				"                    when 'x' then 'REFERENCES'\n"
+				"                    when 't' then 'TRIGGER'\n"
+				"                    when 'X' then 'EXECUTE'\n"
+				"                    when 'U' then 'USAGE'\n"
+				"                    when 'C' then 'CREATE'\n"
+				"                    when 'c' then 'CONNECT'\n"
+				"                    when 'T' then 'TEMPORARY'\n"
+				"            else 'Unknown: '||privs end\n"
+				"            ), ', ' ORDER BY privs_individual) as privileges_pretty\n"
+				"FROM    (SELECT objtype,\n"
+				"                schemaname,\n"
+				"                objname,\n"
+				"                owner,\n"
+				"                privileges,\n"
+				"                (case when coalesce(objuser,'') is not distinct from\n"
+				"'' then 'public' else objuser end)\n"
+				"                    || (case when pr2.rolsuper then '*' else '' end)\n"
+				"                as objuser,\n"
+				"                privs,\n"
+				"                (case   when privs in ('*','arwdDxt') then privs\n"
+				"                        else regexp_split_to_table(privs,E'\\\\s*')\n"
+				"                end) as privs_individual\n"
+				"        from    (select distinct\n"
+				"                        objtype,\n"
+				"                        schemaname,\n"
+				"                        objname,\n"
+				"                        coalesce(owner,'') || (case when pr.rolsuper\n"
+				"then '*' else '' end) as owner,\n"
+				"                        regexp_replace(privileges,E'\\/.*','') as privileges,\n"
+				"\n"
+				"(regexp_split_to_array(regexp_replace(privileges,E'\\/.*',''),'='))[1]\n"
+				"as objuser,\n"
+				"\n"
+				"(regexp_split_to_array(regexp_replace(privileges,E'\\/.*',''),'='))[2]\n"
+				"as privs\n"
+				"                from    (SELECT n.nspname as schemaname,\n"
+				"                                c.relname as objname,\n"
+				"                                CASE c.relkind WHEN 'r' THEN 'table'\n"
+				"WHEN 'v' THEN 'view' WHEN 'S' THEN 'sequence' END as objtype,\n"
+				"\n"
+				"regexp_split_to_table(array_to_string(c.relacl,','),',') as\n"
+				"privileges,\n"
+				"                                pg_catalog.pg_get_userbyid(c.relowner) as Owner\n"
+				"                        FROM pg_catalog.pg_class c\n"
+				"                        LEFT JOIN pg_catalog.pg_namespace n ON n.oid =\n"
+				"c.relnamespace\n"
+				"                        WHERE c.relkind IN ('r', 'v', 'S', 'f')\n"
+				"                        AND n.nspname !~ '(pg_catalog|information_schema)'\n"
+				"                        ) as y                                      \n"
+				"                left join pg_roles pr on (pr.rolname = y.owner)\n"
+				"                ) as p2\n"
+				"        left join pg_roles pr2 on (pr2.rolname = p2.objuser)\n"
+				"        ) as p3\n"
+				"group by objtype, schemaname,objname, owner, objuser, privs\n"
+				"order by objtype,schemaname,objname,objuser,privileges_pretty"));
+	}
+}

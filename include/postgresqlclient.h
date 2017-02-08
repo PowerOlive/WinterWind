@@ -76,6 +76,7 @@ public:
 
 	void begin();
 	void commit();
+
 	bool register_statement(const std::string &stn, const std::string &st);
 	void register_embedded_statements();
 
@@ -83,6 +84,8 @@ public:
 	void show_tables(const std::string &schema, std::vector<std::string> &res);
 	void show_create_table(const std::string &schema, const std::string &table,
 		PostgreSQLTableDefinition &definition);
+
+	void add_admin_views(const std::string &schema = "admin");
 protected:
 	void check_db_connection();
 	void set_client_encoding(const std::string &encoding);
