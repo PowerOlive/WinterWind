@@ -144,6 +144,7 @@ if (ENABLE_REDIS)
 endif()
 
 if (ENABLE_LUA_ENGINE)
+	include_directories(/usr/local/include/lua53)
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lua)
 	set(SRC_FILES ${SRC_FILES} ${LUA_SRC_FILES} luaengine.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ../include/luaengine.h)
