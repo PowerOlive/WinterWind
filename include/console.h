@@ -38,9 +38,9 @@ public:
 	CommandToProcess(uint16_t ch_id, const std::string &cmd):
 		channel_id(ch_id), command(cmd) {}
 
-	CommandToProcess(uint16_t ch_id, const char* w, const std::string &cmd):
+	CommandToProcess(uint16_t ch_id, const std::string &w, const std::string &cmd):
 		channel_id(ch_id),
-		who(std::string(w)),
+		who(w),
 		command(cmd) {}
 
 	CommandToProcess(const CommandToProcess &c):
