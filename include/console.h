@@ -48,6 +48,8 @@ public:
 		who(c.who),
 		command(c.command) {}
 
+	virtual ~CommandToProcess() {}
+
 	uint16_t channel_id = 0;
 	std::string who = "";
 	std::string command = "";
