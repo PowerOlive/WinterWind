@@ -38,21 +38,21 @@ public:
 	CommandToProcess(uint16_t ch_id, const std::string &cmd):
 		channel_id(ch_id), command(cmd) {}
 
-	CommandToProcess(uint16_t ch_id, const char* ch_extra_info,
+	CommandToProcess(uint16_t ch_id, void* extras,
 			const char* w, const std::string &cmd):
 		channel_id(ch_id),
-		channel_extra_info(std::string(ch_extra_info)),
+		extra_info(extras),
 		who(std::string(w)),
 		command(cmd) {}
 
 	CommandToProcess(const CommandToProcess &c):
 		channel_id(c.channel_id),
-		channel_extra_info(c.channel_extra_info),
+		extra_info(c.extra_info),
 		who(c.who),
 		command(c.command) {}
 
 	uint16_t channel_id = 0;
-	std::string channel_extra_info = "";
+	void *extra_info = nullptr;
 	std::string who = "";
 	std::string command = "";
 };
