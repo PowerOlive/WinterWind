@@ -43,6 +43,7 @@ You need a full C++11 compliant compiler to use this library (GCC 5.1 or Clang 3
 * libpq
 * hiredis
 * websocketpp
+* asio
 
 # Compilation options
 
