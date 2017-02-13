@@ -106,7 +106,7 @@ protected:
 	}
 
 	inline const std::string pg_to_string(PGresult *res, int row, int col) {
-		return std::string(PQgetvalue(res, row, col), PQgetlength(res, row, col));
+		return std::string(PQgetvalue(res, row, col), (unsigned long) PQgetlength(res, row, col));
 	}
 
 	inline const uint32_t pg_to_uint(PGresult *res, int row, int col) {

@@ -119,11 +119,8 @@ bool RedisClient::set(const std::string &key, const std::string &value,
 			value.c_str());
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
-	if (expire_value) {
-		return expire(key, expire_value);
-	}
+	return expire_value ? expire(key, expire_value) : true;
 
-	return true;
 }
 
 bool RedisClient::get(const std::string &key, std::string &res)
@@ -184,11 +181,8 @@ bool RedisClient::hset(const std::string &key, const std::string &skey,
 			key.c_str(), skey.c_str(), value.c_str());
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
-	if (expire_value) {
-		return expire(key, expire_value);
-	}
+	return expire_value == 0 || expire(key, expire_value);
 
-	return true;
 }
 
 bool RedisClient::hdel(const std::string &key, const std::string &skey)

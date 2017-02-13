@@ -49,7 +49,7 @@ public:
 
 	virtual void *run();
 
-	bool register_callback(const std::string &method, const SlackMessageHandler hdl);
+	bool register_callback(const std::string &method, const SlackMessageHandler &hdl);
 	void send(websocketpp::connection_hdl hdl, const Json::Value &msg);
 	void send_message(websocketpp::connection_hdl hdl, const std::string &channel,
 		const std::string &msg);

@@ -43,7 +43,7 @@ int LuaEngine::l_get_ratp_schedules(lua_State *L)
 	}
 
 	const auto schedules = RATPClient().get_next_trains(RATP_LINE_RER_B, "Palaiseau Villebon", 1);
-	lua_createtable(L, schedules.size(), 0);
+	lua_createtable(L, (int) schedules.size(), 0);
 	int table_idx = lua_gettop(L);
 	uint8_t idx = 0;
 	for (const auto &sched: schedules) {

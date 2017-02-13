@@ -172,7 +172,7 @@ protected:
 	{
 		INIT_PG_CLIENT
 		pg.register_embedded_statements();
-		CPPUNIT_ASSERT(true == true);
+		CPPUNIT_ASSERT(true);
 	}
 
 	void pg_register_custom_statement()

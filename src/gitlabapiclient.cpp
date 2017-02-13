@@ -517,11 +517,9 @@ bool GitlabAPIClient::create_group(const GitlabGroup &group, Json::Value &res)
 	request["request_access_enabled"] = group.access_requests;
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	if (!_post_json(m_server_uri + api_v3_endpoint + "/groups", request, res)) {
-		return false;
-	}
+	return _post_json(m_server_uri + api_v3_endpoint + "/groups", request, res) &&
+		m_http_code == 201;
 
-	return m_http_code == 201;
 }
 
 const GitlabRetCod GitlabAPIClient::delete_group(const std::string &name)

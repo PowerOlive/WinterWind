@@ -157,7 +157,7 @@ void* SlackClient::run()
 	return nullptr;
 }
 
-bool SlackClient::register_callback(const std::string &method, const SlackMessageHandler hdl)
+bool SlackClient::register_callback(const std::string &method, const SlackMessageHandler &hdl)
 {
 	if (m_callbacks.find(method) == m_callbacks.end()) {
 		m_callbacks[method] = {};

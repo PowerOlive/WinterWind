@@ -210,7 +210,7 @@ bool HTTPClient::_post_json(const std::string &url, const Json::Value &data,
 void HTTPClient::http_string_escape(const std::string &src, std::string &dst)
 {
 	CURL *curl = curl_easy_init();
-	if (char *output = curl_easy_escape(curl, src.c_str(), src.length())) {
+	if (char *output = curl_easy_escape(curl, src.c_str(), (int) src.length())) {
 		dst = std::string(output);
 		curl_free(output);
 	}

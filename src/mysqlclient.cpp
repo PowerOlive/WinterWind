@@ -132,7 +132,7 @@ bool MySQLClient::explain(const std::string &q, std::vector<MySQLExplainEntry> &
 		for (int i = 0; i < num_fields; i++) {
 			field = mysql_fetch_field(mysql_res);
 			if (strcmp(field->name, "id") == 0) {
-				entry.id = row[i] ? atoi(row[i]) : 0;
+				entry.id = (uint16_t) (row[i] ? atoi(row[i]) : 0);
 			}
 			else if (strcmp(field->name, "select_type") == 0) {
 				entry.select_type = MYSQLROW_TO_STRING(row, i);
@@ -150,13 +150,13 @@ bool MySQLClient::explain(const std::string &q, std::vector<MySQLExplainEntry> &
 				entry.key = MYSQLROW_TO_STRING(row, i);
 			}
 			else if (strcmp(field->name, "key_len") == 0) {
-				entry.key_len = row[i] ? atoi(row[i]) : 0;
+				entry.key_len = (uint32) (row[i] ? atoi(row[i]) : 0);
 			}
 			else if (strcmp(field->name, "ref") == 0) {
 				entry.ref = MYSQLROW_TO_STRING(row, i);
 			}
 			else if (strcmp(field->name, "rows") == 0) {
-				entry.rows = row[i] ? atoi(row[i]) : 0;
+				entry.rows = (uint64) (row[i] ? atoi(row[i]) : 0);
 			}
 			else if (strcmp(field->name, "Extra") == 0) {
 				entry.extra = MYSQLROW_TO_STRING(row, i);

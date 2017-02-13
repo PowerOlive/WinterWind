@@ -42,8 +42,6 @@ extern void str_split(const std::string &str, char delim, std::vector<std::strin
 
 extern void str_remove_substr(std::string &src, const std::string &pattern)
 {
-	std::string::size_type n = src.length();
-
 	for (std::string::size_type i = src.find(pattern);
 		i != std::string::npos;
 		i = src.find(pattern)) {

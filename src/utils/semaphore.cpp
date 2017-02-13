@@ -35,7 +35,7 @@
 
 Semaphore::Semaphore(int val)
 {
-	int ret = sem_init(&semaphore, 0, val);
+	int ret = sem_init(&semaphore, 0, (unsigned int) val);
 	assert(!ret);
 	UNUSED(ret);
 }
