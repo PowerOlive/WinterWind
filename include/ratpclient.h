@@ -51,7 +51,7 @@ struct RATPStop
 
 typedef std::unordered_map<std::string, RATPStop> RATPStopMap;
 
-class RATPClient: public HTTPClient
+class RATPClient: private HTTPClient
 {
 public:
 	RATPClient(): HTTPClient() {};
