@@ -10,6 +10,7 @@ variables:
   POSTGRES_PASSWORD: "un1Ttests"
 
 before_script:
+  - pacman --noconfirm -Sy archlinux-keyring
   - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient lua cppcheck websocketpp
 # These are already included in image
 # - pacman --noconfirm -S libxml2 jsoncpp curl
