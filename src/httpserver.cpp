@@ -161,7 +161,7 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_headers, q.get());
 	MHD_get_connection_values(conn, MHD_GET_ARGUMENT_KIND, &HTTPServer::mhd_iter_getargs, q.get());
 
-	HTTPResponse *http_response = url_handler->second(q);
+	std::unique_ptr<HTTPResponse> http_response(url_handler->second(q));
 	if (!http_response) {
 		if (content_type && strcmp(content_type, "application/json") == 0) {
 			session->result = "{}";
@@ -172,18 +172,17 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 
 	switch (http_response->get_type()) {
 		case HTTPRESPONSE_RAW:
-			*http_response >> session->result;
+			*http_response >> *session;
 			break;
 		case HTTPRESPONSE_JSON: {
-			JSONHTTPResponse *json_reponse = dynamic_cast<JSONHTTPResponse *>(http_response);
-			assert(json_reponse); // this should not happen
-			*json_reponse >> session->result;
+			JSONHTTPResponse *json_response = dynamic_cast<JSONHTTPResponse *>(http_response.get());
+			assert(json_response); // this should not happen
+			*json_response >> *session;
 			break;
 		}
 		default: assert(false); // this should not happen
 	}
 
-	delete http_response;
 	return true;
 }
 

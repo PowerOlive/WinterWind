@@ -138,7 +138,7 @@ enum GitlabProjectSearchScope
 	GITLAB_PROJECT_SS_STARRED,
 };
 
-class GitlabAPIClient: public HTTPClient
+class GitlabAPIClient: protected HTTPClient
 {
 public:
 	GitlabAPIClient(const std::string &server_uri, const std::string &api_token):

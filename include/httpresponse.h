@@ -34,17 +34,23 @@ enum HTTPResponseType
 	HTTPRESPONSE_JSON,
 };
 
+struct HTTPRequestSession;
+
 class HTTPResponse
 {
 public:
-	HTTPResponse() {};
-	HTTPResponse(const std::string &r): m_response(r) {}
+	HTTPResponse(const std::string &r, const uint32_t http_code = 200):
+		m_response(r), m_http_code(http_code) {}
 	virtual ~HTTPResponse() {};
 
-	HTTPResponse &operator<<(const std::string &r);
-	HTTPResponse &operator>>(std::string &r);
+	virtual HTTPResponse &operator<<(const std::string &r);
+	virtual HTTPResponse &operator>>(std::string &r);
+	virtual HTTPResponse &operator>>(HTTPRequestSession &s);
 
 	virtual const HTTPResponseType get_type() const { return HTTPRESPONSE_RAW; }
+protected:
+	HTTPResponse(const uint32_t http_code = 200): m_http_code(http_code) {}
+	uint32_t m_http_code = 200;
 private:
 	std::string m_response = "";
 };
@@ -53,8 +59,8 @@ class JSONHTTPResponse: public HTTPResponse
 {
 public:
 	JSONHTTPResponse(): HTTPResponse() {}
-	JSONHTTPResponse(const Json::Value &r):
-		HTTPResponse(),
+	JSONHTTPResponse(const Json::Value &r, const uint32_t http_code = 200):
+		HTTPResponse(http_code),
 		m_json_response(r)
 	{}
 
@@ -63,6 +69,7 @@ public:
 	JSONHTTPResponse &operator<<(const Json::Value &r);
 	JSONHTTPResponse &operator>>(std::string &r);
 	JSONHTTPResponse &operator>>(Json::Value &r);
+	JSONHTTPResponse &operator>>(HTTPRequestSession &s);
 
 	virtual const HTTPResponseType get_type() const { return HTTPRESPONSE_JSON; }
 private:

@@ -23,6 +23,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <httpserver.h>
 #include "httpresponse.h"
 
 HTTPResponse & HTTPResponse::operator<<(const std::string &r)
@@ -34,6 +35,13 @@ HTTPResponse & HTTPResponse::operator<<(const std::string &r)
 HTTPResponse &HTTPResponse::operator>>(std::string &r)
 {
 	r = m_response;
+	return *this;
+}
+
+HTTPResponse& HTTPResponse::operator>>(HTTPRequestSession &s)
+{
+	s.http_code = m_http_code;
+	s.result = m_response;
 	return *this;
 }
 
@@ -52,6 +60,13 @@ JSONHTTPResponse& JSONHTTPResponse::operator>>(std::string &r)
 JSONHTTPResponse& JSONHTTPResponse::operator>>(Json::Value &r)
 {
 	r = m_json_response;
+	return *this;
+}
+
+JSONHTTPResponse& JSONHTTPResponse::operator>>(HTTPRequestSession &s)
+{
+	s.result = Json::FastWriter().write(m_json_response);
+	s.http_code = m_http_code;
 	return *this;
 }
 

@@ -107,7 +107,7 @@ protected:
 
 	std::string m_username = "";
 	std::string m_password = "";
-	std::unordered_map<std::string, std::string> m_http_headers;
+	std::unordered_map<std::string, std::string> m_http_headers = {};
 	long m_http_code = 0;
 	Json::Writer *json_writer();
 	Json::Reader *json_reader();
