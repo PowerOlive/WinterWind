@@ -50,7 +50,11 @@ function test_postgresql()
 
 	return max_score, score
 end
-function run_unittests()
+function run_unittests(run)
+	if not run then
+		print("Lua tests skipped by C++ part")
+		return true
+	end
 	-- Init
 	local test_results = 0
 	local max_tests = 0

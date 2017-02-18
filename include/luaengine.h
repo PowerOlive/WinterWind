@@ -53,7 +53,9 @@ public:
 	void pop(int index = 1);
 
 	template<typename T> T read(int index) const;
-	template<typename T> static T read(lua_State *l, int index);
+	template<typename T> static T read(lua_State *L, int index);
+
+	template<typename T> static void write(lua_State *L, const T &what);
 
 	LuaReturnCode init_winterwind_bindings();
 

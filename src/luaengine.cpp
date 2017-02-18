@@ -89,6 +89,28 @@ int64_t LuaEngine::read(lua_State* L, int index) { return (int64_t) lua_tointege
 template<>
 bool LuaEngine::read(lua_State* L, int index) { return (bool) lua_toboolean(L, index); }
 
+template<>
+void LuaEngine::write(lua_State *L, const float &what) { lua_pushnumber(L, what); }
+template<>
+void LuaEngine::write(lua_State *L, const uint8_t &what) { lua_pushinteger(L, what); }
+template<>
+void LuaEngine::write(lua_State *L, const int8_t &what) { lua_pushinteger(L, what); }
+template<>
+void LuaEngine::write(lua_State *L, const uint16_t &what) { lua_pushinteger(L, what); }
+template<>
+void LuaEngine::write(lua_State *L, const int16_t &what) { lua_pushinteger(L, what); }
+template<>
+void LuaEngine::write(lua_State *L, const uint32_t &what) { lua_pushinteger(L, what); }
+template<>
+void LuaEngine::write(lua_State *L, const int32_t &what) { lua_pushinteger(L, what); }
+template<>
+void LuaEngine::write(lua_State *L, const uint64_t &what) { lua_pushinteger(L, what); }
+template<>
+void LuaEngine::write(lua_State *L, const int64_t &what) { lua_pushinteger(L, what); }
+
+template<>
+void LuaEngine::write(lua_State *L, const bool &what) { lua_pushboolean(L, what); }
+
 void LuaEngine::pop(int index)
 {
 	lua_pop(m_lua, index);
@@ -158,7 +180,8 @@ bool LuaEngine::run_unittests()
 		return false;
 	}
 
-	lua_call(m_lua, 0, 1);
+	write(m_lua, true);
+	lua_call(m_lua, 1, 1);
 
 	if (!lua_isboolean(m_lua, -1)) {
 		pop(1);
