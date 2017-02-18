@@ -25,10 +25,12 @@
 
 #pragma once
 
-#include <httpclient.h>
+#include "httpclient.h"
 #include <lua.hpp>
+#include "luahelper.h"
 
-class HTTPClientLuaRef {
+class HTTPClientLuaRef: protected LuaHelper
+{
 private:
 	HTTPClient *m_object;
 

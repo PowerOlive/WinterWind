@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, Loic Blot <loic.blot@unix-experience.fr>
+ * Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -26,27 +26,10 @@
 #pragma once
 
 #include <lua.hpp>
-#include <postgresqlclient.h>
 
-class PostgreSQLClientLuaRef: protected LuaHelper
+class LuaHelper
 {
-private:
-	PostgreSQLClient *m_object;
-
-	static const char className[];
-	static const luaL_Reg methods[];
-public:
-	PostgreSQLClientLuaRef(PostgreSQLClient *object);
-	~PostgreSQLClientLuaRef() {}
-
-	static void Register(lua_State *L);
-	static void create(lua_State *L, PostgreSQLClient *object);
-
-	static PostgreSQLClientLuaRef *checkobject(lua_State *L, int narg);
-	static PostgreSQLClient* getobject(PostgreSQLClientLuaRef *ref);
-private:
-	// garbage collector
-	static int gc_object(lua_State *L);
-
-	static int l_register_statement(lua_State *L);
+protected:
+	template<typename T> static T read(lua_State *L, int index);
+	template<typename T> static void write(lua_State *L, const T &what);
 };

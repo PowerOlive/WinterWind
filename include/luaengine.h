@@ -28,6 +28,7 @@
 #include <string>
 #include <lua.hpp>
 #include "cmake_config.h"
+#include "luahelper.h"
 
 #define luamethod(class, name) {#name, class::l_##name}
 #define REGISTER_LUA_FCT(name) register_function(#name, l_##name, top)
@@ -39,7 +40,7 @@ enum LuaReturnCode
 	LUA_RC_LOADFILE_CONTENT_ERROR,
 };
 
-class LuaEngine
+class LuaEngine: public LuaHelper
 {
 public:
 	LuaEngine();
@@ -51,11 +52,6 @@ public:
 	int getglobal(const std::string &name);
 	bool isfunction(int index);
 	void pop(int index = 1);
-
-	template<typename T> T read(int index) const;
-	template<typename T> static T read(lua_State *L, int index);
-
-	template<typename T> static void write(lua_State *L, const T &what);
 
 	LuaReturnCode init_winterwind_bindings();
 

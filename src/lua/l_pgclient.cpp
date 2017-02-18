@@ -119,9 +119,9 @@ int PostgreSQLClientLuaRef::l_register_statement(lua_State *L)
 	PostgreSQLClientLuaRef *ref = checkobject(L, 1);
 	PostgreSQLClient *pg = getobject(ref);
 
-	std::string name = luaL_checkstring(L, 2);
-	std::string statement = luaL_checkstring(L, 3);
+	std::string name = read<std::string>(L, 2);
+	std::string statement = read<std::string>(L, 3);
 
-	lua_pushboolean(L, pg->register_statement(name, statement));
+	write<bool>(L, pg->register_statement(name, statement));
 	return 1;
 }

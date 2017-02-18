@@ -109,14 +109,14 @@ int HTTPClientLuaRef::l_get(lua_State *L)
 	HTTPClientLuaRef *ref = checkobject(L, 1);
 	HTTPClient *http = getobject(ref);
 
-	std::string url = luaL_checkstring(L, 2);
+	std::string url = read<std::string>(L, 2);
 	std::string res = "";
 	http->_get(url, res);
 
 	lua_newtable(L);
-	lua_pushinteger(L, http->get_http_code());
+	write(L, (uint32_t) http->get_http_code());
 	lua_setfield(L, -2, "code");
-	lua_pushstring(L, res.c_str());
+	write(L, res);
 	lua_setfield(L, -2, "content");
 	return 1;
 }
@@ -126,14 +126,14 @@ int HTTPClientLuaRef::l_delete(lua_State *L)
 	HTTPClientLuaRef *ref = checkobject(L, 1);
 	HTTPClient *http = getobject(ref);
 
-	std::string url = luaL_checkstring(L, 2);
+	std::string url = read<std::string>(L, 2);
 	std::string res = "";
 	http->_delete(url, res);
 
 	lua_newtable(L);
-	lua_pushinteger(L, http->get_http_code());
+	write(L, (uint32_t) http->get_http_code());
 	lua_setfield(L, -2, "code");
-	lua_pushstring(L, res.c_str());
+	write(L, res);
 	lua_setfield(L, -2, "content");
 	return 1;
 }
@@ -143,14 +143,14 @@ int HTTPClientLuaRef::l_head(lua_State *L)
 	HTTPClientLuaRef *ref = checkobject(L, 1);
 	HTTPClient *http = getobject(ref);
 
-	std::string url = luaL_checkstring(L, 2);
+	std::string url = read<std::string>(L, 2);
 	std::string res = "";
 	http->_head(url, res);
 
 	lua_newtable(L);
-	lua_pushinteger(L, http->get_http_code());
+	write(L, (uint32_t) http->get_http_code());
 	lua_setfield(L, -2, "code");
-	lua_pushstring(L, res.c_str());
+	write(L, res);
 	lua_setfield(L, -2, "content");
 	return 1;
 }
