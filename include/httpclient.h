@@ -46,10 +46,6 @@ public:
 	HTTPClient(uint32_t max_file_size = 1024 * 1024);
 	virtual ~HTTPClient();
 
-	void request(const std::string &url, std::string &res, int32_t
-		flag = HTTPCLIENT_REQ_SIMPLE, HTTPMethod method = HTTP_METHOD_GET,
-		const std::string &post_data = "");
-
 	inline void _post(const std::string &url, const std::string &post_data,
 		std::string &res, int32_t flag = HTTPCLIENT_REQ_SIMPLE)
 	{
@@ -104,6 +100,9 @@ public:
 	void http_string_escape(const std::string &src, std::string &dst);
 protected:
 	static size_t curl_writer(char *data, size_t size, size_t nmemb, void *user_data);
+	void request(const std::string &url, std::string &res, int32_t
+	flag = HTTPCLIENT_REQ_SIMPLE, HTTPMethod method = HTTP_METHOD_GET,
+		const std::string &post_data = "");
 
 	std::string m_username = "";
 	std::string m_password = "";

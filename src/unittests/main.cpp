@@ -38,6 +38,7 @@
 #include <openweathermapclient.h>
 #include <luaengine.h>
 #include <postgresqlclient.h>
+#include <twitterclient.h>
 
 #include "unittests_config.h"
 
@@ -49,6 +50,8 @@
 static std::string GITLAB_TOKEN = "";
 static std::string ES_HOST = "localhost";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
+static std::string TWITTER_CONSUMER_KEY = "";
+static std::string TWITTER_CONSUMER_SECRET = "";
 
 class WinterWindTests: public CppUnit::TestFixture
 {
@@ -56,6 +59,7 @@ public:
 	WinterWindTests() {}
 	virtual ~WinterWindTests()
 	{
+		delete m_twitter_client;
 		delete m_gitlab_client;
 		delete m_http_server;
 	}
@@ -74,6 +78,10 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test6 - Show tables", pg_show_tables)
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Weather - Test1", weather_to_json);
+
+		CPPUNIT_ADDTEST(WinterWindTests, "Twitter - Test1 - Authenticate", twitter_authenticate);
+		CPPUNIT_ADDTEST(WinterWindTests, "Twitter - Test2 - User Timeline", twitter_user_timeline);
+		CPPUNIT_ADDTEST(WinterWindTests, "Twitter - Test3 - Home Timeline", twitter_home_timeline);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handle GET", httpserver_handle_get);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers", httpserver_header);
@@ -125,6 +133,7 @@ public:
 	void setUp()
 	{
 		m_gitlab_client = new GitlabAPIClient("https://gitlab.com", GITLAB_TOKEN);
+		m_twitter_client = new TwitterClient(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET);
 		m_http_server = new HTTPServer(58080);
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
 			&WinterWindTests::httpserver_testhandler, this)
@@ -167,6 +176,28 @@ protected:
 		CPPUNIT_ASSERT(rc == LUA_RC_OK);
 		CPPUNIT_ASSERT(L.run_unittests());
 	}
+
+	void twitter_authenticate()
+	{
+		CPPUNIT_ASSERT(m_twitter_client->authenticate() == TwitterClient::TWITTER_OK);
+	}
+
+	void twitter_user_timeline()
+	{
+		twitter_authenticate();
+		Json::Value res;
+		CPPUNIT_ASSERT(m_twitter_client->get_user_timeline(res, 10) == TwitterClient::TWITTER_OK);
+	}
+
+	void twitter_home_timeline()
+	{
+		twitter_authenticate();
+		Json::Value res;
+		CPPUNIT_ASSERT(m_twitter_client->get_home_timeline(res, 10) == TwitterClient::TWITTER_OK);
+		CPPUNIT_ASSERT(res.isObject());
+		exit(0);
+	}
+
 
 	void pg_register_embedded_statements()
 	{
@@ -585,6 +616,7 @@ protected:
 	}
 private:
 	GitlabAPIClient *m_gitlab_client = nullptr;
+	TwitterClient *m_twitter_client = nullptr;
 	HTTPServer *m_http_server = nullptr;
 	uint32_t m_testing_namespace_id = 0;
 	std::string TEST_COLOR = "#005577";
@@ -600,10 +632,22 @@ int main(int argc, const char* argv[])
 		return -1;
 	}
 
-	GITLAB_TOKEN = std::string(argv[1]);
+	if (argc < 3) {
+		std::cerr << argv[0] << ": Missing Twitter consumer key" << std::endl;
+		return -1;
+	}
 
-	if (argc >= 3) {
-		ES_HOST = std::string(argv[2]);
+	if (argc < 4) {
+		std::cerr << argv[0] << ": Missing Twitter consumer secret" << std::endl;
+		return -1;
+	}
+
+	GITLAB_TOKEN = std::string(argv[1]);
+	TWITTER_CONSUMER_KEY = std::string(argv[2]);
+	TWITTER_CONSUMER_SECRET = std::string(argv[3]);
+
+	if (argc >= 5) {
+		ES_HOST = std::string(argv[4]);
 	}
 
 	CppUnit::TextUi::TestRunner runner;
