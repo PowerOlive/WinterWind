@@ -11,10 +11,11 @@ This library provides high level interfaces to some interesting API or features
 ## Web
 
 * High level CURL interface
-* GitlabAPI client
+* Gitlab client
 * Caldav client (WIP)
 * Elasticsearch Client (WIP)
 * Slack client
+* Twitter client
 
 ## Databases
 
@@ -55,7 +56,8 @@ You need a full C++11 compliant compiler to use this library (GCC 5.1 or Clang 3
 * __ENABLE_ELASTICSEARCH__: enable Elasticsearch client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_GITLAB__: enable Gitlab client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_RATPCLIENT__: enable RATP client support (requires ENABLE_HTTPCLIENT)
-* __ENABLE_SLACKCLIENT__: enable Slack client support (required ENABLE_HTTPCLIENT & websocketpp library)
+* __ENABLE_SLACKCLIENT__: enable Slack client support (requires ENABLE_HTTPCLIENT & websocketpp library)
+* __ENABLE_TWITTERCLIENT__: enable Twitter client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_NAMEGENERATOR__: enable Name Generator support
 * __ENABLE_REDIS__: enable Redis client support
 
