@@ -195,7 +195,6 @@ protected:
 		Json::Value res;
 		CPPUNIT_ASSERT(m_twitter_client->get_home_timeline(res, 10) == TwitterClient::TWITTER_OK);
 		CPPUNIT_ASSERT(res.isObject());
-		exit(0);
 	}
 
 
