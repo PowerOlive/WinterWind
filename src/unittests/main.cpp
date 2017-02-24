@@ -186,7 +186,7 @@ protected:
 	{
 		twitter_authenticate();
 		Json::Value res;
-		CPPUNIT_ASSERT(m_twitter_client->get_user_timeline(res, 10) == TwitterClient::TWITTER_OK);
+		CPPUNIT_ASSERT(m_twitter_client->get_user_timeline(res, 10, 0, true) == TwitterClient::TWITTER_OK);
 	}
 
 	void twitter_home_timeline()
