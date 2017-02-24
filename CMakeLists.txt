@@ -25,7 +25,7 @@
 cmake_minimum_required(VERSION 3.2)
 project(winterwind)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(BINDIR "${CMAKE_INSTALL_PREFIX}/bin")

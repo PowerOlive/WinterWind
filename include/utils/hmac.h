@@ -25,39 +25,21 @@
 
 #pragma once
 
-#include <httpclient.h>
-#include <random>
+#include <openssl/hmac.h>
+#include <string>
 
-class TwitterClient: private HTTPClient
+std::string hmac_sha1(const std::string &key, const std::string &data)
 {
-public:
-	enum Response
-	{
-		TWITTER_OK,
-		TWITTER_INVALID_RESPONSE,
-		TWITTER_UNAUTHORIZED,
-		TWITTER_FORBIDDEN,
-	};
+	unsigned char* digest;
 
-	TwitterClient(const std::string &consumer_key, const std::string &consumer_secret,
-		const std::string &access_token = "", const std::string &access_token_secret = "");
-	TwitterClient::Response authenticate() { return get_oauth2_token(); }
-	TwitterClient::Response get_user_timeline(Json::Value &res, const uint16_t count = 0,
-		const uint32_t since_id = 0,
-		bool include_rts = false, bool contributor_details = false);
-	TwitterClient::Response get_home_timeline(Json::Value &res, const uint16_t count = 0,
-		const uint32_t since_id = 0);
-private:
-	void append_auth_header();
-	void append_bearer_header();
-	void append_oauth_header(const std::string &method, const std::string &url);
-	TwitterClient::Response get_oauth2_token();
+	digest = HMAC(EVP_sha1(), key.c_str(), key.length(),
+		(unsigned char*) data.c_str(), data.length(), NULL, NULL);
 
-	std::string m_consumer_key = "";
-	std::string m_consumer_secret = "";
-	std::string m_bearer_token = "";
-	std::string m_access_token = "";
-	std::string m_access_token_secret = "";
+	char md_string[41];
+	for (int i = 0; i < 20; i++) {
+		sprintf(&md_string[i * 2], "%02x", (unsigned int) digest[i]);
+	}
+	md_string[40] = '\0';
 
-	std::mt19937 m_rand_engine;
-};
+	return std::string(md_string);
+}

@@ -93,6 +93,11 @@ public:
 		m_http_headers[header] = value;
 	}
 
+	void add_http_request_param(const std::string &param, const std::string &value)
+	{
+		m_http_request_params[param] = value;
+	}
+
 	bool _post_json(const std::string &url, const Json::Value &data, Json::Value &res);
 
 	long get_http_code() const { return m_http_code; }
@@ -100,13 +105,14 @@ public:
 	void http_string_escape(const std::string &src, std::string &dst);
 protected:
 	static size_t curl_writer(char *data, size_t size, size_t nmemb, void *user_data);
-	void request(const std::string &url, std::string &res, int32_t
+	void request(std::string url, std::string &res, int32_t
 	flag = HTTPCLIENT_REQ_SIMPLE, HTTPMethod method = HTTP_METHOD_GET,
 		const std::string &post_data = "");
 
 	std::string m_username = "";
 	std::string m_password = "";
 	std::unordered_map<std::string, std::string> m_http_headers = {};
+	std::unordered_map<std::string, std::string> m_http_request_params = {};
 	long m_http_code = 0;
 	Json::Writer *json_writer();
 	Json::Reader *json_reader();

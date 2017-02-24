@@ -53,6 +53,8 @@ static std::string ES_HOST = "localhost";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
 static std::string TWITTER_CONSUMER_KEY = "";
 static std::string TWITTER_CONSUMER_SECRET = "";
+static std::string TWITTER_ACCESS_TOKEN = "";
+static std::string TWITTER_ACCESS_TOKEN_SECRET = "";
 
 class WinterWindTests: public CppUnit::TestFixture
 {
@@ -138,7 +140,8 @@ public:
 	void setUp()
 	{
 		m_gitlab_client = new GitlabAPIClient("https://gitlab.com", GITLAB_TOKEN);
-		m_twitter_client = new TwitterClient(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET);
+		m_twitter_client = new TwitterClient(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET,
+			TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET);
 		m_http_server = new HTTPServer(58080);
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
 			&WinterWindTests::httpserver_testhandler, this)
@@ -668,12 +671,24 @@ int main(int argc, const char* argv[])
 		return -1;
 	}
 
+	if (argc < 5) {
+		std::cerr << argv[0] << ": Missing Twitter access token" << std::endl;
+		return -1;
+	}
+
+	if (argc < 6) {
+		std::cerr << argv[0] << ": Missing Twitter access token secret" << std::endl;
+		return -1;
+	}
+
 	GITLAB_TOKEN = std::string(argv[1]);
 	TWITTER_CONSUMER_KEY = std::string(argv[2]);
 	TWITTER_CONSUMER_SECRET = std::string(argv[3]);
+	TWITTER_ACCESS_TOKEN = std::string(argv[4]);
+	TWITTER_ACCESS_TOKEN_SECRET = std::string(argv[5]);
 
-	if (argc >= 5) {
-		ES_HOST = std::string(argv[4]);
+	if (argc >= 7) {
+		ES_HOST = std::string(argv[6]);
 	}
 
 	CppUnit::TextUi::TestRunner runner;

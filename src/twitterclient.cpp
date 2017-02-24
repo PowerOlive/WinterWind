@@ -23,11 +23,14 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "twitterclient.h"
 #include <iostream>
 #include <sstream>
 #include <ctime>
-#include "twitterclient.h"
+#include <map>
+#include <algorithm>
 #include "utils/base64.h"
+#include "utils/hmac.h"
 
 static const std::string TWITTER_API_URL = "https://api.twitter.com";
 static const std::string TWITTER_OAUTH2_TOKEN = "/oauth2/token";
@@ -56,30 +59,72 @@ void TwitterClient::append_auth_header()
 void TwitterClient::append_bearer_header()
 {
 	add_http_header("Authorization", "Bearer " + m_bearer_token);
-	append_oauth_header();
 }
 
-void TwitterClient::append_oauth_header()
+#define TWITTER_OAUTH_NONCE_LENGTH 32
+void TwitterClient::append_oauth_header(const std::string &method, const std::string &url)
 {
-	std::array<char, 33> oauth_nonce = {};
+	std::string oauth_nonce = "";
 	std::uniform_int_distribution<uint8_t> normal_dist(0, 255);
-	for (uint8_t i = 0; i < oauth_nonce.size() - 1; i++) {
-		oauth_nonce[i] = (uint8_t) normal_dist(m_rand_engine);
+	for (uint8_t i = 0; i < TWITTER_OAUTH_NONCE_LENGTH; i++) {
+		oauth_nonce += (uint8_t) normal_dist(m_rand_engine);
 	}
-	oauth_nonce[32] = '\0';
 
-	// std::string(oauth_nonce.data()) => to encode using b64
+	std::string buf = base64_encode(oauth_nonce);
+	time_t t = std::time(0);
+
+	std::map<std::string, std::string> ordered_params = {};
+
+	ordered_params["oauth_consumer_key"] = m_consumer_key;
+	ordered_params["oauth_nonce"] = buf;
+	ordered_params["oauth_signature_method"] = "HMAC-SHA1";
+	ordered_params["oauth_timestamp"] = std::to_string(t);
+	ordered_params["oauth_token"] = m_access_token;
+	ordered_params["oauth_version"] = "1.0";
+
+	// Append request params
+	for (const auto &p: m_http_request_params) {
+		ordered_params[p.first] = p.second;
+	}
+
+	http_string_escape(url, buf);
+	std::string signature = method + "&" + buf + "&";
+
+	for (const auto &p: ordered_params) {
+		http_string_escape(p.first, buf);
+		signature += buf + "=";
+		http_string_escape(p.second, buf);
+		signature += buf + "&";
+	}
+
+	signature[signature.size() - 1] = '\0';
+
+	// Generate signing key
+	std::string signing_key = "";
+	http_string_escape(m_consumer_secret, buf);
+	signing_key += buf + "&";
+	http_string_escape(m_access_token_secret, buf);
+	signing_key += buf;
+
+	ordered_params["oauth_signature"] = base64_encode(hmac_sha1(signing_key, signature));
 	std::stringstream header;
-	header << std::string("OAuth oauth_consumer_key=\"") << m_consumer_key << "\","
-		<< "oauth_nonce=\"" << std::string(oauth_nonce.data()) << "\","
-		<< "oauth_signature=\"" << "tnnArxj06cWHq44gCs1OSKk%2FjLY%3D" << "\","
-		<< "oauth_signature_method=\"HMAC-SHA1\","
-		<< "oauth_timestamp=\"" << std::time(0) << "\","
-		<< "oauth_token=\"" << m_access_token << "\","
-		<< "oauth_version=\"1.0\"";
+	header << std::string("OAuth ");
+
+	static const std::string oauth_prefix = "oauth_";
+	for (const auto &p: ordered_params) {
+		// Only manipulate oauth header
+		if (p.first.substr(0, oauth_prefix.size()) != oauth_prefix) {
+			continue;
+		}
+
+		http_string_escape(p.first, buf);
+		header << buf << "=\"";
+		http_string_escape(p.second, buf);
+		header << buf << "\", ";
+	}
 
 	std::cout << header.str() << std::endl;
-
+	add_http_header("Authorization", header.str());
 }
 
 TwitterClient::Response TwitterClient::get_oauth2_token()
@@ -111,32 +156,28 @@ TwitterClient::Response TwitterClient::get_user_timeline(Json::Value &res, const
 	const uint32_t since_id, bool include_rts, bool contributor_details)
 {
 	append_bearer_header();
-	std::string request = TWITTER_API_URL + TWITTER_USER_TIMELINE_1_1 + "?";
+	std::string request = TWITTER_API_URL + TWITTER_USER_TIMELINE_1_1;
 
-	bool prev_param = false;
 	if (count > 0) {
-		request += "count=" + std::to_string(count);
-		prev_param = true;
+		add_http_request_param("count", std::to_string(count));
 	}
 
 	if (since_id > 0) {
-		if (prev_param) request += "&";
-		request += "since_id=" + std::to_string(since_id);
-		prev_param = true;
+		add_http_request_param("since_id", std::to_string(since_id));
 	}
 
 	if (include_rts) {
-		if (prev_param) request += "&";
-		request += "include_rts=true";
-		prev_param = true;
+		add_http_request_param("include_rts", "true");
 	}
 
 	if (contributor_details) {
-		if (prev_param) request += "&";
-		request += "contributor_details=true";
+		add_http_request_param("contributor_details", "true");
 	}
 
+	append_oauth_header("GET", request);
+
 	_get_json(request, res);
+	std::cout << res.toStyledString() << std::endl;
 
 	switch (get_http_code()) {
 		case 401: return TWITTER_UNAUTHORIZED;
@@ -150,21 +191,20 @@ TwitterClient::Response TwitterClient::get_user_timeline(Json::Value &res, const
 TwitterClient::Response TwitterClient::get_home_timeline(Json::Value &res, const uint16_t count,
 	const uint32_t since_id)
 {
-	append_bearer_header();
-	std::string request = TWITTER_API_URL + TWITTER_HOME_TIMELINE_1_1 + "?";
+	std::string request = TWITTER_API_URL + TWITTER_HOME_TIMELINE_1_1;
 
-	bool prev_param = false;
 	if (count > 0) {
-		request += "count=" + std::to_string(count);
-		prev_param = true;
+		add_http_request_param("count", std::to_string(count));
 	}
 
 	if (since_id > 0) {
-		if (prev_param) request += "&";
-		request += "since_id=" + std::to_string(since_id);
+		add_http_request_param("since_id=", std::to_string(since_id));
 	}
 
+	append_oauth_header("GET", request);
+
 	_get_json(request, res);
+	std::cout << res.toStyledString() << std::endl;
 
 	switch (get_http_code()) {
 		case 401: return TWITTER_UNAUTHORIZED;

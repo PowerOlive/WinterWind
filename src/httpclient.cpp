@@ -65,11 +65,24 @@ size_t HTTPClient::curl_writer(char *data, size_t size, size_t nmemb,
 	return realsize;
 }
 
-void HTTPClient::request(const std::string &url, std::string &res,
+void HTTPClient::request(std::string url, std::string &res,
 		int32_t flag, HTTPMethod method, const std::string &post_data)
 {
 	CURL *curl = curl_easy_init();
 	m_http_code = 0;
+
+	bool first_param = true;
+	for (const auto &p: m_http_request_params) {
+		if (first_param) {
+			url.append("?");
+			first_param = false;
+		}
+		else {
+			url.append("&");
+		}
+
+		url += p.first + "=" + p.second;
+	}
 
 	struct curl_slist *chunk = NULL;
 
@@ -155,6 +168,8 @@ void HTTPClient::request(const std::string &url, std::string &res,
 	if (!(flag & HTTPCLIENT_REQ_KEEP_HEADER_CACHE_AFTER_REQUEST)) {
 		m_http_headers.clear();
 	}
+
+	m_http_request_params.clear();
 }
 
 void HTTPClient::get_html_tag_value(const std::string &url, const std::string &xpath,
