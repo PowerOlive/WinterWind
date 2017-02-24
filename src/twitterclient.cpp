@@ -71,6 +71,9 @@ void TwitterClient::append_oauth_header(const std::string &method, const std::st
 	}
 
 	std::string buf = base64_encode(oauth_nonce);
+	buf.erase(std::remove_if(buf.begin(), buf.end(),
+		[] (char c) { return !std::isalnum(c); }),
+		buf.end());
 	time_t t = std::time(0);
 
 	std::map<std::string, std::string> ordered_params = {};
@@ -87,17 +90,27 @@ void TwitterClient::append_oauth_header(const std::string &method, const std::st
 		ordered_params[p.first] = p.second;
 	}
 
-	http_string_escape(url, buf);
-	std::string signature = method + "&" + buf + "&";
-
+	// Generate parameter string
+	std::string parameter_string = "";
+	uint32_t p_count = 0, p_max = ordered_params.size();
 	for (const auto &p: ordered_params) {
 		http_string_escape(p.first, buf);
-		signature += buf + "=";
+		parameter_string += buf + "=";
 		http_string_escape(p.second, buf);
-		signature += buf + "&";
+
+		parameter_string += buf;
+
+		p_count++;
+		if (p_count != p_max) {
+			parameter_string += "&";
+		}
 	}
 
-	signature[signature.size() - 1] = '\0';
+	// Create signature
+	http_string_escape(url, buf);
+	std::string signature = method + "&" + buf + "&";
+	http_string_escape(parameter_string, buf);
+	signature += buf;
 
 	// Generate signing key
 	std::string signing_key = "";
@@ -106,11 +119,17 @@ void TwitterClient::append_oauth_header(const std::string &method, const std::st
 	http_string_escape(m_access_token_secret, buf);
 	signing_key += buf;
 
+	// Add sign key to parameters
 	ordered_params["oauth_signature"] = base64_encode(hmac_sha1(signing_key, signature));
+
+	// Generate OAuth header
 	std::stringstream header;
 	header << std::string("OAuth ");
 
 	static const std::string oauth_prefix = "oauth_";
+
+	p_count = 0;
+	p_max = 7;
 	for (const auto &p: ordered_params) {
 		// Only manipulate oauth header
 		if (p.first.substr(0, oauth_prefix.size()) != oauth_prefix) {
@@ -120,7 +139,12 @@ void TwitterClient::append_oauth_header(const std::string &method, const std::st
 		http_string_escape(p.first, buf);
 		header << buf << "=\"";
 		http_string_escape(p.second, buf);
-		header << buf << "\", ";
+		header << buf << "\"";
+
+		p_count++;
+		if (p_count != p_max) {
+			header << ", ";
+		}
 	}
 
 	std::cout << header.str() << std::endl;
