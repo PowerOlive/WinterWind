@@ -71,17 +71,22 @@ void HTTPClient::request(std::string url, std::string &res,
 	CURL *curl = curl_easy_init();
 	m_http_code = 0;
 
-	bool first_param = true;
-	for (const auto &p: m_http_request_params) {
-		if (first_param) {
-			url.append("?");
-			first_param = false;
-		}
-		else {
-			url.append("&");
-		}
+	{
+		std::string buf = "";
+		bool first_param = true;
+		for (const auto &p: m_http_request_params) {
+			if (first_param) {
+				url.append("?");
+				first_param = false;
+			} else {
+				url.append("&");
+			}
 
-		url += p.first + "=" + p.second;
+			http_string_escape(p.first, buf);
+			url += buf + "=";
+			http_string_escape(p.second, buf);
+			url += buf;
+		}
 	}
 
 	struct curl_slist *chunk = NULL;
@@ -224,6 +229,8 @@ bool HTTPClient::_post_json(const std::string &url, const Json::Value &data,
 
 void HTTPClient::http_string_escape(const std::string &src, std::string &dst)
 {
+	dst.clear();
+
 	CURL *curl = curl_easy_init();
 	if (char *output = curl_easy_escape(curl, src.c_str(), (int) src.length())) {
 		dst = std::string(output);

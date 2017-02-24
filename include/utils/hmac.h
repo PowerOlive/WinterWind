@@ -35,11 +35,10 @@ std::string hmac_sha1(const std::string &key, const std::string &data)
 	digest = HMAC(EVP_sha1(), key.c_str(), key.length(),
 		(unsigned char*) data.c_str(), data.length(), NULL, NULL);
 
-	char md_string[41];
+	std::string res = "";
 	for (int i = 0; i < 20; i++) {
-		sprintf(&md_string[i * 2], "%02x", (unsigned int) digest[i]);
+		res += digest[i];
 	}
-	md_string[40] = '\0';
 
-	return std::string(md_string);
+	return res;
 }

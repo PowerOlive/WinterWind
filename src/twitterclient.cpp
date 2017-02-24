@@ -113,14 +113,16 @@ void TwitterClient::append_oauth_header(const std::string &method, const std::st
 	signature += buf;
 
 	// Generate signing key
-	std::string signing_key = "";
-	http_string_escape(m_consumer_secret, buf);
-	signing_key += buf + "&";
-	http_string_escape(m_access_token_secret, buf);
-	signing_key += buf;
+	{
+		std::string signing_key = "";
+		http_string_escape(m_consumer_secret, buf);
+		signing_key += buf + "&";
+		http_string_escape(m_access_token_secret, buf);
+		signing_key += buf;
 
-	// Add sign key to parameters
-	ordered_params["oauth_signature"] = base64_encode(hmac_sha1(signing_key, signature));
+		// Add sign key to parameters
+		ordered_params["oauth_signature"] = base64_encode(hmac_sha1(signing_key, signature));
+	}
 
 	// Generate OAuth header
 	std::stringstream header;
@@ -147,7 +149,6 @@ void TwitterClient::append_oauth_header(const std::string &method, const std::st
 		}
 	}
 
-	std::cout << header.str() << std::endl;
 	add_http_header("Authorization", header.str());
 }
 
@@ -179,7 +180,6 @@ TwitterClient::Response TwitterClient::get_oauth2_token()
 TwitterClient::Response TwitterClient::get_user_timeline(Json::Value &res, const uint16_t count,
 	const uint32_t since_id, bool include_rts, bool contributor_details)
 {
-	append_bearer_header();
 	std::string request = TWITTER_API_URL + TWITTER_USER_TIMELINE_1_1;
 
 	if (count > 0) {
@@ -201,7 +201,6 @@ TwitterClient::Response TwitterClient::get_user_timeline(Json::Value &res, const
 	append_oauth_header("GET", request);
 
 	_get_json(request, res);
-	std::cout << res.toStyledString() << std::endl;
 
 	switch (get_http_code()) {
 		case 401: return TWITTER_UNAUTHORIZED;
@@ -228,7 +227,6 @@ TwitterClient::Response TwitterClient::get_home_timeline(Json::Value &res, const
 	append_oauth_header("GET", request);
 
 	_get_json(request, res);
-	std::cout << res.toStyledString() << std::endl;
 
 	switch (get_http_code()) {
 		case 401: return TWITTER_UNAUTHORIZED;
