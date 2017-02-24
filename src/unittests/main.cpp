@@ -39,6 +39,7 @@
 #include <luaengine.h>
 #include <postgresqlclient.h>
 #include <twitterclient.h>
+#include <utils/base64.h>
 
 #include "unittests_config.h"
 
@@ -69,6 +70,10 @@ public:
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test1 - Split string", split_string);
 		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test2 - Remove substring", remove_substring);
+
+		CPPUNIT_ADDTEST(WinterWindTests, "Base64 - Test1 - Encode (low level)", base64_encode_test);
+		CPPUNIT_ADDTEST(WinterWindTests, "Base64 - Test2 - Encode (high level)", base64_encode_test2);
+		CPPUNIT_ADDTEST(WinterWindTests, "Base64 - Test3 - Decode", base64_decode_test);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test1 - Embedded statements registring", pg_register_embedded_statements)
 		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test2 - Register custom statement", pg_register_custom_statement)
@@ -165,6 +170,28 @@ protected:
 		std::string to_alter = orig;
 		str_remove_substr(to_alter, "world ");
 		CPPUNIT_ASSERT(to_alter == "The is mine, the is not yours");
+	}
+
+	void base64_encode_test()
+	{
+		std::string src = "unittest_b64encode";
+		std::string res = base64_encode((const unsigned char *) src.c_str(), src.size());
+		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
+	}
+
+	void base64_decode_test()
+	{
+		std::string src = "dW5pdHRlc3RfYjY0ZGVjb2Rl";
+		std::string res = base64_decode(src);
+		CPPUNIT_ASSERT(res.compare("unittest_b64decode") == 0);
+	}
+
+	void base64_encode_test2()
+	{
+		std::string src = "unittest_b64encode";
+		std::string res = base64_encode(src);
+		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
+
 	}
 
 	void lua_winterwind_engine()
