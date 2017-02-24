@@ -25,31 +25,23 @@
 
 #pragma once
 
-#include "oauthclient.h"
+#include <httpclient.h>
+#include <random>
 
-class TwitterClient: private OAuthClient
+class OAuthClient: protected HTTPClient
 {
 public:
-	enum Response
-	{
-		TWITTER_OK,
-		TWITTER_INVALID_RESPONSE,
-		TWITTER_UNAUTHORIZED,
-		TWITTER_FORBIDDEN,
-	};
-
-	TwitterClient(const std::string &consumer_key, const std::string &consumer_secret,
+	OAuthClient(const std::string &consumer_key, const std::string &consumer_secret,
 		const std::string &access_token = "", const std::string &access_token_secret = "");
-	TwitterClient::Response authenticate() { return get_oauth2_token(); }
-	TwitterClient::Response get_user_timeline(Json::Value &res, const uint16_t count = 0,
-		const uint32_t since_id = 0,
-		bool include_rts = false, bool contributor_details = false);
-	TwitterClient::Response get_home_timeline(Json::Value &res, const uint16_t count = 0,
-		const uint32_t since_id = 0);
-private:
-	void append_auth_header();
-	void append_bearer_header();
-	TwitterClient::Response get_oauth2_token();
+	virtual ~OAuthClient() {};
 
-	std::string m_bearer_token = "";
+	void append_oauth_header(const std::string &method, const std::string &url);
+protected:
+	std::string m_consumer_key = "";
+	std::string m_consumer_secret = "";
+
+	std::string m_access_token = "";
+	std::string m_access_token_secret = "";
+
+	std::mt19937 m_rand_engine;
 };

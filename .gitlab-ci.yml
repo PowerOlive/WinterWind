@@ -62,7 +62,7 @@ build:clang:
   environment: staging
   script:
     - cd build
-    - ./src/unittests/winterwind_unittests $GITLAB_API_KEY $TWITTER_CONSUMER_KEY $TWITTER_CONSUMER_SECRET elasticsearch
+    - ./src/unittests/winterwind_unittests $GITLAB_API_KEY $TWITTER_CONSUMER_KEY $TWITTER_CONSUMER_SECRET $TWITTER_ACCESS_TOKEN $TWITTER_ACCESS_TOKEN_SECRET elasticsearch
 
 unittests:gcc6:
   <<: *unittests_definition
