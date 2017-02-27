@@ -29,15 +29,25 @@
 #include <cstring>
 #include "httpclient.h"
 
+std::atomic_bool HTTPClient::m_inited(false);
+
 HTTPClient::HTTPClient(uint32_t max_file_size):
 		m_maxfilesize(max_file_size)
 {
+	if (!HTTPClient::m_inited) {
+		curl_global_init(CURL_GLOBAL_ALL);
+	}
 }
 
 HTTPClient::~HTTPClient()
 {
 	delete m_json_writer;
 	delete m_json_reader;
+}
+
+void HTTPClient::deinit()
+{
+	curl_global_cleanup();
 }
 
 Json::Writer *HTTPClient::json_writer()
@@ -168,7 +178,6 @@ void HTTPClient::request(std::string url, std::string &res,
 	}
 
 	curl_easy_cleanup(curl);
-	curl_global_cleanup();
 
 	if (!(flag & HTTPCLIENT_REQ_KEEP_HEADER_CACHE_AFTER_REQUEST)) {
 		m_http_headers.clear();
@@ -238,5 +247,4 @@ void HTTPClient::http_string_escape(const std::string &src, std::string &dst)
 	}
 
 	curl_easy_cleanup(curl);
-	curl_global_cleanup();
 }

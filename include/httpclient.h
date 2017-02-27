@@ -30,6 +30,7 @@
 #include <unordered_map>
 #include "httpcommon.h"
 #include "xmlparser.h"
+#include <atomic>
 
 enum HTTPClientReqFlag
 {
@@ -45,6 +46,8 @@ class HTTPClient
 public:
 	HTTPClient(uint32_t max_file_size = 1024 * 1024);
 	virtual ~HTTPClient();
+
+	static void deinit();
 
 	inline void _post(const std::string &url, const std::string &post_data,
 		std::string &res, int32_t flag = HTTPCLIENT_REQ_SIMPLE)
@@ -120,4 +123,7 @@ private:
 	Json::FastWriter *m_json_writer = nullptr;
 	Json::Reader *m_json_reader = nullptr;
 	uint32_t m_maxfilesize = 0;
+
+	void init_curl() const;
+	static std::atomic_bool m_inited;
 };
