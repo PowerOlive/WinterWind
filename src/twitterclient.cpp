@@ -81,19 +81,19 @@ TwitterClient::Response TwitterClient::get_user_timeline(Json::Value &res, const
 	std::string request = TWITTER_API_URL + TWITTER_USER_TIMELINE_1_1;
 
 	if (count > 0) {
-		add_http_request_param("count", std::to_string(count));
+		add_uri_param("count", std::to_string(count));
 	}
 
 	if (since_id > 0) {
-		add_http_request_param("since_id", std::to_string(since_id));
+		add_uri_param("since_id", std::to_string(since_id));
 	}
 
 	if (include_rts) {
-		add_http_request_param("include_rts", "true");
+		add_uri_param("include_rts", "true");
 	}
 
 	if (contributor_details) {
-		add_http_request_param("contributor_details", "true");
+		add_uri_param("contributor_details", "true");
 	}
 
 	append_oauth_header("GET", request);
@@ -115,11 +115,11 @@ TwitterClient::Response TwitterClient::get_home_timeline(Json::Value &res, const
 	std::string request = TWITTER_API_URL + TWITTER_HOME_TIMELINE_1_1;
 
 	if (count > 0) {
-		add_http_request_param("count", std::to_string(count));
+		add_uri_param("count", std::to_string(count));
 	}
 
 	if (since_id > 0) {
-		add_http_request_param("since_id=", std::to_string(since_id));
+		add_uri_param("since_id=", std::to_string(since_id));
 	}
 
 	append_oauth_header("GET", request);

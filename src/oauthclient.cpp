@@ -66,13 +66,13 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 	ordered_params["oauth_version"] = "1.0";
 
 	// Append request params
-	for (const auto &p: m_http_request_params) {
+	for (const auto &p: m_uri_params) {
 		ordered_params[p.first] = p.second;
 	}
 
 	// Generate parameter string
 	std::string parameter_string = "";
-	uint32_t p_count = 0, p_max = ordered_params.size();
+	uint32_t p_count = 0, p_max = (uint32_t) ordered_params.size();
 	for (const auto &p: ordered_params) {
 		http_string_escape(p.first, buf);
 		parameter_string += buf + "=";

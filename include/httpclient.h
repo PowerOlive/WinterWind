@@ -96,9 +96,9 @@ public:
 		m_http_headers[header] = value;
 	}
 
-	void add_http_request_param(const std::string &param, const std::string &value)
+	void add_uri_param(const std::string &param, const std::string &value)
 	{
-		m_http_request_params[param] = value;
+		m_uri_params[param] = value;
 	}
 
 	bool _post_json(const std::string &url, const Json::Value &data, Json::Value &res);
@@ -115,7 +115,7 @@ protected:
 	std::string m_username = "";
 	std::string m_password = "";
 	std::unordered_map<std::string, std::string> m_http_headers = {};
-	std::unordered_map<std::string, std::string> m_http_request_params = {};
+	std::unordered_map<std::string, std::string> m_uri_params = {};
 	long m_http_code = 0;
 	Json::Writer *json_writer();
 	Json::Reader *json_reader();

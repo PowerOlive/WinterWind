@@ -84,7 +84,7 @@ void HTTPClient::request(std::string url, std::string &res,
 	{
 		std::string buf = "";
 		bool first_param = true;
-		for (const auto &p: m_http_request_params) {
+		for (const auto &p: m_uri_params) {
 			if (first_param) {
 				url.append("?");
 				first_param = false;
@@ -183,7 +183,7 @@ void HTTPClient::request(std::string url, std::string &res,
 		m_http_headers.clear();
 	}
 
-	m_http_request_params.clear();
+	m_uri_params.clear();
 }
 
 void HTTPClient::get_html_tag_value(const std::string &url, const std::string &xpath,
