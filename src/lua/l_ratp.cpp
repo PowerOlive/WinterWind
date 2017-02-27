@@ -37,12 +37,12 @@ int LuaEngine::l_get_ratp_schedules(lua_State *L)
 	int line_raw = read<int>(L, -1);
 	lua_pop(L, 1);
 
-	if (line_raw != RATP_LINE_RER_A && line_raw != RATP_LINE_RER_B) {
+	if (line_raw != RATPClient::LINE_RER_A && line_raw != RATPClient::LINE_RER_B) {
 		std::cerr << "Lua: " << __FUNCTION__ << ": Invalid RATP Line ID" << std::endl;
 		return 0;
 	}
 
-	const auto schedules = RATPClient().get_next_trains(RATP_LINE_RER_B, "Palaiseau Villebon", 1);
+	const auto schedules = RATPClient().get_next_trains(RATPClient::LINE_RER_B, "Palaiseau Villebon", 1);
 	lua_createtable(L, (int) schedules.size(), 0);
 	int table_idx = lua_gettop(L);
 	uint8_t idx = 0;

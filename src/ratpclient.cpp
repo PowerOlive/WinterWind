@@ -34,7 +34,7 @@ struct RATPLineDef
 	std::string dir_2;
 };
 
-static const RATPLineDef ratp_line_defs[RATP_LINE_MAX] = {
+static const RATPLineDef ratp_line_defs[RATPClient::LINE_MAX] = {
 	{ "http://www.ratp.fr/horaires/fr/ratp/rer/prochains_passages/RA/", "R", "A" },
 	{ "http://www.ratp.fr/horaires/fr/ratp/rer/prochains_passages/RB/", "R", "A" },
 };
@@ -45,10 +45,10 @@ static const std::string xpath_rer =
 static const RATPScheduleList EMPTY_SCHEDULE_LIST = {};
 static constexpr uint32_t RATP_CACHE_TIME = 60;
 
-const RATPScheduleList& RATPClient::get_next_trains(const RATPLine line, const std::string &stop,
+const RATPScheduleList& RATPClient::get_next_trains(const RATPClient::Line line, const std::string &stop,
 	const uint8_t direction)
 {
-	assert(line < RATP_LINE_MAX);
+	assert(line < LINE_MAX);
 	assert(direction > 0 && direction < 3);
 
 	if (m_stop_cache.find(line) == m_stop_cache.end()) {

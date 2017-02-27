@@ -27,13 +27,6 @@
 
 #include <httpclient.h>
 
-enum RATPLine
-{
-	RATP_LINE_RER_A,
-	RATP_LINE_RER_B,
-	RATP_LINE_MAX,
-};
-
 struct RATPSchedule
 {
 	std::string destination = "";
@@ -54,11 +47,18 @@ typedef std::unordered_map<std::string, RATPStop> RATPStopMap;
 class RATPClient: private HTTPClient
 {
 public:
+	enum Line
+	{
+		LINE_RER_A,
+		LINE_RER_B,
+		LINE_MAX,
+	};
+
 	RATPClient(): HTTPClient() {};
 	~RATPClient() {};
 
-	const RATPScheduleList &get_next_trains(const RATPLine line, const std::string &stop,
+	const RATPScheduleList &get_next_trains(const RATPClient::Line line, const std::string &stop,
 		const uint8_t direction);
 private:
-	std::map<RATPLine, RATPStopMap> m_stop_cache;
+	std::map<RATPClient::Line, RATPStopMap> m_stop_cache;
 };
