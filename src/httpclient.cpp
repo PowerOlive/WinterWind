@@ -106,7 +106,7 @@ void HTTPClient::request(std::string url, std::string &res,
 	curl_easy_setopt(curl, CURLOPT_MAXFILESIZE, m_maxfilesize); // Limit request size to 20ko
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_writer);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &res);
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER , (flag & HTTPCLIENT_REQ_NO_VERIFY_PEER) ? 0 : 1);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER , (flag & HTTPClient::REQ_NO_VERIFY_PEER) ? 0 : 1);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST , 1);
 
 	switch (method) {
@@ -140,7 +140,7 @@ void HTTPClient::request(std::string url, std::string &res,
 		default: break;
 	}
 
-	if (flag & HTTPCLIENT_REQ_AUTH) {
+	if (flag & HTTPClient::REQ_AUTH) {
 		std::string auth_str = m_username + ":" + m_password;
 		curl_easy_setopt(curl, CURLOPT_USERPWD, auth_str.c_str());
 	}
@@ -179,7 +179,7 @@ void HTTPClient::request(std::string url, std::string &res,
 
 	curl_easy_cleanup(curl);
 
-	if (!(flag & HTTPCLIENT_REQ_KEEP_HEADER_CACHE_AFTER_REQUEST)) {
+	if (!(flag & HTTPClient::REQ_KEEP_HEADER_CACHE_AFTER_REQUEST)) {
 		m_http_headers.clear();
 	}
 
@@ -205,7 +205,7 @@ bool HTTPClient::_get_json(const std::string &url, Json::Value &res, const HTTPH
 		add_http_header(header.first, header.second);
 	}
 
-	_get(url, res_str, HTTPCLIENT_REQ_SIMPLE);
+	_get(url, res_str);
 
 	if (!json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << std::endl;

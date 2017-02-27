@@ -32,55 +32,55 @@
 #include "xmlparser.h"
 #include <atomic>
 
-enum HTTPClientReqFlag
-{
-	HTTPCLIENT_REQ_SIMPLE = 0x01,
-	HTTPCLIENT_REQ_AUTH = 0x02,
-	HTTPCLIENT_REQ_NO_VERIFY_PEER = 0x04,
-	HTTPCLIENT_REQ_KEEP_HEADER_CACHE_AFTER_REQUEST = 0x08,
-};
-
 typedef std::unordered_map<std::string, std::string> HTTPHeadersMap;
 class HTTPClient
 {
 public:
+	enum ReqFlag
+	{
+		REQ_SIMPLE = 0x01,
+		REQ_AUTH = 0x02,
+		REQ_NO_VERIFY_PEER = 0x04,
+		REQ_KEEP_HEADER_CACHE_AFTER_REQUEST = 0x08,
+	};
+
 	HTTPClient(uint32_t max_file_size = 1024 * 1024);
 	virtual ~HTTPClient();
 
 	static void deinit();
 
 	inline void _post(const std::string &url, const std::string &post_data,
-		std::string &res, int32_t flag = HTTPCLIENT_REQ_SIMPLE)
+		std::string &res, int32_t flag = HTTPClient::REQ_AUTH)
 	{
 		request(url, res, flag, HTTP_METHOD_POST, post_data);
 	}
 
 	inline void _get(const std::string &url, std::string &res,
-		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
+		int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
 		request(url, res, flag, HTTP_METHOD_GET);
 	}
 
 	inline void _delete(const std::string &url, std::string &res,
-		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
+		int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
 		request(url, res, flag, HTTP_METHOD_DELETE);
 	}
 
 	inline void _head(const std::string &url, std::string &res,
-		int32_t flag = HTTPCLIENT_REQ_SIMPLE)
+		int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
 		request(url, res, flag, HTTP_METHOD_HEAD);
 	}
 
 	inline void _propfind(const std::string &url, std::string &res,
-		int32_t flag = HTTPCLIENT_REQ_SIMPLE, const std::string &post_data = "")
+		int32_t flag = HTTPClient::REQ_SIMPLE, const std::string &post_data = "")
 	{
 		request(url, res, flag, HTTP_METHOD_PROPFIND, post_data);
 	}
 
 	inline void _put(const std::string &url, std::string &res,
-		int32_t flag = HTTPCLIENT_REQ_SIMPLE, const std::string &post_data = "")
+		int32_t flag = HTTPClient::REQ_SIMPLE, const std::string &post_data = "")
 	{
 		request(url, res, flag, HTTP_METHOD_PUT, post_data);
 	}
@@ -109,7 +109,7 @@ public:
 protected:
 	static size_t curl_writer(char *data, size_t size, size_t nmemb, void *user_data);
 	void request(std::string url, std::string &res, int32_t
-	flag = HTTPCLIENT_REQ_SIMPLE, HTTPMethod method = HTTP_METHOD_GET,
+	flag = HTTPClient::REQ_SIMPLE, HTTPMethod method = HTTP_METHOD_GET,
 		const std::string &post_data = "");
 
 	std::string m_username = "";

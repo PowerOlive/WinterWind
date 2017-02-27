@@ -50,9 +50,9 @@ CaldavClient::CaldavClient(const std::string &url, const std::string &username,
 void CaldavClient::load_calendars()
 {
 	std::string res = "";
-	int32_t reqflag = HTTPCLIENT_REQ_SIMPLE | HTTPCLIENT_REQ_AUTH;
+	int32_t reqflag = HTTPClient::REQ_SIMPLE | HTTPClient::REQ_AUTH;
 	if (m_dont_verify_peer) {
-		reqflag |= HTTPCLIENT_REQ_NO_VERIFY_PEER;
+		reqflag |= HTTPClient::REQ_NO_VERIFY_PEER;
 	}
 
 	add_http_header("Content-Type", "application/xml; charset=utf-8");

@@ -101,7 +101,7 @@ void ElasticsearchClient::create_doc(const std::string &index, const std::string
 	std::string res;
 	Json::FastWriter writer;
 	request(node.http_addr + "/" + index + "/" + type + "/", res,
-			HTTPCLIENT_REQ_SIMPLE, HTTP_METHOD_GET, writer.write(doc));
+			HTTPClient::REQ_SIMPLE, HTTP_METHOD_GET, writer.write(doc));
 }
 
 void ElasticsearchClient::insert_doc(const std::string &index, const std::string &type,
@@ -111,7 +111,7 @@ void ElasticsearchClient::insert_doc(const std::string &index, const std::string
 	std::string res;
 	Json::FastWriter writer;
 	_put(node.http_addr + "/" + index + "/" + type + "/" + doc_id, res,
-		HTTPCLIENT_REQ_SIMPLE, writer.write(doc));
+		 HTTPClient::REQ_SIMPLE, writer.write(doc));
 }
 
 void ElasticsearchClient::delete_doc(const std::string &index,
