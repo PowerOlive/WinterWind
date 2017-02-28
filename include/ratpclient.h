@@ -51,7 +51,7 @@ public:
 	{
 		LINE_RER_A,
 		LINE_RER_B,
-		LINE_MAX,
+		RATP_LINE_MAX,
 	};
 
 	RATPClient(): HTTPClient() {};
