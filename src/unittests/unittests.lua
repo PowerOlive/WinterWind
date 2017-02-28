@@ -15,6 +15,7 @@ end
 function test_http_client()
 	local score = 2
 	local http = core.create_httpclient()
+	http:add_uri_param("lang", "de")
 	local res = http:get("http://www.google.fr")
 	if res.code ~= 200 then
 		print("test_http_client: get test failed (rc: " .. res.code .. ")")
@@ -24,6 +25,13 @@ function test_http_client()
 	res = http:delete("http://www.amazon.com/")
 	if res.code ~= 200 then
 		print("test_http_client: delete test failed (rc: " .. res.code .. ")")
+		score = score - 1
+	end
+
+	http:add_form_param("search", "lua")
+	res = http:post("http://httpbin.org/post")
+	if res.code ~= 200 then
+		print("test_http_client: post test failed (rc: " .. res.code .. ")")
 		score = score - 1
 	end
 
