@@ -248,3 +248,16 @@ void HTTPClient::http_string_escape(const std::string &src, std::string &dst)
 
 	curl_easy_cleanup(curl);
 }
+
+void HTTPClient::add_uri_param(const std::string &param, const std::string &value, bool escape)
+{
+
+	if (escape) {
+		std::string value_esc = "";
+		http_string_escape(value, value_esc);
+		m_uri_params[param] = value_esc;
+	}
+	else {
+		m_uri_params[param] = value;
+	}
+}

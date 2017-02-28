@@ -99,10 +99,7 @@ public:
 		m_http_headers[header] = value;
 	}
 
-	void add_uri_param(const std::string &param, const std::string &value)
-	{
-		m_uri_params[param] = value;
-	}
+	void add_uri_param(const std::string &param, const std::string &value, bool escape = true);
 
 	bool _post_json(const std::string &url, const Json::Value &data, Json::Value &res);
 

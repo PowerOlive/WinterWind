@@ -164,8 +164,6 @@ int HTTPClientLuaRef::l_add_uri_param(lua_State *L)
 	std::string param = read<std::string>(L, 2);
 	std::string value = read<std::string>(L, 3);
 
-	std::string value_esc = "";
-	http->http_string_escape(value, value_esc);
-	http->add_uri_param(param, value_esc);
+	http->add_uri_param(param, value);
 	return 1;
 }

@@ -119,7 +119,7 @@ TwitterClient::Response TwitterClient::get_home_timeline(Json::Value &res, const
 	}
 
 	if (since_id > 0) {
-		add_uri_param("since_id=", std::to_string(since_id));
+		add_uri_param("since_id", std::to_string(since_id));
 	}
 
 	append_oauth_header("GET", request);
