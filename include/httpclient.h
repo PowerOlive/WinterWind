@@ -36,6 +36,9 @@ typedef std::unordered_map<std::string, std::string> HTTPHeadersMap;
 class HTTPClient
 {
 public:
+	HTTPClient(uint32_t max_file_size = 1024 * 1024);
+	virtual ~HTTPClient();
+
 	enum ReqFlag
 	{
 		REQ_SIMPLE = 0x01,
@@ -44,9 +47,9 @@ public:
 		REQ_KEEP_HEADER_CACHE_AFTER_REQUEST = 0x08,
 	};
 
-	HTTPClient(uint32_t max_file_size = 1024 * 1024);
-	virtual ~HTTPClient();
-
+	/**
+	 * This function should be called at the binary lifetime ending
+	 */
 	static void deinit();
 
 	inline void _post(const std::string &url, const std::string &post_data,

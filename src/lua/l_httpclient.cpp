@@ -41,6 +41,7 @@ const luaL_Reg HTTPClientLuaRef::methods[] = {
 	luamethod(HTTPClientLuaRef, delete),
 	luamethod(HTTPClientLuaRef, get),
 	luamethod(HTTPClientLuaRef, head),
+	luamethod(HTTPClientLuaRef, add_uri_param),
 	{0, 0},
 };
 
@@ -152,5 +153,19 @@ int HTTPClientLuaRef::l_head(lua_State *L)
 	lua_setfield(L, -2, "code");
 	write(L, res);
 	lua_setfield(L, -2, "content");
+	return 1;
+}
+
+int HTTPClientLuaRef::l_add_uri_param(lua_State *L)
+{
+	HTTPClientLuaRef *ref = checkobject(L, 1);
+	HTTPClient *http = getobject(ref);
+
+	std::string param = read<std::string>(L, 2);
+	std::string value = read<std::string>(L, 3);
+
+	std::string value_esc = "";
+	http->http_string_escape(value, value_esc);
+	http->add_uri_param(param, value_esc);
 	return 1;
 }

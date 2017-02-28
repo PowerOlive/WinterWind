@@ -52,4 +52,5 @@ private:
 	static int l_get(lua_State *L);
 	static int l_delete(lua_State *L);
 	static int l_head(lua_State *L);
+	static int l_add_uri_param(lua_State *L);
 };
