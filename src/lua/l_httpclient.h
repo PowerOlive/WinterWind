@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
+ * Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -52,5 +52,8 @@ private:
 	static int l_get(lua_State *L);
 	static int l_delete(lua_State *L);
 	static int l_head(lua_State *L);
+	static int l_post(lua_State *L);
+	static int l_put(lua_State *L);
 	static int l_add_uri_param(lua_State *L);
+	static int l_add_form_param(lua_State *L);
 };

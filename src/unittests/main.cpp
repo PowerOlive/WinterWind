@@ -380,7 +380,8 @@ protected:
 		HTTPClient cli;
 		std::string res;
 		cli.add_http_header("Content-Type", "application/x-www-form-urlencoded");
-		cli._post("http://localhost:58080/unittest4.html", "post_param=ilikedogs", res);
+		cli.add_form_param("post_param", "ilikedogs");
+		cli._post("http://localhost:58080/unittest4.html", res);
 		CPPUNIT_ASSERT(res == "yes");
 	}
 

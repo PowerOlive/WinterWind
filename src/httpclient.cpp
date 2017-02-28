@@ -76,7 +76,7 @@ size_t HTTPClient::curl_writer(char *data, size_t size, size_t nmemb,
 }
 
 void HTTPClient::request(std::string url, std::string &res,
-		int32_t flag, HTTPMethod method, const std::string &post_data)
+		int32_t flag, HTTPMethod method, std::string post_data)
 {
 	CURL *curl = curl_easy_init();
 	m_http_code = 0;
@@ -154,6 +154,29 @@ void HTTPClient::request(std::string url, std::string &res,
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
 	}
 
+	if (!m_form_params.empty()) {
+		if (!post_data.empty()) {
+			std::cerr << "HTTPClient: post_data is not empty while form_params storage has elements. This will ignore "
+					" post_data. (url was: " << url << ")." << std::endl;
+		}
+
+		post_data.clear();
+		std::string buf = "";
+		bool first_param = true;
+		for (const auto &p: m_form_params) {
+			if (first_param) {
+				first_param = false;
+			} else {
+				post_data.append("&");
+			}
+
+			http_string_escape(p.first, buf);
+			post_data += buf + "=";
+			http_string_escape(p.second, buf);
+			post_data += buf;
+		}
+	}
+
 	if (!post_data.empty()) {
 		curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_data.c_str());
 	}
@@ -184,6 +207,7 @@ void HTTPClient::request(std::string url, std::string &res,
 	}
 
 	m_uri_params.clear();
+	m_form_params.clear();
 }
 
 void HTTPClient::get_html_tag_value(const std::string &url, const std::string &xpath,
@@ -251,7 +275,6 @@ void HTTPClient::http_string_escape(const std::string &src, std::string &dst)
 
 void HTTPClient::add_uri_param(const std::string &param, const std::string &value, bool escape)
 {
-
 	if (escape) {
 		std::string value_esc = "";
 		http_string_escape(value, value_esc);
@@ -259,5 +282,17 @@ void HTTPClient::add_uri_param(const std::string &param, const std::string &valu
 	}
 	else {
 		m_uri_params[param] = value;
+	}
+}
+
+void HTTPClient::add_form_param(const std::string &param, const std::string &value, bool escape)
+{
+	if (escape) {
+		std::string value_esc = "";
+		http_string_escape(value, value_esc);
+		m_form_params[param] = value_esc;
+	}
+	else {
+		m_form_params[param] = value;
 	}
 }

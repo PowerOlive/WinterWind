@@ -41,6 +41,9 @@ const luaL_Reg HTTPClientLuaRef::methods[] = {
 	luamethod(HTTPClientLuaRef, delete),
 	luamethod(HTTPClientLuaRef, get),
 	luamethod(HTTPClientLuaRef, head),
+	luamethod(HTTPClientLuaRef, post),
+	luamethod(HTTPClientLuaRef, put),
+	luamethod(HTTPClientLuaRef, add_form_param),
 	luamethod(HTTPClientLuaRef, add_uri_param),
 	{0, 0},
 };
@@ -156,6 +159,40 @@ int HTTPClientLuaRef::l_head(lua_State *L)
 	return 1;
 }
 
+int HTTPClientLuaRef::l_post(lua_State *L)
+{
+	HTTPClientLuaRef *ref = checkobject(L, 1);
+	HTTPClient *http = getobject(ref);
+
+	std::string url = read<std::string>(L, 2);
+	std::string res = "";
+	http->_post(url, res);
+
+	lua_newtable(L);
+	write(L, (uint32_t) http->get_http_code());
+	lua_setfield(L, -2, "code");
+	write(L, res);
+	lua_setfield(L, -2, "content");
+	return 1;
+}
+
+int HTTPClientLuaRef::l_put(lua_State *L)
+{
+	HTTPClientLuaRef *ref = checkobject(L, 1);
+	HTTPClient *http = getobject(ref);
+
+	std::string url = read<std::string>(L, 2);
+	std::string res = "";
+	http->_put(url, res);
+
+	lua_newtable(L);
+	write(L, (uint32_t) http->get_http_code());
+	lua_setfield(L, -2, "code");
+	write(L, res);
+	lua_setfield(L, -2, "content");
+	return 1;
+}
+
 int HTTPClientLuaRef::l_add_uri_param(lua_State *L)
 {
 	HTTPClientLuaRef *ref = checkobject(L, 1);
@@ -165,5 +202,17 @@ int HTTPClientLuaRef::l_add_uri_param(lua_State *L)
 	std::string value = read<std::string>(L, 3);
 
 	http->add_uri_param(param, value);
+	return 1;
+}
+
+int HTTPClientLuaRef::l_add_form_param(lua_State *L)
+{
+	HTTPClientLuaRef *ref = checkobject(L, 1);
+	HTTPClient *http = getobject(ref);
+
+	std::string param = read<std::string>(L, 2);
+	std::string value = read<std::string>(L, 3);
+
+	http->add_form_param(param, value);
 	return 1;
 }
