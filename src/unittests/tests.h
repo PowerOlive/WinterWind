@@ -48,8 +48,6 @@
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
 
-#define INIT_PG_CLIENT PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db password=un1Ttests");
-
 static std::string GITLAB_TOKEN = "";
 static std::string ES_HOST = "localhost";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
@@ -72,19 +70,6 @@ public:
 	static CppUnit::Test *suite()
 	{
 		CPPUNIT_TESTSUITE_CREATE("WinterWind")
-		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test1 - Split string", split_string);
-		CPPUNIT_ADDTEST(WinterWindTests, "StringUtils - Test2 - Remove substring", remove_substring);
-
-		CPPUNIT_ADDTEST(WinterWindTests, "Base64 - Test1 - Encode (low level)", base64_encode_test);
-		CPPUNIT_ADDTEST(WinterWindTests, "Base64 - Test2 - Encode (high level)", base64_encode_test2);
-		CPPUNIT_ADDTEST(WinterWindTests, "Base64 - Test3 - Decode", base64_decode_test);
-
-		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test1 - Embedded statements registring", pg_register_embedded_statements)
-		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test2 - Register custom statement", pg_register_custom_statement)
-		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test3 - Add admin views", pg_add_admin_views)
-		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test4 - Drop schema", pg_drop_schema)
-		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test5 - Create schema", pg_create_schema)
-		CPPUNIT_ADDTEST(WinterWindTests, "PostgreSQLClient - Test6 - Show tables", pg_show_tables)
 
 		CPPUNIT_ADDTEST(WinterWindTests, "Weather - Test1", weather_to_json);
 
@@ -161,44 +146,6 @@ public:
 	void tearDown() {}
 
 protected:
-	void split_string()
-	{
-		std::string orig = "hello, this is winterwind.";
-		std::vector<std::string> res;
-		str_split(orig, ' ', res);
-		CPPUNIT_ASSERT(res.size() == 4 && res[2] == "is");
-	}
-
-	void remove_substring()
-	{
-		std::string orig = "The world is mine, the world is not yours";
-		std::string to_alter = orig;
-		str_remove_substr(to_alter, "world ");
-		CPPUNIT_ASSERT(to_alter == "The is mine, the is not yours");
-	}
-
-	void base64_encode_test()
-	{
-		std::string src = "unittest_b64encode";
-		std::string res = base64_encode((const unsigned char *) src.c_str(), src.size());
-		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
-	}
-
-	void base64_decode_test()
-	{
-		std::string src = "dW5pdHRlc3RfYjY0ZGVjb2Rl";
-		std::string res = base64_decode(src);
-		CPPUNIT_ASSERT(res.compare("unittest_b64decode") == 0);
-	}
-
-	void base64_encode_test2()
-	{
-		std::string src = "unittest_b64encode";
-		std::string res = base64_encode(src);
-		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
-
-	}
-
 	void lua_winterwind_engine()
 	{
 		LuaEngine L;
@@ -227,51 +174,6 @@ protected:
 		Json::Value res;
 		CPPUNIT_ASSERT(m_twitter_client->get_home_timeline(res, 10) == TwitterClient::TWITTER_OK);
 		CPPUNIT_ASSERT(res.isObject() || res.isArray());
-	}
-
-
-	void pg_register_embedded_statements()
-	{
-		INIT_PG_CLIENT
-		pg.register_embedded_statements();
-		CPPUNIT_ASSERT(true);
-	}
-
-	void pg_register_custom_statement()
-	{
-		INIT_PG_CLIENT
-		CPPUNIT_ASSERT(pg.register_statement("test_stmt", "SELECT * FROM pg_indexes"));
-		CPPUNIT_ASSERT(!pg.register_statement("test_stmt", "SELECT * FROM pg_indexes"));
-	}
-
-	void pg_add_admin_views()
-	{
-		INIT_PG_CLIENT
-		CPPUNIT_ASSERT(pg.add_admin_views("public") == PGRES_COMMAND_OK);
-	}
-
-	void pg_drop_schema()
-	{
-		INIT_PG_CLIENT
-		pg.register_embedded_statements();
-		CPPUNIT_ASSERT(pg.drop_schema("test_schema", true) == PGRES_COMMAND_OK);
-	}
-
-	void pg_create_schema()
-	{
-		INIT_PG_CLIENT
-		pg.register_embedded_statements();
-		CPPUNIT_ASSERT(pg.create_schema("test_schema") == PGRES_COMMAND_OK);
-		CPPUNIT_ASSERT(pg.create_schema("test_schema") != PGRES_COMMAND_OK);
-		CPPUNIT_ASSERT(pg.drop_schema("test_schema") == PGRES_COMMAND_OK);
-	}
-
-	void pg_show_tables()
-	{
-		INIT_PG_CLIENT
-		pg.register_embedded_statements();
-		std::vector<std::string> res;
-		CPPUNIT_ASSERT(pg.show_tables("public", res) == PGRES_TUPLES_OK);
 	}
 
 	void weather_to_json()

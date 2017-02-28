@@ -24,6 +24,8 @@
  */
 
 #include "tests.h"
+#include "test_postgresql.h"
+#include "test_string.h"
 
 int main(int argc, const char* argv[])
 {
@@ -63,6 +65,8 @@ int main(int argc, const char* argv[])
 	}
 
 	CppUnit::TextUi::TestRunner runner;
+	runner.addTest(WinterWindTest_PostgreSQL::suite());
+	runner.addTest(WinterWindTest_String::suite());
 	runner.addTest(WinterWindTests::suite());
 	std::cout << "Starting unittests...." << std::endl;
 	return runner.run() ? 0 : 1;
