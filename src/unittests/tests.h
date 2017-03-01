@@ -48,7 +48,6 @@
 #define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
 #define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
 
-static std::string ES_HOST = "localhost";
 static std::string TWITTER_CONSUMER_KEY = "";
 static std::string TWITTER_CONSUMER_SECRET = "";
 static std::string TWITTER_ACCESS_TOKEN = "";
@@ -79,13 +78,6 @@ public:
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test3 - Test get params", httpserver_getparam);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test4 - Handle POST (form encoded)", httpserver_handle_post);
 		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test5 - Handle POST (json)", httpserver_handle_post_json);
-
-		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test1 - ElasticsearchBulkAction Index/Create to JSON", es_bulk_to_json);
-		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test2 - ElasticsearchBulkAction Update to JSON", es_bulk_update_to_json);
-		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test3 - ElasticsearchBulkAction Delete to JSON", es_bulk_delete_to_json);
-		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test4 - ElasticsearchBulkAction Index data", es_bulk_play_index);
-		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test5 - ElasticsearchBulkAction Update data", es_bulk_play_update);
-		CPPUNIT_ADDTEST(WinterWindTests, "ElasticsearchClient - Test6 - ElasticsearchBulkAction Delete data", es_bulk_play_delete);
 
 		CPPUNIT_ADDTEST(WinterWindTests, "LuaEngine - Test1 - Load winterwind engine", lua_winterwind_engine)
 
@@ -264,124 +256,8 @@ protected:
 		cli._post_json("http://localhost:58080/unittest5.html", query, res);
 		CPPUNIT_ASSERT(res.isMember("status") && res["status"] == "yes");
 	}
-
-	void es_bulk_to_json()
-	{
-		ElasticsearchBulkAction action(ESBULK_AT_INDEX);
-		action.index = "library";
-		action.type = "book";
-		action.doc_id = "7";
-		action.doc["title"] = "A great history";
-
-		Json::FastWriter writer;
-		std::string res = "";
-		action.toJson(writer, res);
-
-		CPPUNIT_ASSERT(res == "{\"index\":{\"_id\":\"7\",\"_index\":\"library\",\"_type\":\"book\"}}\n"
-			"{\"title\":\"A great history\"}\n");
-	}
-
-	void es_bulk_update_to_json()
-	{
-		ElasticsearchBulkAction action(ESBULK_AT_UPDATE);
-		action.index = "car";
-		action.type = "truck";
-		action.doc_id = "666";
-		action.doc["engine"] = "Toyota";
-
-		Json::FastWriter writer;
-		std::string res = "";
-		action.toJson(writer, res);
-
-		CPPUNIT_ASSERT(res == "{\"update\":{\"_id\":\"666\",\"_index\":\"car\",\"_type\":\"truck\"}}\n"
-			"{\"doc\":{\"engine\":\"Toyota\"}}\n");
-	}
-
-	void es_bulk_delete_to_json()
-	{
-		ElasticsearchBulkAction action(ESBULK_AT_DELETE);
-		action.index = "food";
-		action.type = "meat";
-		action.doc_id = "5877";
-
-		Json::FastWriter writer;
-		std::string res = "";
-		action.toJson(writer, res);
-
-		CPPUNIT_ASSERT(res == "{\"delete\":{\"_id\":\"5877\",\"_index\":\"food\",\"_type\":\"meat\"}}\n");
-	}
-
-	void es_bulk_play_index()
-	{
-		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_INDEX));
-		action->index = "library";
-		action->type = "book";
-		action->doc_id = "7";
-		action->doc["title"] = "A great history";
-
-		std::string bulk_res = "";
-		ElasticsearchClient client("http://" + ES_HOST + ":9200");
-		client.add_bulkaction_to_queue(action);
-		client.process_bulkaction_queue(bulk_res);
-
-		Json::Reader reader;
-		Json::Value es_res;
-		CPPUNIT_ASSERT(reader.parse(bulk_res, es_res));
-		CPPUNIT_ASSERT(es_res.isMember("errors"));
-		CPPUNIT_ASSERT(es_res["errors"].isBool());
-		CPPUNIT_ASSERT(!es_res["errors"].asBool());
-	}
-
-	void es_bulk_play_update()
-	{
-		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_UPDATE));
-		action->index = "library";
-		action->type = "book";
-		action->doc_id = "7";
-		action->doc["title"] = "A great history (version 2)";
-
-		ElasticsearchBulkActionPtr action2(new ElasticsearchBulkAction(ESBULK_AT_UPDATE));
-		action2->index = "library";
-		action2->type = "book";
-		action2->doc_id = "7";
-		action2->doc["title"] = "A great history (version 3)";
-
-		std::string bulk_res = "";
-		ElasticsearchClient client("http://" + ES_HOST + ":9200");
-		client.add_bulkaction_to_queue(action);
-		client.add_bulkaction_to_queue(action2);
-		client.process_bulkaction_queue(bulk_res);
-
-		Json::Reader reader;
-		Json::Value es_res;
-		CPPUNIT_ASSERT(reader.parse(bulk_res, es_res));
-		CPPUNIT_ASSERT(es_res.isMember("errors"));
-		CPPUNIT_ASSERT(es_res["errors"].isBool());
-		CPPUNIT_ASSERT(!es_res["errors"].asBool());
-	}
-
-	void es_bulk_play_delete()
-	{
-		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_DELETE));
-		action->index = "library";
-		action->type = "book";
-		action->doc_id = "7";
-
-		std::string bulk_res = "";
-		ElasticsearchClient client("http://" + ES_HOST + ":9200");
-		client.add_bulkaction_to_queue(action);
-		client.process_bulkaction_queue(bulk_res);
-
-		Json::Reader reader;
-		Json::Value es_res;
-		CPPUNIT_ASSERT(reader.parse(bulk_res, es_res));
-		CPPUNIT_ASSERT(es_res.isMember("errors"));
-		CPPUNIT_ASSERT(es_res["errors"].isBool());
-		CPPUNIT_ASSERT(!es_res["errors"].asBool());
-	}
 private:
 	TwitterClient *m_twitter_client = nullptr;
 	HTTPServer *m_http_server = nullptr;
-	uint32_t m_testing_namespace_id = 0;
 	std::string HTTPSERVER_TEST01_STR = "<h1>unittest_result</h1>";
 };

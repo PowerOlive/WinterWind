@@ -24,6 +24,7 @@
  */
 
 #include "tests.h"
+#include "test_elasticsearch.h"
 #include "test_gitlab.h"
 #include "test_postgresql.h"
 #include "test_string.h"
@@ -66,6 +67,7 @@ int main(int argc, const char* argv[])
 	}
 
 	CppUnit::TextUi::TestRunner runner;
+	runner.addTest(WinterWindTest_Elasticsearch::suite());
 	runner.addTest(WinterWindTest_Gitlab::suite());
 	runner.addTest(WinterWindTest_PostgreSQL::suite());
 	runner.addTest(WinterWindTest_String::suite());
