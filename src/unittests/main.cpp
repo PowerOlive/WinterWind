@@ -23,11 +23,13 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "tests.h"
+#include "test_misc.h"
 #include "test_elasticsearch.h"
 #include "test_gitlab.h"
+#include "test_http.h"
 #include "test_postgresql.h"
 #include "test_string.h"
+#include "test_twitter.h"
 
 int main(int argc, const char* argv[])
 {
@@ -69,9 +71,12 @@ int main(int argc, const char* argv[])
 	CppUnit::TextUi::TestRunner runner;
 	runner.addTest(WinterWindTest_Elasticsearch::suite());
 	runner.addTest(WinterWindTest_Gitlab::suite());
+	runner.addTest(WinterWindTest_HTTP::suite());
 	runner.addTest(WinterWindTest_PostgreSQL::suite());
 	runner.addTest(WinterWindTest_String::suite());
-	runner.addTest(WinterWindTests::suite());
+	runner.addTest(WinterWindTest_Twitter::suite());
+
+	runner.addTest(WinterWindTest_Misc::suite());
 	std::cout << "Starting unittests...." << std::endl;
 	return runner.run() ? 0 : 1;
 

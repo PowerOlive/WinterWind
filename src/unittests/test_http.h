@@ -30,127 +30,43 @@
 #include <cppunit/TestCaller.h>
 #include <cppunit/TestSuite.h>
 #include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/extensions/HelperMacros.h>
 
-
-#include <gitlabapiclient.h>
 #include <httpserver.h>
-#include <utils/stringutils.h>
-#include <elasticsearchclient.h>
-#include <console.h>
-#include <openweathermapclient.h>
-#include <luaengine.h>
-#include <postgresqlclient.h>
-#include <twitterclient.h>
-#include <utils/base64.h>
 
 #include "unittests_config.h"
 
-#define CPPUNIT_TESTSUITE_CREATE(s) CppUnit::TestSuite *suiteOfTests = new CppUnit::TestSuite(std::string(s));
-#define CPPUNIT_ADDTEST(c, s, f) suiteOfTests->addTest(new CppUnit::TestCaller<c>(s, &c::f));
-
-static std::string TWITTER_CONSUMER_KEY = "";
-static std::string TWITTER_CONSUMER_SECRET = "";
-static std::string TWITTER_ACCESS_TOKEN = "";
-static std::string TWITTER_ACCESS_TOKEN_SECRET = "";
-
-class WinterWindTests: public CppUnit::TestFixture
+class WinterWindTest_HTTP: public CppUnit::TestFixture
 {
+	CPPUNIT_TEST_SUITE(WinterWindTest_HTTP);
+	CPPUNIT_TEST(httpserver_handle_get);
+	CPPUNIT_TEST(httpserver_header);
+	CPPUNIT_TEST(httpserver_getparam);
+	CPPUNIT_TEST(httpserver_handle_post);
+	CPPUNIT_TEST(httpserver_handle_post_json);
+	CPPUNIT_TEST_SUITE_END();
 public:
-	WinterWindTests() {}
-	virtual ~WinterWindTests()
+	void setUp()
 	{
-		delete m_twitter_client;
+		m_http_server = new HTTPServer(58080);
+		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
+			&WinterWindTest_HTTP::httpserver_testhandler, this)
+		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest2.html",
+			&WinterWindTest_HTTP::httpserver_testhandler2, this)
+		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest3.html",
+			&WinterWindTest_HTTP::httpserver_testhandler3, this)
+		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest4.html",
+			&WinterWindTest_HTTP::httpserver_testhandler4, this)
+		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest5.html",
+			&WinterWindTest_HTTP::httpserver_testhandler5, this)
+	}
+
+	void tearDown()
+	{
 		delete m_http_server;
 	}
 
-	static CppUnit::Test *suite()
-	{
-		CPPUNIT_TESTSUITE_CREATE("WinterWind")
-
-		CPPUNIT_ADDTEST(WinterWindTests, "Weather - Test1", weather_to_json);
-
-		CPPUNIT_ADDTEST(WinterWindTests, "Twitter - Test1 - Authenticate", twitter_authenticate);
-		CPPUNIT_ADDTEST(WinterWindTests, "Twitter - Test2 - User Timeline", twitter_user_timeline);
-		CPPUNIT_ADDTEST(WinterWindTests, "Twitter - Test3 - Home Timeline", twitter_home_timeline);
-
-		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test1 - Handle GET", httpserver_handle_get);
-		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test2 - Test headers", httpserver_header);
-		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test3 - Test get params", httpserver_getparam);
-		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test4 - Handle POST (form encoded)", httpserver_handle_post);
-		CPPUNIT_ADDTEST(WinterWindTests, "HTTPServer - Test5 - Handle POST (json)", httpserver_handle_post_json);
-
-		CPPUNIT_ADDTEST(WinterWindTests, "LuaEngine - Test1 - Load winterwind engine", lua_winterwind_engine)
-
-		return suiteOfTests;
-	}
-
-	void setUp()
-	{
-		m_twitter_client = new TwitterClient(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET,
-			TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET);
-		m_http_server = new HTTPServer(58080);
-		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
-			&WinterWindTests::httpserver_testhandler, this)
-		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest2.html",
-			&WinterWindTests::httpserver_testhandler2, this)
-		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest3.html",
-			&WinterWindTests::httpserver_testhandler3, this)
-		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest4.html",
-			&WinterWindTests::httpserver_testhandler4, this)
-		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest5.html",
-			&WinterWindTests::httpserver_testhandler5, this)
-	}
-
-	void tearDown() {}
-
 protected:
-	void lua_winterwind_engine()
-	{
-		LuaEngine L;
-		LuaReturnCode  rc = L.init_winterwind_bindings();
-		CPPUNIT_ASSERT(rc == LUA_RC_OK);
-		rc = L.load_script(UNITTESTS_LUA_FILE);
-		CPPUNIT_ASSERT(rc == LUA_RC_OK);
-		CPPUNIT_ASSERT(L.run_unittests());
-	}
-
-	void twitter_authenticate()
-	{
-		CPPUNIT_ASSERT(m_twitter_client->authenticate() == TwitterClient::TWITTER_OK);
-	}
-
-	void twitter_user_timeline()
-	{
-		twitter_authenticate();
-		Json::Value res;
-		CPPUNIT_ASSERT(m_twitter_client->get_user_timeline(res, 10, 0, true) == TwitterClient::TWITTER_OK);
-	}
-
-	void twitter_home_timeline()
-	{
-		twitter_authenticate();
-		Json::Value res;
-		CPPUNIT_ASSERT(m_twitter_client->get_home_timeline(res, 10) == TwitterClient::TWITTER_OK);
-		CPPUNIT_ASSERT(res.isObject() || res.isArray());
-	}
-
-	void weather_to_json()
-	{
-		Weather w;
-		w.sunset = 150;
-		w.sunrise = 188;
-		w.humidity = 4;
-		w.temperature = 25.0f;
-		w.city = "test_city";
-		Json::Value res;
-		w >> res;
-		CPPUNIT_ASSERT(res["sunset"].asUInt() == 150);
-		CPPUNIT_ASSERT(res["sunrise"].asUInt() == 188);
-		CPPUNIT_ASSERT(res["humidity"].asInt() == 4);
-		CPPUNIT_ASSERT(res["temperature"].asFloat() == 25.0f);
-		CPPUNIT_ASSERT(res["city"].asString() == "test_city");
-	}
-
 	HTTPResponse *httpserver_testhandler(const HTTPQueryPtr q)
 	{
 		return new HTTPResponse(HTTPSERVER_TEST01_STR);
@@ -257,7 +173,6 @@ protected:
 		CPPUNIT_ASSERT(res.isMember("status") && res["status"] == "yes");
 	}
 private:
-	TwitterClient *m_twitter_client = nullptr;
 	HTTPServer *m_http_server = nullptr;
 	std::string HTTPSERVER_TEST01_STR = "<h1>unittest_result</h1>";
 };
