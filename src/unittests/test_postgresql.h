@@ -34,8 +34,6 @@
 
 #include <postgresqlclient.h>
 
-#include "unittests_config.h"
-
 #define INIT_PG_CLIENT PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db password=un1Ttests");
 
 class WinterWindTest_PostgreSQL: public CppUnit::TestFixture
