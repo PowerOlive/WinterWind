@@ -30,23 +30,7 @@
 
 class LuaRefPostgreSQLClient: protected LuaHelper
 {
+	LUAREF_OBJECT(PostgreSQLClient)
 private:
-	PostgreSQLClient *m_object;
-
-	static const char className[];
-	static const luaL_Reg methods[];
-public:
-	LuaRefPostgreSQLClient(PostgreSQLClient *object);
-	~LuaRefPostgreSQLClient() {}
-
-	static void Register(lua_State *L);
-	static void create(lua_State *L, PostgreSQLClient *object);
-
-	static LuaRefPostgreSQLClient *checkobject(lua_State *L, int narg);
-	static PostgreSQLClient* getobject(LuaRefPostgreSQLClient *ref);
-private:
-	// garbage collector
-	static int gc_object(lua_State *L);
-
 	static int l_register_statement(lua_State *L);
 };
