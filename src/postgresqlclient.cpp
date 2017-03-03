@@ -89,12 +89,12 @@ void PostgreSQLClient::check_db_connection()
 void PostgreSQLClient::begin()
 {
 	check_db_connection();
-	PQexec(m_conn, "BEGIN;");
+	check_results(PQexec(m_conn, "BEGIN;"));
 }
 
 void PostgreSQLClient::commit()
 {
-	PQexec(m_conn, "COMMIT;");
+	check_results(PQexec(m_conn, "COMMIT;"));
 }
 
 void PostgreSQLClient::set_client_encoding(const std::string &encoding)
