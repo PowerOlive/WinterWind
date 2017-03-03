@@ -29,26 +29,10 @@
 #include <lua.hpp>
 #include "luahelper.h"
 
-class HTTPClientLuaRef: protected LuaHelper
+class LuaRefHTTPClient: protected LuaHelper
 {
+	LUAREF_OBJECT(HTTPClient)
 private:
-	HTTPClient *m_object;
-
-	static const char className[];
-	static const luaL_Reg methods[];
-public:
-	HTTPClientLuaRef(HTTPClient *object);
-	~HTTPClientLuaRef() {}
-
-	static void Register(lua_State *L);
-	static void create(lua_State *L, HTTPClient *object);
-
-	static HTTPClientLuaRef *checkobject(lua_State *L, int narg);
-	static HTTPClient* getobject(HTTPClientLuaRef *ref);
-private:
-	// garbage collector
-	static int gc_object(lua_State *L);
-
 	static int l_get(lua_State *L);
 	static int l_delete(lua_State *L);
 	static int l_head(lua_State *L);

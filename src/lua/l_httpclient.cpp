@@ -29,62 +29,62 @@
 
 int LuaEngine::l_create_httpclient(lua_State *L)
 {
-	HTTPClientLuaRef::create(L, new HTTPClient());
+	LuaRefHTTPClient::create(L, new HTTPClient());
 	int object = lua_gettop(L);
 	lua_pushvalue(L, object);
 	return 1;
 
 }
 
-const char HTTPClientLuaRef::className[] = "HTTPClientLuaRef";
-const luaL_Reg HTTPClientLuaRef::methods[] = {
-	luamethod(HTTPClientLuaRef, delete),
-	luamethod(HTTPClientLuaRef, get),
-	luamethod(HTTPClientLuaRef, head),
-	luamethod(HTTPClientLuaRef, post),
-	luamethod(HTTPClientLuaRef, propfind),
-	luamethod(HTTPClientLuaRef, put),
-	luamethod(HTTPClientLuaRef, add_form_param),
-	luamethod(HTTPClientLuaRef, add_uri_param),
+const char LuaRefHTTPClient::className[] = "LuaRefHTTPClient";
+const luaL_Reg LuaRefHTTPClient::methods[] = {
+	luamethod(LuaRefHTTPClient, delete),
+	luamethod(LuaRefHTTPClient, get),
+	luamethod(LuaRefHTTPClient, head),
+	luamethod(LuaRefHTTPClient, post),
+	luamethod(LuaRefHTTPClient, propfind),
+	luamethod(LuaRefHTTPClient, put),
+	luamethod(LuaRefHTTPClient, add_form_param),
+	luamethod(LuaRefHTTPClient, add_uri_param),
 	{0, 0},
 };
 
-HTTPClientLuaRef::HTTPClientLuaRef(HTTPClient *object):
+LuaRefHTTPClient::LuaRefHTTPClient(HTTPClient *object):
 	m_object(object)
 {
 }
 
-HTTPClientLuaRef* HTTPClientLuaRef::checkobject(lua_State *L, int narg)
+LuaRefHTTPClient* LuaRefHTTPClient::checkobject(lua_State *L, int narg)
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);
 	void *ud = luaL_checkudata(L, narg, className);
 	if (!ud) std::cerr << "Object has not type " << className << std::endl;
-	return *(HTTPClientLuaRef**)ud;  // unbox pointer
+	return *(LuaRefHTTPClient**)ud;  // unbox pointer
 }
 
 
-void HTTPClientLuaRef::create(lua_State *L, HTTPClient *object)
+void LuaRefHTTPClient::create(lua_State *L, HTTPClient *object)
 {
-	HTTPClientLuaRef *o = new HTTPClientLuaRef(object);
+	LuaRefHTTPClient *o = new LuaRefHTTPClient(object);
 	*(void **)(lua_newuserdata(L, sizeof(void *))) = o;
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
 }
 
-int HTTPClientLuaRef::gc_object(lua_State *L)
+int LuaRefHTTPClient::gc_object(lua_State *L)
 {
-	HTTPClientLuaRef *o = *(HTTPClientLuaRef **)(lua_touserdata(L, 1));
+	LuaRefHTTPClient *o = *(LuaRefHTTPClient **)(lua_touserdata(L, 1));
 	delete o;
 	return 0;
 }
 
-HTTPClient* HTTPClientLuaRef::getobject(HTTPClientLuaRef *ref)
+HTTPClient* LuaRefHTTPClient::getobject(LuaRefHTTPClient *ref)
 {
 	HTTPClient *co = ref->m_object;
 	return co;
 }
 
-void HTTPClientLuaRef::Register(lua_State *L)
+void LuaRefHTTPClient::Register(lua_State *L)
 {
 	lua_newtable(L);
 	int methodtable = lua_gettop(L);
@@ -110,7 +110,7 @@ void HTTPClientLuaRef::Register(lua_State *L)
 }
 
 #define HTTPCLIENT_PARAM_INIT \
-	HTTPClientLuaRef *ref = checkobject(L, 1); \
+	LuaRefHTTPClient *ref = checkobject(L, 1); \
 	HTTPClient *http = getobject(ref); \
 	std::string url = read<std::string>(L, 2); \
 	std::string res = "";
@@ -122,7 +122,7 @@ void HTTPClientLuaRef::Register(lua_State *L)
 	write(L, res); \
 	lua_setfield(L, -2, "content");
 
-int HTTPClientLuaRef::l_get(lua_State *L)
+int LuaRefHTTPClient::l_get(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
 	http->_get(url, res);
@@ -130,7 +130,7 @@ int HTTPClientLuaRef::l_get(lua_State *L)
 	return 1;
 }
 
-int HTTPClientLuaRef::l_delete(lua_State *L)
+int LuaRefHTTPClient::l_delete(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
 	http->_delete(url, res);
@@ -138,7 +138,7 @@ int HTTPClientLuaRef::l_delete(lua_State *L)
 	return 1;
 }
 
-int HTTPClientLuaRef::l_head(lua_State *L)
+int LuaRefHTTPClient::l_head(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
 	http->_head(url, res);
@@ -146,7 +146,7 @@ int HTTPClientLuaRef::l_head(lua_State *L)
 	return 1;
 }
 
-int HTTPClientLuaRef::l_post(lua_State *L)
+int LuaRefHTTPClient::l_post(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
 	http->_post(url, res);
@@ -154,7 +154,7 @@ int HTTPClientLuaRef::l_post(lua_State *L)
 	return 1;
 }
 
-int HTTPClientLuaRef::l_propfind(lua_State *L)
+int LuaRefHTTPClient::l_propfind(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
 	http->_propfind(url, res);
@@ -162,7 +162,7 @@ int HTTPClientLuaRef::l_propfind(lua_State *L)
 	return 1;
 }
 
-int HTTPClientLuaRef::l_put(lua_State *L)
+int LuaRefHTTPClient::l_put(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
 	http->_put(url, res);
@@ -170,9 +170,9 @@ int HTTPClientLuaRef::l_put(lua_State *L)
 	return 1;
 }
 
-int HTTPClientLuaRef::l_add_uri_param(lua_State *L)
+int LuaRefHTTPClient::l_add_uri_param(lua_State *L)
 {
-	HTTPClientLuaRef *ref = checkobject(L, 1);
+	LuaRefHTTPClient *ref = checkobject(L, 1);
 	HTTPClient *http = getobject(ref);
 
 	std::string param = read<std::string>(L, 2);
@@ -182,9 +182,9 @@ int HTTPClientLuaRef::l_add_uri_param(lua_State *L)
 	return 1;
 }
 
-int HTTPClientLuaRef::l_add_form_param(lua_State *L)
+int LuaRefHTTPClient::l_add_form_param(lua_State *L)
 {
-	HTTPClientLuaRef *ref = checkobject(L, 1);
+	LuaRefHTTPClient *ref = checkobject(L, 1);
 	HTTPClient *http = getobject(ref);
 
 	std::string param = read<std::string>(L, 2);

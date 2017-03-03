@@ -28,7 +28,7 @@
 #include <lua.hpp>
 #include <postgresqlclient.h>
 
-class PostgreSQLClientLuaRef: protected LuaHelper
+class LuaRefPostgreSQLClient: protected LuaHelper
 {
 private:
 	PostgreSQLClient *m_object;
@@ -36,14 +36,14 @@ private:
 	static const char className[];
 	static const luaL_Reg methods[];
 public:
-	PostgreSQLClientLuaRef(PostgreSQLClient *object);
-	~PostgreSQLClientLuaRef() {}
+	LuaRefPostgreSQLClient(PostgreSQLClient *object);
+	~LuaRefPostgreSQLClient() {}
 
 	static void Register(lua_State *L);
 	static void create(lua_State *L, PostgreSQLClient *object);
 
-	static PostgreSQLClientLuaRef *checkobject(lua_State *L, int narg);
-	static PostgreSQLClient* getobject(PostgreSQLClientLuaRef *ref);
+	static LuaRefPostgreSQLClient *checkobject(lua_State *L, int narg);
+	static PostgreSQLClient* getobject(LuaRefPostgreSQLClient *ref);
 private:
 	// garbage collector
 	static int gc_object(lua_State *L);

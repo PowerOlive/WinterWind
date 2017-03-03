@@ -27,6 +27,20 @@
 
 #include <lua.hpp>
 
+#define LUAREF_OBJECT(name) \
+	private: \
+		name *m_object; \
+		static const char className[]; \
+		static const luaL_Reg methods[]; \
+		static int gc_object(lua_State *L); \
+	public: \
+		LuaRef##name(name *object); \
+		~LuaRef##name() {} \
+		static void Register(lua_State *L); \
+		static void create(lua_State *L, name *object); \
+		static LuaRef##name *checkobject(lua_State *L, int narg); \
+		static name* getobject(LuaRef##name *ref);
+
 class LuaHelper
 {
 protected:

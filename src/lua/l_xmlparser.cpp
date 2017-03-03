@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
+ * Copyright (c) 2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -23,55 +23,5 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "l_xmlparser.h"
 
-#include <cppunit/TestFixture.h>
-#include <cppunit/TestAssert.h>
-#include <cppunit/TestCaller.h>
-#include <cppunit/TestSuite.h>
-#include <cppunit/ui/text/TestRunner.h>
-#include <cppunit/extensions/HelperMacros.h>
-
-#include <openweathermapclient.h>
-#include <luaengine.h>
-
-#include "unittests_config.h"
-
-class WinterWindTest_Misc: public CppUnit::TestFixture
-{
-	CPPUNIT_TEST_SUITE(WinterWindTest_Misc);
-	CPPUNIT_TEST(weather_to_json);
-	CPPUNIT_TEST(lua_winterwind_engine);
-	CPPUNIT_TEST_SUITE_END();
-public:
-	void setUp() {}
-	void tearDown() {}
-
-protected:
-	void lua_winterwind_engine()
-	{
-		LuaEngine L;
-		LuaReturnCode  rc = L.init_winterwind_bindings();
-		CPPUNIT_ASSERT(rc == LUA_RC_OK);
-		rc = L.load_script(UNITTESTS_LUA_FILE);
-		CPPUNIT_ASSERT(rc == LUA_RC_OK);
-		CPPUNIT_ASSERT(L.run_unittests());
-	}
-
-	void weather_to_json()
-	{
-		Weather w;
-		w.sunset = 150;
-		w.sunrise = 188;
-		w.humidity = 4;
-		w.temperature = 25.0f;
-		w.city = "test_city";
-		Json::Value res;
-		w >> res;
-		CPPUNIT_ASSERT(res["sunset"].asUInt() == 150);
-		CPPUNIT_ASSERT(res["sunrise"].asUInt() == 188);
-		CPPUNIT_ASSERT(res["humidity"].asInt() == 4);
-		CPPUNIT_ASSERT(res["temperature"].asFloat() == 25.0f);
-		CPPUNIT_ASSERT(res["city"].asString() == "test_city");
-	}
-};

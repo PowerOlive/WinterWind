@@ -103,7 +103,7 @@ LuaReturnCode LuaEngine::init_winterwind_bindings()
 
 	// HTTP
 #ifdef ENABLE_HTTPCLIENT
-	HTTPClientLuaRef::Register(m_lua);
+	LuaRefHTTPClient::Register(m_lua);
 	REGISTER_LUA_FCT(create_httpclient);
 #ifdef ENABLE_RATPCLIENT
 	REGISTER_LUA_FCT(get_ratp_schedules);
@@ -112,7 +112,7 @@ LuaReturnCode LuaEngine::init_winterwind_bindings()
 
 	// PostgreSQL
 #ifdef ENABLE_POSTGRESQL
-	PostgreSQLClientLuaRef::Register(m_lua);
+	LuaRefPostgreSQLClient::Register(m_lua);
 	REGISTER_LUA_FCT(create_postgresql_client);
 #endif
 	pop(1);

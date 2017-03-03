@@ -28,18 +28,21 @@
 #include <string>
 #include <vector>
 
-enum XMLParserMode {
+enum XMLParserMode
+{
 	XMLPARSER_MODE_HTML,
 	XMLPARSER_MODE_XML,
 };
 
-enum XMLParserFlag {
+enum XMLParserFlag
+{
 	XMLPARSER_XML_SIMPLE = 0x01,
 	XMLPARSER_XML_WITHOUT_TAGS = 0x02,
 	XMLPARSER_XML_STRIP_NEWLINE = 0x04,
 };
 
-struct XMLParserCustomNs {
+struct XMLParserCustomNs
+{
 	XMLParserCustomNs(const std::string &p, const std::string &u): prefix(p), uri(u) {}
 	std::string prefix;
 	std::string uri;
