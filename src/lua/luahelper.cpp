@@ -25,6 +25,7 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
 #include "luahelper.h"
 
 /*
@@ -85,3 +86,13 @@ void LuaHelper::write(lua_State *L, const bool &what) { lua_pushboolean(L, what)
 
 template<>
 void LuaHelper::write(lua_State *L, const std::string &what) { lua_pushstring(L, what.c_str()); }
+
+template<>
+void LuaHelper::write(lua_State *L, const std::vector<std::string> &what)
+{
+	lua_newtable(L);
+	for (uint32_t i = 0; i < what.size(); i++) {
+		lua_pushstring(L, what[i].c_str());
+		lua_rawseti(L, -2, i + 1);
+	}
+}

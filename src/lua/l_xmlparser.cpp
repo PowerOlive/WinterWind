@@ -115,10 +115,6 @@ int LuaRefXMLParser::l_parse(lua_State *L)
 		return 0;
 	}
 
-	lua_newtable(L);
-	for (const auto &r: res) {
-		lua_pushstring(L, r.c_str());
-	}
-
+	write<std::vector<std::string> >(L, res);
 	return 1;
 }
