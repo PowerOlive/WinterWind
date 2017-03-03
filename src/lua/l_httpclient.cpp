@@ -108,13 +108,15 @@ void HTTPClientLuaRef::Register(lua_State *L)
 	lua_pop(L, 1);  // drop methodtable
 }
 
+#define HTTPCLIENT_PARAM_INIT \
+	HTTPClientLuaRef *ref = checkobject(L, 1); \
+	HTTPClient *http = getobject(ref); \
+	std::string url = read<std::string>(L, 2); \
+	std::string res = "";
+
 int HTTPClientLuaRef::l_get(lua_State *L)
 {
-	HTTPClientLuaRef *ref = checkobject(L, 1);
-	HTTPClient *http = getobject(ref);
-
-	std::string url = read<std::string>(L, 2);
-	std::string res = "";
+	HTTPCLIENT_PARAM_INIT
 	http->_get(url, res);
 
 	lua_newtable(L);
@@ -127,11 +129,7 @@ int HTTPClientLuaRef::l_get(lua_State *L)
 
 int HTTPClientLuaRef::l_delete(lua_State *L)
 {
-	HTTPClientLuaRef *ref = checkobject(L, 1);
-	HTTPClient *http = getobject(ref);
-
-	std::string url = read<std::string>(L, 2);
-	std::string res = "";
+	HTTPCLIENT_PARAM_INIT
 	http->_delete(url, res);
 
 	lua_newtable(L);
@@ -144,11 +142,7 @@ int HTTPClientLuaRef::l_delete(lua_State *L)
 
 int HTTPClientLuaRef::l_head(lua_State *L)
 {
-	HTTPClientLuaRef *ref = checkobject(L, 1);
-	HTTPClient *http = getobject(ref);
-
-	std::string url = read<std::string>(L, 2);
-	std::string res = "";
+	HTTPCLIENT_PARAM_INIT
 	http->_head(url, res);
 
 	lua_newtable(L);
@@ -161,12 +155,21 @@ int HTTPClientLuaRef::l_head(lua_State *L)
 
 int HTTPClientLuaRef::l_post(lua_State *L)
 {
-	HTTPClientLuaRef *ref = checkobject(L, 1);
-	HTTPClient *http = getobject(ref);
-
-	std::string url = read<std::string>(L, 2);
-	std::string res = "";
+	HTTPCLIENT_PARAM_INIT
 	http->_post(url, res);
+
+	lua_newtable(L);
+	write(L, (uint32_t) http->get_http_code());
+	lua_setfield(L, -2, "code");
+	write(L, res);
+	lua_setfield(L, -2, "content");
+	return 1;
+}
+
+int HTTPClientLuaRef::l_propfind(lua_State *L)
+{
+	HTTPCLIENT_PARAM_INIT
+	http->_propfind(url, res);
 
 	lua_newtable(L);
 	write(L, (uint32_t) http->get_http_code());
