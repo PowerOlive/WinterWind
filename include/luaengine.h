@@ -64,6 +64,7 @@ public:
 #endif
 
 	// Handlers
+	static int l_create_xmlparser(lua_State *L);
 #if ENABLE_HTTPCLIENT
 	static int l_create_httpclient(lua_State *L);
 #if ENABLE_RATPCLIENT

@@ -27,6 +27,7 @@
 #include "luaengine.h"
 #include "lua/l_httpclient.h"
 #include "lua/l_pgclient.h"
+#include "lua/l_xmlparser.h"
 
 LuaEngine::LuaEngine()
 {
@@ -101,6 +102,8 @@ LuaReturnCode LuaEngine::init_winterwind_bindings()
 	getglobal("core");
 	int top = lua_gettop(m_lua);
 
+	LuaRefXMLParser::Register(m_lua);
+	REGISTER_LUA_FCT(create_xmlparser);
 	// HTTP
 #ifdef ENABLE_HTTPCLIENT
 	LuaRefHTTPClient::Register(m_lua);
