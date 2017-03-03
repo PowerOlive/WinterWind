@@ -214,10 +214,10 @@ void HTTPClient::get_html_tag_value(const std::string &url, const std::string &x
 		std::vector<std::string> &res, int32_t pflag)
 {
 	std::string page_res = "";
-	assert(!((pflag & XMLPARSER_XML_SIMPLE) && (pflag & XMLPARSER_XML_WITHOUT_TAGS)));
+	assert(!((pflag & XMLParser::Flag::FLAG_XML_SIMPLE) && (pflag & XMLParser::Flag::FLAG_XML_WITHOUT_TAGS)));
 	_get(url, page_res);
 
-	XMLParser parser(XMLPARSER_MODE_HTML);
+	XMLParser parser(XMLParser::Mode::MODE_HTML);
 	parser.parse(page_res, xpath, pflag, res);
 }
 

@@ -36,10 +36,10 @@ bool XMLParser::parse(const std::string &document, const std::string &xpath, int
 {
 	xmlDoc* doc = nullptr;
 	switch (m_mode) {
-		case XMLPARSER_MODE_XML:
+		case Mode::MODE_XML:
 			doc = xmlReadMemory(document.c_str(), (int) document.size(), NULL, NULL, 0);
 			break;
-		case XMLPARSER_MODE_HTML:
+		case Mode::MODE_HTML:
 			doc = htmlReadMemory(document.c_str(), (int) document.size(), NULL, NULL,
 				HTML_PARSE_RECOVER | HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING);
 			break;
@@ -59,7 +59,7 @@ bool XMLParser::parse(const std::string &document, const std::string &xpath, int
 		goto final_cleanup;
 	}
 
-	if (m_mode == XMLPARSER_MODE_XML) {
+	if (m_mode == Mode::MODE_XML) {
 		for (const auto &ns: m_custom_xml_ns) {
 			xmlXPathRegisterNs(xpathCtx, BAD_CAST ns.prefix.c_str(), BAD_CAST ns.uri.c_str());
 		}
@@ -80,10 +80,10 @@ bool XMLParser::parse(const std::string &document, const std::string &xpath, int
 				xmlNodePtr node = nodeset->nodeTab[i];
 				xmlChar* nres = nullptr;
 
-				if (pflag & XMLPARSER_XML_SIMPLE) {
+				if (pflag & FLAG_XML_SIMPLE) {
 					nres = xmlNodeListGetString(doc, node->xmlChildrenNode, 0);
 				}
-				else if (pflag & XMLPARSER_XML_WITHOUT_TAGS) {
+				else if (pflag & FLAG_XML_WITHOUT_TAGS) {
 					nres = xmlXPathCastNodeToString(node);
 				}
 				else {
@@ -92,7 +92,7 @@ bool XMLParser::parse(const std::string &document, const std::string &xpath, int
 				}
 
 				std::string str_nres((const char*) nres);
-				if (pflag & XMLPARSER_XML_STRIP_NEWLINE) {
+				if (pflag & FLAG_XML_STRIP_NEWLINE) {
 					str_nres.erase(std::remove(str_nres.begin(), str_nres.end(), '\n'), str_nres.end());
 				}
 

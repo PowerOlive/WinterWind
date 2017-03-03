@@ -61,7 +61,7 @@ void CaldavClient::load_calendars()
 	_propfind(m_url + "/calendars/" + m_username + "/", res, reqflag,
 			calendar_list_request);
 
-	reqflag |= XMLPARSER_XML_SIMPLE | XMLPARSER_XML_STRIP_NEWLINE;
+	reqflag |= XMLParser::Flag::FLAG_XML_SIMPLE | XMLParser::Flag ::FLAG_XML_STRIP_NEWLINE;
 
 	XMLParser parser;
 	parser.register_ns(XMLParserCustomNs("d", "DAV:"));

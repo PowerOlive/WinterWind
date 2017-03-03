@@ -28,19 +28,6 @@
 #include <string>
 #include <vector>
 
-enum XMLParserMode
-{
-	XMLPARSER_MODE_HTML,
-	XMLPARSER_MODE_XML,
-};
-
-enum XMLParserFlag
-{
-	XMLPARSER_XML_SIMPLE = 0x01,
-	XMLPARSER_XML_WITHOUT_TAGS = 0x02,
-	XMLPARSER_XML_STRIP_NEWLINE = 0x04,
-};
-
 struct XMLParserCustomNs
 {
 	XMLParserCustomNs(const std::string &p, const std::string &u): prefix(p), uri(u) {}
@@ -51,13 +38,26 @@ struct XMLParserCustomNs
 class XMLParser
 {
 public:
-	XMLParser(XMLParserMode mode = XMLPARSER_MODE_XML): m_mode(mode) {}
+	enum Mode
+	{
+		MODE_HTML,
+		MODE_XML,
+	};
+
+	enum Flag
+	{
+		FLAG_XML_SIMPLE = 0x01,
+		FLAG_XML_WITHOUT_TAGS = 0x02,
+		FLAG_XML_STRIP_NEWLINE = 0x04,
+	};
+
+	XMLParser(XMLParser::Mode mode = XMLParser::Mode::MODE_XML): m_mode(mode) {}
 	~XMLParser() {}
 
 	bool parse(const std::string &document, const std::string &xpath, int32_t pflag,
 			std::vector<std::string> &res);
 	void register_ns(const XMLParserCustomNs&& ns) { m_custom_xml_ns.push_back(ns); }
 private:
-	XMLParserMode m_mode;
+	XMLParser::Mode m_mode;
 	std::vector<XMLParserCustomNs> m_custom_xml_ns = {};
 };
