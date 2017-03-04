@@ -1,3 +1,18 @@
+function test_strings()
+	local score = 2
+	local b64enc = core.base64_encode("lua_b64")
+	if b64enc ~= "bHVhX2I2NA==" then
+		print("test_strings: base64_encode test failed")
+		score = score - 1
+	end
+
+	if core.base64_decode(b64enc) ~= "lua_b64" then
+		print("test_strings: base64_decode test failed")
+		score = score - 1
+	end
+	return 2,score
+end
+
 function test_ratp_client()
 	local schedules=core.get_ratp_schedules(1)
 	if schedules == nil then
@@ -13,7 +28,7 @@ function test_ratp_client()
 end
 
 function test_http_client()
-	local score = 2
+	local score = 3
 	local http = core.create_httpclient()
 	http:add_uri_param("lang", "de")
 	local res = http:get("http://www.google.fr")
@@ -41,7 +56,7 @@ function test_http_client()
 --		print("test_http_client: head test failed (rc: " .. res.code .. ")")
 --		return false
 --	end
-	return 2,score
+	return 3,score
 end
 
 function test_postgresql()
@@ -69,6 +84,10 @@ function run_unittests(run)
 	local t,s
 
 	-- test run
+	t,s = test_strings()
+	max_tests = max_tests + t
+	test_results = test_results + s
+
 	t,s = test_ratp_client()
 	max_tests = max_tests + t
 	test_results = test_results + s

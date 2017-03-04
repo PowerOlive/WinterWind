@@ -24,6 +24,7 @@
 
 set(LUA_SRC_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/luahelper.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/l_string.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/l_xmlparser.cpp
 )
 
