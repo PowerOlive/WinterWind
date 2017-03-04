@@ -55,6 +55,10 @@ PostgreSQLClient::~PostgreSQLClient()
 
 void PostgreSQLClient::connect()
 {
+	if (m_conn) {
+		PQfinish(m_conn);
+	}
+
 	m_conn = PQconnectdb(m_connect_string.c_str());
 
 	if (PQstatus(m_conn) != CONNECTION_OK) {
