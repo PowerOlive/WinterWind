@@ -80,4 +80,4 @@ unittests:valgrind:
     - build:clang
   script:
       - cd build
-      - valgrind --undef-value-errors=no ./src/unittests/winterwind_unittests $GITLAB_API_KEY $TWITTER_CONSUMER_KEY $TWITTER_CONSUMER_SECRET $TWITTER_ACCESS_TOKEN $TWITTER_ACCESS_TOKEN_SECRET elasticsearch
+      - valgrind --leak-check=full --undef-value-errors=no ./src/unittests/winterwind_unittests $GITLAB_API_KEY $TWITTER_CONSUMER_KEY $TWITTER_CONSUMER_SECRET $TWITTER_ACCESS_TOKEN $TWITTER_ACCESS_TOKEN_SECRET elasticsearch
