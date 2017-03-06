@@ -74,10 +74,10 @@ unittests:clang:
   dependencies:
     - build:clang
 
-unittests:clang_valgrind:
+unittests:valgrind:
   <<: *unittests_definition
   dependencies:
     - build:clang
   script:
       - cd build
-      - valgrind ./src/unittests/winterwind_unittests $GITLAB_API_KEY $TWITTER_CONSUMER_KEY $TWITTER_CONSUMER_SECRET $TWITTER_ACCESS_TOKEN $TWITTER_ACCESS_TOKEN_SECRET elasticsearch
+      - valgrind --undef-value-errors=no ./src/unittests/winterwind_unittests $GITLAB_API_KEY $TWITTER_CONSUMER_KEY $TWITTER_CONSUMER_SECRET $TWITTER_ACCESS_TOKEN $TWITTER_ACCESS_TOKEN_SECRET elasticsearch
