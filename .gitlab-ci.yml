@@ -81,4 +81,4 @@ unittests:valgrind:
     - build:clang
   script:
       - cd build
-      - valgrind --leak-check=full --undef-value-errors=no ./src/unittests/winterwind_unittests
+      - valgrind --leak-check=full --undef-value-errors=no --error-exitcode=9 ./src/unittests/winterwind_unittests
