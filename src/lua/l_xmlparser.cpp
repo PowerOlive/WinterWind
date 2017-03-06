@@ -48,6 +48,11 @@ LuaRefXMLParser::LuaRefXMLParser(XMLParser *object):
 {
 }
 
+LuaRefXMLParser::~LuaRefXMLParser()
+{
+	delete m_object;
+}
+
 LuaRefXMLParser* LuaRefXMLParser::checkobject(lua_State *L, int narg)
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);

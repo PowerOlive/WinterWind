@@ -59,6 +59,11 @@ LuaRefPostgreSQLClient::LuaRefPostgreSQLClient(PostgreSQLClient *object):
 {
 }
 
+LuaRefPostgreSQLClient::~LuaRefPostgreSQLClient()
+{
+	delete m_object;
+}
+
 LuaRefPostgreSQLClient* LuaRefPostgreSQLClient::checkobject(lua_State *L, int narg)
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);

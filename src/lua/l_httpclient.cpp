@@ -54,6 +54,11 @@ LuaRefHTTPClient::LuaRefHTTPClient(HTTPClient *object):
 {
 }
 
+LuaRefHTTPClient::~LuaRefHTTPClient()
+{
+	delete m_object;
+}
+
 LuaRefHTTPClient* LuaRefHTTPClient::checkobject(lua_State *L, int narg)
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);
