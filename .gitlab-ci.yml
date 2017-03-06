@@ -8,6 +8,7 @@ variables:
   POSTGRES_DB: unittests_db
   POSTGRES_USER: unittests
   POSTGRES_PASSWORD: "un1Ttests"
+  ES_HOST: elasticsearch
 
 before_script:
   - pacman --noconfirm -Sy archlinux-keyring
@@ -62,7 +63,7 @@ build:clang:
   environment: staging
   script:
     - cd build
-    - ./src/unittests/winterwind_unittests $GITLAB_API_KEY $TWITTER_CONSUMER_KEY $TWITTER_CONSUMER_SECRET $TWITTER_ACCESS_TOKEN $TWITTER_ACCESS_TOKEN_SECRET elasticsearch
+    - ./src/unittests/winterwind_unittests
 
 unittests:gcc6:
   <<: *unittests_definition
@@ -80,4 +81,4 @@ unittests:valgrind:
     - build:clang
   script:
       - cd build
-      - valgrind --leak-check=full --undef-value-errors=no ./src/unittests/winterwind_unittests $GITLAB_API_KEY $TWITTER_CONSUMER_KEY $TWITTER_CONSUMER_SECRET $TWITTER_ACCESS_TOKEN $TWITTER_ACCESS_TOKEN_SECRET elasticsearch
+      - valgrind --leak-check=full --undef-value-errors=no ./src/unittests/winterwind_unittests

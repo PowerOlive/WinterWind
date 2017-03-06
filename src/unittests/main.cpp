@@ -33,40 +33,41 @@
 
 int main(int argc, const char* argv[])
 {
-	if (argc < 2) {
+	if (!getenv("GITLAB_TOKEN")) {
 		std::cerr << argv[0] << ": Missing gitlab token" << std::endl;
 		return -1;
 	}
+	GITLAB_TOKEN = std::string(getenv("GITLAB_TOKEN"));
 
-	if (argc < 3) {
+	if (!getenv("TWITTER_CONSUMER_KEY")) {
 		std::cerr << argv[0] << ": Missing Twitter consumer key" << std::endl;
 		return -1;
 	}
+	TWITTER_CONSUMER_KEY = std::string(getenv("TWITTER_CONSUMER_KEY"));
 
-	if (argc < 4) {
+	if (!getenv("TWITTER_CONSUMER_SECRET")) {
 		std::cerr << argv[0] << ": Missing Twitter consumer secret" << std::endl;
 		return -1;
 	}
+	TWITTER_CONSUMER_SECRET = std::string(getenv("TWITTER_CONSUMER_SECRET"));
 
-	if (argc < 5) {
+	if (!getenv("TWITTER_ACCESS_TOKEN")) {
 		std::cerr << argv[0] << ": Missing Twitter access token" << std::endl;
 		return -1;
 	}
+	TWITTER_ACCESS_TOKEN = std::string(getenv("TWITTER_ACCESS_TOKEN"));
 
-	if (argc < 6) {
+	if (!getenv("TWITTER_ACCESS_TOKEN_SECRET")) {
 		std::cerr << argv[0] << ": Missing Twitter access token secret" << std::endl;
 		return -1;
 	}
+	TWITTER_ACCESS_TOKEN_SECRET = std::string(getenv("TWITTER_ACCESS_TOKEN_SECRET"));
 
-	GITLAB_TOKEN = std::string(argv[1]);
-	TWITTER_CONSUMER_KEY = std::string(argv[2]);
-	TWITTER_CONSUMER_SECRET = std::string(argv[3]);
-	TWITTER_ACCESS_TOKEN = std::string(argv[4]);
-	TWITTER_ACCESS_TOKEN_SECRET = std::string(argv[5]);
-
-	if (argc >= 7) {
-		ES_HOST = std::string(argv[6]);
+	if (!getenv("ES_HOST")) {
+		std::cerr << argv[0] << ": Missing Elasticsearch host" << std::endl;
+		return -1;
 	}
+	ES_HOST = std::string(getenv("ES_HOST"));
 
 	CppUnit::TextUi::TestRunner runner;
 	runner.addTest(WinterWindTest_Elasticsearch::suite());
