@@ -75,7 +75,7 @@ unittests:clang:
   dependencies:
     - build:clang
 
-unittests:clang-es2:
+unittests:elasticsearch2:
   <<: *unittests_definition
   services:
       - elasticsearch:2
