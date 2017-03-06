@@ -33,11 +33,11 @@
 
 int main(int argc, const char* argv[])
 {
-	if (!getenv("GITLAB_TOKEN")) {
+	if (!getenv("GITLAB_API_KEY")) {
 		std::cerr << argv[0] << ": Missing gitlab token" << std::endl;
 		return -1;
 	}
-	GITLAB_TOKEN = std::string(getenv("GITLAB_TOKEN"));
+	GITLAB_TOKEN = std::string(getenv("GITLAB_API_KEY"));
 
 	if (!getenv("TWITTER_CONSUMER_KEY")) {
 		std::cerr << argv[0] << ": Missing Twitter consumer key" << std::endl;
