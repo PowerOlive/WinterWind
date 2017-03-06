@@ -28,6 +28,7 @@
 
 #define ES_URL_CLUSTER_STATE "/_cluster/state"
 #define ES_URL_NODES "/_nodes"
+#define ES_BULK "/_bulk"
 
 ElasticsearchClient::ElasticsearchClient(const std::string &url):
 	HTTPClient(100 * 1024), m_init_url(url)
@@ -63,6 +64,11 @@ void ElasticsearchClient::discover_cluster()
 		Json::Value member_obj = res["nodes"][member];
 		if (member_obj.isMember("http_address") && member_obj["http_address"].isString()) {
 			node.http_addr = "http://" + member_obj["http_address"].asString();
+		}
+		else if (member_obj.isMember("http") && member_obj["http"].isObject() &&
+			member_obj["http"].isMember("publish_address") &&
+			member_obj["http"]["publish_address"].isString()) {
+			node.http_addr = "http://" + member_obj["http"]["publish_address"].asString();
 		}
 
 		if (member_obj.isMember("version") && member_obj["version"].isString()) {
@@ -178,5 +184,5 @@ void ElasticsearchClient::process_bulkaction_queue(std::string &res, uint32_t ac
 		m_bulk_queue.pop();
 	}
 
-	_post(node.http_addr + "/_bulk", post_data, res);
+	_post(node.http_addr + ES_BULK, post_data, res);
 }
