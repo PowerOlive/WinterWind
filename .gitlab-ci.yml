@@ -1,8 +1,5 @@
 ---
 image: docker.io/nerzhul/archlinux:2016.10.01
-services:
-  - elasticsearch:5.2
-  - postgres:latest
 
 variables:
   POSTGRES_DB: unittests_db
@@ -61,6 +58,9 @@ build:clang:
 .unittests_template: &unittests_definition
   stage: unittests
   environment: staging
+  services:
+    - elasticsearch:5.2
+    - postgres:latest
   script:
     - cd build
     - ./src/unittests/winterwind_unittests
@@ -72,6 +72,14 @@ unittests:gcc6:
 
 unittests:clang:
   <<: *unittests_definition
+  dependencies:
+    - build:clang
+
+unittests:clang-es2:
+  <<: *unittests_definition
+  services:
+      - elasticsearch:2
+      - postgres:latest
   dependencies:
     - build:clang
 
