@@ -96,4 +96,4 @@ unittests:callgrind:
     when: on_success
     expire_in: 3 day
     paths:
-      - .
+      - build/callgrind.out.*
