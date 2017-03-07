@@ -23,9 +23,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "openweathermapclient.h"
 #include <cmath>
 #include <iostream>
-#include "openweathermapclient.h"
 
 Weather &Weather::operator>>(Json::Value &res)
 {
@@ -44,8 +44,9 @@ OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weat
 	std::string city_encoded = "";
 	http_string_escape(city, city_encoded);
 	if (!_get_json("http://api.openweathermap.org/data/2.5/"
-			"weather?mode=json&APPID=" + m_api_key +
-			"&units=metric&q=" + city_encoded, res)) {
+		       "weather?mode=json&APPID=" +
+			   m_api_key + "&units=metric&q=" + city_encoded,
+		       res)) {
 		return OWMRC_INVALID_RESPONSE;
 	}
 
@@ -55,7 +56,8 @@ OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weat
 		}
 
 		switch (res["cod"].asUInt64()) {
-			case 200: break;
+			case 200:
+				break;
 			case 401:
 				return OWMRC_FORBIDDEN;
 			default:
@@ -69,8 +71,8 @@ OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weat
 		result.temperature = std::round(res["main"]["temp"].asFloat() * 100) / 100;
 
 		if (res.isMember("weather") && res["weather"].isArray() &&
-			res["weather"].isValidIndex(0) && res["weather"][0].isMember("main") &&
-			res["weather"][0]["main"].isString()) {
+		    res["weather"].isValidIndex(0) && res["weather"][0].isMember("main") &&
+		    res["weather"][0]["main"].isString()) {
 			result.weather_desc = res["weather"][0]["main"].asString();
 		}
 
@@ -79,15 +81,14 @@ OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weat
 		}
 
 		if (res.isMember("sys") && res["sys"].isMember("sunrise") &&
-			res["sys"].isMember("sunset")) {
+		    res["sys"].isMember("sunset")) {
 			result.sunrise = res["sys"]["sunrise"].asInt();
 			result.sunset = res["sys"]["sunset"].asInt();
 		}
 
 		result.city = city;
 		return OWMRC_OK;
-	}
-	catch (Json::LogicError &e) {
+	} catch (Json::LogicError &e) {
 		return OWMRC_INVALID_RESPONSE;
 	}
 }

@@ -33,6 +33,7 @@
 #pragma once
 
 #include <exception>
+#include <string>
 
 class BaseException : public std::exception
 {

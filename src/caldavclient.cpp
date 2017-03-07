@@ -23,24 +23,24 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "caldavclient.h"
 #include <iostream>
 #include <regex>
-#include "caldavclient.h"
 
-static const std::string calendar_list_request =
-	"<d:propfind xmlns:d=\"DAV:\" xmlns:cs=\"http://calendarserver.org/ns/\" xmlns:c=\"urn:ietf:params:xml:ns:caldav\">"
-		"  <d:prop>"
-		"     <d:resourcetype></d:resourcetype>"
-		"     <d:displayname />"
-		"     <cs:getctag />"
-		"     <c:supported-calendar-component-set />"
-		"  </d:prop>"
-		"</d:propfind>";
+static const std::string calendar_list_request = "<d:propfind xmlns:d=\"DAV:\" "
+						 "xmlns:cs=\"http://calendarserver.org/ns/\" "
+						 "xmlns:c=\"urn:ietf:params:xml:ns:caldav\">"
+						 "  <d:prop>"
+						 "     <d:resourcetype></d:resourcetype>"
+						 "     <d:displayname />"
+						 "     <cs:getctag />"
+						 "     <c:supported-calendar-component-set />"
+						 "  </d:prop>"
+						 "</d:propfind>";
 
 CaldavClient::CaldavClient(const std::string &url, const std::string &username,
-						   const std::string &password, bool dont_verify_peer):
-	HTTPClient(10 * 1024 * 1024),
-	m_url(url), m_dont_verify_peer(dont_verify_peer)
+			   const std::string &password, bool dont_verify_peer)
+    : HTTPClient(10 * 1024 * 1024), m_url(url), m_dont_verify_peer(dont_verify_peer)
 {
 	m_username = username;
 	m_password = password;
@@ -58,10 +58,9 @@ void CaldavClient::load_calendars()
 	add_http_header("Content-Type", "application/xml; charset=utf-8");
 	add_http_header("Depth", "1");
 	add_http_header("Prefer", "return-minimal");
-	_propfind(m_url + "/calendars/" + m_username + "/", res, reqflag,
-			calendar_list_request);
+	_propfind(m_url + "/calendars/" + m_username + "/", res, reqflag, calendar_list_request);
 
-	reqflag |= XMLParser::Flag::FLAG_XML_SIMPLE | XMLParser::Flag ::FLAG_XML_STRIP_NEWLINE;
+	reqflag |= XMLParser::Flag::FLAG_XML_SIMPLE | XMLParser::Flag::FLAG_XML_STRIP_NEWLINE;
 
 	XMLParser parser;
 	parser.register_ns(XMLParserCustomNs("d", "DAV:"));
@@ -73,7 +72,7 @@ void CaldavClient::load_calendars()
 
 	std::vector<std::string> parse_res;
 	parser.parse(res, "//d:response/d:href", reqflag, parse_res);
-	for (const auto &s: parse_res) {
+	for (const auto &s : parse_res) {
 		std::smatch rem;
 		const std::regex re_calendar_name("/calendars/" + m_username + "/(.+)/$");
 		if (std::regex_search(s, rem, re_calendar_name)) {

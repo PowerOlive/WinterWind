@@ -25,19 +25,19 @@
 
 #pragma once
 
-#include <cppunit/TestFixture.h>
 #include <cppunit/TestAssert.h>
 #include <cppunit/TestCaller.h>
+#include <cppunit/TestFixture.h>
 #include <cppunit/TestSuite.h>
-#include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
 
-#include <utils/stringutils.h>
 #include <utils/base64.h>
+#include <utils/stringutils.h>
 
 #include "unittests_config.h"
 
-class WinterWindTest_String: public CppUnit::TestFixture
+class WinterWindTest_String : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_String);
 	CPPUNIT_TEST(split_string);
@@ -87,6 +87,5 @@ protected:
 		std::string src = "unittest_b64encode";
 		std::string res = base64_encode(src);
 		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
-
 	}
 };

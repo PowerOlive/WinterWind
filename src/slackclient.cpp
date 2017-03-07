@@ -25,21 +25,18 @@
 
 #include "slackclient.h"
 
-SlackClient::SlackClient(const std::string &api_token):
-	Thread(),
-	m_api_token(api_token)
+SlackClient::SlackClient(const std::string &api_token) : Thread(), m_api_token(api_token)
 {
 	init_asio();
 
 	set_tls_init_handler([this](websocketpp::connection_hdl) {
 		SSL_library_init();
-		return websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv12_client);
+		return websocketpp::lib::make_shared<asio::ssl::context>(
+		    asio::ssl::context::tlsv12_client);
 	});
 }
 
-SlackClient::~SlackClient()
-{
-}
+SlackClient::~SlackClient() {}
 
 bool SlackClient::auth_test()
 {
@@ -51,22 +48,26 @@ bool SlackClient::auth_test()
 bool SlackClient::create_channel(const std::string &channel)
 {
 	Json::Value res;
-	_get_json("https://slack.com/api/channels.create?token=" + m_api_token + "&name=" + channel, res);
+	_get_json("https://slack.com/api/channels.create?token=" + m_api_token + "&name=" + channel,
+		  res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
 bool SlackClient::join_channel(const std::string &channel)
 {
 	Json::Value res;
-	_get_json("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" + channel, res);
+	_get_json("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" +
+		      channel,
+		  res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
 bool SlackClient::post_message(const std::string &channel, const std::string &message)
 {
 	Json::Value res;
-	_get_json("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" + channel
-		+ "&text=" + message + "&as_user=true&username=Icecrown", res);
+	_get_json("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" +
+		      channel + "&text=" + message + "&as_user=true&username=Icecrown",
+		  res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
@@ -76,7 +77,7 @@ bool SlackClient::rtm_start(Json::Value &res)
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
-void* SlackClient::run()
+void *SlackClient::run()
 {
 	Thread::SetThreadName("SlackClient");
 	ThreadStarted();
@@ -89,68 +90,75 @@ void* SlackClient::run()
 		}
 
 		if (!res.isMember("url")) {
-			std::cerr << "WSS URL not present in slack response. Not connecting." << std::endl;
+			std::cerr << "WSS URL not present in slack response. Not connecting."
+				  << std::endl;
 			return nullptr;
 		}
 
 		if (res.isMember("groups")) {
-			for (const auto &group: res["groups"]) {
+			for (const auto &group : res["groups"]) {
 				if (group.isMember("id") && group.isMember("name")) {
 					m_groups[group["id"].asString()] = group["name"].asString();
-					m_groups_reverse[group["name"].asString()] = group["id"].asString();
+					m_groups_reverse[group["name"].asString()] =
+					    group["id"].asString();
 				}
 			}
 		}
 
 		try {
 			set_access_channels(websocketpp::log::alevel::connect |
-				websocketpp::log::alevel::disconnect |
-				websocketpp::log::alevel::fail);
+					    websocketpp::log::alevel::disconnect |
+					    websocketpp::log::alevel::fail);
 
-			set_message_handler([this](websocketpp::connection_hdl hdl,
-				websocketpp::config::asio_client::message_type::ptr msg) {
-				Json::Value recv_msg;
+			set_message_handler(
+			    [this](websocketpp::connection_hdl hdl,
+				   websocketpp::config::asio_client::message_type::ptr msg) {
+				    Json::Value recv_msg;
 
-				if (!this->json_reader()->parse(msg->get_payload(), recv_msg)) {
-					std::cerr << "Invalid slack payload, ignoring." << std::endl;
-					return;
-				}
+				    if (!this->json_reader()->parse(msg->get_payload(), recv_msg)) {
+					    std::cerr << "Invalid slack payload, ignoring."
+						      << std::endl;
+					    return;
+				    }
 
-				// Ignore some payload not containing type
-				if (!recv_msg.isMember("type")) {
-					return;
-				}
+				    // Ignore some payload not containing type
+				    if (!recv_msg.isMember("type")) {
+					    return;
+				    }
 
-				const std::string &type = recv_msg["type"].asString();
-				if (type == "reconnect_url") {
-					// This should be handled when slack will use it
-					return;
-				}
+				    const std::string &type = recv_msg["type"].asString();
+				    if (type == "reconnect_url") {
+					    // This should be handled when slack will use it
+					    return;
+				    }
 
-				// Send callbacks
-				const auto &callback_list = m_callbacks.find(type);
-				if (callback_list != m_callbacks.end()) {
-					for (const auto &cb: callback_list->second) {
-						cb(recv_msg, hdl);
-					}
-				}
-			});
+				    // Send callbacks
+				    const auto &callback_list = m_callbacks.find(type);
+				    if (callback_list != m_callbacks.end()) {
+					    for (const auto &cb : callback_list->second) {
+						    cb(recv_msg, hdl);
+					    }
+				    }
+			    });
 
 			websocketpp::lib::error_code ec;
-			ws_tls_client::connection_ptr con = get_connection(res["url"].asString(), ec);
+			ws_tls_client::connection_ptr con =
+			    get_connection(res["url"].asString(), ec);
 			if (ec) {
-				std::cout << "could not create connection because: " << ec.message() << std::endl;
+				std::cout << "could not create connection because: " << ec.message()
+					  << std::endl;
 				return nullptr;
 			}
 
 			connect(con);
 			ws_tls_client::run();
 		} catch (websocketpp::exception const &e) {
-			std::cerr << "ERROR handler exception" << std::endl << e.what() << std::endl;
+			std::cerr << "ERROR handler exception" << std::endl
+				  << e.what() << std::endl;
 		}
 
-		std::cerr << "SlackClient failure, retrying in " << m_retry_interval
-			<< "sec..." << std::endl;
+		std::cerr << "SlackClient failure, retrying in " << m_retry_interval << "sec..."
+			  << std::endl;
 		std::this_thread::sleep_for(std::chrono::seconds(m_retry_interval));
 	}
 
@@ -174,7 +182,7 @@ void SlackClient::send(websocketpp::connection_hdl hdl, const Json::Value &msg)
 }
 
 void SlackClient::send_message(websocketpp::connection_hdl hdl, const std::string &channel,
-	const std::string &msg)
+			       const std::string &msg)
 {
 	Json::Value json_msg;
 	json_msg["id"] = m_internal_message_id;

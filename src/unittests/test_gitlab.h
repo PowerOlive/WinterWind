@@ -25,19 +25,19 @@
 
 #pragma once
 
-#include <cppunit/TestFixture.h>
 #include <cppunit/TestAssert.h>
 #include <cppunit/TestCaller.h>
+#include <cppunit/TestFixture.h>
 #include <cppunit/TestSuite.h>
-#include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
 
 #include <gitlabapiclient.h>
 
 static std::string GITLAB_TOKEN = "";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
 
-class WinterWindTest_Gitlab: public CppUnit::TestFixture
+class WinterWindTest_Gitlab : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_Gitlab);
 	CPPUNIT_TEST(create_default_groups);
@@ -62,25 +62,22 @@ class WinterWindTest_Gitlab: public CppUnit::TestFixture
 	CPPUNIT_TEST(remove_groups);
 
 	CPPUNIT_TEST_SUITE_END();
-public:
-	void setUp()
-	{
-		m_gitlab_client = new GitlabAPIClient("https://gitlab.com", GITLAB_TOKEN);
-	}
 
-	void tearDown()
-	{
-		delete m_gitlab_client;
-	}
+public:
+	void setUp() { m_gitlab_client = new GitlabAPIClient("https://gitlab.com", GITLAB_TOKEN); }
+
+	void tearDown() { delete m_gitlab_client; }
 
 protected:
 	void create_default_groups()
 	{
 		Json::Value res;
-		GitlabGroup g("ww_testgroup_default_" + RUN_TIMESTAMP, "ww_testgroup_default_" + RUN_TIMESTAMP);
+		GitlabGroup g("ww_testgroup_default_" + RUN_TIMESTAMP,
+			      "ww_testgroup_default_" + RUN_TIMESTAMP);
 		CPPUNIT_ASSERT(m_gitlab_client->create_group(g, res));
 
-		GitlabGroup g2("ww_testgroup2_default_" + RUN_TIMESTAMP, "ww_testgroup2_default_" + RUN_TIMESTAMP);
+		GitlabGroup g2("ww_testgroup2_default_" + RUN_TIMESTAMP,
+			       "ww_testgroup2_default_" + RUN_TIMESTAMP);
 		CPPUNIT_ASSERT(m_gitlab_client->create_group(g2, res));
 	}
 
@@ -96,8 +93,9 @@ protected:
 	void get_group()
 	{
 		Json::Value result;
-		CPPUNIT_ASSERT(m_gitlab_client->get_group(
-				std::string("ww_testgroup_") + RUN_TIMESTAMP, result) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(
+		    m_gitlab_client->get_group(std::string("ww_testgroup_") + RUN_TIMESTAMP,
+					       result) == GITLAB_RC_OK);
 	}
 
 	void remove_group()
@@ -107,9 +105,9 @@ protected:
 
 	void remove_groups()
 	{
-		CPPUNIT_ASSERT(m_gitlab_client->delete_groups({
-				"ww_testgroup_default_" + RUN_TIMESTAMP,
-				"ww_testgroup2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(m_gitlab_client->delete_groups(
+				   {"ww_testgroup_default_" + RUN_TIMESTAMP,
+				    "ww_testgroup2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
 	}
 
 	void get_namespaces()
@@ -121,8 +119,9 @@ protected:
 	void get_namespace()
 	{
 		Json::Value result;
-		CPPUNIT_ASSERT(m_gitlab_client->get_namespace(
-				std::string("ww_testgroup_") + RUN_TIMESTAMP, result) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(
+		    m_gitlab_client->get_namespace(std::string("ww_testgroup_") + RUN_TIMESTAMP,
+						   result) == GITLAB_RC_OK);
 
 		m_testing_namespace_id = result["id"].asUInt();
 	}
@@ -130,8 +129,12 @@ protected:
 	void create_default_projects()
 	{
 		Json::Value res;
-		CPPUNIT_ASSERT(m_gitlab_client->create_project(GitlabProject("ww_testproj1_default_" + RUN_TIMESTAMP), res) == GITLAB_RC_OK);
-		CPPUNIT_ASSERT(m_gitlab_client->create_project(GitlabProject("ww_testproj2_default_" + RUN_TIMESTAMP), res) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(m_gitlab_client->create_project(
+				   GitlabProject("ww_testproj1_default_" + RUN_TIMESTAMP), res) ==
+			       GITLAB_RC_OK);
+		CPPUNIT_ASSERT(m_gitlab_client->create_project(
+				   GitlabProject("ww_testproj2_default_" + RUN_TIMESTAMP), res) ==
+			       GITLAB_RC_OK);
 	}
 
 	void create_project()
@@ -162,52 +165,57 @@ protected:
 	void get_project()
 	{
 		Json::Value res;
-		CPPUNIT_ASSERT(m_gitlab_client->get_project("ww_testproj1_default_" + RUN_TIMESTAMP, res) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(m_gitlab_client->get_project("ww_testproj1_default_" + RUN_TIMESTAMP,
+							    res) == GITLAB_RC_OK);
 		CPPUNIT_ASSERT(res.isMember("name_with_namespace"));
 	}
 
 	void get_project_ns()
 	{
 		Json::Value res;
-		CPPUNIT_ASSERT(m_gitlab_client->get_project_ns(
-			"ww_testproj_" + RUN_TIMESTAMP, TEST_GROUP, res) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(m_gitlab_client->get_project_ns("ww_testproj_" + RUN_TIMESTAMP,
+							       TEST_GROUP, res) == GITLAB_RC_OK);
 		CPPUNIT_ASSERT(res.isMember("avatar_url"));
 	}
 
 	void remove_project()
 	{
-		CPPUNIT_ASSERT(m_gitlab_client->delete_project(
-				std::string("ww_testproj_") + RUN_TIMESTAMP) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(m_gitlab_client->delete_project(std::string("ww_testproj_") +
+							       RUN_TIMESTAMP) == GITLAB_RC_OK);
 	}
 
 	void remove_projects()
 	{
-		CPPUNIT_ASSERT(m_gitlab_client->delete_projects({
-				"ww_testproj1_default_" + RUN_TIMESTAMP,
-				"ww_testproj2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(m_gitlab_client->delete_projects(
+				   {"ww_testproj1_default_" + RUN_TIMESTAMP,
+				    "ww_testproj2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
 	}
 
 	void create_label()
 	{
 		Json::Value result;
-		CPPUNIT_ASSERT(m_gitlab_client->create_label(TEST_GROUP,
-				"ww_testproj_" + RUN_TIMESTAMP, TEST_LABEL, TEST_COLOR, result)
-				== GITLAB_RC_OK);
+		CPPUNIT_ASSERT(
+		    m_gitlab_client->create_label(TEST_GROUP, "ww_testproj_" + RUN_TIMESTAMP,
+						  TEST_LABEL, TEST_COLOR, result) == GITLAB_RC_OK);
 	}
 
 	void get_label()
 	{
 		Json::Value result;
 		CPPUNIT_ASSERT(m_gitlab_client->get_label(TEST_GROUP,
-				"ww_testproj_" + RUN_TIMESTAMP, TEST_LABEL, result) == GITLAB_RC_OK);
-		CPPUNIT_ASSERT(result.isMember("color") && result["color"].asString() == TEST_COLOR);
+							  "ww_testproj_" + RUN_TIMESTAMP,
+							  TEST_LABEL, result) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(result.isMember("color") &&
+			       result["color"].asString() == TEST_COLOR);
 	}
 
 	void remove_label()
 	{
 		CPPUNIT_ASSERT(m_gitlab_client->delete_label(TEST_GROUP,
-				"ww_testproj_" + RUN_TIMESTAMP, TEST_LABEL) == GITLAB_RC_OK);
+							     "ww_testproj_" + RUN_TIMESTAMP,
+							     TEST_LABEL) == GITLAB_RC_OK);
 	}
+
 private:
 	GitlabAPIClient *m_gitlab_client = nullptr;
 	uint32_t m_testing_namespace_id = 0;

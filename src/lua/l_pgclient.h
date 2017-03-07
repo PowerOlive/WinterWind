@@ -25,10 +25,11 @@
 
 #pragma once
 
+#include "luahelper.h"
 #include <lua.hpp>
 #include <postgresqlclient.h>
 
-class LuaRefPostgreSQLClient: protected LuaHelper
+class LuaRefPostgreSQLClient : protected LuaHelper
 {
 	LUAREF_OBJECT(PostgreSQLClient)
 private:

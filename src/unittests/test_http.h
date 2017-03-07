@@ -25,18 +25,18 @@
 
 #pragma once
 
-#include <cppunit/TestFixture.h>
 #include <cppunit/TestAssert.h>
 #include <cppunit/TestCaller.h>
+#include <cppunit/TestFixture.h>
 #include <cppunit/TestSuite.h>
-#include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
 
 #include <httpserver.h>
 
 #include "unittests_config.h"
 
-class WinterWindTest_HTTP: public CppUnit::TestFixture
+class WinterWindTest_HTTP : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_HTTP);
 	CPPUNIT_TEST(httpserver_handle_get);
@@ -45,26 +45,24 @@ class WinterWindTest_HTTP: public CppUnit::TestFixture
 	CPPUNIT_TEST(httpserver_handle_post);
 	CPPUNIT_TEST(httpserver_handle_post_json);
 	CPPUNIT_TEST_SUITE_END();
+
 public:
 	void setUp()
 	{
 		m_http_server = new HTTPServer(58080);
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
-			&WinterWindTest_HTTP::httpserver_testhandler, this)
+					&WinterWindTest_HTTP::httpserver_testhandler, this)
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest2.html",
-			&WinterWindTest_HTTP::httpserver_testhandler2, this)
+					&WinterWindTest_HTTP::httpserver_testhandler2, this)
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest3.html",
-			&WinterWindTest_HTTP::httpserver_testhandler3, this)
+					&WinterWindTest_HTTP::httpserver_testhandler3, this)
 		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest4.html",
-			&WinterWindTest_HTTP::httpserver_testhandler4, this)
+					&WinterWindTest_HTTP::httpserver_testhandler4, this)
 		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest5.html",
-			&WinterWindTest_HTTP::httpserver_testhandler5, this)
+					&WinterWindTest_HTTP::httpserver_testhandler5, this)
 	}
 
-	void tearDown()
-	{
-		delete m_http_server;
-	}
+	void tearDown() { delete m_http_server; }
 
 protected:
 	HTTPResponse *httpserver_testhandler(const HTTPQueryPtr q)
@@ -120,8 +118,8 @@ protected:
 		HTTPJsonQuery *jq = dynamic_cast<HTTPJsonQuery *>(q.get());
 		CPPUNIT_ASSERT(jq);
 
-		if (jq->json_query.isMember("json_param")
-			&& jq->json_query["json_param"].asString() == "catsarebeautiful") {
+		if (jq->json_query.isMember("json_param") &&
+		    jq->json_query["json_param"].asString() == "catsarebeautiful") {
 			json_res["status"] = "yes";
 		}
 
@@ -149,7 +147,8 @@ protected:
 	{
 		HTTPClient cli;
 		std::string res;
-		cli._get("http://localhost:58080/unittest3.html?UnitTestParam=thisistestparam", res);
+		cli._get("http://localhost:58080/unittest3.html?UnitTestParam=thisistestparam",
+			 res);
 		CPPUNIT_ASSERT(res == "yes");
 	}
 
@@ -172,6 +171,7 @@ protected:
 		cli._post_json("http://localhost:58080/unittest5.html", query, res);
 		CPPUNIT_ASSERT(res.isMember("status") && res["status"] == "yes");
 	}
+
 private:
 	HTTPServer *m_http_server = nullptr;
 	std::string HTTPSERVER_TEST01_STR = "<h1>unittest_result</h1>";

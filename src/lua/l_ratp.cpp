@@ -23,9 +23,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-#include "ratpclient.h"
 #include "luaengine.h"
+#include "ratpclient.h"
+#include <iostream>
 
 int LuaEngine::l_get_ratp_schedules(lua_State *L)
 {
@@ -42,11 +42,12 @@ int LuaEngine::l_get_ratp_schedules(lua_State *L)
 		return 0;
 	}
 
-	const auto schedules = RATPClient().get_next_trains(RATPClient::LINE_RER_B, "Palaiseau Villebon", 1);
+	const auto schedules =
+	    RATPClient().get_next_trains(RATPClient::LINE_RER_B, "Palaiseau Villebon", 1);
 	lua_createtable(L, (int) schedules.size(), 0);
 	int table_idx = lua_gettop(L);
 	uint8_t idx = 0;
-	for (const auto &sched: schedules) {
+	for (const auto &sched : schedules) {
 		lua_newtable(L);
 		lua_pushstring(L, sched.destination.c_str());
 		lua_setfield(L, -2, "destination");

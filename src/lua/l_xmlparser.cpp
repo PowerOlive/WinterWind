@@ -23,10 +23,10 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include "l_xmlparser.h"
 #include "luaengine.h"
 #include "xmlparser.h"
+#include <iostream>
 
 int LuaEngine::l_create_xmlparser(lua_State *L)
 {
@@ -34,50 +34,42 @@ int LuaEngine::l_create_xmlparser(lua_State *L)
 	int object = lua_gettop(L);
 	lua_pushvalue(L, object);
 	return 1;
-
 }
 
 const char LuaRefXMLParser::className[] = "LuaRefXMLParser";
 const luaL_Reg LuaRefXMLParser::methods[] = {
-		luamethod(LuaRefXMLParser, parse),
-		{0, 0},
+    luamethod(LuaRefXMLParser, parse), {0, 0},
 };
 
-LuaRefXMLParser::LuaRefXMLParser(XMLParser *object):
-		m_object(object)
-{
-}
+LuaRefXMLParser::LuaRefXMLParser(XMLParser *object) : m_object(object) {}
 
-LuaRefXMLParser::~LuaRefXMLParser()
-{
-	delete m_object;
-}
+LuaRefXMLParser::~LuaRefXMLParser() { delete m_object; }
 
-LuaRefXMLParser* LuaRefXMLParser::checkobject(lua_State *L, int narg)
+LuaRefXMLParser *LuaRefXMLParser::checkobject(lua_State *L, int narg)
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);
 	void *ud = luaL_checkudata(L, narg, className);
-	if (!ud) std::cerr << "Object has not type " << className << std::endl;
-	return *(LuaRefXMLParser**)ud;  // unbox pointer
+	if (!ud)
+		std::cerr << "Object has not type " << className << std::endl;
+	return *(LuaRefXMLParser **) ud; // unbox pointer
 }
-
 
 void LuaRefXMLParser::create(lua_State *L, XMLParser *object)
 {
 	LuaRefXMLParser *o = new LuaRefXMLParser(object);
-	*(void **)(lua_newuserdata(L, sizeof(void *))) = o;
+	*(void **) (lua_newuserdata(L, sizeof(void *))) = o;
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
 }
 
 int LuaRefXMLParser::gc_object(lua_State *L)
 {
-	LuaRefXMLParser *o = *(LuaRefXMLParser **)(lua_touserdata(L, 1));
+	LuaRefXMLParser *o = *(LuaRefXMLParser **) (lua_touserdata(L, 1));
 	delete o;
 	return 0;
 }
 
-XMLParser* LuaRefXMLParser::getobject(LuaRefXMLParser *ref)
+XMLParser *LuaRefXMLParser::getobject(LuaRefXMLParser *ref)
 {
 	XMLParser *co = ref->m_object;
 	return co;
@@ -92,7 +84,7 @@ void LuaRefXMLParser::Register(lua_State *L)
 
 	lua_pushliteral(L, "__metatable");
 	lua_pushvalue(L, methodtable);
-	lua_settable(L, metatable);  // hide metatable from Lua getmetatable()
+	lua_settable(L, metatable); // hide metatable from Lua getmetatable()
 
 	lua_pushliteral(L, "__index");
 	lua_pushvalue(L, methodtable);
@@ -102,10 +94,10 @@ void LuaRefXMLParser::Register(lua_State *L)
 	lua_pushcfunction(L, gc_object);
 	lua_settable(L, metatable);
 
-	lua_pop(L, 1);  // drop metatable
+	lua_pop(L, 1); // drop metatable
 
 	luaL_setfuncs(L, methods, 0);
-	lua_pop(L, 1);  // drop methodtable
+	lua_pop(L, 1); // drop methodtable
 }
 
 int LuaRefXMLParser::l_parse(lua_State *L)
@@ -120,6 +112,6 @@ int LuaRefXMLParser::l_parse(lua_State *L)
 		return 0;
 	}
 
-	write<std::vector<std::string> >(L, res);
+	write<std::vector<std::string>>(L, res);
 	return 1;
 }

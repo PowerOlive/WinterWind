@@ -23,72 +23,79 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "luahelper.h"
 #include <cstdint>
 #include <string>
 #include <vector>
-#include "luahelper.h"
 
 /*
  * Read helpers
  */
-template<>
-float LuaHelper::read(lua_State* L, int index) { return (float) lua_tonumber(L, index); }
-template<>
-uint8_t LuaHelper::read(lua_State* L, int index) { return (uint8_t) lua_tointeger(L, index); }
-template<>
-int8_t LuaHelper::read(lua_State* L, int index) { return (int8_t) lua_tointeger(L, index); }
-template<>
-uint16_t LuaHelper::read(lua_State* L, int index) { return (uint16_t) lua_tointeger(L, index); }
-template<>
-int16_t LuaHelper::read(lua_State* L, int index) { return (int16_t) lua_tointeger(L, index); }
-template<>
-uint32_t LuaHelper::read(lua_State* L, int index) { return (uint32_t) lua_tointeger(L, index); }
-template<>
-int32_t LuaHelper::read(lua_State* L, int index) { return (int32_t) lua_tointeger(L, index); }
-template<>
-uint64_t LuaHelper::read(lua_State* L, int index) { return (uint64_t) lua_tointeger(L, index); }
-template<>
-int64_t LuaHelper::read(lua_State* L, int index) { return (int64_t) lua_tointeger(L, index); }
-
-template<>
-bool LuaHelper::read(lua_State* L, int index) { return (bool) lua_toboolean(L, index); }
-
-template<>
-std::string LuaHelper::read(lua_State *L, int index)
+template <> float LuaHelper::read(lua_State *L, int index)
 {
-	const char* str = lua_tostring(L, index);
+	return (float) lua_tonumber(L, index);
+}
+template <> uint8_t LuaHelper::read(lua_State *L, int index)
+{
+	return (uint8_t) lua_tointeger(L, index);
+}
+template <> int8_t LuaHelper::read(lua_State *L, int index)
+{
+	return (int8_t) lua_tointeger(L, index);
+}
+template <> uint16_t LuaHelper::read(lua_State *L, int index)
+{
+	return (uint16_t) lua_tointeger(L, index);
+}
+template <> int16_t LuaHelper::read(lua_State *L, int index)
+{
+	return (int16_t) lua_tointeger(L, index);
+}
+template <> uint32_t LuaHelper::read(lua_State *L, int index)
+{
+	return (uint32_t) lua_tointeger(L, index);
+}
+template <> int32_t LuaHelper::read(lua_State *L, int index)
+{
+	return (int32_t) lua_tointeger(L, index);
+}
+template <> uint64_t LuaHelper::read(lua_State *L, int index)
+{
+	return (uint64_t) lua_tointeger(L, index);
+}
+template <> int64_t LuaHelper::read(lua_State *L, int index)
+{
+	return (int64_t) lua_tointeger(L, index);
+}
+
+template <> bool LuaHelper::read(lua_State *L, int index) { return (bool) lua_toboolean(L, index); }
+
+template <> std::string LuaHelper::read(lua_State *L, int index)
+{
+	const char *str = lua_tostring(L, index);
 	return std::string(str ? str : "");
 }
 /*
  * Write helpers
  */
-template<>
-void LuaHelper::write(lua_State *L, const float &what) { lua_pushnumber(L, what); }
-template<>
-void LuaHelper::write(lua_State *L, const uint8_t &what) { lua_pushinteger(L, what); }
-template<>
-void LuaHelper::write(lua_State *L, const int8_t &what) { lua_pushinteger(L, what); }
-template<>
-void LuaHelper::write(lua_State *L, const uint16_t &what) { lua_pushinteger(L, what); }
-template<>
-void LuaHelper::write(lua_State *L, const int16_t &what) { lua_pushinteger(L, what); }
-template<>
-void LuaHelper::write(lua_State *L, const uint32_t &what) { lua_pushinteger(L, what); }
-template<>
-void LuaHelper::write(lua_State *L, const int32_t &what) { lua_pushinteger(L, what); }
-template<>
-void LuaHelper::write(lua_State *L, const uint64_t &what) { lua_pushinteger(L, what); }
-template<>
-void LuaHelper::write(lua_State *L, const int64_t &what) { lua_pushinteger(L, what); }
+template <> void LuaHelper::write(lua_State *L, const float &what) { lua_pushnumber(L, what); }
+template <> void LuaHelper::write(lua_State *L, const uint8_t &what) { lua_pushinteger(L, what); }
+template <> void LuaHelper::write(lua_State *L, const int8_t &what) { lua_pushinteger(L, what); }
+template <> void LuaHelper::write(lua_State *L, const uint16_t &what) { lua_pushinteger(L, what); }
+template <> void LuaHelper::write(lua_State *L, const int16_t &what) { lua_pushinteger(L, what); }
+template <> void LuaHelper::write(lua_State *L, const uint32_t &what) { lua_pushinteger(L, what); }
+template <> void LuaHelper::write(lua_State *L, const int32_t &what) { lua_pushinteger(L, what); }
+template <> void LuaHelper::write(lua_State *L, const uint64_t &what) { lua_pushinteger(L, what); }
+template <> void LuaHelper::write(lua_State *L, const int64_t &what) { lua_pushinteger(L, what); }
 
-template<>
-void LuaHelper::write(lua_State *L, const bool &what) { lua_pushboolean(L, what); }
+template <> void LuaHelper::write(lua_State *L, const bool &what) { lua_pushboolean(L, what); }
 
-template<>
-void LuaHelper::write(lua_State *L, const std::string &what) { lua_pushstring(L, what.c_str()); }
+template <> void LuaHelper::write(lua_State *L, const std::string &what)
+{
+	lua_pushstring(L, what.c_str());
+}
 
-template<>
-void LuaHelper::write(lua_State *L, const std::vector<std::string> &what)
+template <> void LuaHelper::write(lua_State *L, const std::vector<std::string> &what)
 {
 	lua_newtable(L);
 	for (uint32_t i = 0; i < what.size(); i++) {

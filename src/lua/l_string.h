@@ -29,12 +29,13 @@
 
 class LuaEngine;
 
-class LuaString: protected LuaHelper
+class LuaString : protected LuaHelper
 {
 	friend class LuaEngine;
+
 private:
-	static int l_base64_decode(lua_State * L);
-	static int l_base64_encode(lua_State * L);
+	static int l_base64_decode(lua_State *L);
+	static int l_base64_encode(lua_State *L);
 
 	static void register_functions(LuaEngine *engine, int top);
 };
