@@ -24,8 +24,8 @@
  */
 
 #include "utils/threads.h"
-#include <string>
 #include <pthread.h>
+#include <string>
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
 #include <pthread_np.h>
 #endif
@@ -38,13 +38,10 @@ Thread::Thread()
 	started = false;
 }
 
+Thread::~Thread() { kill(); }
 
-Thread::~Thread()
+void Thread::wait()
 {
-	kill();
-}
-
-void Thread::wait() {
 	if (started) {
 		if (m_thread) {
 			m_thread->join();
@@ -73,10 +70,10 @@ const bool Thread::start()
 	/* Wait until 'running' is set */
 
 	while (!running) {
-		struct timespec req,rem;
+		struct timespec req, rem;
 		req.tv_sec = 0;
 		req.tv_nsec = 1000000;
-		nanosleep(&req,&rem);
+		nanosleep(&req, &rem);
 	}
 	started = true;
 
@@ -89,8 +86,7 @@ const bool Thread::start()
 
 int Thread::kill()
 {
-	if (!running)
-	{
+	if (!running) {
 		wait();
 		return 1;
 	}
@@ -109,7 +105,7 @@ int Thread::kill()
 
 void *Thread::TheThread(void *data)
 {
-	Thread *thread = (Thread *)data;
+	Thread *thread = (Thread *) data;
 
 	thread->continuemutex2.lock();
 	thread->running = true;
@@ -123,10 +119,7 @@ void *Thread::TheThread(void *data)
 	return NULL;
 }
 
-void Thread::ThreadStarted()
-{
-	continuemutex2.unlock();
-}
+void Thread::ThreadStarted() { continuemutex2.unlock(); }
 
 void Thread::SetThreadName(const std::string &name)
 {

@@ -23,10 +23,10 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "l_pgclient.h"
+#include "luaengine.h"
 #include <iostream>
 #include <postgresqlclient.h>
-#include "luaengine.h"
-#include "l_pgclient.h"
 
 int LuaEngine::l_create_postgresql_client(lua_State *L)
 {
@@ -35,8 +35,7 @@ int LuaEngine::l_create_postgresql_client(lua_State *L)
 	PostgreSQLClient *pg_client = nullptr;
 	try {
 		pg_client = new PostgreSQLClient(connect_string);
-	}
-	catch (PostgreSQLException &e) {
+	} catch (PostgreSQLException &e) {
 		std::cerr << e.what() << std::endl;
 		delete pg_client;
 		return 0;
@@ -45,50 +44,42 @@ int LuaEngine::l_create_postgresql_client(lua_State *L)
 	int object = lua_gettop(L);
 	lua_pushvalue(L, object);
 	return 1;
-
 }
 
 const char LuaRefPostgreSQLClient::className[] = "LuaRefPostgreSQLClient";
 const luaL_Reg LuaRefPostgreSQLClient::methods[] = {
-	luamethod(LuaRefPostgreSQLClient, register_statement),
-	{0, 0},
+    luamethod(LuaRefPostgreSQLClient, register_statement), {0, 0},
 };
 
-LuaRefPostgreSQLClient::LuaRefPostgreSQLClient(PostgreSQLClient *object):
-	m_object(object)
-{
-}
+LuaRefPostgreSQLClient::LuaRefPostgreSQLClient(PostgreSQLClient *object) : m_object(object) {}
 
-LuaRefPostgreSQLClient::~LuaRefPostgreSQLClient()
-{
-	delete m_object;
-}
+LuaRefPostgreSQLClient::~LuaRefPostgreSQLClient() { delete m_object; }
 
-LuaRefPostgreSQLClient* LuaRefPostgreSQLClient::checkobject(lua_State *L, int narg)
+LuaRefPostgreSQLClient *LuaRefPostgreSQLClient::checkobject(lua_State *L, int narg)
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);
 	void *ud = luaL_checkudata(L, narg, className);
-	if (!ud) std::cerr << "Object has not type " << className << std::endl;
-	return *(LuaRefPostgreSQLClient**)ud;  // unbox pointer
+	if (!ud)
+		std::cerr << "Object has not type " << className << std::endl;
+	return *(LuaRefPostgreSQLClient **) ud; // unbox pointer
 }
-
 
 void LuaRefPostgreSQLClient::create(lua_State *L, PostgreSQLClient *object)
 {
 	LuaRefPostgreSQLClient *o = new LuaRefPostgreSQLClient(object);
-	*(void **)(lua_newuserdata(L, sizeof(void *))) = o;
+	*(void **) (lua_newuserdata(L, sizeof(void *))) = o;
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
 }
 
 int LuaRefPostgreSQLClient::gc_object(lua_State *L)
 {
-	LuaRefPostgreSQLClient *o = *(LuaRefPostgreSQLClient **)(lua_touserdata(L, 1));
+	LuaRefPostgreSQLClient *o = *(LuaRefPostgreSQLClient **) (lua_touserdata(L, 1));
 	delete o;
 	return 0;
 }
 
-PostgreSQLClient* LuaRefPostgreSQLClient::getobject(LuaRefPostgreSQLClient *ref)
+PostgreSQLClient *LuaRefPostgreSQLClient::getobject(LuaRefPostgreSQLClient *ref)
 {
 	PostgreSQLClient *co = ref->m_object;
 	return co;
@@ -103,7 +94,7 @@ void LuaRefPostgreSQLClient::Register(lua_State *L)
 
 	lua_pushliteral(L, "__metatable");
 	lua_pushvalue(L, methodtable);
-	lua_settable(L, metatable);  // hide metatable from Lua getmetatable()
+	lua_settable(L, metatable); // hide metatable from Lua getmetatable()
 
 	lua_pushliteral(L, "__index");
 	lua_pushvalue(L, methodtable);
@@ -113,10 +104,10 @@ void LuaRefPostgreSQLClient::Register(lua_State *L)
 	lua_pushcfunction(L, gc_object);
 	lua_settable(L, metatable);
 
-	lua_pop(L, 1);  // drop metatable
+	lua_pop(L, 1); // drop metatable
 
 	luaL_setfuncs(L, methods, 0);
-	lua_pop(L, 1);  // drop methodtable
+	lua_pop(L, 1); // drop methodtable
 }
 
 int LuaRefPostgreSQLClient::l_register_statement(lua_State *L)

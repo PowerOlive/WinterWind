@@ -1,24 +1,31 @@
 /**
  * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification,
+ * Redistribution and use in source and binary forms, with or without
+ * modification,
  * are permitted provided that the following conditions are met:
  *
  * 1. Redistributions of source code must retain the above copyright notice,
  *   this list of conditions and the following disclaimer.
  *
  * 2. Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation and/or
+ *   this list of conditions and the following disclaimer in the documentation
+ * and/or
  *   other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND
  * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT,
  * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
  * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING
  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
@@ -39,14 +46,10 @@ enum GitlabRetCod
 struct GitlabIssue
 {
 public:
-	GitlabIssue(const std::string &t): title(t) {}
+	GitlabIssue(const std::string &t) : title(t) {}
 	GitlabIssue(const std::string &t, const std::string &desc, bool c = false, const std::string &dd = "",
-		const std::vector<std::string> &l = {}):
-		title(t),
-		description(desc),
-		confidential(c),
-		due_date(dd),
-		labels(l) {}
+		    const std::vector<std::string> &l = {})
+	    : title(t), description(desc), confidential(c), due_date(dd), labels(l) {}
 
 	std::string title = "";
 	std::string description = "";
@@ -58,16 +61,10 @@ public:
 struct GitlabTag
 {
 public:
-	GitlabTag(const std::string &n, const std::string &r):
-		name(n),
-		ref(r) {}
+	GitlabTag(const std::string &n, const std::string &r) : name(n), ref(r) {}
 
-	GitlabTag(const std::string &n, const std::string &r, const std::string &m,
-			const std::string &rd):
-		name(n),
-		ref(r),
-		message(m),
-		release_description(rd) {}
+	GitlabTag(const std::string &n, const std::string &r, const std::string &m, const std::string &rd)
+	    : name(n), ref(r), message(m), release_description(rd) {}
 
 	std::string name = "";
 	std::string ref = "";
@@ -92,9 +89,7 @@ enum GitlabProjectVisibility
 struct GitlabGroup
 {
 public:
-	GitlabGroup(const std::string &n, const std::string &p):
-		name(n),
-		path(p) {}
+	GitlabGroup(const std::string &n, const std::string &p) : name(n), path(p) {}
 
 	std::string name = "";
 	std::string path = "";
@@ -107,8 +102,7 @@ public:
 struct GitlabProject
 {
 public:
-	GitlabProject(const std::string &n):
-		name(n) {}
+	GitlabProject(const std::string &n) : name(n) {}
 
 	std::string name = "";
 	std::string path = "";
@@ -138,46 +132,42 @@ enum GitlabProjectSearchScope
 	GITLAB_PROJECT_SS_STARRED,
 };
 
-class GitlabAPIClient: protected HTTPClient
+class GitlabAPIClient : protected HTTPClient
 {
 public:
-	GitlabAPIClient(const std::string &server_uri, const std::string &api_token):
-		m_server_uri(server_uri),
-		m_api_token(api_token)
-	{}
+	GitlabAPIClient(const std::string &server_uri, const std::string &api_token)
+	    : m_server_uri(server_uri), m_api_token(api_token) {}
 
 	// Issues
 	const GitlabRetCod get_issue(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
 	const GitlabRetCod get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
-	const GitlabRetCod get_issue(const std::string &ns, const std::string &project,
-			const uint32_t issue_id, Json::Value &result,
-			const GitlabProjectSearchScope proj_search_scope = GITLAB_PROJECT_SS_STANDARD);
+	const GitlabRetCod get_issue(const std::string &ns, const std::string &project, const uint32_t issue_id,
+				     Json::Value &result,
+				     const GitlabProjectSearchScope proj_search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod create_issue(const uint32_t project_id, const GitlabIssue &issue);
-	const GitlabRetCod modify_issue(const uint32_t project_id, const uint32_t issue_id,
-			const GitlabIssue &issue);
+	const GitlabRetCod modify_issue(const uint32_t project_id, const uint32_t issue_id, const GitlabIssue &issue);
 	const GitlabRetCod close_issue(const uint32_t project_id, const uint32_t issue_id);
 	const GitlabRetCod delete_issue(const uint32_t project_id, const uint32_t issue_id);
 
 	// Merge requests
 	const GitlabRetCod get_merge_request(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
-	const GitlabRetCod get_merge_requests(const uint32_t project_id, const std::string &filter, Json::Value &result);
+	const GitlabRetCod get_merge_requests(const uint32_t project_id, const std::string &filter,
+					      Json::Value &result);
 	const GitlabRetCod close_merge_request(const uint32_t project_id, const uint32_t issue_id);
 	const GitlabRetCod delete_merge_request(const uint32_t project_id, const uint32_t issue_id);
 
 	// Labels
 	const GitlabRetCod get_labels(const uint32_t project_id, Json::Value &result);
-	const GitlabRetCod get_label(const uint32_t project_id, const std::string &name,
-			Json::Value &result);
-	const GitlabRetCod get_label(const std::string &ns, const std::string &project,
-			const std::string &name, Json::Value &result,
-			const GitlabProjectSearchScope proj_search_scope = GITLAB_PROJECT_SS_STANDARD);
+	const GitlabRetCod get_label(const uint32_t project_id, const std::string &name, Json::Value &result);
+	const GitlabRetCod get_label(const std::string &ns, const std::string &project, const std::string &name,
+				     Json::Value &result,
+				     const GitlabProjectSearchScope proj_search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod create_label(const uint32_t project_id, const std::string &label,
-			const std::string &color_id, Json::Value &res);
-	const GitlabRetCod create_label(const std::string &ns, const std::string &project,
-			const std::string &label, const std::string &color_id, Json::Value &res);
+					const std::string &color_id, Json::Value &res);
+	const GitlabRetCod create_label(const std::string &ns, const std::string &project, const std::string &label,
+					const std::string &color_id, Json::Value &res);
 	const GitlabRetCod delete_label(const uint32_t project_id, const std::string &label);
-	const GitlabRetCod delete_label(const std::string &ns, const std::string &project,
-			const std::string &label);
+	const GitlabRetCod delete_label(const std::string &ns, const std::string &project, const std::string &label);
 
 	// Tags
 	const GitlabRetCod create_tag(const uint32_t project_id, const GitlabTag &tag);
@@ -197,14 +187,14 @@ public:
 	// Projects
 	const GitlabRetCod create_project(const GitlabProject &project, Json::Value &res);
 	const GitlabRetCod get_projects(const std::string &name, Json::Value &result,
-			const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+					const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod get_project(const std::string &name, Json::Value &result,
-			const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
-	const GitlabRetCod get_project_ns(const std::string &name, const std::string &ns,
-			Json::Value &result,
-			const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+				       const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+	const GitlabRetCod get_project_ns(const std::string &name, const std::string &ns, Json::Value &result,
+					  const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
 	const GitlabRetCod delete_project(const std::string &name);
 	const GitlabRetCod delete_projects(const std::vector<std::string> &projects);
+
 private:
 	void build_issue_data(const GitlabIssue &issue, std::string &post_data);
 

@@ -25,13 +25,15 @@
 
 #include "utils/semaphore.h"
 
-#include <iostream>
 #include <cassert>
+#include <iostream>
 
-#define UNUSED(expr) do { (void)(expr); } while (0)
+#define UNUSED(expr)                                                                               \
+	do {                                                                                       \
+		(void) (expr);                                                                     \
+	} while (0)
 
 #include <sys/time.h>
-
 
 Semaphore::Semaphore(int val)
 {
@@ -39,7 +41,6 @@ Semaphore::Semaphore(int val)
 	assert(!ret);
 	UNUSED(ret);
 }
-
 
 Semaphore::~Semaphore()
 {
@@ -52,7 +53,6 @@ Semaphore::~Semaphore()
 #endif
 }
 
-
 void Semaphore::post(unsigned int num)
 {
 	assert(num > 0);
@@ -63,7 +63,6 @@ void Semaphore::post(unsigned int num)
 	}
 }
 
-
 void Semaphore::wait()
 {
 	int ret = sem_wait(&semaphore);
@@ -71,19 +70,20 @@ void Semaphore::wait()
 	UNUSED(ret);
 }
 
-
 bool Semaphore::wait(unsigned int time_ms)
 {
 	struct timespec wait_time;
 	struct timeval now;
 
 	if (gettimeofday(&now, NULL) == -1) {
-		std::cerr << "Semaphore::wait(ms): Unable to get time with gettimeofday!" << std::endl;
+		std::cerr << "Semaphore::wait(ms): Unable to get time with gettimeofday!"
+			  << std::endl;
 		abort();
 	}
 
 	wait_time.tv_nsec = ((time_ms % 1000) * 1000 * 1000) + (now.tv_usec * 1000);
-	wait_time.tv_sec = (time_ms / 1000) + (wait_time.tv_nsec / (1000 * 1000 * 1000)) + now.tv_sec;
+	wait_time.tv_sec =
+	    (time_ms / 1000) + (wait_time.tv_nsec / (1000 * 1000 * 1000)) + now.tv_sec;
 	wait_time.tv_nsec %= 1000 * 1000 * 1000;
 
 	int ret = sem_timedwait(&semaphore, &wait_time);

@@ -25,25 +25,24 @@
 
 #include "console.h"
 
-#include <unistd.h>
 #include <cstring>
+#include <unistd.h>
 #include <vector>
 
 #include "cmake_config.h"
 
 #if READLINE
-#include <stdlib.h>
-#include <readline/readline.h>
-#include <readline/history.h>
 #include <cassert>
+#include <readline/history.h>
+#include <readline/readline.h>
+#include <stdlib.h>
 
 static ConsoleThread *g_console_thread = nullptr;
 char *ConsoleThread::rl_gets()
 {
 	/* If the buffer has already been allocated, return the memory
 	   to the free pool. */
-	if (m_line_read)
-	{
+	if (m_line_read) {
 		free(m_line_read);
 		m_line_read = nullptr;
 	}
@@ -61,12 +60,12 @@ char *ConsoleThread::rl_gets()
 
 inline static char *dupstr(const std::string &s)
 {
-	char *r = (char*) malloc(s.length() + 1);
+	char *r = (char *) malloc(s.length() + 1);
 	strcpy(r, s.c_str());
 	return r;
 }
 
-static char* console_rl_generator(const char *text, int state)
+static char *console_rl_generator(const char *text, int state)
 {
 	// The console thread should be pointed
 	assert(g_console_thread);
@@ -81,31 +80,34 @@ static char* console_rl_generator(const char *text, int state)
 	name = g_console_thread->get_completion(list_index);
 	while (!name.empty()) {
 		list_index++;
-		if (strncmp (name.c_str(), text, len) == 0)
+		if (strncmp(name.c_str(), text, len) == 0)
 			return dupstr(name);
 		name = g_console_thread->get_completion(list_index);
 	}
 
 	/* If no names matched, then return NULL. */
 	return NULL;
-
 }
 
-static char** rl_completion(const char *text, int start, int end)
+static char **rl_completion(const char *text, int start, int end)
 {
 	char **matches;
 
 	matches = NULL;
 
 	if (start == 0)
-		matches = rl_completion_matches((char*)text, &console_rl_generator);
+		matches = rl_completion_matches((char *) text, &console_rl_generator);
 	else
 		rl_bind_key('\t', rl_abort);
 
 	return (matches);
 }
 #else
-char *ConsoleThread::rl_gets() { assert(false); return nullptr; }
+char *ConsoleThread::rl_gets()
+{
+	assert(false);
+	return nullptr;
+}
 static int kb_hit_return()
 {
 	struct timeval tv;
@@ -128,7 +130,7 @@ std::string ConsoleThread::get_completion(uint32_t index)
 void ConsoleThread::add_completion(const std::string &completion)
 {
 	std::lock_guard<std::mutex> lock(m_mutex);
-	for (const auto &c: m_completions) {
+	for (const auto &c : m_completions) {
 		if (c == completion) {
 			return;
 		}
@@ -136,7 +138,7 @@ void ConsoleThread::add_completion(const std::string &completion)
 	m_completions.push_back(completion);
 }
 
-void* ConsoleThread::run()
+void *ConsoleThread::run()
 {
 	Thread::SetThreadName(m_thread_name);
 
@@ -170,8 +172,8 @@ void* ConsoleThread::run()
 			}
 
 			if (command_str[0] != 0) {
-				CommandToProcessPtr cmd(new CommandToProcess(1,
-					std::string(command_str, strlen(command_str))));
+				CommandToProcessPtr cmd(new CommandToProcess(
+				    1, std::string(command_str, strlen(command_str))));
 				m_console_handler->enqueue(cmd);
 			}
 #if !READLINE

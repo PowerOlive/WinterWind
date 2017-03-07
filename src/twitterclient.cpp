@@ -32,16 +32,17 @@ static const std::string TWITTER_HOME_TIMELINE_1_1 = "/1.1/statuses/home_timelin
 static const std::string TWITTER_USER_TIMELINE_1_1 = "/1.1/statuses/user_timeline.json";
 
 TwitterClient::TwitterClient(const std::string &consumer_key, const std::string &consumer_secret,
-	const std::string &access_token, const std::string &access_token_secret):
-	OAuthClient(consumer_key, consumer_secret, access_token, access_token_secret)
+			     const std::string &access_token,
+			     const std::string &access_token_secret)
+    : OAuthClient(consumer_key, consumer_secret, access_token, access_token_secret)
 {
 }
 
 void TwitterClient::append_auth_header()
 {
 	std::string tmp_auth = m_consumer_key + ":" + m_consumer_secret;
-	std::string authorization = "Basic " +
-		base64_encode((const unsigned char*) tmp_auth.c_str(), tmp_auth.length());
+	std::string authorization =
+	    "Basic " + base64_encode((const unsigned char *) tmp_auth.c_str(), tmp_auth.length());
 	add_http_header("Authorization", authorization);
 }
 
@@ -77,7 +78,8 @@ TwitterClient::Response TwitterClient::get_oauth2_token()
 }
 
 TwitterClient::Response TwitterClient::get_user_timeline(Json::Value &res, const uint16_t count,
-	const uint32_t since_id, bool include_rts, bool contributor_details)
+							 const uint32_t since_id, bool include_rts,
+							 bool contributor_details)
 {
 	std::string request = TWITTER_API_URL + TWITTER_USER_TIMELINE_1_1;
 
@@ -102,16 +104,19 @@ TwitterClient::Response TwitterClient::get_user_timeline(Json::Value &res, const
 	_get_json(request, res);
 
 	switch (get_http_code()) {
-		case 401: return TWITTER_UNAUTHORIZED;
-		case 403: return TWITTER_FORBIDDEN;
-		default: break;
+		case 401:
+			return TWITTER_UNAUTHORIZED;
+		case 403:
+			return TWITTER_FORBIDDEN;
+		default:
+			break;
 	}
 
 	return TWITTER_OK;
 }
 
 TwitterClient::Response TwitterClient::get_home_timeline(Json::Value &res, const uint16_t count,
-	const uint32_t since_id)
+							 const uint32_t since_id)
 {
 	std::string request = TWITTER_API_URL + TWITTER_HOME_TIMELINE_1_1;
 
@@ -128,9 +133,12 @@ TwitterClient::Response TwitterClient::get_home_timeline(Json::Value &res, const
 	_get_json(request, res);
 
 	switch (get_http_code()) {
-		case 401: return TWITTER_UNAUTHORIZED;
-		case 403: return TWITTER_FORBIDDEN;
-		default: break;
+		case 401:
+			return TWITTER_UNAUTHORIZED;
+		case 403:
+			return TWITTER_FORBIDDEN;
+		default:
+			break;
 	}
 
 	return TWITTER_OK;

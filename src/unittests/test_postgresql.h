@@ -25,18 +25,20 @@
 
 #pragma once
 
-#include <cppunit/TestFixture.h>
 #include <cppunit/TestAssert.h>
 #include <cppunit/TestCaller.h>
+#include <cppunit/TestFixture.h>
 #include <cppunit/TestSuite.h>
-#include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
 
 #include <postgresqlclient.h>
 
-#define INIT_PG_CLIENT PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db password=un1Ttests");
+#define INIT_PG_CLIENT                                                                             \
+	PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db "                    \
+			    "password=un1Ttests");
 
-class WinterWindTest_PostgreSQL: public CppUnit::TestFixture
+class WinterWindTest_PostgreSQL : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_PostgreSQL);
 	CPPUNIT_TEST(pg_register_embedded_statements);

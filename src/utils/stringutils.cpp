@@ -23,12 +23,12 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <sstream>
 #include "utils/stringutils.h"
+#include <sstream>
 
-#define IF_WORD_SEPARATOR if (c == ' ' || c == '\'' || c == '\n' || c == '\t' || \
-	c == ';' || c == '\r' || c == '!' || c == '?' || c == ',' || c == '.' || \
-	c == '/' || c == ':')
+#define IF_WORD_SEPARATOR                                                                          \
+	if (c == ' ' || c == '\'' || c == '\n' || c == '\t' || c == ';' || c == '\r' ||            \
+	    c == '!' || c == '?' || c == ',' || c == '.' || c == '/' || c == ':')
 
 extern void str_split(const std::string &str, char delim, std::vector<std::string> &res)
 {
@@ -42,9 +42,8 @@ extern void str_split(const std::string &str, char delim, std::vector<std::strin
 
 extern void str_remove_substr(std::string &src, const std::string &pattern)
 {
-	for (std::string::size_type i = src.find(pattern);
-		i != std::string::npos;
-		i = src.find(pattern)) {
+	for (std::string::size_type i = src.find(pattern); i != std::string::npos;
+	     i = src.find(pattern)) {
 		src.erase(i, pattern.length());
 	}
 }
@@ -53,16 +52,15 @@ extern uint32_t count_words(const std::string &str)
 {
 	bool prev_was_word_separator = false;
 	uint32_t word_count = 1;
-	for (const auto &c: str) {
-		IF_WORD_SEPARATOR {
+	for (const auto &c : str) {
+		IF_WORD_SEPARATOR
+		{
 			if (!prev_was_word_separator) {
 				word_count++;
 			}
 			prev_was_word_separator = true;
 		}
-		else {
-			prev_was_word_separator = false;
-		}
+		else { prev_was_word_separator = false; }
 	}
 
 	return word_count;
@@ -72,15 +70,17 @@ extern void split_string_to_words(const std::string &str, std::vector<std::strin
 {
 	std::string buf = "";
 	bool prev_was_word_separator = false;
-	for (const auto &c: str) {
-		IF_WORD_SEPARATOR {
+	for (const auto &c : str) {
+		IF_WORD_SEPARATOR
+		{
 			if (!prev_was_word_separator) {
 				res.push_back(buf);
 				buf.clear();
 			}
 			prev_was_word_separator = true;
 		}
-		else {
+		else
+		{
 			buf += c;
 			prev_was_word_separator = false;
 		}

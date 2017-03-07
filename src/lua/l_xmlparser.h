@@ -29,9 +29,9 @@
 
 class XMLParser;
 
-class LuaRefXMLParser: protected LuaHelper
+class LuaRefXMLParser : protected LuaHelper
 {
 	LUAREF_OBJECT(XMLParser)
 private:
-	static int l_parse(lua_State * L);
+	static int l_parse(lua_State *L);
 };

@@ -61,6 +61,8 @@ build:clang:
   services:
     - elasticsearch:5.2
     - postgres:latest
+  dependencies:
+    - build:clang
   script:
     - cd build
     - ./src/unittests/winterwind_unittests
@@ -72,21 +74,26 @@ unittests:gcc6:
 
 unittests:clang:
   <<: *unittests_definition
-  dependencies:
-    - build:clang
 
 unittests:elasticsearch2:
   <<: *unittests_definition
   services:
-      - elasticsearch:2
-      - postgres:latest
-  dependencies:
-    - build:clang
+    - elasticsearch:2
+    - postgres:latest
 
 unittests:valgrind:
   <<: *unittests_definition
-  dependencies:
-    - build:clang
   script:
-      - cd build
-      - valgrind --leak-check=full --undef-value-errors=no --error-exitcode=9 ./src/unittests/winterwind_unittests
+    - cd build
+    - valgrind --leak-check=full --undef-value-errors=no --error-exitcode=9 ./src/unittests/winterwind_unittests
+
+unittests:callgrind:
+  <<: *unittests_definition
+  script:
+    - cd build
+    - valgrind --tool=callgrind ./src/unittests/winterwind_unittests
+  artifacts:
+    when: on_success
+    expire_in: 3 day
+    paths:
+      - build/callgrind.out.*

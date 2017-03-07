@@ -24,19 +24,19 @@
  */
 
 #include "oauthclient.h"
-#include <ctime>
-#include <algorithm>
-#include <sstream>
 #include "utils/base64.h"
 #include "utils/hmac.h"
+#include <algorithm>
+#include <ctime>
+#include <sstream>
 
 OAuthClient::OAuthClient(const std::string &consumer_key, const std::string &consumer_secret,
-	const std::string &access_token, const std::string &access_token_secret):
-	HTTPClient(),
-	m_consumer_key(consumer_key),
-	m_consumer_secret(consumer_secret),
-	m_access_token(access_token),
-	m_access_token_secret(access_token_secret)
+			 const std::string &access_token, const std::string &access_token_secret)
+    : HTTPClient(),
+      m_consumer_key(consumer_key),
+      m_consumer_secret(consumer_secret),
+      m_access_token(access_token),
+      m_access_token_secret(access_token_secret)
 {
 	m_rand_engine = std::mt19937((unsigned long) std::time(0));
 }
@@ -51,9 +51,8 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 	}
 
 	std::string buf = base64_encode(oauth_nonce);
-	buf.erase(std::remove_if(buf.begin(), buf.end(),
-		[] (char c) { return !std::isalnum(c); }),
-		buf.end());
+	buf.erase(std::remove_if(buf.begin(), buf.end(), [](char c) { return !std::isalnum(c); }),
+		  buf.end());
 	time_t t = std::time(0);
 
 	std::map<std::string, std::string> ordered_params = {};
@@ -66,14 +65,14 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 	ordered_params["oauth_version"] = "1.0";
 
 	// Append request params
-	for (const auto &p: m_uri_params) {
+	for (const auto &p : m_uri_params) {
 		ordered_params[p.first] = p.second;
 	}
 
 	// Generate parameter string
 	std::string parameter_string = "";
 	uint32_t p_count = 0, p_max = (uint32_t) ordered_params.size();
-	for (const auto &p: ordered_params) {
+	for (const auto &p : ordered_params) {
 		http_string_escape(p.first, buf);
 		parameter_string += buf + "=";
 		http_string_escape(p.second, buf);
@@ -101,7 +100,8 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 		signing_key += buf;
 
 		// Add sign key to parameters
-		ordered_params["oauth_signature"] = base64_encode(hmac_sha1(signing_key, signature));
+		ordered_params["oauth_signature"] =
+		    base64_encode(hmac_sha1(signing_key, signature));
 	}
 
 	// Generate OAuth header
@@ -112,7 +112,7 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 
 	p_count = 0;
 	p_max = 7;
-	for (const auto &p: ordered_params) {
+	for (const auto &p : ordered_params) {
 		// Only manipulate oauth header
 		if (p.first.substr(0, oauth_prefix.size()) != oauth_prefix) {
 			continue;

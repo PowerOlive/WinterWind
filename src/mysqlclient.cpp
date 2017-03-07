@@ -23,49 +23,46 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
-#include <cstring>
-#include <stdlib.h>
 #include "mysqlclient.h"
+#include <cstring>
+#include <iostream>
+#include <stdlib.h>
 
-#define MYSQL_STORE_RES(_res) \
-	MYSQL_RES *_res = mysql_store_result(m_conn); \
-	if (_res == NULL) { \
-		throw MySQLException("MySQL Exception: mysql_store_result failed " + \
-			std::string(mysql_error(m_conn))); \
+#define MYSQL_STORE_RES(_res)                                                                      \
+	MYSQL_RES *_res = mysql_store_result(m_conn);                                              \
+	if (_res == NULL) {                                                                        \
+		throw MySQLException("MySQL Exception: mysql_store_result failed " +               \
+				     std::string(mysql_error(m_conn)));                            \
 	}
 
-#define MYSQL_ROWLOOP(_res, _row) \
-	int num_fields = mysql_num_fields(_res); \
-	MYSQL_ROW _row; \
+#define MYSQL_ROWLOOP(_res, _row)                                                                  \
+	int num_fields = mysql_num_fields(_res);                                                   \
+	MYSQL_ROW _row;                                                                            \
 	while ((_row = mysql_fetch_row(_res)))
 
 #define MYSQLROW_TO_STRING(_row, i) _row[i] ? std::string(_row[i], strlen(_row[i])) : "NULL"
 
 MySQLClient::MySQLClient(const std::string &host, const std::string &user,
-	const std::string &password, uint16_t port, const std::string &db):
-	m_host(host), m_user(user), m_password(password), m_port(port), m_db(db)
+			 const std::string &password, uint16_t port, const std::string &db)
+    : m_host(host), m_user(user), m_password(password), m_port(port), m_db(db)
 {
 	m_conn = mysql_init(NULL);
 	if (!m_conn) {
 		throw MySQLException("MySQL Exception: unable to init client " +
-			std::string(mysql_error(m_conn)));
+				     std::string(mysql_error(m_conn)));
 	}
 
 	connect();
 }
 
-MySQLClient::~MySQLClient()
-{
-	disconnect();
-}
+MySQLClient::~MySQLClient() { disconnect(); }
 
 void MySQLClient::connect()
 {
 	if (mysql_real_connect(m_conn, m_host.c_str(), m_user.c_str(), m_password.c_str(),
-		(!m_db.empty() ? m_db.c_str() : NULL), m_port, NULL, 0) == NULL) {
+			       (!m_db.empty() ? m_db.c_str() : NULL), m_port, NULL, 0) == NULL) {
 		throw MySQLException("MySQL Exception: connection failed " +
-			std::string(mysql_error(m_conn)));
+				     std::string(mysql_error(m_conn)));
 	}
 }
 
@@ -80,7 +77,7 @@ void MySQLClient::query(const std::string &query)
 {
 	if (mysql_query(m_conn, query.c_str()) != 0) {
 		throw MySQLException("MySQL Exception: query failed " +
-			std::string(mysql_error(m_conn)));
+				     std::string(mysql_error(m_conn)));
 	}
 }
 
@@ -89,7 +86,8 @@ void MySQLClient::list_tables(std::vector<std::string> &result)
 	query("SHOW TABLES");
 
 	MYSQL_STORE_RES(mysql_res)
-	MYSQL_ROWLOOP(mysql_res, row) {
+	MYSQL_ROWLOOP(mysql_res, row)
+	{
 		for (int i = 0; i < num_fields; i++) {
 			result.push_back(row[i] ? row[i] : "NULL");
 		}
@@ -107,7 +105,8 @@ bool MySQLClient::get_table_definition(const std::string &table, std::string &re
 	query("SHOW CREATE TABLE " + table);
 
 	MYSQL_STORE_RES(mysql_res)
-	MYSQL_ROWLOOP(mysql_res, row) {
+	MYSQL_ROWLOOP(mysql_res, row)
+	{
 		for (int i = 0; i < num_fields; i++) {
 			res = (row[i] ? row[i] : "NULL");
 		}
@@ -127,38 +126,30 @@ bool MySQLClient::explain(const std::string &q, std::vector<MySQLExplainEntry> &
 
 	MYSQL_STORE_RES(mysql_res)
 	MYSQL_FIELD *field;
-	MYSQL_ROWLOOP(mysql_res, row) {
+	MYSQL_ROWLOOP(mysql_res, row)
+	{
 		MySQLExplainEntry entry;
 		for (int i = 0; i < num_fields; i++) {
 			field = mysql_fetch_field(mysql_res);
 			if (strcmp(field->name, "id") == 0) {
-				entry.id = (uint16_t) (row[i] ? atoi(row[i]) : 0);
-			}
-			else if (strcmp(field->name, "select_type") == 0) {
+				entry.id = (uint16_t)(row[i] ? atoi(row[i]) : 0);
+			} else if (strcmp(field->name, "select_type") == 0) {
 				entry.select_type = MYSQLROW_TO_STRING(row, i);
-			}
-			else if (strcmp(field->name, "table") == 0) {
+			} else if (strcmp(field->name, "table") == 0) {
 				entry.table = MYSQLROW_TO_STRING(row, i);
-			}
-			else if (strcmp(field->name, "type") == 0) {
+			} else if (strcmp(field->name, "type") == 0) {
 				entry.type = MYSQLROW_TO_STRING(row, i);
-			}
-			else if (strcmp(field->name, "possible_keys") == 0) {
+			} else if (strcmp(field->name, "possible_keys") == 0) {
 				entry.possible_keys = MYSQLROW_TO_STRING(row, i);
-			}
-			else if (strcmp(field->name, "key") == 0) {
+			} else if (strcmp(field->name, "key") == 0) {
 				entry.key = MYSQLROW_TO_STRING(row, i);
-			}
-			else if (strcmp(field->name, "key_len") == 0) {
-				entry.key_len = (uint32) (row[i] ? atoi(row[i]) : 0);
-			}
-			else if (strcmp(field->name, "ref") == 0) {
+			} else if (strcmp(field->name, "key_len") == 0) {
+				entry.key_len = (uint32)(row[i] ? atoi(row[i]) : 0);
+			} else if (strcmp(field->name, "ref") == 0) {
 				entry.ref = MYSQLROW_TO_STRING(row, i);
-			}
-			else if (strcmp(field->name, "rows") == 0) {
-				entry.rows = (uint64) (row[i] ? atoi(row[i]) : 0);
-			}
-			else if (strcmp(field->name, "Extra") == 0) {
+			} else if (strcmp(field->name, "rows") == 0) {
+				entry.rows = (uint64)(row[i] ? atoi(row[i]) : 0);
+			} else if (strcmp(field->name, "Extra") == 0) {
 				entry.extra = MYSQLROW_TO_STRING(row, i);
 			}
 		}

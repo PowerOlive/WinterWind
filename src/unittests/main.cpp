@@ -23,15 +23,15 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "test_misc.h"
 #include "test_elasticsearch.h"
 #include "test_gitlab.h"
 #include "test_http.h"
+#include "test_misc.h"
 #include "test_postgresql.h"
 #include "test_string.h"
 #include "test_twitter.h"
 
-int main(int argc, const char* argv[])
+int main(int argc, const char *argv[])
 {
 	if (!getenv("GITLAB_API_KEY")) {
 		std::cerr << argv[0] << ": Missing gitlab token" << std::endl;
@@ -80,5 +80,4 @@ int main(int argc, const char* argv[])
 	runner.addTest(WinterWindTest_Misc::suite());
 	std::cout << "Starting unittests...." << std::endl;
 	return runner.run() ? 0 : 1;
-
 }

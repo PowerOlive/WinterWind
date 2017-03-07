@@ -23,12 +23,12 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <iostream>
 #include "luaengine.h"
 #include "lua/l_httpclient.h"
 #include "lua/l_pgclient.h"
-#include "lua/l_xmlparser.h"
 #include "lua/l_string.h"
+#include "lua/l_xmlparser.h"
+#include <iostream>
 
 LuaEngine::LuaEngine()
 {
@@ -36,42 +36,24 @@ LuaEngine::LuaEngine()
 	luaL_openlibs(m_lua);
 }
 
-LuaEngine::~LuaEngine()
-{
-	lua_close(m_lua);
-}
+LuaEngine::~LuaEngine() { lua_close(m_lua); }
 
-void LuaEngine::newtable()
-{
-	lua_newtable(m_lua);
-}
+void LuaEngine::newtable() { lua_newtable(m_lua); }
 
-void LuaEngine::setglobal(const std::string &name)
-{
-	lua_setglobal(m_lua, name.c_str());
-}
+void LuaEngine::setglobal(const std::string &name) { lua_setglobal(m_lua, name.c_str()); }
 
-int LuaEngine::getglobal(const std::string &name)
-{
-	return lua_getglobal(m_lua, name.c_str());
-}
+int LuaEngine::getglobal(const std::string &name) { return lua_getglobal(m_lua, name.c_str()); }
 
-bool LuaEngine::isfunction(int index)
-{
-	return lua_isfunction(m_lua, index);
-}
+bool LuaEngine::isfunction(int index) { return lua_isfunction(m_lua, index); }
 
-void LuaEngine::pop(int index)
-{
-	lua_pop(m_lua, index);
-}
+void LuaEngine::pop(int index) { lua_pop(m_lua, index); }
 
 LuaReturnCode LuaEngine::load_script(const std::string &file)
 {
 	int ret = luaL_loadfile(m_lua, file.c_str());
 	if (ret != 0) {
 		std::cerr << "Failed to load and run script from " << file << ":" << std::endl
-			<< lua_tostring(m_lua, -1) << std::endl;
+			  << lua_tostring(m_lua, -1) << std::endl;
 		lua_pop(m_lua, 2);
 		return LUA_RC_LOADFILE_ERROR;
 	}
@@ -79,7 +61,7 @@ LuaReturnCode LuaEngine::load_script(const std::string &file)
 	ret = lua_pcall(m_lua, 0, 0, 0);
 	if (ret != 0) {
 		std::cerr << "Failed to load and run script from " << file << ":" << std::endl
-			<< lua_tostring(m_lua, -1) << std::endl;
+			  << lua_tostring(m_lua, -1) << std::endl;
 		lua_pop(m_lua, 2);
 		return LUA_RC_LOADFILE_CONTENT_ERROR;
 	}
@@ -106,7 +88,7 @@ LuaReturnCode LuaEngine::init_winterwind_bindings()
 	LuaString::register_functions(this, top);
 	LuaRefXMLParser::Register(m_lua);
 	REGISTER_LUA_FCT(create_xmlparser);
-	// HTTP
+// HTTP
 #ifdef ENABLE_HTTPCLIENT
 	LuaRefHTTPClient::Register(m_lua);
 	REGISTER_LUA_FCT(create_httpclient);
@@ -115,7 +97,7 @@ LuaReturnCode LuaEngine::init_winterwind_bindings()
 #endif
 #endif
 
-	// PostgreSQL
+// PostgreSQL
 #ifdef ENABLE_POSTGRESQL
 	LuaRefPostgreSQLClient::Register(m_lua);
 	REGISTER_LUA_FCT(create_postgresql_client);

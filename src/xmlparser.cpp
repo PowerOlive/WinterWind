@@ -24,24 +24,25 @@
  */
 
 #include "xmlparser.h"
+#include <algorithm>
+#include <cassert>
+#include <libxml/HTMLparser.h>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
-#include <libxml/HTMLparser.h>
 #include <libxml/xpathInternals.h>
-#include <cassert>
-#include <algorithm>
 
 bool XMLParser::parse(const std::string &document, const std::string &xpath, int32_t pflag,
-		std::vector<std::string> &res)
+		      std::vector<std::string> &res)
 {
-	xmlDoc* doc = nullptr;
+	xmlDoc *doc = nullptr;
 	switch (m_mode) {
 		case Mode::MODE_XML:
 			doc = xmlReadMemory(document.c_str(), (int) document.size(), NULL, NULL, 0);
 			break;
 		case Mode::MODE_HTML:
 			doc = htmlReadMemory(document.c_str(), (int) document.size(), NULL, NULL,
-				HTML_PARSE_RECOVER | HTML_PARSE_NOERROR | HTML_PARSE_NOWARNING);
+					     HTML_PARSE_RECOVER | HTML_PARSE_NOERROR |
+						 HTML_PARSE_NOWARNING);
 			break;
 		default:
 			assert(false);
@@ -60,14 +61,15 @@ bool XMLParser::parse(const std::string &document, const std::string &xpath, int
 	}
 
 	if (m_mode == Mode::MODE_XML) {
-		for (const auto &ns: m_custom_xml_ns) {
-			xmlXPathRegisterNs(xpathCtx, BAD_CAST ns.prefix.c_str(), BAD_CAST ns.uri.c_str());
+		for (const auto &ns : m_custom_xml_ns) {
+			xmlXPathRegisterNs(xpathCtx, BAD_CAST ns.prefix.c_str(),
+					   BAD_CAST ns.uri.c_str());
 		}
 	}
 
 	{
-		xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(BAD_CAST xpath.c_str(),
-			xpathCtx);
+		xmlXPathObjectPtr xpathObj =
+		    xmlXPathEvalExpression(BAD_CAST xpath.c_str(), xpathCtx);
 		xmlXPathFreeContext(xpathCtx);
 		if (!xpathObj) {
 			parse_res = false;
@@ -78,22 +80,22 @@ bool XMLParser::parse(const std::string &document, const std::string &xpath, int
 		if (!xmlXPathNodeSetIsEmpty(nodeset)) {
 			for (uint32_t i = 0; i < nodeset->nodeNr; ++i) {
 				xmlNodePtr node = nodeset->nodeTab[i];
-				xmlChar* nres = nullptr;
+				xmlChar *nres = nullptr;
 
 				if (pflag & FLAG_XML_SIMPLE) {
 					nres = xmlNodeListGetString(doc, node->xmlChildrenNode, 0);
-				}
-				else if (pflag & FLAG_XML_WITHOUT_TAGS) {
+				} else if (pflag & FLAG_XML_WITHOUT_TAGS) {
 					nres = xmlXPathCastNodeToString(node);
-				}
-				else {
+				} else {
 					// This should not happen
 					assert(false);
 				}
 
-				std::string str_nres((const char*) nres);
+				std::string str_nres((const char *) nres);
 				if (pflag & FLAG_XML_STRIP_NEWLINE) {
-					str_nres.erase(std::remove(str_nres.begin(), str_nres.end(), '\n'), str_nres.end());
+					str_nres.erase(
+					    std::remove(str_nres.begin(), str_nres.end(), '\n'),
+					    str_nres.end());
 				}
 
 				res.push_back(str_nres);
@@ -104,7 +106,7 @@ bool XMLParser::parse(const std::string &document, const std::string &xpath, int
 		xmlXPathFreeObject(xpathObj);
 	}
 
-	final_cleanup:
+final_cleanup:
 	xmlCleanupParser();
 	xmlFreeDoc(doc);
 	return parse_res;

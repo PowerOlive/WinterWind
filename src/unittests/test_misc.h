@@ -25,24 +25,25 @@
 
 #pragma once
 
-#include <cppunit/TestFixture.h>
 #include <cppunit/TestAssert.h>
 #include <cppunit/TestCaller.h>
+#include <cppunit/TestFixture.h>
 #include <cppunit/TestSuite.h>
-#include <cppunit/ui/text/TestRunner.h>
 #include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
 
-#include <openweathermapclient.h>
 #include <luaengine.h>
+#include <openweathermapclient.h>
 
 #include "unittests_config.h"
 
-class WinterWindTest_Misc: public CppUnit::TestFixture
+class WinterWindTest_Misc : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_Misc);
 	CPPUNIT_TEST(weather_to_json);
 	CPPUNIT_TEST(lua_winterwind_engine);
 	CPPUNIT_TEST_SUITE_END();
+
 public:
 	void setUp() {}
 	void tearDown() {}
@@ -51,7 +52,7 @@ protected:
 	void lua_winterwind_engine()
 	{
 		LuaEngine L;
-		LuaReturnCode  rc = L.init_winterwind_bindings();
+		LuaReturnCode rc = L.init_winterwind_bindings();
 		CPPUNIT_ASSERT(rc == LUA_RC_OK);
 		rc = L.load_script(UNITTESTS_LUA_FILE);
 		CPPUNIT_ASSERT(rc == LUA_RC_OK);
