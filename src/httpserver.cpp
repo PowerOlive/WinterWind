@@ -141,7 +141,7 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	}
 	else if (strcmp(content_type, "application/x-www-form-urlencoded") == 0) {
 		q = HTTPQueryPtr(new HTTPFormQuery());
-		if (!parse_post_data(upload_data, q)) {
+		if (!parse_post_data(upload_data, dynamic_cast<HTTPFormQuery *>(q.get()))) {
 			return false;
 		}
 	}
@@ -206,10 +206,8 @@ int HTTPServer::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key,
 	return MHD_YES; // continue iteration
 }
 
-bool HTTPServer::parse_post_data(const std::string &data, HTTPQueryPtr q)
+bool HTTPServer::parse_post_data(const std::string &data, HTTPFormQuery *qf)
 {
-	HTTPFormQuery *qf = dynamic_cast<HTTPFormQuery *>(q.get());
-	assert(qf);
 	std::vector<std::string> first_split;
 	str_split(data, '&', first_split);
 
