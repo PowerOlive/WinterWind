@@ -96,7 +96,7 @@ public:
 	void delete_doc(const std::string &index, const std::string &type,
 		const std::string &doc_id);
 
-	void add_bulkaction_to_queue(ElasticsearchBulkActionPtr action)
+	void add_bulkaction_to_queue(const ElasticsearchBulkActionPtr &action)
 	{
 		m_bulk_queue.push(action);
 	}

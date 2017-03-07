@@ -104,10 +104,10 @@ class ConsoleHandler
 public:
 	ConsoleHandler() {}
 	virtual ~ConsoleHandler() {}
-	virtual void enqueue(CommandToProcessPtr cmd) = 0;
+	virtual void enqueue(const CommandToProcessPtr &cmd) = 0;
 	virtual void process_queue() = 0;
 protected:
-	virtual bool handle_command(const CommandToProcessPtr cmd, std::stringstream &ss) = 0;
+	virtual bool handle_command(const CommandToProcessPtr &cmd, std::stringstream &ss) = 0;
 	virtual bool handle_command_help(const ChatCommandHandlerArg &args, std::stringstream &ss) = 0;
 };
 
