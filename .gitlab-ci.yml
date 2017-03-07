@@ -17,6 +17,7 @@ stages:
   - cppcheck
   - build
   - unittests
+  - deploy
 
 cppcheck:
   stage: cppcheck
@@ -91,10 +92,12 @@ unittests:valgrind:
       - cd build
       - valgrind --leak-check=full --undef-value-errors=no --error-exitcode=9 ./src/unittests/winterwind_unittests
 
-unittests:callgrind:
+deploy:callgrind:
   <<: *unittests_definition
+  stage: deploy
   dependencies:
-    - build:clang
+    - unittests:valgrind
+    - unittests:clang
   script:
       - cd build
       - valgrind --tool=callgrind ./src/unittests/winterwind_unittests
@@ -102,4 +105,4 @@ unittests:callgrind:
     when: on_success
     expire_in: 3 day
     paths:
-      - callgrind.out.*
+      - .
