@@ -90,3 +90,16 @@ unittests:valgrind:
   script:
       - cd build
       - valgrind --leak-check=full --undef-value-errors=no --error-exitcode=9 ./src/unittests/winterwind_unittests
+
+unittests:callgrind:
+  <<: *unittests_definition
+  dependencies:
+    - build:clang
+  script:
+      - cd build
+      - valgrind --tool=callgrind ./src/unittests/winterwind_unittests
+  artifacts:
+    when: on_success
+    expire_in: 3 day
+    paths:
+      - callgrind.out.*
