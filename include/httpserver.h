@@ -105,7 +105,7 @@ private:
 		const char *value);
 	static int mhd_iter_getargs(void *cls, MHD_ValueKind kind, const char *key,
 		const char *value);
-	bool parse_post_data(const std::string &data, HTTPQueryPtr q);
+	bool parse_post_data(const std::string &data, HTTPFormQuery *qf);
 
 	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url,
 		const std::string &upload_data, HTTPRequestSession *session);
