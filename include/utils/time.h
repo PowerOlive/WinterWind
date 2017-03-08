@@ -89,6 +89,10 @@ static void time_now_string(std::string &res) { time_to_string(time(NULL), res);
 
 static bool str_to_time(std::string str, std::tm &t)
 {
+	if (str.length() < 19) {
+		return false;
+	}
+
 	std::replace(str.begin() + 9, str.end() - 8, 'T', ' ');
 	std::replace(str.end() - 2, str.end(), 'Z', '\0');
 	std::istringstream ss(str);
@@ -100,6 +104,7 @@ static bool str_to_timestamp(const std::string &str, std::time_t &t)
 {
 	std::tm _tm = {};
 	bool r = str_to_time(str, _tm);
+	if (!r) { return r; }
 	t = std::move(std::mktime(&_tm));
 	return r;
 }

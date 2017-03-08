@@ -29,6 +29,7 @@
 #include "test_misc.h"
 #include "test_postgresql.h"
 #include "test_string.h"
+#include "test_time.h"
 #include "test_twitter.h"
 
 int main(int argc, const char *argv[])
@@ -70,6 +71,7 @@ int main(int argc, const char *argv[])
 	ES_HOST = std::string(getenv("ES_HOST"));
 
 	CppUnit::TextUi::TestRunner runner;
+	runner.addTest(WinterWindTest_Time::suite());
 	runner.addTest(WinterWindTest_Elasticsearch::suite());
 	runner.addTest(WinterWindTest_Gitlab::suite());
 	runner.addTest(WinterWindTest_HTTP::suite());
