@@ -616,9 +616,7 @@ const GitlabRetCod GitlabAPIClient::get_projects(const std::string &name, Json::
 	}
 
 	if (!name.empty()) {
-		std::string encoded_proj_name = "";
-		http_string_escape(name, encoded_proj_name);
-		endpoint_suffix += "?search=" + encoded_proj_name;
+		add_uri_param("search", name);
 	}
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
