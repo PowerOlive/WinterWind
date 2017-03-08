@@ -33,6 +33,8 @@
 #include <cppunit/ui/text/TestRunner.h>
 
 #include <gitlabapiclient.h>
+#include <iomanip>
+#include "utils/time.h"
 
 static std::string GITLAB_TOKEN = "";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
@@ -66,7 +68,33 @@ class WinterWindTest_Gitlab : public CppUnit::TestFixture
 public:
 	void setUp() { m_gitlab_client = new GitlabAPIClient("https://gitlab.com", GITLAB_TOKEN); }
 
-	void tearDown() { delete m_gitlab_client; }
+	void tearDown()
+	{
+		// Cleanup very old projects
+		Json::Value projects;
+		if (m_gitlab_client->get_projects("", projects, GITLAB_PROJECT_SS_OWNED) == GITLAB_RC_OK) {
+			for (const auto &p: projects) {
+				// Creation date is mandatory
+				if (!p.isMember("created_at") || !p["created_at"].isString()) {
+					continue;
+				}
+
+				std::time_t t;
+				if (!str_to_timestamp(p["created_at"].asString(), t)) {
+					std::cerr << "Failed to parse date: '" << p["create_at"].asString() << "'" << std::endl;
+					continue;
+				}
+
+				// Remove projects older than 24 hours
+				if (t < std::time(0) - 86400) {
+					std::cout << "Project " << p["name"].asString() << " will be deleted" << std::endl;
+					m_gitlab_client->delete_project(p["name"].asString());
+				}
+
+			}
+		}
+		delete m_gitlab_client;
+	}
 
 protected:
 	void create_default_groups()

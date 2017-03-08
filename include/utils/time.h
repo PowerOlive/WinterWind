@@ -36,6 +36,7 @@
 #include <cstring>
 #include <sstream>
 #include <string>
+#include <algorithm>
 
 #define NOW std::chrono::system_clock::now()
 #define START_CHRONO const std::chrono::time_point<std::chrono::system_clock> start_time = NOW;
@@ -86,7 +87,25 @@ static void time_to_string(const time_t &t, std::string &res, const bool gmt = f
 
 static void time_now_string(std::string &res) { time_to_string(time(NULL), res); }
 
-static int get_hour_now() {
+static bool str_to_time(std::string str, std::tm &t)
+{
+	std::replace(str.begin() + 9, str.end() - 8, 'T', ' ');
+	std::replace(str.end() - 2, str.end(), 'Z', '\0');
+	std::istringstream ss(str);
+	ss >> std::get_time(&t, "%Y-%m-%d %H:%M:%S");
+	return !ss.fail();
+}
+
+static bool str_to_timestamp(const std::string &str, std::time_t &t)
+{
+	std::tm _tm = {};
+	bool r = str_to_time(str, _tm);
+	t = std::move(std::mktime(&_tm));
+	return r;
+}
+
+static int get_hour_now()
+{
 	time_t now = time(NULL);
 	std::tm *ptm = std::localtime(&now);
 	return ptm->tm_hour;
