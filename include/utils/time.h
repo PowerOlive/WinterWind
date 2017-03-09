@@ -51,12 +51,12 @@ std::string readable_chrono_duration(std::chrono::time_point<std::chrono::system
 
 void timestamp_str_hour(const time_t t, std::string &res);
 void time_to_string(const time_t &t, std::string &res, const bool gmt = false);
-void time_now_string(std::string &res) { time_to_string(time(NULL), res); }
+static void time_now_string(std::string &res) { time_to_string(time(NULL), res); }
 
 bool str_to_time(std::string str, std::tm &t);
 bool str_to_timestamp(const std::string &str, std::time_t &t);
 
-int get_hour_now()
+static int get_hour_now()
 {
 	time_t now = time(NULL);
 	std::tm *ptm = std::localtime(&now);
