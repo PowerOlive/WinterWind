@@ -46,17 +46,17 @@ inline void chrono_duration(const std::chrono::time_point<std::chrono::system_cl
 		T = TV;                                                                                                \
 	}
 
-extern std::string readable_chrono_duration(std::chrono::time_point<std::chrono::system_clock> start_time,
+std::string readable_chrono_duration(std::chrono::time_point<std::chrono::system_clock> start_time,
 					    std::chrono::time_point<std::chrono::system_clock> end_time);
 
-extern void timestamp_str_hour(const time_t t, std::string &res);
-extern void time_to_string(const time_t &t, std::string &res, const bool gmt = false);
-extern void time_now_string(std::string &res) { time_to_string(time(NULL), res); }
+void timestamp_str_hour(const time_t t, std::string &res);
+void time_to_string(const time_t &t, std::string &res, const bool gmt = false);
+void time_now_string(std::string &res) { time_to_string(time(NULL), res); }
 
-extern bool str_to_time(std::string str, std::tm &t);
-extern bool str_to_timestamp(const std::string &str, std::time_t &t);
+bool str_to_time(std::string str, std::tm &t);
+bool str_to_timestamp(const std::string &str, std::time_t &t);
 
-extern int get_hour_now()
+int get_hour_now()
 {
 	time_t now = time(NULL);
 	std::tm *ptm = std::localtime(&now);

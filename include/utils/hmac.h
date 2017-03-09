@@ -27,4 +27,4 @@
 
 #include <string>
 
-extern std::string hmac_sha1(const std::string &key, const std::string &data);
+std::string hmac_sha1(const std::string &key, const std::string &data);

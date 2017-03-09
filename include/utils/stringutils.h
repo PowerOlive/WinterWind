@@ -39,8 +39,8 @@ template <class T, class A> T join(const A &begin, const A &end, const T &t) {
 	return result;
 }
 
-extern void str_split(const std::string &str, char delim, std::vector<std::string> &res);
-extern void str_remove_substr(std::string &src, const std::string &pattern);
+void str_split(const std::string &str, char delim, std::vector<std::string> &res);
+void str_remove_substr(std::string &src, const std::string &pattern);
 
-extern uint32_t count_words(const std::string &str);
-extern void split_string_to_words(const std::string &str, std::vector<std::string> &res);
+uint32_t count_words(const std::string &str);
+void split_string_to_words(const std::string &str, std::vector<std::string> &res);

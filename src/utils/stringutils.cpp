@@ -30,7 +30,7 @@
 	if (c == ' ' || c == '\'' || c == '\n' || c == '\t' || c == ';' || c == '\r' ||            \
 	    c == '!' || c == '?' || c == ',' || c == '.' || c == '/' || c == ':')
 
-extern void str_split(const std::string &str, char delim, std::vector<std::string> &res)
+void str_split(const std::string &str, char delim, std::vector<std::string> &res)
 {
 	std::stringstream ss;
 	ss.str(str);
@@ -40,7 +40,7 @@ extern void str_split(const std::string &str, char delim, std::vector<std::strin
 	}
 }
 
-extern void str_remove_substr(std::string &src, const std::string &pattern)
+void str_remove_substr(std::string &src, const std::string &pattern)
 {
 	for (std::string::size_type i = src.find(pattern); i != std::string::npos;
 	     i = src.find(pattern)) {
@@ -48,7 +48,7 @@ extern void str_remove_substr(std::string &src, const std::string &pattern)
 	}
 }
 
-extern uint32_t count_words(const std::string &str)
+uint32_t count_words(const std::string &str)
 {
 	bool prev_was_word_separator = false;
 	uint32_t word_count = 1;
@@ -66,7 +66,7 @@ extern uint32_t count_words(const std::string &str)
 	return word_count;
 }
 
-extern void split_string_to_words(const std::string &str, std::vector<std::string> &res)
+void split_string_to_words(const std::string &str, std::vector<std::string> &res)
 {
 	std::string buf = "";
 	bool prev_was_word_separator = false;
