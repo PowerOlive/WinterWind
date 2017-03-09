@@ -44,9 +44,11 @@ option(ENABLE_UNITTESTS "Enable library unittests" FALSE)
 
 set(SRC_FILES
 	utils/base64.cpp
+	utils/hmac.cpp
 	utils/semaphore.cpp
 	utils/stringutils.cpp
 	utils/threads.cpp
+	utils/time.cpp
 	xmlparser.cpp)
 
 set(HEADER_FILES

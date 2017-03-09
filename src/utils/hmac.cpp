@@ -23,19 +23,19 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "utils/hmac.h"
+#include <openssl/hmac.h>
 
-#include <exception>
-#include <string>
-
-class BaseException : public std::exception
+std::string hmac_sha1(const std::string &key, const std::string &data)
 {
-public:
-	BaseException(const std::string &what) throw() { m_what = what; }
+	unsigned char *digest;
 
-	virtual ~BaseException() throw() {}
-	virtual const char *what() const throw() { return m_what.c_str(); }
+	digest = HMAC(EVP_sha1(), key.c_str(), key.length(), (unsigned char *)data.c_str(), data.length(), NULL, NULL);
 
-private:
-	std::string m_what = "";
-};
+	std::string res = "";
+	for (int i = 0; i < 20; i++) {
+		res += digest[i];
+	}
+
+	return res;
+}
