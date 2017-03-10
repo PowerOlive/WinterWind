@@ -53,13 +53,11 @@ protected:
 	{
 		std::time_t t;
 		bool res = str_to_timestamp("2017-01-24 05:00:47", t);
-		std::cout << t << std::endl;
 		CPPUNIT_ASSERT(res);
 		CPPUNIT_ASSERT(t == 1485230447);
 
 		res = str_to_timestamp("2017-01-24T05:00:49Z", t);
 		CPPUNIT_ASSERT(res);
-		std::cout << t << std::endl;
 		CPPUNIT_ASSERT(t == 1485230449);
 
 		res = str_to_timestamp("1-1-1 00:00:00", t);

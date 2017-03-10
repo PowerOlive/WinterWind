@@ -34,6 +34,7 @@
 
 #include <utils/base64.h>
 #include <utils/stringutils.h>
+#include <utils/hmac.h>
 
 #include "unittests_config.h"
 
@@ -45,6 +46,7 @@ class WinterWindTest_String : public CppUnit::TestFixture
 	CPPUNIT_TEST(base64_encode_test);
 	CPPUNIT_TEST(base64_encode_test2);
 	CPPUNIT_TEST(base64_decode_test);
+	CPPUNIT_TEST(hmac_sha1_test);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -87,5 +89,11 @@ protected:
 		std::string src = "unittest_b64encode";
 		std::string res = base64_encode(src);
 		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
+	}
+
+	void hmac_sha1_test()
+	{
+		std::string res = hmac_sha1("unittest_key", "hashthatthing");
+		CPPUNIT_ASSERT(base64_encode(res) == "rfsumIkQ/lUjuI68D1t0eJe/PgE=");
 	}
 };

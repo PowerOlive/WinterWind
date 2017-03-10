@@ -26,6 +26,7 @@
 #include "l_string.h"
 #include <luaengine.h>
 #include <utils/base64.h>
+#include <utils/hmac.h>
 
 int LuaString::l_base64_decode(lua_State *L)
 {
@@ -41,8 +42,16 @@ int LuaString::l_base64_encode(lua_State *L)
 	return 1;
 }
 
+int LuaString::l_hmac_sha1(lua_State *L)
+{
+	std::string key = read<std::string>(L, 1);
+	std::string to_hash = read<std::string>(L, 2);
+	write<std::string>(L, hmac_sha1(key, to_hash));
+}
+
 void LuaString::register_functions(LuaEngine *engine, int top)
 {
 	engine->REGISTER_LUA_FCT(base64_encode);
 	engine->REGISTER_LUA_FCT(base64_decode);
+	engine->REGISTER_LUA_FCT(hmac_sha1);
 }
