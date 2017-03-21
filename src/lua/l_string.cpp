@@ -27,6 +27,8 @@
 #include <luaengine.h>
 #include <utils/base64.h>
 #include <utils/hmac.h>
+#include <json/json.h>
+#include <sstream>
 
 int LuaString::l_base64_decode(lua_State *L)
 {
@@ -49,9 +51,66 @@ int LuaString::l_hmac_sha1(lua_State *L)
 	write<std::string>(L, hmac_sha1(key, to_hash));
 }
 
+int LuaString::l_read_json(lua_State *L)
+{
+	const char *jsonstr = luaL_checkstring(L, 1);
+
+	// Use passed nullvalue or default to nil
+	int nullindex = 2;
+	if (lua_isnone(L, nullindex)) {
+		lua_pushnil(L);
+		nullindex = lua_gettop(L);
+	}
+
+	Json::Value root;
+	Json::Reader reader;
+	std::istringstream stream(jsonstr);
+
+	if (!reader.parse(stream, root)) {
+		lua_pushnil(L);
+		return 1;
+	}
+
+	if (!write<Json::Value>(L, root)) {
+		lua_pushnil(L);
+	}
+	return 1;
+
+}
+
+int LuaString::l_write_json(lua_State *L)
+{
+	bool styled = false;
+	if (!lua_isnone(L, 2)) {
+		styled = read<bool>(L, 2);
+		lua_pop(L, 1);
+	}
+
+	Json::Value root;
+	if (!read<Json::Value>(L, 1, root)) {
+		lua_pushnil(L);
+		lua_pushstring(L, "failed to parse json");
+		return 2;
+	}
+
+	std::string out;
+	if (styled) {
+		Json::StyledWriter writer;
+		out = writer.write(root);
+	} else {
+		Json::FastWriter writer;
+		out = writer.write(root);
+	}
+	write<std::string>(L, out);
+	return 1;
+
+}
+
 void LuaString::register_functions(LuaEngine *engine, int top)
 {
 	engine->REGISTER_LUA_FCT(base64_encode);
 	engine->REGISTER_LUA_FCT(base64_decode);
 	engine->REGISTER_LUA_FCT(hmac_sha1);
+	engine->REGISTER_LUA_FCT(read_json);
+	engine->REGISTER_LUA_FCT(write_json);
 }

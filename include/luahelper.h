@@ -46,5 +46,6 @@ class LuaHelper
 {
 protected:
 	template <typename T> static T read(lua_State *L, int index);
-	template <typename T> static void write(lua_State *L, const T &what);
+	template <typename T> static bool read(lua_State *L, int index, T &res);
+	template <typename T> static bool write(lua_State *L, const T &what);
 };

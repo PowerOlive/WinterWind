@@ -1,5 +1,5 @@
 function test_strings()
-	local score = 2
+	local score = 4
 	local b64enc = core.base64_encode("lua_b64")
 	if b64enc ~= "bHVhX2I2NA==" then
 		print("test_strings: base64_encode test failed")
@@ -10,7 +10,22 @@ function test_strings()
 		print("test_strings: base64_decode test failed")
 		score = score - 1
 	end
-	return 2,score
+
+	local json_test = "{\"testkey\":\"value\"}"
+	local json_res = core.read_json(json_test)
+	if json_res == nil or json_res.testkey ~= "value" then
+		print("test_strings: read_json test failed")
+		score = score - 1
+	end
+
+	local json_write_var={}
+	json_write_var["testkey2"] = "value2"
+	json_res = core.write_json(json_write_var)
+	if json_res ~= '{"testkey2":"value2"}\n' then
+		print("test_strings: write_json test failed")
+		score = score - 1
+	end
+	return 4,score
 end
 
 function test_ratp_client()
