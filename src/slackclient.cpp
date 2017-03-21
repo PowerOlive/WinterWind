@@ -28,12 +28,6 @@
 SlackClient::SlackClient(const std::string &api_token) : Thread(), m_api_token(api_token)
 {
 	init_asio();
-
-	set_tls_init_handler([this](websocketpp::connection_hdl) {
-		SSL_library_init();
-		return websocketpp::lib::make_shared<asio::ssl::context>(
-		    asio::ssl::context::tlsv12_client);
-	});
 }
 
 SlackClient::~SlackClient() {}
@@ -106,6 +100,12 @@ void *SlackClient::run()
 		}
 
 		try {
+			set_tls_init_handler([this](websocketpp::connection_hdl) {
+				SSL_library_init();
+				return websocketpp::lib::make_shared<asio::ssl::context>(
+						asio::ssl::context::tlsv12_client);
+			});
+
 			set_access_channels(websocketpp::log::alevel::connect |
 					    websocketpp::log::alevel::disconnect |
 					    websocketpp::log::alevel::fail);
