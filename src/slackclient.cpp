@@ -76,17 +76,24 @@ void *SlackClient::run()
 	Thread::SetThreadName("SlackClient");
 	ThreadStarted();
 
+	uint32_t failure_number = 0;
+
 	while (!stopRequested()) {
 		Json::Value res;
 		if (!rtm_start(res)) {
-			std::cerr << "Failed to start RTM with slack." << std::endl;
-			return nullptr;
+			failure_number++;
+			std::cerr << "Failed to start RTM with slack, retrying in "
+					<< (m_retry_interval * failure_number) << "sec..." << std::endl;
+			std::this_thread::sleep_for(std::chrono::seconds(m_retry_interval * failure_number));
+			continue;
 		}
 
 		if (!res.isMember("url")) {
-			std::cerr << "WSS URL not present in slack response. Not connecting."
-				  << std::endl;
-			return nullptr;
+			failure_number++;
+			std::cerr << "WSS URL not present in slack response, retrying in " << (m_retry_interval * failure_number)
+					<< "sec..." << std::endl;
+			std::this_thread::sleep_for(std::chrono::seconds(m_retry_interval * failure_number));
+			continue;
 		}
 
 		if (res.isMember("groups")) {
@@ -151,15 +158,17 @@ void *SlackClient::run()
 			}
 
 			connect(con);
+			failure_number = 0;
 			ws_tls_client::run();
 		} catch (websocketpp::exception const &e) {
 			std::cerr << "ERROR handler exception" << std::endl
 				  << e.what() << std::endl;
 		}
 
-		std::cerr << "SlackClient failure, retrying in " << m_retry_interval << "sec..."
+		failure_number++;
+		std::cerr << "SlackClient failure, retrying in " << (m_retry_interval * failure_number) << "sec..."
 			  << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(m_retry_interval));
+		std::this_thread::sleep_for(std::chrono::seconds(m_retry_interval * failure_number));
 	}
 
 	return nullptr;
