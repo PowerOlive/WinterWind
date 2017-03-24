@@ -86,7 +86,7 @@ public:
 	void get_html_tag_value(const std::string &url, const std::string &xpath, std::vector<std::string> &res,
 				int32_t pflag = XMLParser::Flag::FLAG_XML_SIMPLE);
 
-	bool _get_json(const std::string &url, Json::Value &res, const HTTPHeadersMap &headers = {});
+	bool _get_json(const std::string &url, Json::Value &res, int32_t flag = HTTPClient::REQ_SIMPLE);
 
 	void add_http_header(const std::string &header, const std::string &value) { m_http_headers[header] = value; }
 

@@ -222,15 +222,12 @@ void HTTPClient::get_html_tag_value(const std::string &url, const std::string &x
 	parser.parse(page_res, xpath, pflag, res);
 }
 
-bool HTTPClient::_get_json(const std::string &url, Json::Value &res, const HTTPHeadersMap &headers)
+bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t flag)
 {
 	std::string res_str = "";
 	add_http_header("Content-Type", "application/json");
-	for (const auto &header : headers) {
-		add_http_header(header.first, header.second);
-	}
 
-	_get(url, res_str);
+	_get(url, res_str, flag);
 
 	if (!json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << std::endl;
