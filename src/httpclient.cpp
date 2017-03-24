@@ -222,15 +222,21 @@ void HTTPClient::get_html_tag_value(const std::string &url, const std::string &x
 	parser.parse(page_res, xpath, pflag, res);
 }
 
+void HTTPClient::prepare_json_query()
+{
+	add_http_header("Content-Type", "application/json");
+}
+
 bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t flag)
 {
 	std::string res_str = "";
-	add_http_header("Content-Type", "application/json");
+	prepare_json_query();
 
 	_get(url, res_str, flag);
 
 	if (!json_reader()->parse(res_str, res)) {
-		std::cerr << "Failed to parse query for " << url << std::endl;
+		std::cerr << "Failed to parse query for " << url << std::endl
+				<< "Reponse was: " << std::endl << res_str << std::endl;
 		return false;
 	}
 
@@ -240,7 +246,7 @@ bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t fla
 bool HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Value &res)
 {
 	std::string res_str = "";
-	add_http_header("Content-Type", "application/json");
+	prepare_json_query();
 	_post(url, json_writer()->write(data), res_str);
 
 	if (m_http_code == 400) {

@@ -71,6 +71,9 @@ public:
 #if ENABLE_RATPCLIENT
 	static int l_get_ratp_schedules(lua_State *L);
 #endif
+#if ENABLE_JIRACLIENT
+	static int l_create_jiraclient(lua_State *L);
+#endif
 #endif
 #if ENABLE_POSTGRESQL
 	static int l_create_postgresql_client(lua_State *L);

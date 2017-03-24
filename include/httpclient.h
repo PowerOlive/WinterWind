@@ -104,6 +104,8 @@ protected:
 	void request(std::string url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE,
 		     HTTPMethod method = HTTP_METHOD_GET, std::string post_data = "");
 
+	void prepare_json_query();
+
 	std::string m_username = "";
 	std::string m_password = "";
 	std::unordered_map<std::string, std::string> m_http_headers = {};

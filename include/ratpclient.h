@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include <httpclient.h>
+#include "httpclient.h"
 
 struct RATPSchedule
 {
@@ -54,7 +54,7 @@ public:
 		RATP_LINE_MAX,
 	};
 
-	RATPClient() : HTTPClient(){};
+	RATPClient() : HTTPClient() {};
 	~RATPClient(){};
 
 	const RATPScheduleList &get_next_trains(const RATPClient::Line line, const std::string &stop,

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
+ * Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -23,11 +23,28 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "jiraclient.h"
 
-#cmakedefine READLINE @READLINE@
-#cmakedefine UNITTESTS @UNITTESTS@
-#cmakedefine ENABLE_RATPCLIENT @ENABLE_RATPCLIENT@
-#cmakedefine ENABLE_JIRACLIENT @ENABLE_JIRACLIENT@
-#cmakedefine ENABLE_HTTPCLIENT @ENABLE_HTTPCLIENT@
-#cmakedefine ENABLE_POSTGRESQL @ENABLE_POSTGRESQL@
+#define JIRA_API_V1_SESSION "/rest/auth/1/session"
+#define JIRA_API_V2_ISSUE "/rest/api/2/issue/"
+
+JiraClient::JiraClient(const std::string &instance_url, const std::string &user, const std::string &password):
+		HTTPClient(), m_instance_url(instance_url)
+{
+	m_username = user;
+	m_password = password;
+}
+
+bool JiraClient::test_connection()
+{
+	Json::Value res;
+	if (!_get_json(m_instance_url + JIRA_API_V1_SESSION, res, ReqFlag::REQ_AUTH)) {
+		return false;
+	}
+	return res.isMember("name") && res.isMember("self") && res.isMember("loginInfo");
+}
+
+bool JiraClient::get_issue(const std::string &issue_id, Json::Value &result)
+{
+	return _get_json(m_instance_url + JIRA_API_V2_ISSUE + issue_id, result, ReqFlag::REQ_AUTH);
+}
