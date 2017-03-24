@@ -35,6 +35,11 @@ public:
 
 	bool test_connection();
 	bool get_issue(const std::string &issue_id, Json::Value &result);
+	bool create_issue(const std::string &project_key, const std::string &issue_type, const std::string &summary,
+					  const std::string &description, Json::Value &res);
+	bool create_issue(const uint32_t project_id, const uint32_t issue_type_id, const std::string &summary,
+					  const std::string &description, Json::Value &res);
+	bool list_projects(Json::Value &res);
 private:
 	std::string m_instance_url = "";
 };

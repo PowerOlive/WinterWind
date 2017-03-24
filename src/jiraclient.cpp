@@ -23,10 +23,12 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include <iostream>
 #include "jiraclient.h"
 
 #define JIRA_API_V1_SESSION "/rest/auth/1/session"
 #define JIRA_API_V2_ISSUE "/rest/api/2/issue/"
+#define JIRA_API_V2_PROJECT "/rest/api/2/project"
 
 JiraClient::JiraClient(const std::string &instance_url, const std::string &user, const std::string &password):
 		HTTPClient(), m_instance_url(instance_url)
@@ -47,4 +49,40 @@ bool JiraClient::test_connection()
 bool JiraClient::get_issue(const std::string &issue_id, Json::Value &result)
 {
 	return _get_json(m_instance_url + JIRA_API_V2_ISSUE + issue_id, result, ReqFlag::REQ_AUTH);
+}
+
+inline Json::Value create_jira_issue_object(const std::string &description, const std::string &summary)
+{
+	Json::Value req;
+	req["fields"] = Json::Value();
+	req["fields"]["project"] = Json::Value();
+	req["fields"]["summary"] = summary;
+	req["fields"]["description"] = description;
+	req["fields"]["issuetype"] = Json::Value();
+	return req;
+}
+
+bool JiraClient::create_issue(const std::string &project_name, const std::string &issue_type,
+							  const std::string &summary, const std::string &description, Json::Value &res)
+{
+	Json::Value req = create_jira_issue_object(description, summary);
+	req["fields"]["project"]["key"] = project_name;
+	req["fields"]["issuetype"]["name"] = issue_type;
+
+	std::cout << req.toStyledString() << std::endl;
+	return _post_json(m_instance_url + JIRA_API_V2_ISSUE, req, res, ReqFlag::REQ_AUTH);
+}
+
+bool JiraClient::create_issue(const uint32_t project_id, const uint32_t issue_type_id,
+							  const std::string &summary, const std::string &description, Json::Value &res)
+{
+	Json::Value req = create_jira_issue_object(description, summary);
+	req["fields"]["project"]["id"] = project_id;
+	req["fields"]["issuetype"]["id"] = issue_type_id;
+	return _post_json(m_instance_url + JIRA_API_V2_ISSUE, req, res, ReqFlag::REQ_AUTH);
+}
+
+bool JiraClient::list_projects(Json::Value &res)
+{
+	return _get_json(m_instance_url + JIRA_API_V2_PROJECT, res, ReqFlag::REQ_AUTH);
 }

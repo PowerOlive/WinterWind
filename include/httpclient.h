@@ -93,7 +93,8 @@ public:
 	void add_uri_param(const std::string &param, const std::string &value, bool escape = true);
 	void add_form_param(const std::string &param, const std::string &value, bool escape = true);
 
-	bool _post_json(const std::string &url, const Json::Value &data, Json::Value &res);
+	bool _post_json(const std::string &url, const Json::Value &data, Json::Value &res,
+					int32_t flags = HTTPClient::REQ_SIMPLE);
 
 	long get_http_code() const { return m_http_code; }
 

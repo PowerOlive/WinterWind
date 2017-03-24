@@ -34,4 +34,6 @@ class LuaRefJiraClient : protected LuaHelper
 	LUAREF_OBJECT(JiraClient)
 private:
 	static int l_get_issue(lua_State *L);
+	static int l_create_issue(lua_State *L);
+	static int l_list_projects(lua_State *L);
 };

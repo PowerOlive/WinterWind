@@ -243,11 +243,11 @@ bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t fla
 	return true;
 }
 
-bool HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Value &res)
+bool HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Value &res, int32_t flags)
 {
 	std::string res_str = "";
 	prepare_json_query();
-	_post(url, json_writer()->write(data), res_str);
+	_post(url, json_writer()->write(data), res_str, flags);
 
 	if (m_http_code == 400) {
 		std::cerr << "Bad request for " << url << ", error was: '" << res_str << "'"
