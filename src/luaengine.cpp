@@ -28,6 +28,7 @@
 #include "lua/l_pgclient.h"
 #include "lua/l_string.h"
 #include "lua/l_xmlparser.h"
+#include "lua/l_jiraclient.h"
 #include <iostream>
 
 LuaEngine::LuaEngine()
@@ -94,6 +95,10 @@ LuaReturnCode LuaEngine::init_winterwind_bindings()
 	REGISTER_LUA_FCT(create_httpclient);
 #ifdef ENABLE_RATPCLIENT
 	REGISTER_LUA_FCT(get_ratp_schedules);
+#endif
+#ifdef ENABLE_JIRACLIENT
+	LuaRefJiraClient::Register(m_lua);
+	REGISTER_LUA_FCT(create_jiraclient);
 #endif
 #endif
 

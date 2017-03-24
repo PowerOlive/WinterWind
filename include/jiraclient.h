@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
+ * Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -25,9 +25,16 @@
 
 #pragma once
 
-#cmakedefine READLINE @READLINE@
-#cmakedefine UNITTESTS @UNITTESTS@
-#cmakedefine ENABLE_RATPCLIENT @ENABLE_RATPCLIENT@
-#cmakedefine ENABLE_JIRACLIENT @ENABLE_JIRACLIENT@
-#cmakedefine ENABLE_HTTPCLIENT @ENABLE_HTTPCLIENT@
-#cmakedefine ENABLE_POSTGRESQL @ENABLE_POSTGRESQL@
+#include "httpclient.h"
+
+class JiraClient : private HTTPClient
+{
+public:
+	JiraClient(const std::string &instance_url, const std::string &user, const std::string &password);
+	~JiraClient() {}
+
+	bool test_connection();
+	bool get_issue(const std::string &issue_id, Json::Value &result);
+private:
+	std::string m_instance_url = "";
+};
