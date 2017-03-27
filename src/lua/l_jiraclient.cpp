@@ -57,6 +57,7 @@ int LuaEngine::l_create_jiraclient(lua_State *L)
 const char LuaRefJiraClient::className[] = "LuaRefJiraClient";
 const luaL_Reg LuaRefJiraClient::methods[] = {
     luamethod(LuaRefJiraClient, get_issue),
+	luamethod(LuaRefJiraClient, get_issue_transitions),
 	luamethod(LuaRefJiraClient, create_issue),
 	luamethod(LuaRefJiraClient, assign_issue),
 	luamethod(LuaRefJiraClient, list_projects),
@@ -134,6 +135,7 @@ int LuaRefJiraClient::l_get_issue(lua_State *L)
 
 	write<uint16_t>(L, jira->get_http_code());
 	write<Json::Value>(L, res);
+	lua_pop(L, 1);
 	return 1;
 }
 
@@ -173,6 +175,7 @@ int LuaRefJiraClient::l_create_issue(lua_State *L)
 
 	write<uint16_t>(L, jira->get_http_code());
 	write<Json::Value>(L, res);
+	lua_pop(L, 1);
 	return 1;
 }
 
@@ -202,6 +205,37 @@ int LuaRefJiraClient::l_assign_issue(lua_State *L)
 
 	write<uint16_t>(L, jira->get_http_code());
 	write<Json::Value>(L, res);
+	lua_pop(L, 1);
+	return 1;
+}
+
+int LuaRefJiraClient::l_get_issue_transitions(lua_State *L)
+{
+	JiraClient *jira = getobject(checkobject(L, 1));
+	assert(jira);
+
+	Json::Value res;
+	std::string issue = "";
+	if (lua_isinteger(L, 2)) {
+		issue = std::to_string(read<uint32_t>(L, 2));
+	}
+	else if (lua_isstring(L, 2)) {
+		issue = read<std::string>(L, 2);
+	}
+	else {
+		std::cerr << __FUNCTION__ << ": invalid issue variable type." << std::endl;
+		return 0;
+	}
+
+	if (!jira->get_issue_transtions(issue, res)) {
+		JIRA_RETURN_FAILURE
+	}
+
+	std::cout << res.toStyledString() << std::endl;
+
+	write<uint16_t>(L, jira->get_http_code());
+	write<Json::Value>(L, res);
+	lua_pop(L, 1);
 	return 1;
 }
 
@@ -217,5 +251,6 @@ int LuaRefJiraClient::l_list_projects(lua_State *L)
 
 	write<uint16_t>(L, jira->get_http_code());
 	write<Json::Value>(L, res);
+	lua_pop(L, 1);
 	return 1;
 }

@@ -29,6 +29,7 @@
 #define JIRA_API_V1_SESSION "/rest/auth/1/session"
 #define JIRA_API_V2_ISSUE "/rest/api/2/issue/"
 #define JIRA_API_V2_ISSUE_ASSIGNEE "/assignee"
+#define JIRA_API_V2_ISSUE_TRANSITION "/transitions"
 #define JIRA_API_V2_PROJECT "/rest/api/2/project"
 
 JiraClient::JiraClient(const std::string &instance_url, const std::string &user, const std::string &password):
@@ -94,6 +95,11 @@ bool JiraClient::assign_issue(const std::string &issue, const std::string &who, 
 
 	return _put_json(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_ASSIGNEE, req,
 			res, ReqFlag::REQ_AUTH | ReqFlag::REQ_NO_RESPONSE_AWAITED);
+}
+
+bool JiraClient::get_issue_transtions(const std::string &issue, Json::Value &res)
+{
+	return _get_json(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_TRANSITION, res, ReqFlag::REQ_AUTH);
 }
 
 bool JiraClient::list_projects(Json::Value &res)

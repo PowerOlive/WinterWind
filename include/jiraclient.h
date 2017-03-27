@@ -40,6 +40,8 @@ public:
 	bool create_issue(const uint32_t project_id, const uint32_t issue_type_id, const std::string &summary,
 					  const std::string &description, Json::Value &res);
 	bool assign_issue(const std::string &issue, const std::string &who, Json::Value &res);
+	bool get_issue_transtions(const std::string &issue, Json::Value &res);
+
 	bool list_projects(Json::Value &res);
 
 	const uint16_t get_http_code() const { return (uint16_t) HTTPClient::get_http_code(); }
