@@ -31,7 +31,13 @@
 #define JIRA_RETURN_FAILURE \
 	write<uint16_t>(L, jira->get_http_code()); \
 	lua_pushnil(L); \
-	return 1;
+	return 2;
+
+#define JIRA_RETURN_JSON \
+	write<uint16_t>(L, jira->get_http_code()); \
+	write<Json::Value>(L, res); \
+	return 2;
+
 
 int LuaEngine::l_create_jiraclient(lua_State *L)
 {
@@ -133,10 +139,7 @@ int LuaRefJiraClient::l_get_issue(lua_State *L)
 		JIRA_RETURN_FAILURE
 	}
 
-	write<uint16_t>(L, jira->get_http_code());
-	write<Json::Value>(L, res);
-	lua_pop(L, 1);
-	return 1;
+	JIRA_RETURN_JSON
 }
 
 int LuaRefJiraClient::l_create_issue(lua_State *L)
@@ -175,8 +178,7 @@ int LuaRefJiraClient::l_create_issue(lua_State *L)
 
 	write<uint16_t>(L, jira->get_http_code());
 	write<Json::Value>(L, res);
-	lua_pop(L, 1);
-	return 1;
+	return 2;
 }
 
 int LuaRefJiraClient::l_assign_issue(lua_State *L)
@@ -203,10 +205,7 @@ int LuaRefJiraClient::l_assign_issue(lua_State *L)
 		JIRA_RETURN_FAILURE
 	}
 
-	write<uint16_t>(L, jira->get_http_code());
-	write<Json::Value>(L, res);
-	lua_pop(L, 1);
-	return 1;
+	JIRA_RETURN_JSON
 }
 
 int LuaRefJiraClient::l_get_issue_transitions(lua_State *L)
@@ -231,12 +230,7 @@ int LuaRefJiraClient::l_get_issue_transitions(lua_State *L)
 		JIRA_RETURN_FAILURE
 	}
 
-	std::cout << res.toStyledString() << std::endl;
-
-	write<uint16_t>(L, jira->get_http_code());
-	write<Json::Value>(L, res);
-	lua_pop(L, 1);
-	return 1;
+	JIRA_RETURN_JSON
 }
 
 int LuaRefJiraClient::l_list_projects(lua_State *L)
@@ -249,8 +243,5 @@ int LuaRefJiraClient::l_list_projects(lua_State *L)
 		JIRA_RETURN_FAILURE
 	}
 
-	write<uint16_t>(L, jira->get_http_code());
-	write<Json::Value>(L, res);
-	lua_pop(L, 1);
-	return 1;
+	JIRA_RETURN_JSON
 }
