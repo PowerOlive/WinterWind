@@ -45,6 +45,7 @@ public:
 		REQ_AUTH = 0x02,
 		REQ_NO_VERIFY_PEER = 0x04,
 		REQ_KEEP_HEADER_CACHE_AFTER_REQUEST = 0x08,
+		REQ_NO_RESPONSE_AWAITED = 0x10,
 	};
 
 	/**
@@ -78,8 +79,8 @@ public:
 		request(url, res, flag, HTTP_METHOD_PROPFIND, post_data);
 	}
 
-	inline void _put(const std::string &url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE,
-			 const std::string &post_data = "") {
+	inline void _put(const std::string &url, std::string &res, const std::string &post_data = "",
+			int32_t flag = HTTPClient::REQ_SIMPLE) {
 		request(url, res, flag, HTTP_METHOD_PUT, post_data);
 	}
 
@@ -95,6 +96,9 @@ public:
 
 	bool _post_json(const std::string &url, const Json::Value &data, Json::Value &res,
 					int32_t flags = HTTPClient::REQ_SIMPLE);
+
+	bool _put_json(const std::string &url, const Json::Value &data, Json::Value &res,
+			int32_t flags = HTTPClient::REQ_SIMPLE);
 
 	long get_http_code() const { return m_http_code; }
 

@@ -117,8 +117,7 @@ void ElasticsearchClient::insert_doc(const std::string &index, const std::string
 	const ElasticsearchNode &node = get_fresh_node();
 	std::string res;
 	Json::FastWriter writer;
-	_put(node.http_addr + "/" + index + "/" + type + "/" + doc_id, res, HTTPClient::REQ_SIMPLE,
-	     writer.write(doc));
+	_put(node.http_addr + "/" + index + "/" + type + "/" + doc_id, res, writer.write(doc));
 }
 
 void ElasticsearchClient::delete_doc(const std::string &index, const std::string &type,

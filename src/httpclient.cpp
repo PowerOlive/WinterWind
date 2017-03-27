@@ -255,6 +255,34 @@ bool HTTPClient::_post_json(const std::string &url, const Json::Value &data, Jso
 		return false;
 	}
 
+	if ((flags & ReqFlag::REQ_NO_RESPONSE_AWAITED) && res_str.empty()) {
+		return true;
+	}
+
+	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
+		std::cerr << "Failed to parse query for " << url << std::endl;
+		return false;
+	}
+
+	return true;
+}
+
+bool HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Value &res, int32_t flags)
+{
+	std::string res_str = "";
+	prepare_json_query();
+	_put(url, res_str, json_writer()->write(data), flags);
+
+	if (m_http_code == 400) {
+		std::cerr << "Bad request for " << url << ", error was: '" << res_str << "'"
+				  << std::endl;
+		return false;
+	}
+
+	if ((flags & ReqFlag::REQ_NO_RESPONSE_AWAITED) && res_str.empty()) {
+		return true;
+	}
+
 	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << std::endl;
 		return false;

@@ -115,8 +115,7 @@ const GitlabRetCod GitlabAPIClient::modify_issue(const uint32_t project_id, cons
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
 	_put(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-		 "/issues/" + issue_res.asString(),
-	     res, HTTPClient::REQ_SIMPLE, post_data);
+		 "/issues/" + issue_res.asString(), res, post_data);
 	return (m_http_code == 201 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 
@@ -169,8 +168,7 @@ const GitlabRetCod GitlabAPIClient::close_issue(const uint32_t project_id, const
 	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
 	_put(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-		 "/issues/" + issue_res["id"].asString(),
-	     res, HTTPClient::REQ_SIMPLE, "state_event=close");
+		 "/issues/" + issue_res["id"].asString(), res, "state_event=close");
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 
@@ -234,8 +232,7 @@ const GitlabRetCod GitlabAPIClient::close_merge_request(const uint32_t project_i
 	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
 	_put(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-		 "/merge_requests/" + mr_result["id"].asString(),
-	     res, HTTPClient::REQ_SIMPLE, "state_event=close");
+		 "/merge_requests/" + mr_result["id"].asString(), res, "state_event=close");
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 

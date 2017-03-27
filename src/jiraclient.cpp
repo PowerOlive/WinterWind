@@ -28,6 +28,7 @@
 
 #define JIRA_API_V1_SESSION "/rest/auth/1/session"
 #define JIRA_API_V2_ISSUE "/rest/api/2/issue/"
+#define JIRA_API_V2_ISSUE_ASSIGNEE "/assignee"
 #define JIRA_API_V2_PROJECT "/rest/api/2/project"
 
 JiraClient::JiraClient(const std::string &instance_url, const std::string &user, const std::string &password):
@@ -80,6 +81,19 @@ bool JiraClient::create_issue(const uint32_t project_id, const uint32_t issue_ty
 	req["fields"]["project"]["id"] = project_id;
 	req["fields"]["issuetype"]["id"] = issue_type_id;
 	return _post_json(m_instance_url + JIRA_API_V2_ISSUE, req, res, ReqFlag::REQ_AUTH);
+}
+
+bool JiraClient::assign_issue(const std::string &issue, const std::string &who, Json::Value &res)
+{
+	if (who.empty()) {
+		return false;
+	}
+
+	Json::Value req;
+	req["name"] = who;
+
+	return _put_json(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_ASSIGNEE, req,
+			res, ReqFlag::REQ_AUTH | ReqFlag::REQ_NO_RESPONSE_AWAITED);
 }
 
 bool JiraClient::list_projects(Json::Value &res)
