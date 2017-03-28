@@ -90,6 +90,20 @@ bool JiraClient::assign_issue(const std::string &issue, const std::string &who, 
 		return false;
 	}
 
+	{
+		Json::Value issue_res;
+		if (get_issue(issue, issue_res)) {
+			if (issue_res.isMember("fields") && issue_res["fields"].isObject() &&
+					issue_res["fields"].isMember("assignee") && issue_res["fields"]["assignee"].isObject() &&
+					issue_res["fields"]["assignee"].isMember("name") &&
+					issue_res["fields"]["assignee"]["name"].isString() &&
+					issue_res["fields"]["assignee"]["name"].asString() == who) {
+				m_http_code = 304;
+				return true;
+			}
+		}
+	}
+
 	Json::Value req;
 	req["name"] = who;
 
