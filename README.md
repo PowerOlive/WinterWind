@@ -14,6 +14,8 @@ This library provides high level interfaces to some interesting API or features
 * Gitlab client
 * Caldav client (WIP)
 * Elasticsearch Client (WIP)
+* Jira client
+* RATP client (for RER only)
 * Slack client
 * Twitter client
 
@@ -55,6 +57,7 @@ You need a full C++11 compliant compiler to use this library (GCC 5.1 or Clang 3
 * __ENABLE_CALDAV__: enable caldav client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_ELASTICSEARCH__: enable Elasticsearch client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_GITLAB__: enable Gitlab client support (requires ENABLE_HTTPCLIENT)
+* __ENABLE_JIRACLIENT__: enable Jira client support (required ENABLE_HTTPCLIENT)
 * __ENABLE_RATPCLIENT__: enable RATP client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_SLACKCLIENT__: enable Slack client support (requires ENABLE_HTTPCLIENT & websocketpp library)
 * __ENABLE_TWITTERCLIENT__: enable Twitter client support (requires ENABLE_HTTPCLIENT)
