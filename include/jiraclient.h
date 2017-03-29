@@ -41,6 +41,8 @@ public:
 					  const std::string &description, Json::Value &res);
 	bool assign_issue(const std::string &issue, const std::string &who, Json::Value &res);
 	bool comment_issue(const std::string &issue, const std::string &body, Json::Value &res);
+	bool issue_transition(const std::string &issue, const std::string &transition_id, Json::Value &res,
+			const std::string &comment = "", const Json::Value &fields = {});
 	bool get_issue_transtions(const std::string &issue, Json::Value &res);
 
 	bool list_projects(Json::Value &res);

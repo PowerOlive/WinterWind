@@ -72,7 +72,6 @@ bool JiraClient::create_issue(const std::string &project_name, const std::string
 	req["fields"]["project"]["key"] = project_name;
 	req["fields"]["issuetype"]["name"] = issue_type;
 
-	std::cout << req.toStyledString() << std::endl;
 	return _post_json(m_instance_url + JIRA_API_V2_ISSUE, req, res, ReqFlag::REQ_AUTH);
 }
 
@@ -87,7 +86,7 @@ bool JiraClient::create_issue(const uint32_t project_id, const uint32_t issue_ty
 
 bool JiraClient::assign_issue(const std::string &issue, const std::string &who, Json::Value &res)
 {
-	if (who.empty()) {
+	if (issue.empty() || who.empty()) {
 		return false;
 	}
 
@@ -114,7 +113,7 @@ bool JiraClient::assign_issue(const std::string &issue, const std::string &who, 
 
 bool JiraClient::comment_issue(const std::string &issue, const std::string &body, Json::Value &res)
 {
-	if (body.empty()) {
+	if (issue.empty() || body.empty()) {
 		return false;
 	}
 
@@ -123,6 +122,35 @@ bool JiraClient::comment_issue(const std::string &issue, const std::string &body
 
 	return _post_json(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_COMMENT, req,
 					 res, ReqFlag::REQ_AUTH);
+}
+
+bool JiraClient::issue_transition(const std::string &issue, const std::string &transition_id, Json::Value &res,
+		const std::string &comment, const Json::Value &fields)
+{
+	if (issue.empty() || transition_id.empty()) {
+		return false;
+	}
+
+	Json::Value req;
+	req["transition"] = Json::Value();
+	req["transition"]["id"] = transition_id;
+
+	if (!fields.empty()) {
+		req["fields"] = fields;
+	}
+
+	if (!comment.empty()) {
+		req["update"] = Json::Value();
+		req["update"]["comment"] = Json::Value();
+
+		Json::Value comment_add;
+		comment_add["add"] = Json::Value();
+		comment_add["add"]["body"] = comment;
+		req["update"]["comment"].append(comment_add);
+	}
+
+	return _post_json(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_TRANSITION, req,
+					  res, ReqFlag::REQ_AUTH | ReqFlag::REQ_NO_RESPONSE_AWAITED);
 }
 
 bool JiraClient::get_issue_transtions(const std::string &issue, Json::Value &res)
