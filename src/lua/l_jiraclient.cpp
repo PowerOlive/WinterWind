@@ -65,6 +65,7 @@ const luaL_Reg LuaRefJiraClient::methods[] = {
     luamethod(LuaRefJiraClient, get_issue),
 	luamethod(LuaRefJiraClient, get_issue_transitions),
 	luamethod(LuaRefJiraClient, create_issue),
+	luamethod(LuaRefJiraClient, comment_issue),
 	luamethod(LuaRefJiraClient, assign_issue),
 	luamethod(LuaRefJiraClient, list_projects),
     {0, 0},
@@ -202,6 +203,33 @@ int LuaRefJiraClient::l_assign_issue(lua_State *L)
 	}
 
 	if (!jira->assign_issue(issue, assignee, res)) {
+		JIRA_RETURN_FAILURE
+	}
+
+	JIRA_RETURN_JSON
+}
+
+int LuaRefJiraClient::l_comment_issue(lua_State *L)
+{
+	JiraClient *jira = getobject(checkobject(L, 1));
+	assert(jira);
+
+	Json::Value res;
+	std::string issue = "";
+	std::string body = read<std::string>(L, 3);
+
+	if (lua_isinteger(L, 2)) {
+		issue = std::to_string(read<uint32_t>(L, 2));
+	}
+	else if (lua_isstring(L, 2)) {
+		issue = read<std::string>(L, 2);
+	}
+	else {
+		std::cerr << __FUNCTION__ << ": invalid issue variable type." << std::endl;
+		return 0;
+	}
+
+	if (!jira->comment_issue(issue, body, res)) {
 		JIRA_RETURN_FAILURE
 	}
 
