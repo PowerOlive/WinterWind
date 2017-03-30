@@ -31,6 +31,7 @@
 #define JIRA_API_V2_ISSUE_ASSIGNEE "/assignee"
 #define JIRA_API_V2_ISSUE_COMMENT "/comment"
 #define JIRA_API_V2_ISSUE_TRANSITION "/transitions"
+#define JIRA_API_V2_ISSUE_REMOTELINK "/remotelink"
 #define JIRA_TRANSITION_EXPAND "?expand=transitions.fields"
 #define JIRA_API_V2_PROJECT "/rest/api/2/project"
 
@@ -163,4 +164,25 @@ bool JiraClient::get_issue_transitions(const std::string &issue, Json::Value &re
 bool JiraClient::list_projects(Json::Value &res)
 {
 	return _get_json(m_instance_url + JIRA_API_V2_PROJECT, res, ReqFlag::REQ_AUTH);
+}
+
+bool JiraClient::add_link_to_issue(const std::string &issue, Json::Value &res, const std::string &link,
+		const std::string &title, const std::string &summary, const std::string &relationship)
+{
+	if (issue.empty() || link.empty() || title.empty()) {
+		return false;
+	}
+
+	Json::Value req;
+	req["globalId"] = "system=" + link;
+	req["relationship"] = relationship;
+	req["object"] = Json::Value();
+	req["object"]["url"] = link;
+	req["object"]["title"] = title;
+	if (!summary.empty()) {
+		req["object"]["summary"] = summary;
+	}
+
+	return _post_json(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_REMOTELINK,
+			req, res, ReqFlag::REQ_AUTH);
 }

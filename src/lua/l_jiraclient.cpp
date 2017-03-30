@@ -66,6 +66,7 @@ const luaL_Reg LuaRefJiraClient::methods[] = {
 	luamethod(LuaRefJiraClient, get_issue_transitions),
 	luamethod(LuaRefJiraClient, create_issue),
 	luamethod(LuaRefJiraClient, comment_issue),
+	luamethod(LuaRefJiraClient, add_link_to_issue),
 	luamethod(LuaRefJiraClient, assign_issue),
 	luamethod(LuaRefJiraClient, issue_transition),
 	luamethod(LuaRefJiraClient, list_projects),
@@ -237,6 +238,44 @@ int LuaRefJiraClient::l_comment_issue(lua_State *L)
 	JIRA_RETURN_JSON
 }
 
+int LuaRefJiraClient::l_add_link_to_issue(lua_State *L)
+{
+	JiraClient *jira = getobject(checkobject(L, 1));
+	assert(jira);
+
+	Json::Value res;
+	std::string issue = "";
+
+	if (lua_isinteger(L, 2)) {
+		issue = std::to_string(read<uint32_t>(L, 2));
+	}
+	else if (lua_isstring(L, 2)) {
+		issue = read<std::string>(L, 2);
+	}
+	else {
+		std::cerr << __FUNCTION__ << ": invalid issue variable type." << std::endl;
+		return 0;
+	}
+
+	std::string link = read<std::string>(L, 3);
+	std::string title = read<std::string>(L, 4);
+	std::string summary = "";
+	std::string relationship = "";
+	if (lua_isstring(L, 5)) {
+		summary = read<std::string>(L, 5);
+	}
+
+	if (lua_isstring(L, 6)) {
+		relationship = read<std::string>(L, 6);
+	}
+
+	if (!jira->add_link_to_issue(issue, res, link, title, summary, relationship)) {
+		JIRA_RETURN_FAILURE
+	}
+
+	JIRA_RETURN_JSON
+}
+
 int LuaRefJiraClient::l_issue_transition(lua_State *L)
 {
 	JiraClient *jira = getobject(checkobject(L, 1));
@@ -299,8 +338,6 @@ int LuaRefJiraClient::l_get_issue_transitions(lua_State *L)
 	if (!jira->get_issue_transitions(issue, res, expand_transitions)) {
 		JIRA_RETURN_FAILURE
 	}
-
-	std::cout << res.toStyledString() << std::endl;
 
 	JIRA_RETURN_JSON
 }
