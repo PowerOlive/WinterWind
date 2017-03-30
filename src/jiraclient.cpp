@@ -167,7 +167,8 @@ bool JiraClient::list_projects(Json::Value &res)
 }
 
 bool JiraClient::add_link_to_issue(const std::string &issue, Json::Value &res, const std::string &link,
-		const std::string &title, const std::string &summary, const std::string &relationship)
+		const std::string &title, const std::string &summary, const std::string &relationship,
+		const std::string &icon_url)
 {
 	if (issue.empty() || link.empty() || title.empty()) {
 		return false;
@@ -181,6 +182,11 @@ bool JiraClient::add_link_to_issue(const std::string &issue, Json::Value &res, c
 	req["object"]["title"] = title;
 	if (!summary.empty()) {
 		req["object"]["summary"] = summary;
+	}
+
+	if (!icon_url.empty()) {
+		req["object"]["icon"] = Json::Value();
+		req["object"]["icon"]["url16x16"] = icon_url;
 	}
 
 	return _post_json(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_REMOTELINK,

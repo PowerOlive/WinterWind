@@ -261,6 +261,7 @@ int LuaRefJiraClient::l_add_link_to_issue(lua_State *L)
 	std::string title = read<std::string>(L, 4);
 	std::string summary = "";
 	std::string relationship = "";
+	std::string icon_url ="";
 	if (lua_isstring(L, 5)) {
 		summary = read<std::string>(L, 5);
 	}
@@ -269,7 +270,11 @@ int LuaRefJiraClient::l_add_link_to_issue(lua_State *L)
 		relationship = read<std::string>(L, 6);
 	}
 
-	if (!jira->add_link_to_issue(issue, res, link, title, summary, relationship)) {
+	if (lua_isstring(L, 7)) {
+		icon_url = read<std::string>(L, 7);
+	}
+
+	if (!jira->add_link_to_issue(issue, res, link, title, summary, relationship, icon_url)) {
 		JIRA_RETURN_FAILURE
 	}
 
