@@ -43,7 +43,7 @@ public:
 	bool comment_issue(const std::string &issue, const std::string &body, Json::Value &res);
 	bool issue_transition(const std::string &issue, const std::string &transition_id, Json::Value &res,
 			const std::string &comment = "", const Json::Value &fields = {});
-	bool get_issue_transtions(const std::string &issue, Json::Value &res);
+	bool get_issue_transitions(const std::string &issue, Json::Value &res, bool transition_fields = false);
 
 	bool list_projects(Json::Value &res);
 

@@ -31,6 +31,7 @@
 #define JIRA_API_V2_ISSUE_ASSIGNEE "/assignee"
 #define JIRA_API_V2_ISSUE_COMMENT "/comment"
 #define JIRA_API_V2_ISSUE_TRANSITION "/transitions"
+#define JIRA_TRANSITION_EXPAND "?expand=transitions.fields"
 #define JIRA_API_V2_PROJECT "/rest/api/2/project"
 
 JiraClient::JiraClient(const std::string &instance_url, const std::string &user, const std::string &password):
@@ -153,9 +154,10 @@ bool JiraClient::issue_transition(const std::string &issue, const std::string &t
 					  res, ReqFlag::REQ_AUTH | ReqFlag::REQ_NO_RESPONSE_AWAITED);
 }
 
-bool JiraClient::get_issue_transtions(const std::string &issue, Json::Value &res)
+bool JiraClient::get_issue_transitions(const std::string &issue, Json::Value &res, bool transition_fields)
 {
-	return _get_json(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_TRANSITION, res, ReqFlag::REQ_AUTH);
+	return _get_json(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_TRANSITION
+			+ (transition_fields ? JIRA_TRANSITION_EXPAND : ""), res, ReqFlag::REQ_AUTH);
 }
 
 bool JiraClient::list_projects(Json::Value &res)

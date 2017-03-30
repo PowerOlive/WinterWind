@@ -291,9 +291,16 @@ int LuaRefJiraClient::l_get_issue_transitions(lua_State *L)
 		return 0;
 	}
 
-	if (!jira->get_issue_transtions(issue, res)) {
+	bool expand_transitions = false;
+	if (!lua_isnil(L, 3) && lua_isboolean(L, 3)) {
+		expand_transitions = read<bool>(L, 3);
+	}
+
+	if (!jira->get_issue_transitions(issue, res, expand_transitions)) {
 		JIRA_RETURN_FAILURE
 	}
+
+	std::cout << res.toStyledString() << std::endl;
 
 	JIRA_RETURN_JSON
 }
