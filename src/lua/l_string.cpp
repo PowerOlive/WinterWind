@@ -123,4 +123,5 @@ void LuaString::register_functions(LuaEngine *engine, int top)
 	engine->REGISTER_LUA_FCT(hmac_sha1);
 	engine->REGISTER_LUA_FCT(read_json);
 	engine->REGISTER_LUA_FCT(write_json);
+	engine->REGISTER_LUA_FCT(string_to_hex);
 }
