@@ -59,8 +59,11 @@ LuaRefPostgreSQLClient *LuaRefPostgreSQLClient::checkobject(lua_State *L, int na
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);
 	void *ud = luaL_checkudata(L, narg, className);
-	if (!ud)
+	if (!ud) {
 		std::cerr << "Object has not type " << className << std::endl;
+		return nullptr;
+	}
+
 	return *(LuaRefPostgreSQLClient **) ud; // unbox pointer
 }
 

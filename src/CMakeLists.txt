@@ -93,6 +93,7 @@ if (ENABLE_MYSQL)
 endif()
 
 if (ENABLE_HTTPCLIENT)
+	find_package(OpenSSL REQUIRED)
 	set(ENABLE_HTTPCLIENT 1)
 	set(SRC_FILES ${SRC_FILES} httpclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ../include/httpclient.h ../include/httpcommon.h)

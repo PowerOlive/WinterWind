@@ -29,6 +29,10 @@
 
 #define ASIO_STANDALONE
 #include <websocketpp/client.hpp>
+// Not very optimized thing due to OpenSSL 1.1 not supporte by Asio TLS
+#ifndef SSL_R_SHORT_READ
+#define SSL_R_SHORT_READ 219
+#endif
 #include <websocketpp/config/asio_client.hpp>
 
 typedef std::function<bool(const Json::Value &req, websocketpp::connection_hdl &hdl)> SlackMessageHandler;

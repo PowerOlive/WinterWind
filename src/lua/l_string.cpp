@@ -59,7 +59,7 @@ int LuaString::l_read_json(lua_State *L)
 	int nullindex = 2;
 	if (lua_isnone(L, nullindex)) {
 		lua_pushnil(L);
-		nullindex = lua_gettop(L);
+		// nullindex = lua_gettop(L);
 	}
 
 	Json::Value root;

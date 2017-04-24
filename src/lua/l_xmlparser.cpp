@@ -49,8 +49,11 @@ LuaRefXMLParser *LuaRefXMLParser::checkobject(lua_State *L, int narg)
 {
 	luaL_checktype(L, narg, LUA_TUSERDATA);
 	void *ud = luaL_checkudata(L, narg, className);
-	if (!ud)
+	if (!ud) {
 		std::cerr << "Object has not type " << className << std::endl;
+		return nullptr;
+	}
+
 	return *(LuaRefXMLParser **) ud; // unbox pointer
 }
 
