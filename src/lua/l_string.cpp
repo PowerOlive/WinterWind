@@ -29,6 +29,7 @@
 #include <utils/hmac.h>
 #include <json/json.h>
 #include <sstream>
+#include <utils/stringutils.h>
 
 int LuaString::l_base64_decode(lua_State *L)
 {
@@ -104,7 +105,15 @@ int LuaString::l_write_json(lua_State *L)
 	}
 	write<std::string>(L, out);
 	return 1;
+}
 
+int LuaString::l_string_to_hex(lua_State *L)
+{
+	std::string key = read<std::string>(L, 1);
+	std::string hex = "";
+	str_to_hex(key, hex);
+	write<std::string>(L, hex);
+	return 1;
 }
 
 void LuaString::register_functions(LuaEngine *engine, int top)

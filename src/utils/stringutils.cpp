@@ -25,6 +25,7 @@
 
 #include "utils/stringutils.h"
 #include <sstream>
+#include <iomanip>
 
 #define IF_WORD_SEPARATOR                                                                          \
 	if (c == ' ' || c == '\'' || c == '\n' || c == '\t' || c == ';' || c == '\r' ||            \
@@ -89,4 +90,15 @@ void split_string_to_words(const std::string &str, std::vector<std::string> &res
 	if (!prev_was_word_separator) {
 		res.push_back(buf);
 	}
+}
+
+void str_to_hex(const std::string &str, std::string &res, bool upper_case)
+{
+	std::ostringstream ret;
+
+	for (std::string::size_type i = 0; i < str.length(); ++i)
+		ret << std::hex << std::setfill('0') << std::setw(2)
+			<< (upper_case ? std::uppercase : std::nouppercase) << (int)str[i];
+
+	res = ret.str();
 }

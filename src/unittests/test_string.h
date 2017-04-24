@@ -47,6 +47,7 @@ class WinterWindTest_String : public CppUnit::TestFixture
 	CPPUNIT_TEST(base64_encode_test2);
 	CPPUNIT_TEST(base64_decode_test);
 	CPPUNIT_TEST(hmac_sha1_test);
+	CPPUNIT_TEST(str_hex);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -54,6 +55,14 @@ public:
 	void tearDown() {}
 
 protected:
+	void str_hex()
+	{
+		std::string orig = "hello hex to convert.";
+		std::string dest = "";
+		str_to_hex(orig, dest);
+		CPPUNIT_ASSERT(dest == "68656c6c6f2068657820746f20636f6e766572742e");
+	}
+
 	void split_string()
 	{
 		std::string orig = "hello, this is winterwind.";

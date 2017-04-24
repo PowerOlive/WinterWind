@@ -44,3 +44,5 @@ void str_remove_substr(std::string &src, const std::string &pattern);
 
 uint32_t count_words(const std::string &str);
 void split_string_to_words(const std::string &str, std::vector<std::string> &res);
+
+void str_to_hex(const std::string &str, std::string &res, bool upper_case = false);
