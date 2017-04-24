@@ -49,6 +49,7 @@ int LuaString::l_hmac_sha1(lua_State *L)
 	std::string key = read<std::string>(L, 1);
 	std::string to_hash = read<std::string>(L, 2);
 	write<std::string>(L, hmac_sha1(key, to_hash));
+	return 1;
 }
 
 int LuaString::l_read_json(lua_State *L)
