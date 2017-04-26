@@ -45,7 +45,7 @@ class LuaEngine : public LuaHelper
 {
 public:
 	LuaEngine();
-	~LuaEngine();
+	virtual ~LuaEngine();
 
 	// Lua wrappers
 	void newtable();
