@@ -33,6 +33,10 @@
 
 int LuaString::l_base64_decode(lua_State *L)
 {
+	if (lua_isnil(L, 1)) {
+		return 0;
+	}
+
 	std::string to_decode = read<std::string>(L, 1);
 	write<std::string>(L, base64_decode(to_decode));
 	return 1;
@@ -40,6 +44,10 @@ int LuaString::l_base64_decode(lua_State *L)
 
 int LuaString::l_base64_encode(lua_State *L)
 {
+	if (lua_isnil(L, 1)) {
+		return 0;
+	}
+
 	std::string to_encode = read<std::string>(L, 1);
 	write<std::string>(L, base64_encode(to_encode));
 	return 1;
@@ -47,6 +55,10 @@ int LuaString::l_base64_encode(lua_State *L)
 
 int LuaString::l_hmac_sha1(lua_State *L)
 {
+	if (lua_isnil(L, 1) || lua_isnil(L, 2)) {
+		return 0;
+	}
+
 	std::string key = read<std::string>(L, 1);
 	std::string to_hash = read<std::string>(L, 2);
 	write<std::string>(L, hmac_sha1(key, to_hash));
@@ -109,6 +121,10 @@ int LuaString::l_write_json(lua_State *L)
 
 int LuaString::l_string_to_hex(lua_State *L)
 {
+	if (lua_isnil(L, 1)) {
+		return 0;
+	}
+
 	std::string key = read<std::string>(L, 1);
 	std::string hex = "";
 	str_to_hex(key, hex);
