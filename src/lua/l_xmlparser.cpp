@@ -121,9 +121,17 @@ int LuaRefXMLParser::l_parse(lua_State *L)
 	XMLParser *xml = getobject(ref);
 	std::string doc = read<std::string>(L, 2);
 	std::string xpath = read<std::string>(L, 3);
+	int32_t flags = XMLParser::Flag::FLAG_XML_SIMPLE;
+	if (!lua_isnil(L, 4)) {
+		flags = read<int32_t>(L, 4);
+	}
+
+	if (flags == 0) {
+		return 0;
+	}
 
 	std::vector<std::string> res = {};
-	if (!xml->parse(doc, xpath, 0, res)) {
+	if (!xml->parse(doc, xpath, flags, res)) {
 		return 0;
 	}
 
