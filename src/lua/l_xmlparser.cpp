@@ -80,7 +80,6 @@ void LuaRefXMLParser::create(lua_State *L, XMLParser *object)
 int LuaRefXMLParser::gc_object(lua_State *L)
 {
 	LuaRefXMLParser *o = *(LuaRefXMLParser **) (lua_touserdata(L, 1));
-	delete o->m_object;
 	delete o;
 	return 0;
 }

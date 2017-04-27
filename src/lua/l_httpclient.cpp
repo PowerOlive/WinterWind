@@ -75,7 +75,6 @@ void LuaRefHTTPClient::create(lua_State *L, HTTPClient *object)
 int LuaRefHTTPClient::gc_object(lua_State *L)
 {
 	LuaRefHTTPClient *o = *(LuaRefHTTPClient **) (lua_touserdata(L, 1));
-	delete o->m_object;
 	delete o;
 	return 0;
 }

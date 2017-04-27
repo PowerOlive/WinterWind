@@ -100,7 +100,6 @@ void LuaRefJiraClient::create(lua_State *L, JiraClient *object)
 int LuaRefJiraClient::gc_object(lua_State *L)
 {
 	LuaRefJiraClient *o = *(LuaRefJiraClient **) (lua_touserdata(L, 1));
-	delete o->m_object;
 	delete o;
 	return 0;
 }

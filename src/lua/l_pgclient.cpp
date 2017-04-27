@@ -78,7 +78,6 @@ void LuaRefPostgreSQLClient::create(lua_State *L, PostgreSQLClient *object)
 int LuaRefPostgreSQLClient::gc_object(lua_State *L)
 {
 	LuaRefPostgreSQLClient *o = *(LuaRefPostgreSQLClient **) (lua_touserdata(L, 1));
-	delete o->m_object;
 	delete o;
 	return 0;
 }
