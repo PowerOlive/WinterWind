@@ -30,7 +30,19 @@
 
 int LuaEngine::l_create_xmlparser(lua_State *L)
 {
-	LuaRefXMLParser::create(L, new XMLParser());
+	std::string mode = "xml";
+	if (!lua_isnil(L, 1)) {
+		mode = read<std::string>(L, 1);
+	}
+
+	if (mode != "xml" && mode != "html") {
+		return 0;
+	}
+
+	XMLParser::Mode p_mode = mode == "html" ? XMLParser::Mode::MODE_HTML :
+		XMLParser::Mode::MODE_XML;
+
+	LuaRefXMLParser::create(L, new XMLParser(p_mode));
 	int object = lua_gettop(L);
 	lua_pushvalue(L, object);
 	return 1;
