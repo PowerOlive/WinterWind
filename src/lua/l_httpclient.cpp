@@ -45,6 +45,8 @@ const luaL_Reg LuaRefHTTPClient::methods[] = {
     luamethod(LuaRefHTTPClient, put),
     luamethod(LuaRefHTTPClient, add_form_param),
     luamethod(LuaRefHTTPClient, add_uri_param),
+	luamethod(LuaRefHTTPClient, get_html_tag_value),
+
     {0, 0},
 };
 
