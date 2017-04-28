@@ -66,9 +66,9 @@ public:
 	virtual ~JSONHTTPResponse() {}
 
 	JSONHTTPResponse &operator<<(const Json::Value &r);
-	JSONHTTPResponse &operator>>(std::string &r);
+	virtual HTTPResponse &operator>>(std::string &r);
 	JSONHTTPResponse &operator>>(Json::Value &r);
-	JSONHTTPResponse &operator>>(HTTPRequestSession &s);
+	virtual HTTPResponse &operator>>(HTTPRequestSession &s);
 
 	virtual const HTTPResponseType get_type() const { return HTTPRESPONSE_JSON; }
 

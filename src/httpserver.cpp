@@ -165,21 +165,8 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 		return false;
 	}
 
-	switch (http_response->get_type()) {
-		case HTTPRESPONSE_RAW:
-			*http_response >> *session;
-			break;
-		case HTTPRESPONSE_JSON: {
-			JSONHTTPResponse *json_response =
-			    dynamic_cast<JSONHTTPResponse *>(http_response.get());
-			assert(json_response); // this should not happen
-			*json_response >> *session;
-			break;
-		}
-		default:
-			assert(false); // this should not happen
-	}
-
+	// Convert response to session response
+	*http_response >> *session;
 	return true;
 }
 

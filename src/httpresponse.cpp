@@ -51,7 +51,7 @@ JSONHTTPResponse &JSONHTTPResponse::operator<<(const Json::Value &r)
 	return *this;
 }
 
-JSONHTTPResponse &JSONHTTPResponse::operator>>(std::string &r)
+HTTPResponse &JSONHTTPResponse::operator>>(std::string &r)
 {
 	r = Json::FastWriter().write(m_json_response);
 	return *this;
@@ -63,7 +63,7 @@ JSONHTTPResponse &JSONHTTPResponse::operator>>(Json::Value &r)
 	return *this;
 }
 
-JSONHTTPResponse &JSONHTTPResponse::operator>>(HTTPRequestSession &s)
+HTTPResponse &JSONHTTPResponse::operator>>(HTTPRequestSession &s)
 {
 	s.result = Json::FastWriter().write(m_json_response);
 	s.http_code = m_http_code;
