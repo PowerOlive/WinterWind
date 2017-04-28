@@ -30,6 +30,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(BINDIR "${CMAKE_INSTALL_PREFIX}/bin")
 set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/winterwind")
+set(DOCDIR "${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME}")
 
 include_directories(
 	/usr/include/libxml2

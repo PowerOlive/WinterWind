@@ -31,6 +31,15 @@ This library provides high level interfaces to some interesting API or features
 * Name generator
 * Console thread
 
+## Lua bindings
+
+* httpclient
+* jiraclient
+* pgclient (experimental)
+* ratpclient
+* string manipulations helpers
+* xmlparser
+
 # Requirements
 
 ## Compilation

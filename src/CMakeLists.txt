@@ -147,7 +147,7 @@ if (ENABLE_HTTPCLIENT)
 	endif()
 endif()
 
-if(ENABLE_HTTPSERVER)
+if (ENABLE_HTTPSERVER)
 	set(SRC_FILES ${SRC_FILES}
 		httpresponse.cpp
 		httpserver.cpp
