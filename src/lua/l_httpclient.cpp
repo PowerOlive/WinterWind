@@ -130,6 +130,28 @@ int LuaRefHTTPClient::l_get(lua_State *L)
 	return 1;
 }
 
+int LuaRefHTTPClient::l_get_html_tag_value(lua_State *L)
+{
+	LuaRefHTTPClient *ref = checkobject(L, 1);
+	HTTPClient *http = getobject(ref);
+
+	if (lua_isnil(L, 2) || lua_isnil(L, 3)) {
+		return 0;
+	}
+
+	std::string url = read<std::string>(L, 2);
+	std::string xpath = read<std::string>(L, 3);
+	std::vector<std::string> res = {};
+	int32_t flags = XMLParser::Flag::FLAG_XML_SIMPLE;
+	if (!lua_isnil(L, 4)) {
+		flags = read<int32_t>(L, 4);
+	}
+
+	http->get_html_tag_value(url, xpath, res, flags);
+	write<std::vector<std::string> >(L, res);
+	return 1;
+}
+
 int LuaRefHTTPClient::l_delete(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT

@@ -34,6 +34,7 @@ class LuaRefHTTPClient : protected LuaHelper
 	LUAREF_OBJECT(HTTPClient)
 private:
 	static int l_get(lua_State *L);
+	static int l_get_html_tag_value(lua_State *L);
 	static int l_delete(lua_State *L);
 	static int l_head(lua_State *L);
 	static int l_post(lua_State *L);
