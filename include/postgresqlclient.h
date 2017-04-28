@@ -104,19 +104,23 @@ protected:
 
 	inline int pg_to_int(PGresult *res, int row, int col) { return atoi(PQgetvalue(res, row, col)); }
 
-	inline const std::string pg_to_string(PGresult *res, int row, int col) {
+	inline const std::string pg_to_string(PGresult *res, int row, int col)
+	{
 		return std::string(PQgetvalue(res, row, col), (unsigned long)PQgetlength(res, row, col));
 	}
 
-	inline const uint32_t pg_to_uint(PGresult *res, int row, int col) {
+	inline const uint32_t pg_to_uint(PGresult *res, int row, int col)
+	{
 		return (const uint32_t)atoi(PQgetvalue(res, row, col));
 	}
 
-	inline const uint64_t pg_to_uint64(PGresult *res, int row, int col) {
+	inline const uint64_t pg_to_uint64(PGresult *res, int row, int col)
+	{
 		return (const uint64_t)atoll(PQgetvalue(res, row, col));
 	}
 
-	inline const int64_t pg_to_int64(PGresult *res, int row, int col) {
+	inline const int64_t pg_to_int64(PGresult *res, int row, int col)
+	{
 		unsigned char *data = (unsigned char *)PQgetvalue(res, row, col);
 		return (const int64_t)atoll((char *)data);
 	}
