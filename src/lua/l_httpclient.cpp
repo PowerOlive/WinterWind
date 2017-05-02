@@ -39,6 +39,7 @@ const char LuaRefHTTPClient::className[] = "LuaRefHTTPClient";
 const luaL_Reg LuaRefHTTPClient::methods[] = {
     luamethod(LuaRefHTTPClient, delete),
     luamethod(LuaRefHTTPClient, get),
+	luamethod(LuaRefHTTPClient, get_json),
     luamethod(LuaRefHTTPClient, head),
     luamethod(LuaRefHTTPClient, post),
     luamethod(LuaRefHTTPClient, propfind),
@@ -154,6 +155,25 @@ int LuaRefHTTPClient::l_get_html_tag_value(lua_State *L)
 	return 1;
 }
 
+int LuaRefHTTPClient::l_get_json(lua_State *L)
+{
+	LuaRefHTTPClient *ref = checkobject(L, 1);
+	HTTPClient *http = getobject(ref);
+
+	if (lua_isnil(L, 2)) {
+		return 0;
+	}
+
+	std::string url = read<std::string>(L, 2);
+
+	Json::Value res;
+	if (!http->_get_json(url, res)) {
+		return 0;
+	}
+
+	write<Json::Value>(L, res);
+	return 1;
+}
 int LuaRefHTTPClient::l_delete(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT

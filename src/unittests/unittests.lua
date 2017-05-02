@@ -43,7 +43,7 @@ function test_ratp_client()
 end
 
 function test_http_client()
-	local score = 3
+	local score = 4
 	local http = core.create_httpclient()
 	http:add_uri_param("lang", "de")
 	local res = http:get("http://www.google.fr")
@@ -65,13 +65,19 @@ function test_http_client()
 		score = score - 1
 	end
 
+	res = http:get_json("http://q.uote.me/api.php?p=json&l=1&s=random")
+	if res.data[1].text == nil then
+		print("test_http_client: get_json test failed.")
+		score = score - 1
+	end
+
 -- Doesn't work, blocked at the request's end
 --	res = http:head("http://www.cnn.com")
 --	if res.code ~= 200 then
 --		print("test_http_client: head test failed (rc: " .. res.code .. ")")
 --		return false
 --	end
-	return 3,score
+	return 4,score
 end
 
 function test_postgresql()
