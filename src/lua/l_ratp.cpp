@@ -35,6 +35,13 @@ int LuaEngine::l_get_ratp_schedules(lua_State *L)
 
 	std::string line = read<std::string>(L, 1);
 	std::string stop = read<std::string>(L, 2);
+	int direction;
+	if (lua_isnil(L, 3)) {
+		direction = 1;
+	}
+	else {
+		direction = read<int>(L, 3);
+	}
 
 	RATPClient::Line ratp_line;
 	if (line == "RER_A") {
@@ -48,8 +55,7 @@ int LuaEngine::l_get_ratp_schedules(lua_State *L)
 		return 0;
 	}
 
-	const auto schedules =
-	    RATPClient().get_next_trains(ratp_line, stop, 1);
+	const auto schedules = RATPClient().get_next_trains(ratp_line, stop, direction);
 
 	lua_createtable(L, (int) schedules.size(), 0);
 	int table_idx = lua_gettop(L);
