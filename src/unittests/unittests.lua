@@ -29,7 +29,7 @@ function test_strings()
 end
 
 function test_ratp_client()
-	local schedules=core.get_ratp_schedules(1)
+	local schedules=core.get_ratp_schedules("RER_A", "Antony")
 	if schedules == nil then
 		return 1,0
 	end

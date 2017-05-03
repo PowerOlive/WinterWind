@@ -29,21 +29,28 @@
 
 int LuaEngine::l_get_ratp_schedules(lua_State *L)
 {
-	if (!lua_isinteger(L, -1)) {
-		lua_pop(L, 1);
+	if (lua_isnil(L, 1) || lua_isnil(L, 2)) {
 		return 0;
 	}
 
-	int line_raw = read<int>(L, -1);
-	lua_pop(L, 1);
+	std::string line = read<std::string>(L, 1);
+	std::string stop = read<std::string>(L, 2);
 
-	if (line_raw != RATPClient::LINE_RER_A && line_raw != RATPClient::LINE_RER_B) {
-		std::cerr << "Lua: " << __FUNCTION__ << ": Invalid RATP Line ID" << std::endl;
+	RATPClient::Line ratp_line;
+	if (line == "RER_A") {
+		ratp_line = RATPClient::Line::LINE_RER_A;
+	}
+	else if (line == "RER_B") {
+		ratp_line = RATPClient::Line::LINE_RER_B;
+	}
+	else {
+		std::cerr << "Lua: " << __FUNCTION__ << ": Invalid RATP Line" << std::endl;
 		return 0;
 	}
 
 	const auto schedules =
-	    RATPClient().get_next_trains(RATPClient::LINE_RER_B, "Palaiseau Villebon", 1);
+	    RATPClient().get_next_trains(ratp_line, stop, 1);
+
 	lua_createtable(L, (int) schedules.size(), 0);
 	int table_idx = lua_gettop(L);
 	uint8_t idx = 0;

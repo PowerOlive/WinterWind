@@ -71,14 +71,14 @@ int main(int argc, const char *argv[])
 	ES_HOST = std::string(getenv("ES_HOST"));
 
 	CppUnit::TextUi::TestRunner runner;
-	/*runner.addTest(WinterWindTest_String::suite());
+	runner.addTest(WinterWindTest_String::suite());
 	runner.addTest(WinterWindTest_Time::suite());
 	runner.addTest(WinterWindTest_Elasticsearch::suite());
 	runner.addTest(WinterWindTest_Gitlab::suite());
 	runner.addTest(WinterWindTest_HTTP::suite());
 	runner.addTest(WinterWindTest_PostgreSQL::suite());
 
-	runner.addTest(WinterWindTest_Twitter::suite());*/
+	runner.addTest(WinterWindTest_Twitter::suite());
 
 	runner.addTest(WinterWindTest_Misc::suite());
 	std::cout << "Starting unittests...." << std::endl;
