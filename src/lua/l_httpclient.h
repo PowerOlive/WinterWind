@@ -43,4 +43,5 @@ private:
 	static int l_put(lua_State *L);
 	static int l_add_uri_param(lua_State *L);
 	static int l_add_form_param(lua_State *L);
+	static int l_add_http_header(lua_State *L);
 };

@@ -47,7 +47,7 @@ const luaL_Reg LuaRefHTTPClient::methods[] = {
     luamethod(LuaRefHTTPClient, add_form_param),
     luamethod(LuaRefHTTPClient, add_uri_param),
 	luamethod(LuaRefHTTPClient, get_html_tag_value),
-
+	luamethod(LuaRefHTTPClient, add_http_header),
     {0, 0},
 };
 
@@ -235,5 +235,16 @@ int LuaRefHTTPClient::l_add_form_param(lua_State *L)
 	std::string value = read<std::string>(L, 3);
 
 	http->add_form_param(param, value);
+	return 1;
+}
+
+int LuaRefHTTPClient::l_add_http_header(lua_State *L)
+{
+	LuaRefHTTPClient *ref = checkobject(L, 1);
+	HTTPClient *http = getobject(ref);
+
+	std::string header = read<std::string>(L, 2);
+	std::string value = read<std::string>(L, 3);
+	http->add_http_header(header, value);
 	return 1;
 }
