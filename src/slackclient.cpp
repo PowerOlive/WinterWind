@@ -73,7 +73,7 @@ bool SlackClient::rtm_start(Json::Value &res)
 
 void *SlackClient::run()
 {
-	Thread::SetThreadName("SlackClient");
+	Thread::set_thread_name("SlackClient");
 	ThreadStarted();
 
 	uint32_t failure_number = 0;

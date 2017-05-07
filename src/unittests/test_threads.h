@@ -25,42 +25,47 @@
 
 #pragma once
 
-#include <atomic>
-#include <mutex>
-#include <thread>
+#include <cppunit/TestAssert.h>
+#include <cppunit/TestCaller.h>
+#include <cppunit/TestFixture.h>
+#include <cppunit/TestSuite.h>
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
 
-class Thread
+#include <luaengine.h>
+#include <openweathermapclient.h>
+#include <utils/threads.h>
+#include <utils/threadpool.h>
+
+#include "unittests_config.h"
+
+class WinterWindTest_Threads : public CppUnit::TestFixture
 {
-public:
-	Thread();
-	virtual ~Thread();
-	const bool start();
-	virtual void stop() { requeststop = true; }
-	int kill();
-	virtual void *run() = 0;
-	bool is_running() { return running; }
-	bool stopRequested() const { return requeststop; }
+	CPPUNIT_TEST_SUITE(WinterWindTest_Threads);
+	CPPUNIT_TEST(thread_pool);
+	CPPUNIT_TEST_SUITE_END();
 
-	void wait();
-	void stop_and_wait()
+	class ThreadTest: public Thread
 	{
-		stop();
-		wait();
-	}
-
-	Thread(Thread const &) = delete;
-	Thread &operator=(Thread const &) = delete;
+		public:
+			virtual void *run()
+			{
+				ThreadStarted();
+				std::this_thread::sleep_for(std::chrono::seconds(5));
+				return nullptr;
+			}
+	};
+public:
+	void setUp() {}
+	void tearDown() {}
 
 protected:
-	void ThreadStarted();
-	static void set_thread_name(const std::string &name);
-
-private:
-	static void *the_thread(void *data);
-	std::thread *m_thread = nullptr;
-	std::atomic_bool started;
-	std::atomic_bool running;
-	std::atomic_bool requeststop;
-
-	std::mutex continuemutex, continuemutex2;
+	void thread_pool()
+	{
+		ThreadPool<ThreadTest> *tp = new ThreadPool<ThreadTest>(4);
+		CPPUNIT_ASSERT(tp);
+		tp->start_threads();
+		tp->stop_threads(true);
+		delete tp;
+	}
 };

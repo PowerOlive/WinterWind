@@ -60,6 +60,7 @@ set(HEADER_FILES
 	../include/utils/semaphore.h
 	../include/utils/stringutils.h
 	../include/utils/threads.h
+	../include/utils/threadpool.h
 	../include/utils/threadsafequeue.h
 	../include/utils/time.h
 	../include/xmlparser.h)

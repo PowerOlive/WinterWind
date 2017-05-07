@@ -31,6 +31,7 @@
 #include "test_string.h"
 #include "test_time.h"
 #include "test_twitter.h"
+#include "test_threads.h"
 
 int main(int argc, const char *argv[])
 {
@@ -80,6 +81,7 @@ int main(int argc, const char *argv[])
 		runner.addTest(WinterWindTest_Twitter::suite());
 	}
 
+	runner.addTest(WinterWindTest_Threads::suite());
 	runner.addTest(WinterWindTest_HTTP::suite());
 	runner.addTest(WinterWindTest_Misc::suite());
 	std::cout << "Starting unittests...." << std::endl;

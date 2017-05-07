@@ -140,7 +140,7 @@ void ConsoleThread::add_completion(const std::string &completion)
 
 void *ConsoleThread::run()
 {
-	Thread::SetThreadName(m_thread_name);
+	Thread::set_thread_name(m_thread_name);
 
 	ThreadStarted();
 

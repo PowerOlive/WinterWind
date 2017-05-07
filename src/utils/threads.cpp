@@ -24,15 +24,12 @@
  */
 
 #include "utils/threads.h"
-#include <pthread.h>
-#include <string>
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
 #include <pthread_np.h>
 #endif
 
 Thread::Thread()
 {
-	retval = NULL;
 	requeststop = false;
 	running = false;
 	started = false;
@@ -61,19 +58,15 @@ const bool Thread::start()
 	requeststop = false;
 
 	continuemutex.lock();
-	m_thread = new std::thread(TheThread, this);
+	m_thread = new std::thread(the_thread, this);
 	if (!m_thread) {
 		continuemutex.unlock();
 		return false;
 	}
 
-	/* Wait until 'running' is set */
-
+	// Wait until 'running' flag is set
 	while (!running) {
-		struct timespec req, rem;
-		req.tv_sec = 0;
-		req.tv_nsec = 1000000;
-		nanosleep(&req, &rem);
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 	started = true;
 
@@ -103,7 +96,7 @@ int Thread::kill()
 	return 0;
 }
 
-void *Thread::TheThread(void *data)
+void *Thread::the_thread(void *data)
 {
 	Thread *thread = (Thread *) data;
 
@@ -121,7 +114,7 @@ void *Thread::TheThread(void *data)
 
 void Thread::ThreadStarted() { continuemutex2.unlock(); }
 
-void Thread::SetThreadName(const std::string &name)
+void Thread::set_thread_name(const std::string &name)
 {
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
 	pthread_set_name_np(pthread_self(), name.c_str());

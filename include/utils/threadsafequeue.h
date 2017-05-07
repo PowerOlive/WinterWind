@@ -40,17 +40,20 @@ public:
 	ThreadSafeQueue() {}
 	~ThreadSafeQueue() {}
 
-	const bool empty() {
+	const bool empty()
+	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 		return m_queue.empty();
 	}
 
-	void push_back(T t) {
+	void push_back(T t)
+	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 		m_queue.push_back(t);
 	}
 
-	T pop_front() {
+	T pop_front()
+	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 		if (m_queue.empty()) {
 			throw ThreadSafeQueueEmptyException();
@@ -61,7 +64,8 @@ public:
 		return r;
 	}
 
-	size_t size() {
+	size_t size()
+	{
 		std::lock_guard<std::mutex> lock(m_mutex);
 		return m_queue.size();
 	}

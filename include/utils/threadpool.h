@@ -25,42 +25,64 @@
 
 #pragma once
 
+#include <cstdint>
 #include <atomic>
-#include <mutex>
-#include <thread>
+#include <vector>
+#include <cassert>
+#include "threads.h"
 
-class Thread
+template <class T>
+class ThreadPool
 {
 public:
-	Thread();
-	virtual ~Thread();
-	const bool start();
-	virtual void stop() { requeststop = true; }
-	int kill();
-	virtual void *run() = 0;
-	bool is_running() { return running; }
-	bool stopRequested() const { return requeststop; }
-
-	void wait();
-	void stop_and_wait()
+	ThreadPool(const uint32_t thread_number)
 	{
-		stop();
-		wait();
+		m_thread_number = thread_number;
+		assert(m_thread_number > 0);
+
+		m_threads.reserve(m_thread_number);
+
+		for (uint32_t i = 0; i < m_thread_number; i++) {
+			m_threads[i] = new T();
+			// Verify if we are working with Thread classes
+			assert(dynamic_cast<Thread *>(m_threads[i]));
+		}
 	}
 
-	Thread(Thread const &) = delete;
-	Thread &operator=(Thread const &) = delete;
+	~ThreadPool()
+	{
+		stop_threads();
+		for (uint32_t i = 0; i < m_threads.size(); i++) {
+			delete m_threads[i];
+		}
+	}
 
-protected:
-	void ThreadStarted();
-	static void set_thread_name(const std::string &name);
+	void start_threads()
+	{
+		for (uint32_t i = 0; i < m_thread_number; i++) {
+			m_threads[i]->start();
+		}
+	}
 
+	void stop_threads(bool wait = false)
+	{
+		for (uint32_t i = 0; i < m_thread_number; i++) {
+			if (wait) {
+				m_threads[i]->stop_and_wait();
+			}
+			else {
+				m_threads[i]->stop();
+			}
+		}
+	}
+
+	void kill_threads()
+	{
+		for (uint32_t i = 0; i < m_thread_number; i++) {
+			m_threads[i]->kill();
+		}
+	}
 private:
-	static void *the_thread(void *data);
-	std::thread *m_thread = nullptr;
-	std::atomic_bool started;
-	std::atomic_bool running;
-	std::atomic_bool requeststop;
-
-	std::mutex continuemutex, continuemutex2;
+	std::atomic<uint32_t> m_thread_number;
+	std::vector<T *> m_threads = {};
 };
