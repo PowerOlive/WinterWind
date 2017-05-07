@@ -335,6 +335,17 @@ template <> bool LuaHelper::read(lua_State *L, int index, Json::Value &res)
 	return read_json_value(L, res, index, 1);
 }
 
+template <> bool LuaHelper::read(lua_State *L, int index, std::vector<std::string> &res)
+{
+	lua_pushnil(L);
+	while (lua_next(L, index)) {
+		int cur_index = lua_gettop(L);
+		res.push_back(read<std::string>(L, cur_index));
+		lua_pop(L, 1);
+	}
+	return true;
+}
+
 /* this permits to read K,V pair
     std::unordered_map<std::string, std::string> fields = {};
 	if (lua_istable(L, 5)) {
