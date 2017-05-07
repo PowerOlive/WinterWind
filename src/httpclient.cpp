@@ -235,8 +235,8 @@ bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t fla
 	_get(url, res_str, flag);
 
 	if (!json_reader()->parse(res_str, res)) {
-		std::cerr << "Failed to parse query for " << url << std::endl
-				<< "Reponse was: " << std::endl << res_str << std::endl;
+		std::cerr << "Failed to parse query for " << url << ". Response was not a JSON"
+			<< std::endl;
 		return false;
 	}
 

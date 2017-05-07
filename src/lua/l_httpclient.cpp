@@ -222,7 +222,7 @@ int LuaRefHTTPClient::l_add_uri_param(lua_State *L)
 	std::string param = read<std::string>(L, 2);
 	std::string value = read<std::string>(L, 3);
 
-	http->add_uri_param(param, value);
+	http->add_uri_param(param, value, false);
 	return 1;
 }
 
