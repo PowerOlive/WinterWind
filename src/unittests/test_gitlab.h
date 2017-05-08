@@ -40,6 +40,16 @@
 static std::string GITLAB_TOKEN = "";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
 
+#define ONLY_IF_GITLAB_INIT_SUCCEED \
+if (gitlab_has_failed_in_init) { \
+	return; \
+}
+
+#define MARK_GITLAB_FAILURE_ON_INIT_IF \
+	if (m_gitlab_client->get_http_code() == 502) { \
+	gitlab_has_failed_in_init = true; \
+}
+
 class WinterWindTest_Gitlab : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_Gitlab);
@@ -67,7 +77,10 @@ class WinterWindTest_Gitlab : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp() { m_gitlab_client = new GitlabAPIClient("https://gitlab.com", GITLAB_TOKEN); }
+	void setUp()
+	{
+		m_gitlab_client = new GitlabAPIClient("https://gitlab.com", GITLAB_TOKEN);
+	}
 
 	void tearDown()
 	{
@@ -124,7 +137,11 @@ protected:
 		std::string error_msg = std::string("Unable to create 1st default group (rc: ");
 		error_msg += std::to_string(m_gitlab_client->get_http_code()) + ")";
 
-		CPPUNIT_ASSERT_MESSAGE(error_msg, rc);
+		MARK_GITLAB_FAILURE_ON_INIT_IF
+
+		CPPUNIT_ASSERT_MESSAGE(error_msg, rc || m_gitlab_client->get_http_code() == 502);
+
+		ONLY_IF_GITLAB_INIT_SUCCEED
 
 		GitlabGroup g2("ww_testgroup2_default_" + RUN_TIMESTAMP,
 			       "ww_testgroup2_default_" + RUN_TIMESTAMP);
@@ -132,11 +149,15 @@ protected:
 		rc = m_gitlab_client->create_group(g2, res);
 		error_msg = std::string("Unable to create 2nd default group (rc: ");
 		error_msg += std::to_string(m_gitlab_client->get_http_code()) + ")";
-		CPPUNIT_ASSERT_MESSAGE(error_msg, rc);
+		CPPUNIT_ASSERT_MESSAGE(error_msg, rc || m_gitlab_client->get_http_code() == 502);
+
+		MARK_GITLAB_FAILURE_ON_INIT_IF
 	}
 
 	void create_group()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
+
 		Json::Value res;
 		GitlabGroup g(TEST_GROUP, TEST_GROUP);
 		g.description = "test";
@@ -146,6 +167,7 @@ protected:
 
 	void get_group()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value result;
 		CPPUNIT_ASSERT(
 		    m_gitlab_client->get_group(std::string("ww_testgroup_") + RUN_TIMESTAMP,
@@ -154,11 +176,13 @@ protected:
 
 	void remove_group()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_group(TEST_GROUP) == GITLAB_RC_OK);
 	}
 
 	void remove_groups()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_groups(
 				   {"ww_testgroup_default_" + RUN_TIMESTAMP,
 				    "ww_testgroup2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
@@ -166,12 +190,14 @@ protected:
 
 	void get_namespaces()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value result;
 		CPPUNIT_ASSERT(m_gitlab_client->get_namespaces("", result) == GITLAB_RC_OK);
 	}
 
 	void get_namespace()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value result;
 		CPPUNIT_ASSERT(
 		    m_gitlab_client->get_namespace(std::string("ww_testgroup_") + RUN_TIMESTAMP,
@@ -182,17 +208,26 @@ protected:
 
 	void create_default_projects()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value res;
 		CPPUNIT_ASSERT(m_gitlab_client->create_project(
 				   GitlabProject("ww_testproj1_default_" + RUN_TIMESTAMP), res) ==
-			       GITLAB_RC_OK);
+			       GITLAB_RC_OK || m_gitlab_client->get_http_code() == 502);
+
+		MARK_GITLAB_FAILURE_ON_INIT_IF
+
+		ONLY_IF_GITLAB_INIT_SUCCEED
+
 		CPPUNIT_ASSERT(m_gitlab_client->create_project(
 				   GitlabProject("ww_testproj2_default_" + RUN_TIMESTAMP), res) ==
-			       GITLAB_RC_OK);
+			       GITLAB_RC_OK || m_gitlab_client->get_http_code() == 502);
+
+		MARK_GITLAB_FAILURE_ON_INIT_IF
 	}
 
 	void create_project()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		// Required to get the namespace on which create the project
 		get_namespace();
 
@@ -211,6 +246,7 @@ protected:
 
 	void get_projects()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value res;
 		CPPUNIT_ASSERT(m_gitlab_client->get_projects("ww_testproj", res) == GITLAB_RC_OK);
 		CPPUNIT_ASSERT(res[0].isMember("http_url_to_repo"));
@@ -218,6 +254,7 @@ protected:
 
 	void get_project()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value res;
 		CPPUNIT_ASSERT(m_gitlab_client->get_project("ww_testproj1_default_" + RUN_TIMESTAMP,
 							    res) == GITLAB_RC_OK);
@@ -226,6 +263,7 @@ protected:
 
 	void get_project_ns()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value res;
 		CPPUNIT_ASSERT(m_gitlab_client->get_project_ns("ww_testproj_" + RUN_TIMESTAMP,
 							       TEST_GROUP, res) == GITLAB_RC_OK);
@@ -234,12 +272,14 @@ protected:
 
 	void remove_project()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_project(std::string("ww_testproj_") +
 							       RUN_TIMESTAMP) == GITLAB_RC_OK);
 	}
 
 	void remove_projects()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_projects(
 				   {"ww_testproj1_default_" + RUN_TIMESTAMP,
 				    "ww_testproj2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
@@ -247,6 +287,7 @@ protected:
 
 	void create_label()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value result;
 		CPPUNIT_ASSERT(
 		    m_gitlab_client->create_label(TEST_GROUP, "ww_testproj_" + RUN_TIMESTAMP,
@@ -255,6 +296,7 @@ protected:
 
 	void get_label()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value result;
 		CPPUNIT_ASSERT(m_gitlab_client->get_label(TEST_GROUP,
 							  "ww_testproj_" + RUN_TIMESTAMP,
@@ -265,6 +307,7 @@ protected:
 
 	void remove_label()
 	{
+		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_label(TEST_GROUP,
 							     "ww_testproj_" + RUN_TIMESTAMP,
 							     TEST_LABEL) == GITLAB_RC_OK);
@@ -272,6 +315,7 @@ protected:
 
 private:
 	GitlabAPIClient *m_gitlab_client = nullptr;
+	bool gitlab_has_failed_in_init = false;
 	uint32_t m_testing_namespace_id = 0;
 	std::string TEST_COLOR = "#005577";
 	std::string TEST_GROUP = "ww_testgroup_" + RUN_TIMESTAMP;
