@@ -43,6 +43,7 @@ class WinterWindTest_Threads : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_Threads);
 	CPPUNIT_TEST(thread_pool);
+	CPPUNIT_TEST(working_queue);
 	CPPUNIT_TEST_SUITE_END();
 
 	class ThreadTest: public Thread
@@ -54,6 +55,52 @@ class WinterWindTest_Threads : public CppUnit::TestFixture
 				std::this_thread::sleep_for(std::chrono::seconds(5));
 				return nullptr;
 			}
+	};
+
+	struct WorkerIn
+	{
+		uint32_t a = 0;
+		uint32_t b =0;
+	};
+
+	struct WorkerOut: public WorkerIn
+	{
+		uint32_t r = 0;
+	};
+
+	class TPTestWorker: public Thread
+	{
+		public:
+			virtual void *run()
+			{
+				ThreadStarted();
+				CPPUNIT_ASSERT(m_work_queue);
+				while (!stopRequested()) {
+					while (m_work_queue->input_queue_size() > 0) {
+						WorkerIn wi = m_work_queue->read_input_queue();
+						WorkerOut wo;
+						wo.a = wi.a;
+						wo.b = wi.b;
+						wo.r = wi.a + wi.b;
+						m_work_queue->write_output(wo);
+					}
+					std::this_thread::sleep_for(std::chrono::milliseconds(5));
+				}
+				return nullptr;
+			}
+
+			void set_work_queue(ThreadPoolWorkQueue<TPTestWorker, WorkerIn, WorkerOut> *t)
+			{
+				m_work_queue = t;
+			}
+		private:
+			ThreadPoolWorkQueue<TPTestWorker, WorkerIn, WorkerOut> *m_work_queue = nullptr;
+	};
+
+	class TPWQTest: public ThreadPoolWorkQueue<TPTestWorker, WorkerIn, WorkerOut>
+	{
+		public:
+			TPWQTest(const uint32_t tn): ThreadPoolWorkQueue(tn) {}
 	};
 public:
 	void setUp() {}
@@ -67,5 +114,32 @@ protected:
 		tp->start_threads();
 		tp->stop_threads(true);
 		delete tp;
+	}
+
+	void working_queue()
+	{
+		TPWQTest *wq = new TPWQTest(6);
+		CPPUNIT_ASSERT(wq);
+
+		static const uint8_t TEST_INPUT_NUMBERS = 100;
+		for (uint8_t i = 0; i < TEST_INPUT_NUMBERS; i++) {
+			wq->write_input({i, i});
+		}
+
+		CPPUNIT_ASSERT(wq->input_queue_size() == TEST_INPUT_NUMBERS);
+
+		wq->start_threads();
+
+		// 1 second wait should be sufficient for threads to process the queue
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+		// Stop workers (waiting them)
+		wq->stop_threads();
+		CPPUNIT_ASSERT(wq->output_queue_size() == TEST_INPUT_NUMBERS);
+		while (wq->output_queue_size() > 0) {
+			WorkerOut wo = wq->read_output();
+			CPPUNIT_ASSERT(wo.a + wo.b == wo.r);
+		}
+		delete wq;
 	}
 };
