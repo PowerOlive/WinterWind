@@ -53,7 +53,7 @@ function test_http_client()
 	end
 
 	res = http:delete("http://www.amazon.com/")
-	if res.code ~= 200 then
+	if res.code ~= 200 and res.code ~= 405 then
 		print("test_http_client: delete test failed (rc: " .. res.code .. ")")
 		score = score - 1
 	end
