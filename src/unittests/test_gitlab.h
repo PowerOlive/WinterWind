@@ -149,7 +149,8 @@ protected:
 		rc = m_gitlab_client->create_group(g2, res);
 		error_msg = std::string("Unable to create 2nd default group (rc: ");
 		error_msg += std::to_string(m_gitlab_client->get_http_code()) + ")";
-		CPPUNIT_ASSERT_MESSAGE(error_msg, rc || m_gitlab_client->get_http_code() == 502);
+		CPPUNIT_ASSERT_MESSAGE(error_msg, rc
+			|| m_gitlab_client->get_http_code() == 502);
 
 		MARK_GITLAB_FAILURE_ON_INIT_IF
 	}
@@ -162,22 +163,26 @@ protected:
 		GitlabGroup g(TEST_GROUP, TEST_GROUP);
 		g.description = "test";
 		g.visibility = GITLAB_GROUP_PUBLIC;
-		CPPUNIT_ASSERT(m_gitlab_client->create_group(g, res));
+		CPPUNIT_ASSERT(m_gitlab_client->create_group(g, res)
+			|| m_gitlab_client->get_http_code() == 502);
+
+		MARK_GITLAB_FAILURE_ON_INIT_IF
 	}
 
 	void get_group()
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value result;
-		CPPUNIT_ASSERT(
-		    m_gitlab_client->get_group(std::string("ww_testgroup_") + RUN_TIMESTAMP,
-					       result) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(m_gitlab_client->get_group(std::string("ww_testgroup_")
+				+ RUN_TIMESTAMP, result) == GITLAB_RC_OK
+			|| m_gitlab_client->get_http_code() == 502);
 	}
 
 	void remove_group()
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
-		CPPUNIT_ASSERT(m_gitlab_client->delete_group(TEST_GROUP) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(m_gitlab_client->delete_group(TEST_GROUP) == GITLAB_RC_OK
+			|| m_gitlab_client->get_http_code() == 502);
 	}
 
 	void remove_groups()
@@ -185,7 +190,8 @@ protected:
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_groups(
 				   {"ww_testgroup_default_" + RUN_TIMESTAMP,
-				    "ww_testgroup2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
+				    "ww_testgroup2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK
+			|| m_gitlab_client->get_http_code() == 502);
 	}
 
 	void get_namespaces()
