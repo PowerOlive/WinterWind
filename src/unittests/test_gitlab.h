@@ -34,6 +34,7 @@
 
 #include <gitlabapiclient.h>
 #include <iomanip>
+#include <regex>
 #include "utils/time.h"
 
 static std::string GITLAB_TOKEN = "";
@@ -91,6 +92,22 @@ public:
 					m_gitlab_client->delete_project(p["name"].asString());
 				}
 
+			}
+		}
+
+		Json::Value groups;
+		if (m_gitlab_client->get_groups("ww_testgroup_", groups)) {
+			std::regex re("ww_testgroup_([0-9]+)");
+			for (const auto &g : groups) {
+				std::smatch sm;
+				const std::string gname = g["name"].asString();
+				if (std::regex_match(gname, sm, re) && sm.size() > 0) {
+					const std::string timestamp_str = sm.str(1);
+					std::time_t t = std::atoi(timestamp_str.c_str());
+					if (t < std::time(0) - 86400) {
+						m_gitlab_client->delete_group(gname);
+					}
+				}
 			}
 		}
 		delete m_gitlab_client;
