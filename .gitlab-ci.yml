@@ -18,6 +18,7 @@ stages:
   - build
   - documentation
   - unittests
+  - deploy
 
 cppcheck:
   stage: cppcheck
@@ -105,11 +106,13 @@ unittests:callgrind:
 doxygen:documentation:
   stage: documentation
   environment: production
+  only:
+    - master
   artifacts:
-    when: on_success
-    expire_in: 1 year
-    paths:
-      - build/doc/html
+      when: on_success
+      expire_in: 1 year
+      paths:
+        - build/doc/html
   dependencies:
     - build:gcc6
     - build:clang
@@ -121,3 +124,18 @@ doxygen:documentation:
     - cd build
     - cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DENABLE_UNITTESTS=1 ..
     - make doc
+
+pages:
+  stage: deploy
+  only:
+    - master
+  dependencies:
+    - doxygen:documentation
+  script:
+    - mkdir public/
+    - cp -R build/doc/html/* public/
+  artifacts:
+    when: on_success
+    expire_in: 1 year
+    paths:
+      - public
