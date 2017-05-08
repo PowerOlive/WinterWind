@@ -85,28 +85,52 @@ public:
 	HTTPServer(const uint16_t http_port);
 	virtual ~HTTPServer();
 
-	static int request_handler(void *http_server, MHD_Connection *connection, const char *url, const char *method,
-				   const char *version, const char *upload_data, size_t *upload_data_size, void **ptr);
-
-	static void request_completed(void *cls, struct MHD_Connection *connection, void **con_cls,
-				      MHD_RequestTerminationCode toe);
-
-	void register_handler(HTTPMethod method, const std::string &url, const HTTPServerRequestHandler &hdl) {
+	/**
+	 * Register handler hdl for method & url
+	 * This will permit to call it back when a request mathod method & url will be found.
+	 *
+	 * @param method HTTP method to match
+	 * @param url URL to match
+	 * @param hdl function pointer to handling
+	 */
+	void register_handler(HTTPMethod method, const std::string &url,
+		const HTTPServerRequestHandler &hdl)
+	{
 		m_handlers[method][url] = hdl;
 	}
 
 	uint16_t get_port() const { return m_http_port; }
 
 private:
-	static int mhd_iter_headers(void *cls, MHD_ValueKind kind, const char *key, const char *value);
-	static int mhd_iter_getargs(void *cls, MHD_ValueKind kind, const char *key, const char *value);
+	static int mhd_iter_headers(void *cls, MHD_ValueKind kind, const char *key,
+		const char *value);
+	static int mhd_iter_getargs(void *cls, MHD_ValueKind kind, const char *key,
+		const char *value);
+
+	static int request_handler(void *http_server, MHD_Connection *connection,
+		const char *url, const char *method, const char *version, const char *upload_data,
+		size_t *upload_data_size, void **ptr);
+
+	static void request_completed(void *cls, struct MHD_Connection *connection,
+		void **con_cls, MHD_RequestTerminationCode toe);
+
 	bool parse_post_data(const std::string &data, HTTPFormQuery *qf);
 
 	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, const std::string &upload_data,
 			  HTTPRequestSession *session);
 
+	/**
+	 * MicroHTTPd service pointer
+	 */
 	MHD_Daemon *m_mhd_daemon = nullptr;
 
+	/**
+	 * Store handlers for each method & URL
+	 */
 	HTTPServerReqHandlerMap m_handlers[HTTP_METHOD_MAX];
+
+	/**
+	 * Listening port
+	 */
 	uint16_t m_http_port;
 };

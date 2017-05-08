@@ -27,6 +27,9 @@
 
 #include <lua.hpp>
 
+/**
+ * This macro permits to bootstrap easily a Lua Referenced object
+ */
 #define LUAREF_OBJECT(name)                                                                                            \
 private:                                                                                                               \
 	name *m_object;                                                                                                \
@@ -42,10 +45,41 @@ public:                                                                         
 	static LuaRef##name *checkobject(lua_State *L, int narg);                                                      \
 	static name *getobject(LuaRef##name *ref);
 
+/**
+ * Convert Lua States to C++ types
+ */
 class LuaHelper
 {
 protected:
+
+	/**
+	 * Read a value using a template type T from Lua State L and index
+	 *
+	 * @tparam T type to read from Lua
+	 * @param L Lua state
+	 * @param index Lua Index to read
+	 * @return read value from Lua
+	 */
 	template <typename T> static T read(lua_State *L, int index);
+
+	/**
+	 * Read a value using a template type T from Lua State L and index and write it
+	 * to res. It's useful to prevent a memory copy on huge objects (like Json)
+	 *
+	 * @tparam T type to read from Lua
+	 * @param L Lua state
+	 * @param index Lua Index to read
+	 * @param res reference result object
+	 * @return true if conversion succeed
+	 */
 	template <typename T> static bool read(lua_State *L, int index, T &res);
+
+	/**
+	 * Write what value with type T to Lua State L
+	 * @tparam T type of what
+	 * @param L Lua State
+	 * @param what value to write
+	 * @return true if write succeed
+	 */
 	template <typename T> static bool write(lua_State *L, const T &what);
 };
