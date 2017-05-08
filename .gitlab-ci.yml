@@ -24,7 +24,7 @@ cppcheck:
   environment: staging
   before_script:
     - pacman --noconfirm -Sy archlinux-keyring
-    - pacman --noconfirm -Sy cppcheck
+    - pacman --noconfirm -Sy cppcheck openssl-1.0 openssl
   script:
     - mkdir -p cppcheck_tests
     - cd cppcheck_tests
