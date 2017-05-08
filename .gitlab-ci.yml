@@ -9,18 +9,22 @@ variables:
 
 before_script:
   - pacman --noconfirm -Sy archlinux-keyring
-  - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient lua cppcheck websocketpp asio valgrind curl openssl-1.0
+  - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient lua websocketpp asio valgrind curl openssl-1.0
 # These are already included in image
 # - pacman --noconfirm -S libxml2 jsoncpp curl
 
 stages:
   - cppcheck
   - build
+  - documentation
   - unittests
 
 cppcheck:
   stage: cppcheck
   environment: staging
+  before_script:
+    - pacman --noconfirm -Sy archlinux-keyring
+    - pacman --noconfirm -Sy cppcheck
   script:
     - mkdir -p cppcheck_tests
     - cd cppcheck_tests
@@ -97,3 +101,23 @@ unittests:callgrind:
     expire_in: 3 day
     paths:
       - build/callgrind.out.*
+
+doxygen:documentation:
+  stage: documentation
+  environment: production
+  artifacts:
+    when: on_success
+    expire_in: 1 year
+    paths:
+      - build/doc/html
+  dependencies:
+    - build:gcc6
+    - build:clang
+  before_script:
+    - pacman --noconfirm -Sy archlinux-keyring
+    - pacman --noconfirm -Sy doxygen cmake
+  script:
+    - mkdir -p build
+    - cd build
+    - cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DENABLE_UNITTESTS=1 ..
+    - make doc
