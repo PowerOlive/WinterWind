@@ -26,11 +26,12 @@
 #include "redisclient.h"
 #include <iostream>
 
-RedisClient::RedisClient(const std::string &host, const uint16_t port, const uint32_t cb_interval)
+RedisClient::RedisClient(const std::string &host, const uint16_t port,
+		const uint32_t cb_interval):
+	m_host(host),
+	m_port(port),
+	m_circuit_breaker_interval(cb_interval)
 {
-	m_host = host;
-	m_port = port;
-	m_circuit_breaker_interval = cb_interval;
 	connect();
 }
 

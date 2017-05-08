@@ -31,7 +31,7 @@
 class BaseException : public std::exception
 {
 public:
-	BaseException(const std::string &what) throw() { m_what = what; }
+	BaseException(const std::string &what) throw(): m_what(what) {}
 
 	virtual ~BaseException() throw() {}
 	virtual const char *what() const throw() { return m_what.c_str(); }

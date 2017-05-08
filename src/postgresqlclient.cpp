@@ -222,7 +222,7 @@ ExecStatusType PostgreSQLClient::show_tables(const std::string &schema,
 {
 	check_db_connection();
 
-	const char *values[]{schema.c_str()};
+	const char *values[] { schema.c_str() };
 	PGR(exec_prepared("list_tables_into_schema", 1, values, NULL, NULL, false, false));
 	int32_t nbres = PQntuples(*result);
 	for (int32_t i = 0; i < nbres; i++) {
