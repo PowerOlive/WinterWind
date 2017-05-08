@@ -76,7 +76,7 @@ class WinterWindTest_Threads : public CppUnit::TestFixture
 				ThreadStarted();
 				CPPUNIT_ASSERT(m_work_queue);
 				while (!stopRequested()) {
-					while (m_work_queue->input_queue_size() > 0) {
+					while (!m_work_queue->input_queue_empty()) {
 						WorkerIn wi = m_work_queue->read_input_queue();
 						WorkerOut wo;
 						wo.a = wi.a;
@@ -136,7 +136,7 @@ protected:
 		// Stop workers (waiting them)
 		wq->stop_threads();
 		CPPUNIT_ASSERT(wq->output_queue_size() == TEST_INPUT_NUMBERS);
-		while (wq->output_queue_size() > 0) {
+		while (!wq->output_queue_empty()) {
 			WorkerOut wo = wq->read_output();
 			CPPUNIT_ASSERT(wo.a + wo.b == wo.r);
 		}

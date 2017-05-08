@@ -123,6 +123,11 @@ public:
 		return m_input_queue.size();
 	}
 
+	bool input_queue_empty()
+	{
+		return m_input_queue.empty();
+	}
+
 	OUT read_output()
 	{
 		return m_output_queue.pop_front();
@@ -131,6 +136,11 @@ public:
 	size_t output_queue_size()
 	{
 		return m_output_queue.size();
+	}
+
+	bool output_queue_empty()
+	{
+		return m_output_queue.empty();
 	}
 
 private:
