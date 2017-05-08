@@ -28,6 +28,7 @@
 #include <cstring>
 #include <curl/curl.h>
 #include <iostream>
+#include "cmake_config.h"
 
 std::atomic_bool HTTPClient::m_inited(false);
 
@@ -237,6 +238,9 @@ bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t fla
 	if (!json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << ". Response was not a JSON"
 			<< std::endl;
+#if UNITTESTS
+		std::cerr << "[DEBUG] Response was: " << res_str << std::endl;
+#endif
 		return false;
 	}
 
@@ -261,6 +265,9 @@ bool HTTPClient::_post_json(const std::string &url, const Json::Value &data, Jso
 
 	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << std::endl;
+#if UNITTESTS
+		std::cerr << "[DEBUG] Response was: " << res_str << std::endl;
+#endif
 		return false;
 	}
 
@@ -285,6 +292,9 @@ bool HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json
 
 	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << std::endl;
+#if UNITTESTS
+		std::cerr << "[DEBUG] Response was: " << res_str << std::endl;
+#endif
 		return false;
 	}
 

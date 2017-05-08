@@ -119,11 +119,20 @@ protected:
 		Json::Value res;
 		GitlabGroup g("ww_testgroup_default_" + RUN_TIMESTAMP,
 			      "ww_testgroup_default_" + RUN_TIMESTAMP);
-		CPPUNIT_ASSERT(m_gitlab_client->create_group(g, res));
+
+		bool rc = m_gitlab_client->create_group(g, res);
+		std::string error_msg = std::string("Unable to create 1st default group (rc: ");
+		error_msg += std::to_string(m_gitlab_client->get_http_code()) + ")";
+
+		CPPUNIT_ASSERT_MESSAGE(error_msg, rc);
 
 		GitlabGroup g2("ww_testgroup2_default_" + RUN_TIMESTAMP,
 			       "ww_testgroup2_default_" + RUN_TIMESTAMP);
-		CPPUNIT_ASSERT(m_gitlab_client->create_group(g2, res));
+
+		rc = m_gitlab_client->create_group(g2, res);
+		error_msg = std::string("Unable to create 2nd default group (rc: ");
+		error_msg += std::to_string(m_gitlab_client->get_http_code()) + ")";
+		CPPUNIT_ASSERT_MESSAGE(error_msg, rc);
 	}
 
 	void create_group()

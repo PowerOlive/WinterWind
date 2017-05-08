@@ -100,7 +100,7 @@ public:
 	bool _put_json(const std::string &url, const Json::Value &data, Json::Value &res,
 			int32_t flags = HTTPClient::REQ_SIMPLE);
 
-	long get_http_code() const { return m_http_code; }
+	virtual long get_http_code() const { return m_http_code; }
 
 	void http_string_escape(const std::string &src, std::string &dst);
 

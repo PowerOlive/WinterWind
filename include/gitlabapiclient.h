@@ -188,6 +188,7 @@ public:
 	const GitlabRetCod delete_project(const std::string &name);
 	const GitlabRetCod delete_projects(const std::vector<std::string> &projects);
 
+	virtual long get_http_code() const { return HTTPClient::get_http_code(); }
 private:
 	void build_issue_data(const GitlabIssue &issue, std::string &post_data);
 
