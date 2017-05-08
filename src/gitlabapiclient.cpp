@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,

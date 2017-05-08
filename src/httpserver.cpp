@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
+/*
+ * Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
