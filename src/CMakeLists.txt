@@ -24,6 +24,7 @@
 
 include_directories(
 		${PROJECT_BINARY_DIR}/winterwind/include
+		${INCLUDE_SRC_PATH}
 )
 
 add_subdirectory(core)

@@ -51,17 +51,17 @@ set(SRC_FILES
 	xmlparser.cpp)
 
 set(HEADER_FILES
-	${INCLUDE_SRC_PATH}/utils/base64.h
-	${INCLUDE_SRC_PATH}/utils/classhelpers.h
-	${INCLUDE_SRC_PATH}/utils/exception.h
-	${INCLUDE_SRC_PATH}/utils/macros.h
-	${INCLUDE_SRC_PATH}/utils/semaphore.h
-	${INCLUDE_SRC_PATH}/utils/stringutils.h
-	${INCLUDE_SRC_PATH}/utils/threads.h
-	${INCLUDE_SRC_PATH}/utils/threadpool.h
-	${INCLUDE_SRC_PATH}/utils/threadsafequeue.h
-	${INCLUDE_SRC_PATH}/utils/time.h
-	${INCLUDE_SRC_PATH}/xmlparser.h)
+	${INCLUDE_SRC_PATH}/core/utils/base64.h
+	${INCLUDE_SRC_PATH}/core/utils/classhelpers.h
+	${INCLUDE_SRC_PATH}/core/utils/exception.h
+	${INCLUDE_SRC_PATH}/core/utils/macros.h
+	${INCLUDE_SRC_PATH}/core/utils/semaphore.h
+	${INCLUDE_SRC_PATH}/core/utils/stringutils.h
+	${INCLUDE_SRC_PATH}/core/utils/threads.h
+	${INCLUDE_SRC_PATH}/core/utils/threadpool.h
+	${INCLUDE_SRC_PATH}/core/utils/threadsafequeue.h
+	${INCLUDE_SRC_PATH}/core/utils/time.h
+	${INCLUDE_SRC_PATH}/core/xmlparser.h)
 
 set(PROJECT_LIBS
 	jsoncpp
@@ -71,7 +71,7 @@ set(READLINE 0 PARENT_SCOPE)
 
 if (ENABLE_CONSOLE)
 	set(SRC_FILES ${SRC_FILES} console.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/console.h)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/console.h)
 	if (ENABLE_READLINE)
 		set(PROJECT_LIBS ${PROJECT_LIBS} readline)
 		set(READLINE 1 PARENT_SCOPE)
@@ -81,13 +81,13 @@ endif()
 if (ENABLE_POSTGRESQL)
 	set(ENABLE_POSTGRESQL 1 PARENT_SCOPE)
 	set(SRC_FILES ${SRC_FILES} postgresqlclient.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/postgresqlclient.h)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/postgresqlclient.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} pq)
 endif()
 
 if (ENABLE_MYSQL)
 	set(SRC_FILES ${SRC_FILES} mysqlclient.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/mysqlclient.h)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/mysqlclient.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} mysqlclient)
 endif()
 
@@ -95,53 +95,53 @@ if (ENABLE_HTTPCLIENT)
 	find_package(OpenSSL REQUIRED)
 	set(ENABLE_HTTPCLIENT 1 PARENT_SCOPE)
 	set(SRC_FILES ${SRC_FILES} httpclient.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/httpclient.h ${INCLUDE_SRC_PATH}/httpcommon.h)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/httpclient.h ${INCLUDE_SRC_PATH}/core/httpcommon.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} crypto curl ssl)
 
 	if (ENABLE_CALDAV)
 		set(SRC_FILES ${SRC_FILES} caldavclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/caldavclient.h)
+		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/caldavclient.h)
 	endif()
 
 	if (ENABLE_ELASTICSEARCH)
 		set(SRC_FILES ${SRC_FILES} elasticsearchclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/elasticsearchclient.h)
+		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/elasticsearchclient.h)
 	endif()
 
 	if (ENABLE_GITLAB)
 		set(SRC_FILES ${SRC_FILES} gitlabapiclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/gitlabapiclient.h)
+		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/gitlabapiclient.h)
 	endif()
 
 	if (ENABLE_JIRACLIENT)
 		set(ENABLE_JIRACLIENT 1 PARENT_SCOPE)
 		set(SRC_FILES ${SRC_FILES} jiraclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/jiraclient.h)
+		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/jiraclient.h)
 	endif()
 
 	if (ENABLE_OWMCLIENT)
 		set(SRC_FILES ${SRC_FILES} openweathermapclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/openweathermapclient.h)
+		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/openweathermapclient.h)
 	endif()
 
 	if (ENABLE_RATPCLIENT)
 		set(ENABLE_RATPCLIENT 1 PARENT_SCOPE)
 		set(SRC_FILES ${SRC_FILES} ratpclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/ratpclient.h)
+		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/ratpclient.h)
 	endif()
 
 	if (ENABLE_SLACKCLIENT)
 		set(SRC_FILES ${SRC_FILES} slackclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/slackclient.h)
+		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/slackclient.h)
 	endif()
 
 	if (ENABLE_OAUTHCLIENT)
 		set(SRC_FILES ${SRC_FILES} oauthclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/oauthclient.h)
+		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/oauthclient.h)
 
 		if (ENABLE_TWITTERCLIENT)
 			set(SRC_FILES ${SRC_FILES} twitterclient.cpp)
-			set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/twitterclient.h)
+			set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/twitterclient.h)
 		endif()
 	endif()
 endif()
@@ -152,21 +152,21 @@ if (ENABLE_HTTPSERVER)
 		httpserver.cpp
 	)
 	set(HEADER_FILES ${HEADER_FILES}
-		${INCLUDE_SRC_PATH}/httpcommon.h
-		${INCLUDE_SRC_PATH}/httpresponse.h
-		${INCLUDE_SRC_PATH}/httpserver.h
+		${INCLUDE_SRC_PATH}/core/httpcommon.h
+		${INCLUDE_SRC_PATH}/core/httpresponse.h
+		${INCLUDE_SRC_PATH}/core/httpserver.h
 	)
 	set(PROJECT_LIBS ${PROJECT_LIBS} microhttpd)
 endif()
 
 if (ENABLE_NAMEGENERATOR)
 	set(SRC_FILES ${SRC_FILES} namegenerator.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/namegenerator.h)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/namegenerator.h)
 endif()
 
 if (ENABLE_REDIS)
 	set(SRC_FILES ${SRC_FILES} redisclient.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/redisclient.h)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/redisclient.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} hiredis)
 endif()
 
@@ -174,13 +174,17 @@ if (ENABLE_LUA_ENGINE)
 	include_directories(/usr/local/include/lua53)
 	add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lua)
 	set(SRC_FILES ${SRC_FILES} ${LUA_SRC_FILES} luaengine.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/luaengine.h)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/luaengine.h)
 	if(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
 		set(PROJECT_LIBS ${PROJECT_LIBS} lua-5.3)
 	else()
 		set(PROJECT_LIBS ${PROJECT_LIBS} lua)
 	endif()
 endif()
+
+include_directories(
+	${INCLUDE_SRC_PATH}/core
+)
 
 add_library(winterwind SHARED ${SRC_FILES})
 target_link_libraries(winterwind ${PROJECT_LIBS})

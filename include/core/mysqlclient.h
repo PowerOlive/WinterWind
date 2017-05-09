@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "utils/exception.h"
+#include "core/utils/exception.h"
 #include <my_global.h>
 #include <mysql.h>
 #include <string>

@@ -32,7 +32,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <httpserver.h>
+#include <core/httpserver.h>
 
 #include "cmake_config.h"
 

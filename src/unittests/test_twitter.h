@@ -32,7 +32,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <twitterclient.h>
+#include <core/twitterclient.h>
 
 #include "cmake_config.h"
 

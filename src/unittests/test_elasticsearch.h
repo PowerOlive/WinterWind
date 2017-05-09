@@ -32,7 +32,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <elasticsearchclient.h>
+#include <core/elasticsearchclient.h>
 
 #include "cmake_config.h"
 

@@ -32,10 +32,10 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <luaengine.h>
-#include <openweathermapclient.h>
-#include <utils/threads.h>
-#include <utils/threadpool.h>
+#include <core/luaengine.h>
+#include <core/openweathermapclient.h>
+#include <core/utils/threads.h>
+#include <core/utils/threadpool.h>
 
 #include "cmake_config.h"
 

@@ -26,8 +26,6 @@
 #include "console.h"
 
 #include <cstring>
-#include <unistd.h>
-#include <vector>
 #include <cassert>
 
 #include "cmake_config.h"

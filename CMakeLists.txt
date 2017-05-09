@@ -42,7 +42,6 @@ include_directories(
 	/usr/local/include/libxml2
 	/usr/local/include/jsoncpp
 	/usr/local/include/mysql
-	${INCLUDE_SRC_PATH}
 )
 
 link_directories(

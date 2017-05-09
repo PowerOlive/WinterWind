@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "utils/exception.h"
+#include "core/utils/exception.h"
 #include <libpq-fe.h>
 #include <stdlib.h>
 #include <string>

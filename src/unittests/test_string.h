@@ -32,9 +32,9 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <utils/base64.h>
-#include <utils/stringutils.h>
-#include <utils/hmac.h>
+#include <core/utils/base64.h>
+#include <core/utils/stringutils.h>
+#include <core/utils/hmac.h>
 
 #include "cmake_config.h"
 

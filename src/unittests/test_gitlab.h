@@ -32,10 +32,10 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <gitlabapiclient.h>
 #include <iomanip>
 #include <regex>
-#include "utils/time.h"
+#include <core/utils/time.h>
+#include <core/gitlabapiclient.h>
 
 static std::string GITLAB_TOKEN = "";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));

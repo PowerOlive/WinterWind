@@ -32,7 +32,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <postgresqlclient.h>
+#include <core/postgresqlclient.h>
 
 #define INIT_PG_CLIENT                                                                             \
 	PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db "                    \

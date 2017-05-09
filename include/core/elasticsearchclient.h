@@ -26,8 +26,8 @@
 #pragma once
 
 #include "httpclient.h"
-#include "utils/classhelpers.h"
-#include "utils/exception.h"
+#include "core/utils/classhelpers.h"
+#include "core/utils/exception.h"
 #include <chrono>
 #include <memory>
 #include <queue>

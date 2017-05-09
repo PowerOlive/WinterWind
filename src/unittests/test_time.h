@@ -32,7 +32,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <utils/time.h>
+#include <core/utils/time.h>
 
 #include "cmake_config.h"
 

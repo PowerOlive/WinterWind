@@ -24,7 +24,7 @@
  */
 
 #include "httpclient.h"
-#include "utils/threads.h"
+#include "core/utils/threads.h"
 #include <string>
 
 #define ASIO_STANDALONE
