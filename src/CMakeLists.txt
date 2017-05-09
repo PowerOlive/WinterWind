@@ -28,6 +28,7 @@ include_directories(
 )
 
 add_subdirectory(core)
+add_subdirectory(extras)
 add_subdirectory(unittests)
 
 configure_file(

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
+ * Copyright (c) 2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -25,32 +25,20 @@
 
 #pragma once
 
-#include "oauthclient.h"
+#include "jiraclient.h"
+#include <core/luahelper.h>
+#include <lua.hpp>
 
-class TwitterClient : private OAuthClient
+class LuaRefJiraClient : protected LuaHelper
 {
-public:
-	enum Response
-	{
-		TWITTER_OK,
-		TWITTER_INVALID_RESPONSE,
-		TWITTER_UNAUTHORIZED,
-		TWITTER_FORBIDDEN,
-	};
-
-	TwitterClient(const std::string &consumer_key, const std::string &consumer_secret,
-		      const std::string &access_token = "", const std::string &access_token_secret = "");
-	TwitterClient::Response authenticate() { return get_oauth2_token(); }
-	TwitterClient::Response get_user_timeline(Json::Value &res, const uint16_t count = 0,
-						  const uint32_t since_id = 0, bool include_rts = false,
-						  bool contributor_details = false);
-	TwitterClient::Response get_home_timeline(Json::Value &res, const uint16_t count = 0,
-						  const uint32_t since_id = 0);
-
+	LUAREF_OBJECT(JiraClient)
 private:
-	void append_auth_header();
-	void append_bearer_header();
-	TwitterClient::Response get_oauth2_token();
-
-	std::string m_bearer_token = "";
+	static int l_get_issue(lua_State *L);
+	static int l_create_issue(lua_State *L);
+	static int l_assign_issue(lua_State *L);
+	static int l_comment_issue(lua_State *L);
+	static int l_add_link_to_issue(lua_State *L);
+	static int l_issue_transition(lua_State *L);
+	static int l_get_issue_transitions(lua_State *L);
+	static int l_list_projects(lua_State *L);
 };

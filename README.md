@@ -8,54 +8,11 @@ WinterWind required C++11 at least.
 
 You can found library documentation (Doxygen) [here](https://winterwind.gitlab.io/WinterWind/)
 
-# Features
-## Multithreading
-
-* Semaphores
-* Threading interface
-* ThreadPool
-* ThreadPool working queue (multiple providers and multiple consumers queue IN/OUT)
-
-## Web
-
-* Client (High level cURL interface)
-	* Gitlab client
-	* Caldav client (WIP)
-	* Elasticsearch Client (WIP)
-	* Jira client
-	* RATP client (for RER only)
-	* Slack client
-	* Twitter client
-* HTTP daemon (based on libmicrohttpd)
-
-## Databases
-
-* Redis client
-* MySQL client
-* PostgreSQL client
-
-## Misc
-
-* High level XML parser (based on libxml2)
-* Name generator
-* Console thread
-
-## Lua bindings
-
-* httpclient
-* jiraclient
-* pgclient (experimental)
-* ratpclient
-* string manipulations helpers
-* xmlparser
-
-# Requirements
-
-## Compilation
+# Compilation
 
 You need a full C++11 compliant compiler to use this library (GCC 5.1 or Clang 3.4)
 
-## Libraries
+## Library requirements
 
 * jsoncpp
 * libxml2
@@ -66,7 +23,52 @@ You need a full C++11 compliant compiler to use this library (GCC 5.1 or Clang 3
 * websocketpp
 * asio
 
-# Compilation options
+## Build
+
+```bash
+mkdir build && cmake .. && make -jX && make install
+```
+
+# Components
+
+## WinterWind Core
+
+### Multithreading
+
+* Semaphores
+* Threading interface
+* ThreadPool
+* ThreadPool working queue (multiple providers and multiple consumers queue IN/OUT)
+
+### Web
+
+* Client (High level cURL interface)
+	* Gitlab client
+	* Caldav client (WIP)
+	* Elasticsearch Client (WIP)
+	* Slack client
+* HTTP daemon (based on libmicrohttpd)
+
+### Databases
+
+* Redis client
+* MySQL client
+* PostgreSQL client
+
+### Misc
+
+* High level XML parser (based on libxml2)
+* Name generator
+* Console thread
+
+### Lua bindings
+
+* httpclient
+* pgclient (experimental)
+* string manipulations helpers
+* xmlparser
+
+## Compilation options
 
 * __ENABLE_CONSOLE__: enable ConsoleThread support
 * __ENABLE_READLINE__: enable Readline library support (requires ENABLE_CONSOLE)
@@ -76,20 +78,30 @@ You need a full C++11 compliant compiler to use this library (GCC 5.1 or Clang 3
 * __ENABLE_CALDAV__: enable caldav client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_ELASTICSEARCH__: enable Elasticsearch client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_GITLAB__: enable Gitlab client support (requires ENABLE_HTTPCLIENT)
-* __ENABLE_JIRACLIENT__: enable Jira client support (required ENABLE_HTTPCLIENT)
-* __ENABLE_RATPCLIENT__: enable RATP client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_SLACKCLIENT__: enable Slack client support (requires ENABLE_HTTPCLIENT & websocketpp library)
 * __ENABLE_OAUTHCLIENT__: enable OAuth client support (requires ENABLE_HTTPCLIENT)
-* __ENABLE_TWITTERCLIENT__: enable Twitter client support (requires ENABLE_HTTPCLIENT & ENABLE_OAUTHCLIENT)
 * __ENABLE_NAMEGENERATOR__: enable Name Generator support
 * __ENABLE_REDIS__: enable Redis client support
 * __ENABLE_HTTPSERVER__: enable HTTP server support
 * __ENABLE_LUA_ENGINE__: enable Lua engine with bindings (depending on previous options)
 
-# Build
+## WinterWind Extras
 
-Install the required libraries and just execute that:
+### Web
 
-```bash
-mkdir build && cmake .. && make && make install
-```
+* Client (High level cURL interface)
+	* Jira client
+	* RATP client (for RER only)
+	* Twitter client
+
+### Lua bindings
+
+* jiraclient
+* ratpclient
+
+## Compilation options
+
+* __ENABLE_JIRACLIENT__: enable Jira client support (required ENABLE_HTTPCLIENT)
+* __ENABLE_RATPCLIENT__: enable RATP client support (requires ENABLE_HTTPCLIENT)
+* __ENABLE_TWITTERCLIENT__: enable Twitter client support (requires ENABLE_HTTPCLIENT & ENABLE_OAUTHCLIENT)
+

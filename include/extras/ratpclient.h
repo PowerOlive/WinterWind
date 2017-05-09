@@ -23,53 +23,43 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "luaengine.h"
-#include "ratpclient.h"
-#include <iostream>
+#pragma once
 
-int LuaEngine::l_get_ratp_schedules(lua_State *L)
+#include <core/httpclient.h>
+
+struct RATPSchedule
 {
-	if (lua_isnil(L, 1) || lua_isnil(L, 2)) {
-		return 0;
-	}
+	std::string destination = "";
+	std::string hour = "";
+};
 
-	std::string line = read<std::string>(L, 1);
-	std::string stop = read<std::string>(L, 2);
-	int direction;
-	if (lua_isnil(L, 3)) {
-		direction = 1;
-	}
-	else {
-		direction = read<int>(L, 3);
-	}
+typedef std::vector<RATPSchedule> RATPScheduleList;
 
-	RATPClient::Line ratp_line;
-	if (line == "RER_A") {
-		ratp_line = RATPClient::Line::LINE_RER_A;
-	}
-	else if (line == "RER_B") {
-		ratp_line = RATPClient::Line::LINE_RER_B;
-	}
-	else {
-		std::cerr << "Lua: " << __FUNCTION__ << ": Invalid RATP Line" << std::endl;
-		return 0;
-	}
+struct RATPStop
+{
+	std::string train_stop = "";
+	time_t entry_time = 0;
+	std::vector<RATPSchedule> schedules = {};
+};
 
-	const auto schedules = RATPClient().get_next_trains(ratp_line, stop, direction);
+typedef std::unordered_map<std::string, RATPStop> RATPStopMap;
 
-	lua_createtable(L, (int) schedules.size(), 0);
-	int table_idx = lua_gettop(L);
-	uint8_t idx = 0;
-	for (const auto &sched : schedules) {
-		lua_newtable(L);
-		lua_pushstring(L, sched.destination.c_str());
-		lua_setfield(L, -2, "destination");
+class RATPClient : private HTTPClient
+{
+public:
+	enum Line
+	{
+		LINE_RER_A,
+		LINE_RER_B,
+		RATP_LINE_MAX,
+	};
 
-		lua_pushstring(L, sched.hour.c_str());
-		lua_setfield(L, -2, "hour");
+	RATPClient() : HTTPClient() {};
+	~RATPClient(){};
 
-		lua_rawseti(L, table_idx, idx);
-		idx++;
-	}
-	return 1;
-}
+	const RATPScheduleList &get_next_trains(const RATPClient::Line line, const std::string &stop,
+						const uint8_t direction);
+
+private:
+	std::map<RATPClient::Line, RATPStopMap> m_stop_cache;
+};

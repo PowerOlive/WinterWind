@@ -22,19 +22,15 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-option(ENABLE_UNITTESTS "Enable library unittests" FALSE)
+set(LUA_SRC_FILES "")
 
-set(UNITTESTS 0 PARENT_SCOPE)
-
-if (ENABLE_UNITTESTS)
-	set(UNITTESTS 1 PARENT_SCOPE)
-	set(UNITTESTS_LUA_FILE ${CMAKE_CURRENT_SOURCE_DIR}/unittests.lua PARENT_SCOPE)
-
-	add_executable(winterwind_unittests main.cpp)
-	target_link_libraries(winterwind_unittests cppunit winterwind winterwind_extras)
-
-	install(TARGETS winterwind_unittests
-		RUNTIME DESTINATION ${BINDIR}
-		BUNDLE DESTINATION .
-	)
+if(ENABLE_HTTPCLIENT)
+	if(ENABLE_JIRACLIENT)
+		set(LUA_SRC_FILES ${LUA_SRC_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/l_jiraclient.cpp)
+	endif()
+	if(ENABLE_RATPCLIENT)
+		set(LUA_SRC_FILES ${LUA_SRC_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/l_ratp.cpp)
+	endif()
 endif()
+
+set(LUA_SRC_FILES ${LUA_SRC_FILES} PARENT_SCOPE)

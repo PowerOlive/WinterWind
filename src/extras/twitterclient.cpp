@@ -23,8 +23,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "twitterclient.h"
-#include "utils/base64.h"
+#include "extras/twitterclient.h"
+#include <core/utils/base64.h>
 
 static const std::string TWITTER_API_URL = "https://api.twitter.com";
 static const std::string TWITTER_OAUTH2_TOKEN = "/oauth2/token";

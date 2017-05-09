@@ -24,7 +24,7 @@
  */
 
 #include "l_jiraclient.h"
-#include "luaengine.h"
+#include <core/luaengine.h>
 #include <cassert>
 #include <iostream>
 

@@ -31,14 +31,11 @@ option(ENABLE_HTTPSERVER "Enable HTTP server features" TRUE)
 option(ENABLE_CALDAV "Enable caldav client (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_ELASTICSEARCH "Enable Elasticsearch client features (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_GITLAB "Enable gitlab client (requires ENABLE_HTTPCLIENT)" TRUE)
-option(ENABLE_JIRACLIENT "Enable JIRA client (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_OWMCLIENT "Enable OpenWeatherMap client (requires ENABLE_HTTPCLIENT)" TRUE)
-option(ENABLE_RATPCLIENT "Enable RATP client (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_SLACKCLIENT "Enable Slack client (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_REDIS "Enable redis client" TRUE)
 option(ENABLE_NAMEGENERATOR "Enable embedded name generator" TRUE)
 option(ENABLE_OAUTHCLIENT "Enable OAuth client (requires ENABLE_HTTPCLIENT)" TRUE)
-option(ENABLE_TWITTERCLIENT "Enable Twitter client (required ENABLE_OAUTHCLIENT)" TRUE)
 option(ENABLE_LUA_ENGINE "Enable lua engine" TRUE)
 
 set(SRC_FILES
@@ -113,21 +110,9 @@ if (ENABLE_HTTPCLIENT)
 		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/gitlabapiclient.h)
 	endif()
 
-	if (ENABLE_JIRACLIENT)
-		set(ENABLE_JIRACLIENT 1 PARENT_SCOPE)
-		set(SRC_FILES ${SRC_FILES} jiraclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/jiraclient.h)
-	endif()
-
 	if (ENABLE_OWMCLIENT)
 		set(SRC_FILES ${SRC_FILES} openweathermapclient.cpp)
 		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/openweathermapclient.h)
-	endif()
-
-	if (ENABLE_RATPCLIENT)
-		set(ENABLE_RATPCLIENT 1 PARENT_SCOPE)
-		set(SRC_FILES ${SRC_FILES} ratpclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/ratpclient.h)
 	endif()
 
 	if (ENABLE_SLACKCLIENT)
@@ -138,11 +123,6 @@ if (ENABLE_HTTPCLIENT)
 	if (ENABLE_OAUTHCLIENT)
 		set(SRC_FILES ${SRC_FILES} oauthclient.cpp)
 		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/oauthclient.h)
-
-		if (ENABLE_TWITTERCLIENT)
-			set(SRC_FILES ${SRC_FILES} twitterclient.cpp)
-			set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/twitterclient.h)
-		endif()
 	endif()
 endif()
 
@@ -189,7 +169,7 @@ include_directories(
 add_library(winterwind SHARED ${SRC_FILES})
 target_link_libraries(winterwind ${PROJECT_LIBS})
 
-install(FILES ${HEADER_FILES} DESTINATION ${INCLUDEDIR})
+install(FILES ${HEADER_FILES} DESTINATION ${INCLUDEDIR}/core)
 
 install(TARGETS winterwind
 	LIBRARY DESTINATION ${LIBDIR}
