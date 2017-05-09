@@ -11,7 +11,7 @@ You can found library documentation (Doxygen) [here](https://winterwind.gitlab.i
 # Features
 ## Multithreading
 
-* semaphores
+* Semaphores
 * Threading interface
 * ThreadPool
 * ThreadPool working queue (multiple providers and multiple consumers queue IN/OUT)
@@ -26,17 +26,17 @@ You can found library documentation (Doxygen) [here](https://winterwind.gitlab.i
 	* RATP client (for RER only)
 	* Slack client
 	* Twitter client
-* HTTP daemon (using libmicrohttpd)
+* HTTP daemon (based on libmicrohttpd)
 
 ## Databases
 
-* High level redis client
+* Redis client
 * MySQL client
 * PostgreSQL client
 
 ## Misc
 
-* High level XML parser
+* High level XML parser (based on libxml2)
 * Name generator
 * Console thread
 
