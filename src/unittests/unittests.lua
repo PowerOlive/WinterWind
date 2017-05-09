@@ -109,9 +109,9 @@ function run_unittests(run)
 	max_tests = max_tests + t
 	test_results = test_results + s
 
-	t,s = test_ratp_client()
-	max_tests = max_tests + t
-	test_results = test_results + s
+--	t,s = test_ratp_client()
+--	max_tests = max_tests + t
+--	test_results = test_results + s
 
 	t,s = test_http_client()
 	max_tests = max_tests + t
