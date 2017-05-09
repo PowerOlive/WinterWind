@@ -22,6 +22,8 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+option(ENABLE_EXTRAS "Enable WinterWind extras library" TRUE)
+
 include_directories(
 		${PROJECT_BINARY_DIR}/winterwind/include
 		${INCLUDE_SRC_PATH}
@@ -29,7 +31,9 @@ include_directories(
 
 add_subdirectory(core)
 add_subdirectory(extras)
-add_subdirectory(unittests)
+if(ENABLE_EXTRAS)
+	add_subdirectory(unittests)
+endif()
 
 configure_file(
 		"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in"

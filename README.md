@@ -74,6 +74,7 @@ mkdir build && cmake .. && make -jX && make install
 * __ENABLE_REDIS__: enable Redis client support
 * __ENABLE_HTTPSERVER__: enable HTTP server support
 * __ENABLE_LUA_ENGINE__: enable Lua engine with bindings (depending on previous options)
+* __ENABLE_EXTRAS__: enable WinterWind extras library compilation
 
 ## WinterWind Extras
 
