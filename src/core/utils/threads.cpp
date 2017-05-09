@@ -25,6 +25,7 @@
 
 #include "utils/threads.h"
 #if defined(__FreeBSD__) || defined(__OpenBSD__)
+#include <string>
 #include <pthread_np.h>
 #endif
 
