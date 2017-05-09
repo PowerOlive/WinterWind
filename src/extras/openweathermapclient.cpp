@@ -39,7 +39,6 @@ Weather &Weather::operator>>(Json::Value &res)
 }
 OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weather &result)
 {
-	// @TODO: add a cache
 	Json::Value res;
 	std::string city_encoded = "";
 	http_string_escape(city, city_encoded);
@@ -55,7 +54,18 @@ OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weat
 			return OWMRC_INVALID_REQUEST;
 		}
 
-		switch (res["cod"].asUInt64()) {
+		uint32_t rcode = 0;
+		if (res["cod"].isUInt()) {
+			rcode = res["code"].asUInt();
+		}
+		else if (res["cod"].isString()) {
+			rcode = (uint32_t) std::atoi(res["cod"].asString().c_str());
+		}
+		else {
+			return OWMRC_INVALID_RESPONSE;
+		}
+
+		switch (rcode) {
 			case 200:
 				break;
 			case 401:
