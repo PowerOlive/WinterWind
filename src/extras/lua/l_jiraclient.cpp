@@ -24,7 +24,7 @@
  */
 
 #include "l_jiraclient.h"
-#include <core/luaengine.h>
+#include "luaextraengine.h"
 #include <cassert>
 #include <iostream>
 
@@ -39,7 +39,7 @@
 	return 2;
 
 
-int LuaEngine::l_create_jiraclient(lua_State *L)
+int LuaEngineExtras::l_create_jiraclient(lua_State *L)
 {
 	std::string url = read<std::string>(L, 1);
 	if (url.empty()) {

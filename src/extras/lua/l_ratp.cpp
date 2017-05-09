@@ -23,11 +23,11 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <core/luaengine.h>
+#include "luaextraengine.h"
 #include "ratpclient.h"
 #include <iostream>
 
-int LuaEngine::l_get_ratp_schedules(lua_State *L)
+int LuaEngineExtras::l_get_ratp_schedules(lua_State *L)
 {
 	if (lua_isnil(L, 1) || lua_isnil(L, 2)) {
 		return 0;

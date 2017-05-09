@@ -25,54 +25,30 @@
 
 #pragma once
 
-#include <cppunit/TestAssert.h>
-#include <cppunit/TestCaller.h>
-#include <cppunit/TestFixture.h>
-#include <cppunit/TestSuite.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/ui/text/TestRunner.h>
-
-#include <extras/openweathermapclient.h>
-#include <extras/luaextraengine.h>
-
 #include "cmake_config.h"
+#include <core/luaengine.h>
+#include <lua.hpp>
+#include <string>
 
-class WinterWindTest_Misc : public CppUnit::TestFixture
+#define luamethod(class, name)                                                                                         \
+	{ #name, class ::l_##name }
+#define REGISTER_LUA_FCT(name) register_function(#name, l_##name, top)
+
+class LuaEngineExtras : public LuaEngine
 {
-	CPPUNIT_TEST_SUITE(WinterWindTest_Misc);
-	CPPUNIT_TEST(weather_to_json);
-	CPPUNIT_TEST(lua_winterwind_engine);
-	CPPUNIT_TEST_SUITE_END();
-
 public:
-	void setUp() {}
-	void tearDown() {}
+	LuaEngineExtras() {}
+	virtual ~LuaEngineExtras() {}
 
-protected:
-	void lua_winterwind_engine()
-	{
-		LuaEngineExtras L;
-		LuaReturnCode rc = L.init_winterwind_extra_bindings();
-		CPPUNIT_ASSERT(rc == LUA_RC_OK);
-		rc = L.load_script(UNITTESTS_LUA_FILE);
-		CPPUNIT_ASSERT(rc == LUA_RC_OK);
-		CPPUNIT_ASSERT(L.run_unittests());
-	}
+	LuaReturnCode init_winterwind_extra_bindings();
 
-	void weather_to_json()
-	{
-		Weather w;
-		w.sunset = 150;
-		w.sunrise = 188;
-		w.humidity = 4;
-		w.temperature = 25.0f;
-		w.city = "test_city";
-		Json::Value res;
-		w >> res;
-		CPPUNIT_ASSERT(res["sunset"].asUInt() == 150);
-		CPPUNIT_ASSERT(res["sunrise"].asUInt() == 188);
-		CPPUNIT_ASSERT(res["humidity"].asInt() == 4);
-		CPPUNIT_ASSERT(res["temperature"].asFloat() == 25.0f);
-		CPPUNIT_ASSERT(res["city"].asString() == "test_city");
-	}
+	// Handlers
+#if ENABLE_HTTPCLIENT
+#if ENABLE_RATPCLIENT
+	static int l_get_ratp_schedules(lua_State *L);
+#endif
+#if ENABLE_JIRACLIENT
+	static int l_create_jiraclient(lua_State *L);
+#endif
+#endif
 };
