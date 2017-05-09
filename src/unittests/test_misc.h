@@ -35,7 +35,7 @@
 #include <luaengine.h>
 #include <openweathermapclient.h>
 
-#include "unittests_config.h"
+#include "cmake_config.h"
 
 class WinterWindTest_Misc : public CppUnit::TestFixture
 {

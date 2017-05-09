@@ -32,6 +32,8 @@ set(BINDIR "${CMAKE_INSTALL_PREFIX}/bin")
 set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/winterwind")
 set(DOCDIR "${CMAKE_INSTALL_PREFIX}/share/doc/${PROJECT_NAME}")
 
+set(INCLUDE_SRC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
 include_directories(
 	/usr/include/libxml2
 	/usr/include/jsoncpp
@@ -40,7 +42,7 @@ include_directories(
 	/usr/local/include/libxml2
 	/usr/local/include/jsoncpp
 	/usr/local/include/mysql
-	${CMAKE_CURRENT_SOURCE_DIR}/include
+	${INCLUDE_SRC_PATH}
 )
 
 link_directories(

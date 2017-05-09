@@ -34,7 +34,7 @@
 
 #include <elasticsearchclient.h>
 
-#include "unittests_config.h"
+#include "cmake_config.h"
 
 static std::string ES_HOST = "localhost";
 

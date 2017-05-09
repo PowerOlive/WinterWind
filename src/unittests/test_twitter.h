@@ -34,7 +34,7 @@
 
 #include <twitterclient.h>
 
-#include "unittests_config.h"
+#include "cmake_config.h"
 
 static std::string TWITTER_CONSUMER_KEY = "";
 static std::string TWITTER_CONSUMER_SECRET = "";

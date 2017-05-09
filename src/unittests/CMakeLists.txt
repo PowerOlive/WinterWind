@@ -22,17 +22,19 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set(UNITTESTS_LUA_FILE ${CMAKE_CURRENT_SOURCE_DIR}/unittests.lua)
+option(ENABLE_UNITTESTS "Enable library unittests" FALSE)
 
-configure_file(
-	"${CMAKE_CURRENT_SOURCE_DIR}/unittests_config.h.in"
-	"${PROJECT_BINARY_DIR}/winterwind/include/unittests_config.h"
-)
+set(UNITTESTS 0 PARENT_SCOPE)
 
-add_executable(winterwind_unittests main.cpp)
-target_link_libraries(winterwind_unittests cppunit winterwind)
+if (ENABLE_UNITTESTS)
+	set(UNITTESTS 1 PARENT_SCOPE)
+	set(UNITTESTS_LUA_FILE ${CMAKE_CURRENT_SOURCE_DIR}/unittests.lua PARENT_SCOPE)
 
-install(TARGETS winterwind_unittests
-        RUNTIME DESTINATION ${BINDIR}
-        BUNDLE DESTINATION .
-)
+	add_executable(winterwind_unittests main.cpp)
+	target_link_libraries(winterwind_unittests cppunit winterwind)
+
+	install(TARGETS winterwind_unittests
+		RUNTIME DESTINATION ${BINDIR}
+		BUNDLE DESTINATION .
+	)
+endif()

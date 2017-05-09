@@ -28,11 +28,11 @@
 #include <cstring>
 #include <unistd.h>
 #include <vector>
+#include <cassert>
 
 #include "cmake_config.h"
 
 #if READLINE
-#include <cassert>
 #include <readline/history.h>
 #include <readline/readline.h>
 #include <stdlib.h>

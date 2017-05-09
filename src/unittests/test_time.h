@@ -34,7 +34,7 @@
 
 #include <utils/time.h>
 
-#include "unittests_config.h"
+#include "cmake_config.h"
 
 class WinterWindTest_Time : public CppUnit::TestFixture
 {

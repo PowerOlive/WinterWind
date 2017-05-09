@@ -37,7 +37,7 @@
 #include <utils/threads.h>
 #include <utils/threadpool.h>
 
-#include "unittests_config.h"
+#include "cmake_config.h"
 
 class WinterWindTest_Threads : public CppUnit::TestFixture
 {

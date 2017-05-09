@@ -36,7 +36,7 @@
 #include <utils/stringutils.h>
 #include <utils/hmac.h>
 
-#include "unittests_config.h"
+#include "cmake_config.h"
 
 class WinterWindTest_String : public CppUnit::TestFixture
 {
