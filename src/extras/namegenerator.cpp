@@ -24,7 +24,7 @@
  */
 
 #include "namegenerator.h"
-#include "utils/macros.h"
+#include <core/utils/macros.h>
 
 static const char *name_prefixes[] = {
     "ak",   "bac",  "bak",  "car", "dam",  "dem", "dom", "did", "dud", "det", "den",

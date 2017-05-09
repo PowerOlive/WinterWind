@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "httpclient.h"
+#include <core/httpclient.h>
 
 enum GitlabRetCod
 {

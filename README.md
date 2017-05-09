@@ -43,10 +43,6 @@ mkdir build && cmake .. && make -jX && make install
 ### Web
 
 * Client (High level cURL interface)
-	* Gitlab client
-	* Caldav client (WIP)
-	* Elasticsearch Client (WIP)
-	* Slack client
 * HTTP daemon (based on libmicrohttpd)
 
 ### Databases
@@ -58,7 +54,6 @@ mkdir build && cmake .. && make -jX && make install
 ### Misc
 
 * High level XML parser (based on libxml2)
-* Name generator
 * Console thread
 
 ### Lua bindings
@@ -75,12 +70,7 @@ mkdir build && cmake .. && make -jX && make install
 * __ENABLE_POSTGRESQL__: enable Postgresql C++ client
 * __ENABLE_MYSQL__: enable MySQL C++ client
 * __ENABLE_HTTPCLIENT__: enable HTTP client support
-* __ENABLE_CALDAV__: enable caldav client support (requires ENABLE_HTTPCLIENT)
-* __ENABLE_ELASTICSEARCH__: enable Elasticsearch client support (requires ENABLE_HTTPCLIENT)
-* __ENABLE_GITLAB__: enable Gitlab client support (requires ENABLE_HTTPCLIENT)
-* __ENABLE_SLACKCLIENT__: enable Slack client support (requires ENABLE_HTTPCLIENT & websocketpp library)
 * __ENABLE_OAUTHCLIENT__: enable OAuth client support (requires ENABLE_HTTPCLIENT)
-* __ENABLE_NAMEGENERATOR__: enable Name Generator support
 * __ENABLE_REDIS__: enable Redis client support
 * __ENABLE_HTTPSERVER__: enable HTTP server support
 * __ENABLE_LUA_ENGINE__: enable Lua engine with bindings (depending on previous options)
@@ -90,9 +80,17 @@ mkdir build && cmake .. && make -jX && make install
 ### Web
 
 * Client (High level cURL interface)
+	* Caldav client (WIP)
+	* Elasticsearch Client (WIP)
+	* Gitlab client
 	* Jira client
 	* RATP client (for RER only)
+	* Slack client
 	* Twitter client
+
+### Misc
+
+* Name generator
 
 ### Lua bindings
 
@@ -101,7 +99,12 @@ mkdir build && cmake .. && make -jX && make install
 
 ## Compilation options
 
+* __ENABLE_CALDAV__: enable caldav client support (requires ENABLE_HTTPCLIENT)
+* __ENABLE_ELASTICSEARCH__: enable Elasticsearch client support (requires ENABLE_HTTPCLIENT)
+* __ENABLE_GITLAB__: enable Gitlab client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_JIRACLIENT__: enable Jira client support (required ENABLE_HTTPCLIENT)
+* __ENABLE_NAMEGENERATOR__: enable Name Generator support
 * __ENABLE_RATPCLIENT__: enable RATP client support (requires ENABLE_HTTPCLIENT)
+* __ENABLE_SLACKCLIENT__: enable Slack client support (requires ENABLE_HTTPCLIENT & websocketpp library)
 * __ENABLE_TWITTERCLIENT__: enable Twitter client support (requires ENABLE_HTTPCLIENT & ENABLE_OAUTHCLIENT)
 

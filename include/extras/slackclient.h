@@ -23,8 +23,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "httpclient.h"
-#include "core/utils/threads.h"
+#include <core/httpclient.h>
+#include <core/utils/threads.h>
 #include <string>
 
 #define ASIO_STANDALONE

@@ -22,37 +22,65 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+option(ENABLE_CALDAV "Enable caldav client (requires ENABLE_HTTPCLIENT)" TRUE)
+option(ENABLE_ELASTICSEARCH "Enable Elasticsearch client features (requires ENABLE_HTTPCLIENT)" TRUE)
+option(ENABLE_GITLAB "Enable gitlab client (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_JIRACLIENT "Enable JIRA client (requires ENABLE_HTTPCLIENT)" TRUE)
+option(ENABLE_NAMEGENERATOR "Enable embedded name generator" TRUE)
+option(ENABLE_OWMCLIENT "Enable OpenWeatherMap client (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_RATPCLIENT "Enable RATP client (requires ENABLE_HTTPCLIENT)" TRUE)
+option(ENABLE_SLACKCLIENT "Enable Slack client (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_TWITTERCLIENT "Enable Twitter client (required ENABLE_OAUTHCLIENT)" TRUE)
 
 set(SRC_FILES "")
-
 set(HEADER_FILES "")
-
-set(PROJECT_LIBS
-	jsoncpp
-	xml2)
+set(PROJECT_LIBS "")
+set(EXTRAS_INCLUDE_PATH "${INCLUDE_SRC_PATH}/extras")
 
 if (ENABLE_HTTPCLIENT)
 	find_package(OpenSSL REQUIRED)
 
+	if (ENABLE_CALDAV)
+		set(SRC_FILES ${SRC_FILES} caldavclient.cpp)
+		set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/caldavclient.h)
+	endif()
+
+	if (ENABLE_ELASTICSEARCH)
+		set(SRC_FILES ${SRC_FILES} elasticsearchclient.cpp)
+		set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/elasticsearchclient.h)
+	endif()
+
+	if (ENABLE_GITLAB)
+		set(SRC_FILES ${SRC_FILES} gitlabapiclient.cpp)
+		set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/gitlabapiclient.h)
+	endif()
+
 	if (ENABLE_JIRACLIENT)
 		set(ENABLE_JIRACLIENT 1 PARENT_SCOPE)
 		set(SRC_FILES ${SRC_FILES} jiraclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/jiraclient.h)
+		set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/jiraclient.h)
+	endif()
+
+	if (ENABLE_OWMCLIENT)
+		set(SRC_FILES ${SRC_FILES} openweathermapclient.cpp)
+		set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/openweathermapclient.h)
 	endif()
 
 	if (ENABLE_RATPCLIENT)
 		set(ENABLE_RATPCLIENT 1 PARENT_SCOPE)
 		set(SRC_FILES ${SRC_FILES} ratpclient.cpp)
-		set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/extras/ratpclient.h)
+		set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/ratpclient.h)
+	endif()
+
+	if (ENABLE_SLACKCLIENT)
+		set(SRC_FILES ${SRC_FILES} slackclient.cpp)
+		set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/slackclient.h)
 	endif()
 
 	if (ENABLE_OAUTHCLIENT)
 		if (ENABLE_TWITTERCLIENT)
 			set(SRC_FILES ${SRC_FILES} twitterclient.cpp)
-			set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/extras/twitterclient.h)
+			set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/twitterclient.h)
 		endif()
 	endif()
 endif()
@@ -68,9 +96,12 @@ if (ENABLE_LUA_ENGINE)
 	endif()
 endif()
 
-include_directories(
-	${INCLUDE_SRC_PATH}/extras
-)
+if (ENABLE_NAMEGENERATOR)
+	set(SRC_FILES ${SRC_FILES} namegenerator.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/namegenerator.h)
+endif()
+
+include_directories(${EXTRAS_INCLUDE_PATH})
 
 add_library(winterwind_extras SHARED ${SRC_FILES})
 target_link_libraries(winterwind_extras ${PROJECT_LIBS} winterwind)

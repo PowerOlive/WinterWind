@@ -33,7 +33,7 @@
 #include <cppunit/ui/text/TestRunner.h>
 
 #include <core/luaengine.h>
-#include <core/openweathermapclient.h>
+#include <extras/openweathermapclient.h>
 
 #include "cmake_config.h"
 
