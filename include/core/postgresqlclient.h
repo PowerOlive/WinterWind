@@ -32,14 +32,20 @@
 #include <unordered_map>
 #include <vector>
 
+namespace winterwind
+{
 class PostgreSQLException : public BaseException
 {
 public:
-	PostgreSQLException(const std::string &what) : BaseException(what) {}
-	~PostgreSQLException() throw() {}
+	PostgreSQLException(const std::string &what) : BaseException(what)
+	{}
+
+	~PostgreSQLException() throw()
+	{}
 };
 
 class PostgreSQLClient;
+
 /**
  * RAII class for PostgreSQL results
  */
@@ -47,10 +53,15 @@ class PostgreSQLResult
 {
 public:
 	PostgreSQLResult(PostgreSQLClient *client, PGresult *result);
-	~PostgreSQLResult() { PQclear(m_result); }
 
-	PGresult *operator*() { return m_result; }
-	ExecStatusType get_status() const { return m_status; }
+	~PostgreSQLResult()
+	{ PQclear(m_result); }
+
+	PGresult *operator*()
+	{ return m_result; }
+
+	ExecStatusType get_status() const
+	{ return m_status; }
 
 private:
 	PGresult *m_result = nullptr;
@@ -76,61 +87,79 @@ class PostgreSQLClient
 	friend class PostgreSQLResult;
 
 public:
-	PostgreSQLClient(const std::string &connect_string, int32_t minimum_db_version = 90500);
+	PostgreSQLClient(const std::string &connect_string,
+		int32_t minimum_db_version = 90500);
+
 	virtual ~PostgreSQLClient();
 
 	void begin();
+
 	void commit();
 
 	bool register_statement(const std::string &stn, const std::string &st);
+
 	void register_embedded_statements();
 
 	ExecStatusType show_schemas(std::vector<std::string> &res);
+
 	ExecStatusType create_schema(const std::string &name);
+
 	ExecStatusType drop_schema(const std::string &name, bool if_exists = false);
+
 	ExecStatusType show_tables(const std::string &schema, std::vector<std::string> &res);
+
 	ExecStatusType show_create_table(const std::string &schema, const std::string &table,
-					 PostgreSQLTableDefinition &definition);
+		PostgreSQLTableDefinition &definition);
 
 	ExecStatusType add_admin_views(const std::string &schema = "admin");
+
 	void escape_string(const std::string &param, std::string &res);
 
-	const std::string &get_last_error() const { return m_last_error; }
+	const std::string &get_last_error() const
+	{ return m_last_error; }
 
 protected:
 	void check_db_connection();
+
 	void set_client_encoding(const std::string &encoding);
+
 	PGresult *check_results(PGresult *result, bool clear = true);
 
-	inline int pg_to_int(PGresult *res, int row, int col) { return atoi(PQgetvalue(res, row, col)); }
+	inline int pg_to_int(PGresult *res, int row, int col)
+	{ return atoi(PQgetvalue(res, row, col)); }
 
 	inline const std::string pg_to_string(PGresult *res, int row, int col)
 	{
-		return std::string(PQgetvalue(res, row, col), (unsigned long)PQgetlength(res, row, col));
+		return std::string(PQgetvalue(res, row, col),
+			(unsigned long) PQgetlength(res, row, col));
 	}
 
 	inline const uint32_t pg_to_uint(PGresult *res, int row, int col)
 	{
-		return (const uint32_t)atoi(PQgetvalue(res, row, col));
+		return (const uint32_t) atoi(PQgetvalue(res, row, col));
 	}
 
 	inline const uint64_t pg_to_uint64(PGresult *res, int row, int col)
 	{
-		return (const uint64_t)atoll(PQgetvalue(res, row, col));
+		return (const uint64_t) atoll(PQgetvalue(res, row, col));
 	}
 
 	inline const int64_t pg_to_int64(PGresult *res, int row, int col)
 	{
-		unsigned char *data = (unsigned char *)PQgetvalue(res, row, col);
-		return (const int64_t)atoll((char *)data);
+		unsigned char *data = (unsigned char *) PQgetvalue(res, row, col);
+		return (const int64_t) atoll((char *) data);
 	}
 
-	PGresult *exec_prepared(const char *stmtName, const int paramsNumber, const char **params,
-				const int *paramsLengths = NULL, const int *paramsFormats = NULL, bool clear = true,
-				bool nobinary = true) {
-		return check_results(PQexecPrepared(m_conn, stmtName, paramsNumber, (const char *const *)params,
-						    paramsLengths, paramsFormats, nobinary ? 1 : 0),
-				     clear);
+	PGresult *
+	exec_prepared(const char *stmtName, const int paramsNumber, const char **params,
+		const int *paramsLengths = NULL, const int *paramsFormats = NULL,
+		bool clear = true,
+		bool nobinary = true)
+	{
+		return check_results(
+			PQexecPrepared(m_conn, stmtName, paramsNumber, (const char *const *) params,
+				paramsLengths, paramsFormats, nobinary ? 1 : 0),
+			clear);
 	}
 
 private:
@@ -145,3 +174,4 @@ private:
 
 	std::unordered_map<std::string, std::string> m_statements;
 };
+}

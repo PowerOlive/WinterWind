@@ -27,6 +27,8 @@
 #include <algorithm>
 #include <cassert>
 
+using namespace winterwind;
+
 struct RATPLineDef
 {
 	std::string url;

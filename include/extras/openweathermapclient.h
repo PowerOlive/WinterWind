@@ -48,7 +48,7 @@ enum OpenWeatherMapReturnCode
 	OWMRC_INVALID_RESPONSE,
 };
 
-class OpenWeatherMapClient : public HTTPClient
+class OpenWeatherMapClient : public winterwind::HTTPClient
 {
 public:
 	OpenWeatherMapClient(const std::string &api_key) : m_api_key(api_key) {}

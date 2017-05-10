@@ -27,6 +27,8 @@
 #include "luaengine.h"
 #include <iostream>
 
+namespace winterwind
+{
 int LuaEngine::l_create_httpclient(lua_State *L)
 {
 	LuaRefHTTPClient::create(L, new HTTPClient());
@@ -37,23 +39,25 @@ int LuaEngine::l_create_httpclient(lua_State *L)
 
 const char LuaRefHTTPClient::className[] = "LuaRefHTTPClient";
 const luaL_Reg LuaRefHTTPClient::methods[] = {
-    luamethod(LuaRefHTTPClient, delete),
-    luamethod(LuaRefHTTPClient, get),
+	luamethod(LuaRefHTTPClient, delete),
+	luamethod(LuaRefHTTPClient, get),
 	luamethod(LuaRefHTTPClient, get_json),
-    luamethod(LuaRefHTTPClient, head),
-    luamethod(LuaRefHTTPClient, post),
-    luamethod(LuaRefHTTPClient, propfind),
-    luamethod(LuaRefHTTPClient, put),
-    luamethod(LuaRefHTTPClient, add_form_param),
-    luamethod(LuaRefHTTPClient, add_uri_param),
+	luamethod(LuaRefHTTPClient, head),
+	luamethod(LuaRefHTTPClient, post),
+	luamethod(LuaRefHTTPClient, propfind),
+	luamethod(LuaRefHTTPClient, put),
+	luamethod(LuaRefHTTPClient, add_form_param),
+	luamethod(LuaRefHTTPClient, add_uri_param),
 	luamethod(LuaRefHTTPClient, get_html_tag_value),
 	luamethod(LuaRefHTTPClient, add_http_header),
-    {0, 0},
+	{0, 0},
 };
 
-LuaRefHTTPClient::LuaRefHTTPClient(HTTPClient *object) : m_object(object) {}
+LuaRefHTTPClient::LuaRefHTTPClient(HTTPClient *object) : m_object(object)
+{}
 
-LuaRefHTTPClient::~LuaRefHTTPClient() { delete m_object; }
+LuaRefHTTPClient::~LuaRefHTTPClient()
+{ delete m_object; }
 
 LuaRefHTTPClient *LuaRefHTTPClient::checkobject(lua_State *L, int narg)
 {
@@ -113,17 +117,17 @@ void LuaRefHTTPClient::Register(lua_State *L)
 }
 
 #define HTTPCLIENT_PARAM_INIT                                                                      \
-	LuaRefHTTPClient *ref = checkobject(L, 1);                                                 \
-	HTTPClient *http = getobject(ref);                                                         \
-	std::string url = read<std::string>(L, 2);                                                 \
-	std::string res = "";
+    LuaRefHTTPClient *ref = checkobject(L, 1);                                                 \
+    HTTPClient *http = getobject(ref);                                                         \
+    std::string url = read<std::string>(L, 2);                                                 \
+    std::string res = "";
 
 #define HTTPCLIENT_RESP_PUSH                                                                       \
-	lua_newtable(L);                                                                           \
-	write(L, (uint32_t) http->get_http_code());                                                \
-	lua_setfield(L, -2, "code");                                                               \
-	write(L, res);                                                                             \
-	lua_setfield(L, -2, "content");
+    lua_newtable(L);                                                                           \
+    write(L, (uint32_t) http->get_http_code());                                                \
+    lua_setfield(L, -2, "code");                                                               \
+    write(L, res);                                                                             \
+    lua_setfield(L, -2, "content");
 
 int LuaRefHTTPClient::l_get(lua_State *L)
 {
@@ -174,6 +178,7 @@ int LuaRefHTTPClient::l_get_json(lua_State *L)
 	write<Json::Value>(L, res);
 	return 1;
 }
+
 int LuaRefHTTPClient::l_delete(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
@@ -247,4 +252,5 @@ int LuaRefHTTPClient::l_add_http_header(lua_State *L)
 	std::string value = read<std::string>(L, 3);
 	http->add_http_header(header, value);
 	return 1;
+}
 }

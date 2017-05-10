@@ -36,6 +36,8 @@
 
 #include "cmake_config.h"
 
+using namespace winterwind;
+
 class WinterWindTest_HTTP : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_HTTP);

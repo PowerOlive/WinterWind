@@ -31,6 +31,8 @@
 #include <string>
 #include <vector>
 
+namespace winterwind
+{
 struct MySQLExplainEntry
 {
 	uint16_t id;
@@ -48,23 +50,32 @@ struct MySQLExplainEntry
 class MySQLException : public BaseException
 {
 public:
-	MySQLException(const std::string &what) : BaseException(what) {}
-	~MySQLException() throw() {}
+	MySQLException(const std::string &what) : BaseException(what)
+	{}
+
+	~MySQLException() throw()
+	{}
 };
 
 class MySQLClient
 {
 public:
-	MySQLClient(const std::string &host, const std::string &user, const std::string &password, uint16_t port = 3306,
-		    const std::string &db = "");
+	MySQLClient(const std::string &host, const std::string &user,
+		const std::string &password, uint16_t port = 3306,
+		const std::string &db = "");
+
 	virtual ~MySQLClient();
 
 	void connect();
+
 	void disconnect();
 
 	void query(const std::string &query);
+
 	void list_tables(std::vector<std::string> &result);
+
 	bool get_table_definition(const std::string &table, std::string &res);
+
 	bool explain(const std::string &q, std::vector<MySQLExplainEntry> &res);
 
 private:
@@ -75,3 +86,4 @@ private:
 	std::string m_db = "";
 	uint16_t m_port = 3306;
 };
+}

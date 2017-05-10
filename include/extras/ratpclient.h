@@ -44,7 +44,7 @@ struct RATPStop
 
 typedef std::unordered_map<std::string, RATPStop> RATPStopMap;
 
-class RATPClient : private HTTPClient
+class RATPClient : private winterwind::HTTPClient
 {
 public:
 	enum Line

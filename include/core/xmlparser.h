@@ -28,9 +28,13 @@
 #include <string>
 #include <vector>
 
+namespace winterwind
+{
 struct XMLParserCustomNs
 {
-	XMLParserCustomNs(const std::string &p, const std::string &u) : prefix(p), uri(u) {}
+	XMLParserCustomNs(const std::string &p, const std::string &u) : prefix(p), uri(u)
+	{}
+
 	std::string prefix;
 	std::string uri;
 };
@@ -51,13 +55,20 @@ public:
 		FLAG_XML_STRIP_NEWLINE = 0x04,
 	};
 
-	XMLParser(XMLParser::Mode mode = XMLParser::Mode::MODE_XML) : m_mode(mode) {}
-	~XMLParser() {}
+	XMLParser(XMLParser::Mode mode = XMLParser::Mode::MODE_XML) : m_mode(mode)
+	{}
 
-	bool parse(const std::string &document, const std::string &xpath, int32_t pflag, std::vector<std::string> &res);
-	void register_ns(const XMLParserCustomNs &&ns) { m_custom_xml_ns.push_back(ns); }
+	~XMLParser()
+	{}
+
+	bool parse(const std::string &document, const std::string &xpath, int32_t pflag,
+		std::vector<std::string> &res);
+
+	void register_ns(const XMLParserCustomNs &&ns)
+	{ m_custom_xml_ns.push_back(ns); }
 
 private:
 	XMLParser::Mode m_mode;
 	std::vector<XMLParserCustomNs> m_custom_xml_ns = {};
 };
+}

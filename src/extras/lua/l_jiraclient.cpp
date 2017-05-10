@@ -28,6 +28,8 @@
 #include <cassert>
 #include <iostream>
 
+using namespace winterwind;
+
 #define JIRA_RETURN_FAILURE \
 	write<uint16_t>(L, jira->get_http_code()); \
 	lua_pushnil(L); \

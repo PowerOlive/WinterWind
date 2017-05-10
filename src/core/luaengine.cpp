@@ -30,6 +30,8 @@
 #include "lua/l_xmlparser.h"
 #include <iostream>
 
+namespace winterwind
+{
 LuaEngine::LuaEngine()
 {
 	m_lua = luaL_newstate();
@@ -125,3 +127,4 @@ bool LuaEngine::run_unittests()
 	return ret;
 }
 #endif
+}

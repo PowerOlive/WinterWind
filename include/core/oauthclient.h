@@ -28,12 +28,17 @@
 #include <core/httpclient.h>
 #include <random>
 
+namespace winterwind
+{
 class OAuthClient : protected HTTPClient
 {
 public:
 	OAuthClient(const std::string &consumer_key, const std::string &consumer_secret,
-		    const std::string &access_token = "", const std::string &access_token_secret = "");
-	virtual ~OAuthClient(){};
+		const std::string &access_token = "",
+		const std::string &access_token_secret = "");
+
+	virtual ~OAuthClient()
+	{};
 
 	void append_oauth_header(const std::string &method, const std::string &url);
 
@@ -46,3 +51,4 @@ protected:
 
 	std::mt19937 m_rand_engine;
 };
+}

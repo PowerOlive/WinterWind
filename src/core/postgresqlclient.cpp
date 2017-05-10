@@ -31,7 +31,10 @@
 #include <memory>
 #include <sstream>
 
-PostgreSQLResult::PostgreSQLResult(PostgreSQLClient *client, PGresult *result) : m_result(result)
+namespace winterwind
+{
+PostgreSQLResult::PostgreSQLResult(PostgreSQLClient *client, PGresult *result) : m_result(
+	result)
 {
 	m_status = PQresultStatus(result);
 	if (m_status != PGRES_COMMAND_OK) {
@@ -39,8 +42,9 @@ PostgreSQLResult::PostgreSQLResult(PostgreSQLClient *client, PGresult *result) :
 	}
 }
 
-PostgreSQLClient::PostgreSQLClient(const std::string &connect_string, int32_t minimum_db_version)
-    : m_connect_string(connect_string), m_min_pgversion(minimum_db_version)
+PostgreSQLClient::PostgreSQLClient(const std::string &connect_string,
+	int32_t minimum_db_version)
+	: m_connect_string(connect_string), m_min_pgversion(minimum_db_version)
 {
 	connect();
 }
@@ -62,14 +66,14 @@ void PostgreSQLClient::connect()
 
 	if (PQstatus(m_conn) != CONNECTION_OK) {
 		throw PostgreSQLException(std::string("PostgreSQL database error: ") +
-					  PQerrorMessage(m_conn));
+			PQerrorMessage(m_conn));
 	}
 
 	m_pgversion = PQserverVersion(m_conn);
 	if (m_pgversion < m_min_pgversion) {
 		std::stringstream ss;
 		ss << "PostgreSQL database error: Server version " << m_pgversion
-		   << " < required version " << m_min_pgversion;
+			<< " < required version " << m_min_pgversion;
 		throw PostgreSQLException(ss.str());
 	}
 
@@ -83,7 +87,7 @@ void PostgreSQLClient::check_db_connection()
 
 	if (PQping(m_connect_string.c_str()) != PQPING_OK) {
 		throw PostgreSQLException(std::string("PostgreSQL database error: ") +
-					  PQerrorMessage(m_conn));
+			PQerrorMessage(m_conn));
 	}
 
 	PQresetStart(m_conn);
@@ -95,7 +99,8 @@ void PostgreSQLClient::begin()
 	check_results(PQexec(m_conn, "BEGIN;"));
 }
 
-void PostgreSQLClient::commit() { check_results(PQexec(m_conn, "COMMIT;")); }
+void PostgreSQLClient::commit()
+{ check_results(PQexec(m_conn, "COMMIT;")); }
 
 void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 {
@@ -109,7 +114,7 @@ void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 	}
 	if (!valid) {
 		throw PostgreSQLException(
-		    std::string("PostgreSQLClient: Invalid client_encoding provided"));
+			std::string("PostgreSQLClient: Invalid client_encoding provided"));
 	}
 
 	std::string request = "SET client_encoding='";
@@ -129,7 +134,7 @@ PGresult *PostgreSQLClient::check_results(PGresult *result, bool clear)
 		case PGRES_FATAL_ERROR:
 		default:
 			throw PostgreSQLException(std::string("PostgreSQL database error: ") +
-						  PQresultErrorMessage(result));
+				PQresultErrorMessage(result));
 	}
 
 	if (clear) {
@@ -151,7 +156,7 @@ bool PostgreSQLClient::register_statement(const std::string &stn, const std::str
 {
 	if (m_statements.find(stn) != m_statements.end()) {
 		std::cerr << "WARN: Trying to register statement " << stn
-			  << ", but it's already registered, ignoring." << std::endl;
+			<< ", but it's already registered, ignoring." << std::endl;
 		return false;
 	}
 
@@ -164,18 +169,19 @@ bool PostgreSQLClient::register_statement(const std::string &stn, const std::str
 void PostgreSQLClient::register_embedded_statements()
 {
 	register_statement("list_tables_into_schema", "SELECT tablename FROM pg_tables "
-						      "WHERE schemaname=$1");
+		"WHERE schemaname=$1");
 	register_statement(
-	    "show_create_table",
-	    "SELECT column_name, data_type, is_nullable, "
-	    "column_default FROM information_schema.columns WHERE table_schema = $1 AND "
-	    "table_name = $2 ORDER BY ordinal_position");
+		"show_create_table",
+		"SELECT column_name, data_type, is_nullable, "
+			"column_default FROM information_schema.columns WHERE table_schema = $1 AND "
+			"table_name = $2 ORDER BY ordinal_position");
 	register_statement("show_create_table_indexes",
-			   "SELECT indexname, indexdef "
-			   "FROM pg_indexes WHERE schemaname=$1 AND tablename=$2");
+		"SELECT indexname, indexdef "
+			"FROM pg_indexes WHERE schemaname=$1 AND tablename=$2");
 }
 
 #define PGR(q) PostgreSQLResult result(this, q);
+
 ExecStatusType PostgreSQLClient::show_schemas(std::vector<std::string> &res)
 {
 	check_db_connection();
@@ -218,11 +224,11 @@ ExecStatusType PostgreSQLClient::drop_schema(const std::string &name, bool if_ex
 }
 
 ExecStatusType PostgreSQLClient::show_tables(const std::string &schema,
-					     std::vector<std::string> &res)
+	std::vector<std::string> &res)
 {
 	check_db_connection();
 
-	const char *values[] { schema.c_str() };
+	const char *values[]{schema.c_str()};
 	PGR(exec_prepared("list_tables_into_schema", 1, values, NULL, NULL, false, false));
 	int32_t nbres = PQntuples(*result);
 	for (int32_t i = 0; i < nbres; i++) {
@@ -233,8 +239,8 @@ ExecStatusType PostgreSQLClient::show_tables(const std::string &schema,
 }
 
 ExecStatusType PostgreSQLClient::show_create_table(const std::string &schema,
-						   const std::string &table,
-						   PostgreSQLTableDefinition &definition)
+	const std::string &table,
+	PostgreSQLTableDefinition &definition)
 {
 	check_db_connection();
 
@@ -259,11 +265,11 @@ ExecStatusType PostgreSQLClient::show_create_table(const std::string &schema,
 
 	{
 		PGR(exec_prepared("show_create_table_indexes", 2, values, NULL, NULL, false,
-				  false));
+			false));
 		int32_t nbres = PQntuples(*result);
 		for (int32_t i = 0; i < nbres; i++) {
 			definition.indexes[pg_to_string(*result, i, 0)] =
-			    pg_to_string(*result, i, 1);
+				pg_to_string(*result, i, 1);
 		}
 
 		if (result.get_status() != PGRES_COMMAND_OK) {
@@ -283,28 +289,28 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 	// use schema
 	{
 		PGR(PQexec(m_conn,
-			   "CREATE OR REPLACE VIEW view_relations_size AS\n"
-			   "SELECT\n"
-			   "    c.relname AS name,\n"
-			   "    c.reltuples::bigint AS tuples,\n"
-			   "    pg_relation_size(c.oid) AS table_size,\n"
-			   "    pg_total_relation_size(c.oid)-pg_relation_size(c.oid) - (CASE WHEN "
-			   "c.reltoastrelid <> 0 THEN \n"
-			   "    pg_relation_size(c.reltoastrelid) ELSE 0 END) AS index_size,\n"
-			   "    CASE WHEN c.reltoastrelid <> 0 THEN "
-			   "pg_relation_size(c.reltoastrelid) ELSE 0 END AS toast_size,\n"
-			   "    pg_total_relation_size(c.oid) AS total_size\n"
-			   "FROM\n"
-			   "    pg_catalog.pg_class c\n"
-			   "JOIN\n"
-			   "    pg_catalog.pg_roles r ON r.oid = c.relowner\n"
-			   "LEFT JOIN\n"
-			   "    pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n"
-			   "WHERE\n"
-			   "    c.relkind = 'r'\n"
-			   "AND n.nspname NOT IN ('pg_catalog', 'pg_toast')\n"
-			   "AND pg_catalog.pg_table_is_visible(c.oid)\n"
-			   "ORDER BY total_size DESC"));
+			"CREATE OR REPLACE VIEW view_relations_size AS\n"
+				"SELECT\n"
+				"    c.relname AS name,\n"
+				"    c.reltuples::bigint AS tuples,\n"
+				"    pg_relation_size(c.oid) AS table_size,\n"
+				"    pg_total_relation_size(c.oid)-pg_relation_size(c.oid) - (CASE WHEN "
+				"c.reltoastrelid <> 0 THEN \n"
+				"    pg_relation_size(c.reltoastrelid) ELSE 0 END) AS index_size,\n"
+				"    CASE WHEN c.reltoastrelid <> 0 THEN "
+				"pg_relation_size(c.reltoastrelid) ELSE 0 END AS toast_size,\n"
+				"    pg_total_relation_size(c.oid) AS total_size\n"
+				"FROM\n"
+				"    pg_catalog.pg_class c\n"
+				"JOIN\n"
+				"    pg_catalog.pg_roles r ON r.oid = c.relowner\n"
+				"LEFT JOIN\n"
+				"    pg_catalog.pg_namespace n ON n.oid = c.relnamespace\n"
+				"WHERE\n"
+				"    c.relkind = 'r'\n"
+				"AND n.nspname NOT IN ('pg_catalog', 'pg_toast')\n"
+				"AND pg_catalog.pg_table_is_visible(c.oid)\n"
+				"ORDER BY total_size DESC"));
 
 		if (result.get_status() != PGRES_COMMAND_OK) {
 			return result.get_status();
@@ -313,14 +319,14 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 
 	{
 		PGR(PQexec(m_conn, "CREATE OR REPLACE VIEW view_relations_size_pretty AS\n"
-				   "SELECT\n"
-				   "    name,\n"
-				   "    tuples,\n"
-				   "    pg_size_pretty(table_size) AS table_size,\n"
-				   "    pg_size_pretty(index_size) AS index_size,\n"
-				   "    pg_size_pretty(toast_size) AS toast_size,\n"
-				   "    pg_size_pretty(total_size) AS total_size\n"
-				   "FROM view_relations_size"));
+			"SELECT\n"
+			"    name,\n"
+			"    tuples,\n"
+			"    pg_size_pretty(table_size) AS table_size,\n"
+			"    pg_size_pretty(index_size) AS index_size,\n"
+			"    pg_size_pretty(toast_size) AS toast_size,\n"
+			"    pg_size_pretty(total_size) AS total_size\n"
+			"FROM view_relations_size"));
 
 		if (result.get_status() != PGRES_COMMAND_OK) {
 			return result.get_status();
@@ -329,80 +335,80 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 
 	{
 		PGR(PQexec(
-		    m_conn,
-		    "CREATE OR REPLACE VIEW object_privileges AS\n"
-		    "SELECT  objtype,\n"
-		    "        schemaname,\n"
-		    "        objname,\n"
-		    "        owner,\n"
-		    "        objuser,\n"
-		    "        privs,\n"
-		    "        string_agg(\n"
-		    "            (case   privs_individual\n"
-		    "                    when 'arwdDxt' then 'All'\n"
-		    "                    when '*' then 'Grant'\n"
-		    "                    when 'r' then 'SELECT'\n"
-		    "                    when 'w' then 'UPDATE'\n"
-		    "                    when 'a' then 'INSERT'\n"
-		    "                    when 'd' then 'DELETE'\n"
-		    "                    when 'D' then 'TRUNCATE'\n"
-		    "                    when 'x' then 'REFERENCES'\n"
-		    "                    when 't' then 'TRIGGER'\n"
-		    "                    when 'X' then 'EXECUTE'\n"
-		    "                    when 'U' then 'USAGE'\n"
-		    "                    when 'C' then 'CREATE'\n"
-		    "                    when 'c' then 'CONNECT'\n"
-		    "                    when 'T' then 'TEMPORARY'\n"
-		    "            else 'Unknown: '||privs end\n"
-		    "            ), ', ' ORDER BY privs_individual) as privileges_pretty\n"
-		    "FROM    (SELECT objtype,\n"
-		    "                schemaname,\n"
-		    "                objname,\n"
-		    "                owner,\n"
-		    "                privileges,\n"
-		    "                (case when coalesce(objuser,'') is not distinct from\n"
-		    "'' then 'public' else objuser end)\n"
-		    "                    || (case when pr2.rolsuper then '*' else '' end)\n"
-		    "                as objuser,\n"
-		    "                privs,\n"
-		    "                (case   when privs in ('*','arwdDxt') then privs\n"
-		    "                        else regexp_split_to_table(privs,E'\\\\s*')\n"
-		    "                end) as privs_individual\n"
-		    "        from    (select distinct\n"
-		    "                        objtype,\n"
-		    "                        schemaname,\n"
-		    "                        objname,\n"
-		    "                        coalesce(owner,'') || (case when pr.rolsuper\n"
-		    "then '*' else '' end) as owner,\n"
-		    "                        regexp_replace(privileges,E'\\/.*','') as "
-		    "privileges,\n"
-		    "\n"
-		    "(regexp_split_to_array(regexp_replace(privileges,E'\\/.*',''),'='))[1]\n"
-		    "as objuser,\n"
-		    "\n"
-		    "(regexp_split_to_array(regexp_replace(privileges,E'\\/.*',''),'='))[2]\n"
-		    "as privs\n"
-		    "                from    (SELECT n.nspname as schemaname,\n"
-		    "                                c.relname as objname,\n"
-		    "                                CASE c.relkind WHEN 'r' THEN 'table'\n"
-		    "WHEN 'v' THEN 'view' WHEN 'S' THEN 'sequence' END as objtype,\n"
-		    "\n"
-		    "regexp_split_to_table(array_to_string(c.relacl,','),',') as\n"
-		    "privileges,\n"
-		    "                                pg_catalog.pg_get_userbyid(c.relowner) as "
-		    "Owner\n"
-		    "                        FROM pg_catalog.pg_class c\n"
-		    "                        LEFT JOIN pg_catalog.pg_namespace n ON n.oid =\n"
-		    "c.relnamespace\n"
-		    "                        WHERE c.relkind IN ('r', 'v', 'S', 'f')\n"
-		    "                        AND n.nspname !~ '(pg_catalog|information_schema)'\n"
-		    "                        ) as y                                      \n"
-		    "                left join pg_roles pr on (pr.rolname = y.owner)\n"
-		    "                ) as p2\n"
-		    "        left join pg_roles pr2 on (pr2.rolname = p2.objuser)\n"
-		    "        ) as p3\n"
-		    "group by objtype, schemaname,objname, owner, objuser, privs\n"
-		    "order by objtype,schemaname,objname,objuser,privileges_pretty"));
+			m_conn,
+			"CREATE OR REPLACE VIEW object_privileges AS\n"
+				"SELECT  objtype,\n"
+				"        schemaname,\n"
+				"        objname,\n"
+				"        owner,\n"
+				"        objuser,\n"
+				"        privs,\n"
+				"        string_agg(\n"
+				"            (case   privs_individual\n"
+				"                    when 'arwdDxt' then 'All'\n"
+				"                    when '*' then 'Grant'\n"
+				"                    when 'r' then 'SELECT'\n"
+				"                    when 'w' then 'UPDATE'\n"
+				"                    when 'a' then 'INSERT'\n"
+				"                    when 'd' then 'DELETE'\n"
+				"                    when 'D' then 'TRUNCATE'\n"
+				"                    when 'x' then 'REFERENCES'\n"
+				"                    when 't' then 'TRIGGER'\n"
+				"                    when 'X' then 'EXECUTE'\n"
+				"                    when 'U' then 'USAGE'\n"
+				"                    when 'C' then 'CREATE'\n"
+				"                    when 'c' then 'CONNECT'\n"
+				"                    when 'T' then 'TEMPORARY'\n"
+				"            else 'Unknown: '||privs end\n"
+				"            ), ', ' ORDER BY privs_individual) as privileges_pretty\n"
+				"FROM    (SELECT objtype,\n"
+				"                schemaname,\n"
+				"                objname,\n"
+				"                owner,\n"
+				"                privileges,\n"
+				"                (case when coalesce(objuser,'') is not distinct from\n"
+				"'' then 'public' else objuser end)\n"
+				"                    || (case when pr2.rolsuper then '*' else '' end)\n"
+				"                as objuser,\n"
+				"                privs,\n"
+				"                (case   when privs in ('*','arwdDxt') then privs\n"
+				"                        else regexp_split_to_table(privs,E'\\\\s*')\n"
+				"                end) as privs_individual\n"
+				"        from    (select distinct\n"
+				"                        objtype,\n"
+				"                        schemaname,\n"
+				"                        objname,\n"
+				"                        coalesce(owner,'') || (case when pr.rolsuper\n"
+				"then '*' else '' end) as owner,\n"
+				"                        regexp_replace(privileges,E'\\/.*','') as "
+				"privileges,\n"
+				"\n"
+				"(regexp_split_to_array(regexp_replace(privileges,E'\\/.*',''),'='))[1]\n"
+				"as objuser,\n"
+				"\n"
+				"(regexp_split_to_array(regexp_replace(privileges,E'\\/.*',''),'='))[2]\n"
+				"as privs\n"
+				"                from    (SELECT n.nspname as schemaname,\n"
+				"                                c.relname as objname,\n"
+				"                                CASE c.relkind WHEN 'r' THEN 'table'\n"
+				"WHEN 'v' THEN 'view' WHEN 'S' THEN 'sequence' END as objtype,\n"
+				"\n"
+				"regexp_split_to_table(array_to_string(c.relacl,','),',') as\n"
+				"privileges,\n"
+				"                                pg_catalog.pg_get_userbyid(c.relowner) as "
+				"Owner\n"
+				"                        FROM pg_catalog.pg_class c\n"
+				"                        LEFT JOIN pg_catalog.pg_namespace n ON n.oid =\n"
+				"c.relnamespace\n"
+				"                        WHERE c.relkind IN ('r', 'v', 'S', 'f')\n"
+				"                        AND n.nspname !~ '(pg_catalog|information_schema)'\n"
+				"                        ) as y                                      \n"
+				"                left join pg_roles pr on (pr.rolname = y.owner)\n"
+				"                ) as p2\n"
+				"        left join pg_roles pr2 on (pr2.rolname = p2.objuser)\n"
+				"        ) as p3\n"
+				"group by objtype, schemaname,objname, owner, objuser, privs\n"
+				"order by objtype,schemaname,objname,objuser,privileges_pretty"));
 
 		if (result.get_status() != PGRES_COMMAND_OK) {
 			return result.get_status();
@@ -410,4 +416,5 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 	}
 
 	return PGRES_COMMAND_OK;
+}
 }

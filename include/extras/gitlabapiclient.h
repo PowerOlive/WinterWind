@@ -125,7 +125,7 @@ enum GitlabProjectSearchScope
 	GITLAB_PROJECT_SS_STARRED,
 };
 
-class GitlabAPIClient : protected HTTPClient
+class GitlabAPIClient : protected winterwind::HTTPClient
 {
 public:
 	GitlabAPIClient(const std::string &server_uri, const std::string &api_token)
@@ -188,7 +188,7 @@ public:
 	const GitlabRetCod delete_project(const std::string &name);
 	const GitlabRetCod delete_projects(const std::vector<std::string> &projects);
 
-	virtual long get_http_code() const { return HTTPClient::get_http_code(); }
+	virtual long get_http_code() const { return winterwind::HTTPClient::get_http_code(); }
 private:
 	void build_issue_data(const GitlabIssue &issue, std::string &post_data);
 

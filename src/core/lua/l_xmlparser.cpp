@@ -28,6 +28,8 @@
 #include "xmlparser.h"
 #include <iostream>
 
+namespace winterwind
+{
 int LuaEngine::l_create_xmlparser(lua_State *L)
 {
 	std::string mode = "xml";
@@ -50,12 +52,14 @@ int LuaEngine::l_create_xmlparser(lua_State *L)
 
 const char LuaRefXMLParser::className[] = "LuaRefXMLParser";
 const luaL_Reg LuaRefXMLParser::methods[] = {
-    luamethod(LuaRefXMLParser, parse), {0, 0},
+	luamethod(LuaRefXMLParser, parse), {0, 0},
 };
 
-LuaRefXMLParser::LuaRefXMLParser(XMLParser *object) : m_object(object) {}
+LuaRefXMLParser::LuaRefXMLParser(XMLParser *object) : m_object(object)
+{}
 
-LuaRefXMLParser::~LuaRefXMLParser() { delete m_object; }
+LuaRefXMLParser::~LuaRefXMLParser()
+{ delete m_object; }
 
 LuaRefXMLParser *LuaRefXMLParser::checkobject(lua_State *L, int narg)
 {
@@ -136,4 +140,5 @@ int LuaRefXMLParser::l_parse(lua_State *L)
 
 	write<std::vector<std::string>>(L, res);
 	return 1;
+}
 }

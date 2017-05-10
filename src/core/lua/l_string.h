@@ -27,6 +27,8 @@
 
 #include "luahelper.h"
 
+namespace winterwind
+{
 class LuaEngine;
 
 class LuaString : protected LuaHelper
@@ -35,12 +37,17 @@ class LuaString : protected LuaHelper
 
 private:
 	static int l_base64_decode(lua_State *L);
+
 	static int l_base64_encode(lua_State *L);
+
 	static int l_hmac_sha1(lua_State *L);
 
 	static int l_read_json(lua_State *L);
+
 	static int l_write_json(lua_State *L);
+
 	static int l_string_to_hex(lua_State *L);
 
 	static void register_functions(LuaEngine *engine, int top);
 };
+}

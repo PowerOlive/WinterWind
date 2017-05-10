@@ -27,7 +27,7 @@
 
 #include <core/httpclient.h>
 
-class CaldavClient : public HTTPClient
+class CaldavClient : public winterwind::HTTPClient
 {
 public:
 	CaldavClient(const std::string &url, const std::string &username, const std::string &password,

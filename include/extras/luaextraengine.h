@@ -34,13 +34,13 @@
 	{ #name, class ::l_##name }
 #define REGISTER_LUA_FCT(name) register_function(#name, l_##name, top)
 
-class LuaEngineExtras : public LuaEngine
+class LuaEngineExtras : public winterwind::LuaEngine
 {
 public:
 	LuaEngineExtras() {}
 	virtual ~LuaEngineExtras() {}
 
-	LuaReturnCode init_winterwind_extra_bindings();
+	winterwind::LuaReturnCode init_winterwind_extra_bindings();
 
 	// Handlers
 #if ENABLE_HTTPCLIENT

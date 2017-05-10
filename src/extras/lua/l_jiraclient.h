@@ -29,7 +29,7 @@
 #include <core/luahelper.h>
 #include <lua.hpp>
 
-class LuaRefJiraClient : protected LuaHelper
+class LuaRefJiraClient : protected winterwind::LuaHelper
 {
 	LUAREF_OBJECT(JiraClient)
 private:

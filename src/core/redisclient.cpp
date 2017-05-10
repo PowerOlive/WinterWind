@@ -26,8 +26,10 @@
 #include "redisclient.h"
 #include <iostream>
 
+namespace winterwind
+{
 RedisClient::RedisClient(const std::string &host, const uint16_t port,
-		const uint32_t cb_interval):
+	const uint32_t cb_interval) :
 	m_host(host),
 	m_port(port),
 	m_circuit_breaker_interval(cb_interval)
@@ -59,7 +61,7 @@ void RedisClient::connect()
 		m_last_failed_connection = time(NULL);
 		if (m_context) {
 			std::cerr << "Redis " << __FUNCTION__ << " error: " << m_context->errstr
-				  << std::endl;
+				<< std::endl;
 			redisFree(m_context);
 			m_context = nullptr;
 			return;
@@ -73,19 +75,19 @@ void RedisClient::connect()
 
 // This function permits to test connect & reconnect or fail
 #define REDIS_CONNECT                                                                              \
-	if (!m_context) {                                                                          \
-		connect();                                                                         \
-		if (!m_context) {                                                                  \
-			return false;                                                              \
-		}                                                                                  \
-	}
+    if (!m_context) {                                                                          \
+        connect();                                                                         \
+        if (!m_context) {                                                                  \
+            return false;                                                              \
+        }                                                                                  \
+    }
 
 #define REDIS_REPLY_HANDLER                                                                        \
-	if (!reply) {                                                                              \
-		std::cerr << "Redis " << __FUNCTION__ << " error: " << m_context->errstr           \
-			  << std::endl;                                                            \
-		return false;                                                                      \
-	}
+    if (!reply) {                                                                              \
+        std::cerr << "Redis " << __FUNCTION__ << " error: " << m_context->errstr           \
+              << std::endl;                                                            \
+        return false;                                                                      \
+    }
 
 bool RedisClient::type(const std::string &key, std::string &res)
 {
@@ -103,7 +105,7 @@ bool RedisClient::type(const std::string &key, std::string &res)
 			return false;
 		default:
 			std::cerr << "Redis " << __FUNCTION__ << " error: unhandled response type "
-				  << reply->type << std::endl;
+				<< reply->type << std::endl;
 			freeReplyObject(reply);
 			return false;
 	}
@@ -112,11 +114,12 @@ bool RedisClient::type(const std::string &key, std::string &res)
 	return true;
 }
 
-bool RedisClient::set(const std::string &key, const std::string &value, const uint32_t expire_value)
+bool RedisClient::set(const std::string &key, const std::string &value,
+	const uint32_t expire_value)
 {
 	REDIS_CONNECT;
 	redisReply *reply =
-	    (redisReply *) redisCommand(m_context, "SET %s %s", key.c_str(), value.c_str());
+		(redisReply *) redisCommand(m_context, "SET %s %s", key.c_str(), value.c_str());
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
 	return expire_value ? expire(key, expire_value) : true;
@@ -137,7 +140,7 @@ bool RedisClient::get(const std::string &key, std::string &res)
 			return false;
 		default:
 			std::cerr << "Redis " << __FUNCTION__ << " error: unhandled response type "
-				  << reply->type << std::endl;
+				<< reply->type << std::endl;
 			freeReplyObject(reply);
 			return false;
 	}
@@ -159,25 +162,28 @@ bool RedisClient::expire(const std::string &key, const uint32_t value)
 {
 	REDIS_CONNECT;
 	redisReply *reply =
-	    (redisReply *) redisCommand(m_context, "EXPIRE %s %d", key.c_str(), value);
+		(redisReply *) redisCommand(m_context, "EXPIRE %s %d", key.c_str(), value);
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
 	return true;
 }
 
-bool RedisClient::hset(const std::string &key, const std::string &skey, const std::string &value,
-		       const uint32_t expire_value)
+bool RedisClient::hset(const std::string &key, const std::string &skey,
+	const std::string &value,
+	const uint32_t expire_value)
 {
 	REDIS_CONNECT;
 	// Verify type & del wrong key type
 	std::string type_verification = "";
 	type(key, type_verification);
-	if (type_verification.compare("hash") != 0 && type_verification.compare("none") != 0) {
+	if (type_verification.compare("hash") != 0 &&
+		type_verification.compare("none") != 0) {
 		del(key);
 	}
 
-	redisReply *reply = (redisReply *) redisCommand(m_context, "HSET %s %s %s", key.c_str(),
-							skey.c_str(), value.c_str());
+	redisReply *reply = (redisReply *) redisCommand(m_context, "HSET %s %s %s",
+		key.c_str(),
+		skey.c_str(), value.c_str());
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
 	return expire_value == 0 || expire(key, expire_value);
@@ -187,7 +193,7 @@ bool RedisClient::hdel(const std::string &key, const std::string &skey)
 {
 	REDIS_CONNECT;
 	redisReply *reply =
-	    (redisReply *) redisCommand(m_context, "HDEL %s %s", key.c_str(), skey.c_str());
+		(redisReply *) redisCommand(m_context, "HDEL %s %s", key.c_str(), skey.c_str());
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
 	return true;
@@ -197,7 +203,7 @@ bool RedisClient::hget(const std::string &key, const std::string &skey, std::str
 {
 	REDIS_CONNECT;
 	redisReply *reply =
-	    (redisReply *) redisCommand(m_context, "HGET %s %s", key.c_str(), skey.c_str());
+		(redisReply *) redisCommand(m_context, "HGET %s %s", key.c_str(), skey.c_str());
 	REDIS_REPLY_HANDLER;
 	switch (reply->type) {
 		case REDIS_REPLY_STRING:
@@ -209,7 +215,7 @@ bool RedisClient::hget(const std::string &key, const std::string &skey, std::str
 			return false;
 		default:
 			std::cerr << "Redis " << __FUNCTION__ << " error: unhandled response type "
-				  << reply->type << std::endl;
+				<< reply->type << std::endl;
 			freeReplyObject(reply);
 			return false;
 	}
@@ -226,13 +232,13 @@ bool RedisClient::hkeys(const std::string &key, std::vector<std::string> &res)
 	switch (reply->type) {
 		case REDIS_REPLY_ERROR:
 			std::cerr << "Redis " << __FUNCTION__ << " error: "
-				  << std::string(reply->str, (unsigned long) reply->len)
-				  << std::endl;
+				<< std::string(reply->str, (unsigned long) reply->len)
+				<< std::endl;
 			break;
 		case REDIS_REPLY_ARRAY:
 			for (int i = 0; i < reply->elements; i++) {
 				res.push_back(std::string(reply->element[i]->str,
-							  (unsigned long) reply->element[i]->len));
+					(unsigned long) reply->element[i]->len));
 			}
 			break;
 		case REDIS_REPLY_NIL:
@@ -240,11 +246,12 @@ bool RedisClient::hkeys(const std::string &key, std::vector<std::string> &res)
 			return false;
 		default:
 			std::cerr << "Redis " << __FUNCTION__ << " error: unhandled response type "
-				  << reply->type << std::endl;
+				<< reply->type << std::endl;
 			freeReplyObject(reply);
 			return false;
 	}
 
 	freeReplyObject(reply);
 	return true;
+}
 }

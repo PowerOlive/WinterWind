@@ -27,23 +27,25 @@
 
 #include <lua.hpp>
 
+namespace winterwind
+{
 /**
  * This macro permits to bootstrap easily a Lua Referenced object
  */
 #define LUAREF_OBJECT(name)                                                                                            \
 private:                                                                                                               \
-	name *m_object;                                                                                                \
-	static const char className[];                                                                                 \
-	static const luaL_Reg methods[];                                                                               \
-	static int gc_object(lua_State *L);                                                                            \
+    name *m_object;                                                                                                \
+    static const char className[];                                                                                 \
+    static const luaL_Reg methods[];                                                                               \
+    static int gc_object(lua_State *L);                                                                            \
                                                                                                                        \
 public:                                                                                                                \
-	LuaRef##name(name *object);                                                                                    \
-	virtual ~LuaRef##name();                                                                                       \
-	static void Register(lua_State *L);                                                                            \
-	static void create(lua_State *L, name *object);                                                                \
-	static LuaRef##name *checkobject(lua_State *L, int narg);                                                      \
-	static name *getobject(LuaRef##name *ref);
+    LuaRef##name(name *object);                                                                                    \
+    virtual ~LuaRef##name();                                                                                       \
+    static void Register(lua_State *L);                                                                            \
+    static void create(lua_State *L, name *object);                                                                \
+    static LuaRef##name *checkobject(lua_State *L, int narg);                                                      \
+    static name *getobject(LuaRef##name *ref);
 
 /**
  * Convert Lua States to C++ types
@@ -60,7 +62,8 @@ protected:
 	 * @param index Lua Index to read
 	 * @return read value from Lua
 	 */
-	template <typename T> static T read(lua_State *L, int index);
+	template<typename T>
+	static T read(lua_State *L, int index);
 
 	/**
 	 * Read a value using a template type T from Lua State L and index and write it
@@ -72,7 +75,8 @@ protected:
 	 * @param res reference result object
 	 * @return true if conversion succeed
 	 */
-	template <typename T> static bool read(lua_State *L, int index, T &res);
+	template<typename T>
+	static bool read(lua_State *L, int index, T &res);
 
 	/**
 	 * Write what value with type T to Lua State L
@@ -81,5 +85,7 @@ protected:
 	 * @param what value to write
 	 * @return true if write succeed
 	 */
-	template <typename T> static bool write(lua_State *L, const T &what);
+	template<typename T>
+	static bool write(lua_State *L, const T &what);
 };
+}

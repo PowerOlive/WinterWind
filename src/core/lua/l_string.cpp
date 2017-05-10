@@ -31,6 +31,8 @@
 #include <sstream>
 #include <utils/stringutils.h>
 
+namespace winterwind
+{
 int LuaString::l_base64_decode(lua_State *L)
 {
 	if (lua_isnil(L, 1)) {
@@ -140,4 +142,5 @@ void LuaString::register_functions(LuaEngine *engine, int top)
 	engine->REGISTER_LUA_FCT(read_json);
 	engine->REGISTER_LUA_FCT(write_json);
 	engine->REGISTER_LUA_FCT(string_to_hex);
+}
 }

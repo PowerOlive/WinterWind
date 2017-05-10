@@ -27,6 +27,8 @@
 #include <iostream>
 #include <regex>
 
+using namespace winterwind;
+
 static const std::string calendar_list_request = "<d:propfind xmlns:d=\"DAV:\" "
 						 "xmlns:cs=\"http://calendarserver.org/ns/\" "
 						 "xmlns:c=\"urn:ietf:params:xml:ns:caldav\">"

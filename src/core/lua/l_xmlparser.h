@@ -27,11 +27,15 @@
 
 #include "luahelper.h"
 
+namespace winterwind
+{
 class XMLParser;
 
 class LuaRefXMLParser : protected LuaHelper
 {
-	LUAREF_OBJECT(XMLParser)
+LUAREF_OBJECT(XMLParser)
+
 private:
 	static int l_parse(lua_State *L);
 };
+}

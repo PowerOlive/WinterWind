@@ -35,6 +35,9 @@ static const char *NOT_FOUND_PAGE = "<html><head><title>Not found</title></head>
 static const char *BAD_REQUEST =
     "<html><head><title>Bad request</title></head><body><h1>Bad request</h1></body></html>";
 
+namespace winterwind
+{
+
 HTTPServer::HTTPServer(const uint16_t http_port) : m_http_port(http_port)
 {
 	m_mhd_daemon = MHD_start_daemon(
@@ -211,4 +214,6 @@ bool HTTPServer::parse_post_data(const std::string &data, HTTPFormQuery *qf)
 	}
 
 	return true;
+}
+
 }

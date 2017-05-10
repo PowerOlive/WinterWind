@@ -37,6 +37,8 @@
 #include <unordered_map>
 #include <vector>
 
+namespace winterwind {
+
 enum HTTPQueryType
 {
 	HTTPQUERY_TYPE_NONE,
@@ -49,18 +51,21 @@ struct HTTPQuery
 	std::string url = "";
 	std::unordered_map<std::string, std::string> headers;
 	std::unordered_map<std::string, std::string> get_params;
+
 	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_NONE; }
 };
 
 struct HTTPFormQuery : public HTTPQuery
 {
 	std::unordered_map<std::string, std::string> post_data;
+
 	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_FORM; }
 };
 
 struct HTTPJsonQuery : public HTTPQuery
 {
 	Json::Value json_query;
+
 	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_JSON; }
 };
 
@@ -74,16 +79,18 @@ struct HTTPRequestSession
 typedef std::shared_ptr<HTTPQuery> HTTPQueryPtr;
 typedef std::shared_ptr<HTTPResponse> HTTPResponsePtr;
 
-typedef std::function<HTTPResponsePtr (const HTTPQueryPtr)> HTTPServerRequestHandler;
+typedef std::function<HTTPResponsePtr(const HTTPQueryPtr)> HTTPServerRequestHandler;
 
 #define BIND_HTTPSERVER_HANDLER(s, m, u, hdl, obj)                                                                     \
-	s->register_handler(HTTP_METHOD_##m, u, std::bind(hdl, obj, std::placeholders::_1));
+    s->register_handler(HTTP_METHOD_##m, u, std::bind(hdl, obj, std::placeholders::_1));
 
 typedef std::unordered_map<std::string, HTTPServerRequestHandler> HTTPServerReqHandlerMap;
+
 class HTTPServer
 {
 public:
 	HTTPServer(const uint16_t http_port);
+
 	virtual ~HTTPServer();
 
 	/**
@@ -100,11 +107,13 @@ public:
 		m_handlers[method][url] = hdl;
 	}
 
-	uint16_t get_port() const { return m_http_port; }
+	uint16_t get_port() const
+	{ return m_http_port; }
 
 private:
 	static int mhd_iter_headers(void *cls, MHD_ValueKind kind, const char *key,
 		const char *value);
+
 	static int mhd_iter_getargs(void *cls, MHD_ValueKind kind, const char *key,
 		const char *value);
 
@@ -117,8 +126,9 @@ private:
 
 	bool parse_post_data(const std::string &data, HTTPFormQuery *qf);
 
-	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url, const std::string &upload_data,
-			  HTTPRequestSession *session);
+	bool handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url,
+		const std::string &upload_data,
+		HTTPRequestSession *session);
 
 	/**
 	 * MicroHTTPd service pointer
@@ -135,3 +145,5 @@ private:
 	 */
 	uint16_t m_http_port;
 };
+
+}

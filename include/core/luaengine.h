@@ -30,8 +30,10 @@
 #include <lua.hpp>
 #include <string>
 
+namespace winterwind
+{
 #define luamethod(class, name)                                                                                         \
-	{ #name, class ::l_##name }
+    { #name, class ::l_##name }
 #define REGISTER_LUA_FCT(name) register_function(#name, l_##name, top)
 
 enum LuaReturnCode
@@ -45,13 +47,18 @@ class LuaEngine : public LuaHelper
 {
 public:
 	LuaEngine();
+
 	virtual ~LuaEngine();
 
 	// Lua wrappers
 	void newtable();
+
 	void setglobal(const std::string &name);
+
 	int getglobal(const std::string &name);
+
 	bool isfunction(int index);
+
 	void pop(int index = 1);
 
 	LuaReturnCode init_winterwind_bindings();
@@ -61,17 +68,25 @@ public:
 	void register_function(const char *name, lua_CFunction f, int top);
 
 #if UNITTESTS
+
 	bool run_unittests();
+
 #endif
 
 	// Handlers
 	static int l_create_xmlparser(lua_State *L);
+
 #if ENABLE_HTTPCLIENT
+
 	static int l_create_httpclient(lua_State *L);
+
 #endif
 #if ENABLE_POSTGRESQL
+
 	static int l_create_postgresql_client(lua_State *L);
+
 #endif
 protected:
 	lua_State *m_lua = nullptr;
 };
+}

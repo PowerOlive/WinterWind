@@ -27,7 +27,7 @@
 
 #include <core/httpclient.h>
 
-class JiraClient : private HTTPClient
+class JiraClient : private winterwind::HTTPClient
 {
 public:
 	JiraClient(const std::string &instance_url, const std::string &user, const std::string &password);
@@ -50,7 +50,7 @@ public:
 
 	bool list_projects(Json::Value &res);
 
-	virtual long get_http_code() const { return HTTPClient::get_http_code(); }
+	virtual long get_http_code() const { return winterwind::HTTPClient::get_http_code(); }
 private:
 	std::string m_instance_url = "";
 };

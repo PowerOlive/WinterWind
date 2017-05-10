@@ -25,6 +25,8 @@
 
 #pragma once
 
+namespace winterwind
+{
 enum HTTPMethod
 {
 	HTTP_METHOD_DELETE,
@@ -36,3 +38,4 @@ enum HTTPMethod
 	HTTP_METHOD_PUT,
 	HTTP_METHOD_MAX,
 };
+}

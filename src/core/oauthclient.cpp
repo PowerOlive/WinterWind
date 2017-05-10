@@ -30,18 +30,22 @@
 #include <ctime>
 #include <sstream>
 
-OAuthClient::OAuthClient(const std::string &consumer_key, const std::string &consumer_secret,
-			 const std::string &access_token, const std::string &access_token_secret)
-    : HTTPClient(),
-      m_consumer_key(consumer_key),
-      m_consumer_secret(consumer_secret),
-      m_access_token(access_token),
-      m_access_token_secret(access_token_secret)
+namespace winterwind
+{
+OAuthClient::OAuthClient(const std::string &consumer_key,
+	const std::string &consumer_secret,
+	const std::string &access_token, const std::string &access_token_secret)
+	: HTTPClient(),
+	m_consumer_key(consumer_key),
+	m_consumer_secret(consumer_secret),
+	m_access_token(access_token),
+	m_access_token_secret(access_token_secret)
 {
 	m_rand_engine = std::mt19937((unsigned long) std::time(0));
 }
 
 #define OAUTH_NONCE_LENGTH 32
+
 void OAuthClient::append_oauth_header(const std::string &method, const std::string &url)
 {
 	std::string oauth_nonce = "";
@@ -51,8 +55,9 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 	}
 
 	std::string buf = base64_encode(oauth_nonce);
-	buf.erase(std::remove_if(buf.begin(), buf.end(), [](char c) { return !std::isalnum(c); }),
-		  buf.end());
+	buf.erase(
+		std::remove_if(buf.begin(), buf.end(), [](char c) { return !std::isalnum(c); }),
+		buf.end());
 	time_t t = std::time(0);
 
 	std::map<std::string, std::string> ordered_params = {};
@@ -101,7 +106,7 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 
 		// Add sign key to parameters
 		ordered_params["oauth_signature"] =
-		    base64_encode(hmac_sha1(signing_key, signature));
+			base64_encode(hmac_sha1(signing_key, signature));
 	}
 
 	// Generate OAuth header
@@ -130,4 +135,5 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 	}
 
 	add_http_header("Authorization", header.str());
+}
 }

@@ -29,9 +29,13 @@
 #include <lua.hpp>
 #include <postgresqlclient.h>
 
+namespace winterwind
+{
 class LuaRefPostgreSQLClient : protected LuaHelper
 {
-	LUAREF_OBJECT(PostgreSQLClient)
+LUAREF_OBJECT(PostgreSQLClient)
+
 private:
 	static int l_register_statement(lua_State *L);
 };
+}

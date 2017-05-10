@@ -30,6 +30,7 @@
 #include <iostream>
 #include "cmake_config.h"
 
+namespace winterwind {
 std::atomic_bool HTTPClient::m_inited(false);
 
 HTTPClient::HTTPClient(uint32_t max_file_size) : m_maxfilesize(max_file_size)
@@ -45,7 +46,8 @@ HTTPClient::~HTTPClient()
 	delete m_json_reader;
 }
 
-void HTTPClient::deinit() { curl_global_cleanup(); }
+void HTTPClient::deinit()
+{ curl_global_cleanup(); }
 
 Json::Writer *HTTPClient::json_writer()
 {
@@ -72,8 +74,9 @@ size_t HTTPClient::curl_writer(char *data, size_t size, size_t nmemb, void *read
 	return realsize;
 }
 
-void HTTPClient::request(std::string url, std::string &res, int32_t flag, HTTPMethod method,
-			 std::string post_data)
+void
+HTTPClient::request(std::string url, std::string &res, int32_t flag, HTTPMethod method,
+	std::string post_data)
 {
 	CURL *curl = curl_easy_init();
 	m_http_code = 0;
@@ -100,11 +103,12 @@ void HTTPClient::request(std::string url, std::string &res, int32_t flag, HTTPMe
 
 	curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-	curl_easy_setopt(curl, CURLOPT_MAXFILESIZE, m_maxfilesize); // Limit request size to 20ko
+	curl_easy_setopt(curl, CURLOPT_MAXFILESIZE,
+		m_maxfilesize); // Limit request size to 20ko
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_writer);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &res);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER,
-			 (flag & HTTPClient::REQ_NO_VERIFY_PEER) ? 0 : 1);
+		(flag & HTTPClient::REQ_NO_VERIFY_PEER) ? 0 : 1);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1);
 
 	switch (method) {
@@ -156,9 +160,9 @@ void HTTPClient::request(std::string url, std::string &res, int32_t flag, HTTPMe
 	if (!m_form_params.empty()) {
 		if (!post_data.empty()) {
 			std::cerr << "HTTPClient: post_data is not empty while form_params storage "
-				     "has elements. This will ignore "
-				     " post_data. (url was: "
-				  << url << ")." << std::endl;
+				"has elements. This will ignore "
+				" post_data. (url was: "
+				<< url << ")." << std::endl;
 		}
 
 		post_data.clear();
@@ -184,7 +188,7 @@ void HTTPClient::request(std::string url, std::string &res, int32_t flag, HTTPMe
 
 // @TODO add flag to add custom headers
 #if defined(__FreeBSD__)
-	curl_easy_setopt(curl, CURLOPT_CAINFO, "/usr/local/etc/ssl/cert.pem");
+		curl_easy_setopt(curl, CURLOPT_CAINFO, "/usr/local/etc/ssl/cert.pem");
 #else
 	curl_easy_setopt(curl, CURLOPT_CAINFO, "/etc/ssl/cert.pem");
 #endif
@@ -198,7 +202,7 @@ void HTTPClient::request(std::string url, std::string &res, int32_t flag, HTTPMe
 
 	if (r != CURLE_OK) {
 		std::cerr << "HTTPClient: curl_easy_perform failed to do request! Error was: "
-			  << curl_easy_strerror(r) << std::endl;
+			<< curl_easy_strerror(r) << std::endl;
 	}
 
 	curl_easy_cleanup(curl);
@@ -212,11 +216,11 @@ void HTTPClient::request(std::string url, std::string &res, int32_t flag, HTTPMe
 }
 
 void HTTPClient::get_html_tag_value(const std::string &url, const std::string &xpath,
-				    std::vector<std::string> &res, int32_t pflag)
+	std::vector<std::string> &res, int32_t pflag)
 {
 	std::string page_res = "";
 	assert(!((pflag & XMLParser::Flag::FLAG_XML_SIMPLE) &&
-		 (pflag & XMLParser::Flag::FLAG_XML_WITHOUT_TAGS)));
+		(pflag & XMLParser::Flag::FLAG_XML_WITHOUT_TAGS)));
 	_get(url, page_res);
 
 	XMLParser parser(XMLParser::Mode::MODE_HTML);
@@ -247,7 +251,9 @@ bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t fla
 	return true;
 }
 
-bool HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Value &res, int32_t flags)
+bool
+HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Value &res,
+	int32_t flags)
 {
 	std::string res_str = "";
 	prepare_json_query();
@@ -255,7 +261,7 @@ bool HTTPClient::_post_json(const std::string &url, const Json::Value &data, Jso
 
 	if (m_http_code == 400) {
 		std::cerr << "Bad request for " << url << ", error was: '" << res_str << "'"
-			  << std::endl;
+			<< std::endl;
 		return false;
 	}
 
@@ -274,7 +280,9 @@ bool HTTPClient::_post_json(const std::string &url, const Json::Value &data, Jso
 	return true;
 }
 
-bool HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Value &res, int32_t flags)
+bool
+HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Value &res,
+	int32_t flags)
 {
 	std::string res_str = "";
 	prepare_json_query();
@@ -282,7 +290,7 @@ bool HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json
 
 	if (m_http_code == 400) {
 		std::cerr << "Bad request for " << url << ", error was: '" << res_str << "'"
-				  << std::endl;
+			<< std::endl;
 		return false;
 	}
 
@@ -314,7 +322,8 @@ void HTTPClient::http_string_escape(const std::string &src, std::string &dst)
 	curl_easy_cleanup(curl);
 }
 
-void HTTPClient::add_uri_param(const std::string &param, const std::string &value, bool escape)
+void
+HTTPClient::add_uri_param(const std::string &param, const std::string &value, bool escape)
 {
 	if (escape) {
 		std::string value_esc = "";
@@ -325,7 +334,8 @@ void HTTPClient::add_uri_param(const std::string &param, const std::string &valu
 	}
 }
 
-void HTTPClient::add_form_param(const std::string &param, const std::string &value, bool escape)
+void HTTPClient::add_form_param(const std::string &param, const std::string &value,
+	bool escape)
 {
 	if (escape) {
 		std::string value_esc = "";
@@ -334,4 +344,6 @@ void HTTPClient::add_form_param(const std::string &param, const std::string &val
 	} else {
 		m_form_params[param] = value;
 	}
+}
+
 }

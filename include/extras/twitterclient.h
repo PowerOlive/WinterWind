@@ -27,7 +27,7 @@
 
 #include "core/oauthclient.h"
 
-class TwitterClient : private OAuthClient
+class TwitterClient : private winterwind::OAuthClient
 {
 public:
 	enum Response

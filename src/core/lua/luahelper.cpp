@@ -30,123 +30,158 @@
 #include <json/json.h>
 #include <cmath>
 
+namespace winterwind
+{
 /*
  * Read helpers
  */
-template <> float LuaHelper::read(lua_State *L, int index)
+template<>
+float LuaHelper::read(lua_State *L, int index)
 {
 	return (float) lua_tonumber(L, index);
 }
-template <> uint8_t LuaHelper::read(lua_State *L, int index)
+
+template<>
+uint8_t LuaHelper::read(lua_State *L, int index)
 {
 	return (uint8_t) lua_tointeger(L, index);
 }
-template <> int8_t LuaHelper::read(lua_State *L, int index)
+
+template<>
+int8_t LuaHelper::read(lua_State *L, int index)
 {
 	return (int8_t) lua_tointeger(L, index);
 }
-template <> uint16_t LuaHelper::read(lua_State *L, int index)
+
+template<>
+uint16_t LuaHelper::read(lua_State *L, int index)
 {
 	return (uint16_t) lua_tointeger(L, index);
 }
-template <> int16_t LuaHelper::read(lua_State *L, int index)
+
+template<>
+int16_t LuaHelper::read(lua_State *L, int index)
 {
 	return (int16_t) lua_tointeger(L, index);
 }
-template <> uint32_t LuaHelper::read(lua_State *L, int index)
+
+template<>
+uint32_t LuaHelper::read(lua_State *L, int index)
 {
 	return (uint32_t) lua_tointeger(L, index);
 }
-template <> int32_t LuaHelper::read(lua_State *L, int index)
+
+template<>
+int32_t LuaHelper::read(lua_State *L, int index)
 {
 	return (int32_t) lua_tointeger(L, index);
 }
-template <> uint64_t LuaHelper::read(lua_State *L, int index)
+
+template<>
+uint64_t LuaHelper::read(lua_State *L, int index)
 {
 	return (uint64_t) lua_tointeger(L, index);
 }
-template <> int64_t LuaHelper::read(lua_State *L, int index)
+
+template<>
+int64_t LuaHelper::read(lua_State *L, int index)
 {
 	return (int64_t) lua_tointeger(L, index);
 }
 
-template <> bool LuaHelper::read(lua_State *L, int index) { return (bool) lua_toboolean(L, index); }
+template<>
+bool LuaHelper::read(lua_State *L, int index)
+{ return (bool) lua_toboolean(L, index); }
 
-template <> std::string LuaHelper::read(lua_State *L, int index)
+template<>
+std::string LuaHelper::read(lua_State *L, int index)
 {
 	const char *str = lua_tostring(L, index);
 	return std::string(str ? str : "");
 }
+
 /*
  * Write helpers
  */
-template <> bool LuaHelper::write(lua_State *L, const float &what)
+template<>
+bool LuaHelper::write(lua_State *L, const float &what)
 {
 	lua_pushnumber(L, what);
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const uint8_t &what)
+template<>
+bool LuaHelper::write(lua_State *L, const uint8_t &what)
 {
 	lua_pushinteger(L, what);
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const int8_t &what)
+template<>
+bool LuaHelper::write(lua_State *L, const int8_t &what)
 {
 	lua_pushinteger(L, what);
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const uint16_t &what)
+template<>
+bool LuaHelper::write(lua_State *L, const uint16_t &what)
 {
 	lua_pushinteger(L, what);
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const int16_t &what)
+template<>
+bool LuaHelper::write(lua_State *L, const int16_t &what)
 {
 	lua_pushinteger(L, what);
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const uint32_t &what)
+template<>
+bool LuaHelper::write(lua_State *L, const uint32_t &what)
 {
 	lua_pushinteger(L, what);
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const int32_t &what)
+template<>
+bool LuaHelper::write(lua_State *L, const int32_t &what)
 {
 	lua_pushinteger(L, what);
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const uint64_t &what)
+template<>
+bool LuaHelper::write(lua_State *L, const uint64_t &what)
 {
 	lua_pushinteger(L, what);
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const int64_t &what)
+template<>
+bool LuaHelper::write(lua_State *L, const int64_t &what)
 {
 	lua_pushinteger(L, what);
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const bool &what)
+template<>
+bool LuaHelper::write(lua_State *L, const bool &what)
 {
 	lua_pushboolean(L, what);
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const std::string &what)
+template<>
+bool LuaHelper::write(lua_State *L, const std::string &what)
 {
 	lua_pushstring(L, what.c_str());
 	return true;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const std::vector<std::string> &what)
+template<>
+bool LuaHelper::write(lua_State *L, const std::vector<std::string> &what)
 {
 	lua_newtable(L);
 	for (uint32_t i = 0; i < what.size(); i++) {
@@ -190,17 +225,17 @@ static bool push_json_value_helper(lua_State *L, const Json::Value &value, int n
 			lua_pushnumber(L, value.asDouble());
 			break;
 		case Json::stringValue: {
-				const char *str = value.asCString();
-				lua_pushstring(L, str ? str : "");
-				break;
-			}
+			const char *str = value.asCString();
+			lua_pushstring(L, str ? str : "");
+			break;
+		}
 		case Json::booleanValue:
 			lua_pushboolean(L, value.asInt());
 			break;
 		case Json::arrayValue:
 			lua_newtable(L);
 			for (Json::Value::const_iterator it = value.begin();
-				 it != value.end(); ++it) {
+				it != value.end(); ++it) {
 				push_json_value_helper(L, *it, nullindex);
 				lua_rawseti(L, -2, it.index() + 1);
 			}
@@ -208,7 +243,7 @@ static bool push_json_value_helper(lua_State *L, const Json::Value &value, int n
 		case Json::objectValue:
 			lua_newtable(L);
 			for (Json::Value::const_iterator it = value.begin();
-				 it != value.end(); ++it) {
+				it != value.end(); ++it) {
 				std::string str = it.name();
 				lua_pushstring(L, str.c_str());
 				push_json_value_helper(L, *it, nullindex);
@@ -248,7 +283,8 @@ bool push_json_value(lua_State *L, const Json::Value &value, int32_t nullindex)
 	return false;
 }
 
-template <> bool LuaHelper::write(lua_State *L, const Json::Value &what)
+template<>
+bool LuaHelper::write(lua_State *L, const Json::Value &what)
 {
 	return push_json_value(L, what, lua_gettop(L));
 }
@@ -330,12 +366,14 @@ bool read_json_value(lua_State *L, Json::Value &root, int index, uint8_t recursi
 	return true;
 }
 
-template <> bool LuaHelper::read(lua_State *L, int index, Json::Value &res)
+template<>
+bool LuaHelper::read(lua_State *L, int index, Json::Value &res)
 {
 	return read_json_value(L, res, index, 1);
 }
 
-template <> bool LuaHelper::read(lua_State *L, int index, std::vector<std::string> &res)
+template<>
+bool LuaHelper::read(lua_State *L, int index, std::vector<std::string> &res)
 {
 	lua_pushnil(L);
 	while (lua_next(L, index)) {
@@ -358,3 +396,5 @@ template <> bool LuaHelper::read(lua_State *L, int index, std::vector<std::strin
 		}
 		lua_pop(L, 1);
 	}*/
+
+}

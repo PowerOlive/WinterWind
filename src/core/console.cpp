@@ -35,7 +35,10 @@
 #include <readline/readline.h>
 #include <stdlib.h>
 
+namespace winterwind
+{
 static ConsoleThread *g_console_thread = nullptr;
+
 char *ConsoleThread::rl_gets()
 {
 	/* If the buffer has already been allocated, return the memory
@@ -100,6 +103,7 @@ static char **rl_completion(const char *text, int start, int end)
 
 	return (matches);
 }
+
 #else
 char *ConsoleThread::rl_gets()
 {
@@ -171,7 +175,7 @@ void *ConsoleThread::run()
 
 			if (command_str[0] != 0) {
 				CommandToProcessPtr cmd(new CommandToProcess(
-				    1, std::string(command_str, strlen(command_str))));
+					1, std::string(command_str, strlen(command_str))));
 				m_console_handler->enqueue(cmd);
 			}
 #if !READLINE
@@ -185,4 +189,5 @@ void *ConsoleThread::run()
 	g_console_thread = nullptr;
 #endif
 	return NULL;
+}
 }

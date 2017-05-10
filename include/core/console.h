@@ -30,19 +30,27 @@
 #include <memory>
 #include <vector>
 
+namespace winterwind
+{
 class ConsoleHandler;
 
 struct CommandToProcess
 {
 public:
-	CommandToProcess(uint16_t ch_id, const std::string &cmd) : channel_id(ch_id), command(cmd) {}
+	CommandToProcess(uint16_t ch_id, const std::string &cmd) : channel_id(ch_id),
+		command(cmd)
+	{}
 
 	CommandToProcess(uint16_t ch_id, const std::string &w, const std::string &cmd)
-	    : channel_id(ch_id), who(w), command(cmd) {}
+		: channel_id(ch_id), who(w), command(cmd)
+	{}
 
-	CommandToProcess(const CommandToProcess &c) : channel_id(c.channel_id), who(c.who), command(c.command) {}
+	CommandToProcess(const CommandToProcess &c) : channel_id(c.channel_id), who(c.who),
+		command(c.command)
+	{}
 
-	virtual ~CommandToProcess() {}
+	virtual ~CommandToProcess()
+	{}
 
 	uint16_t channel_id = 0;
 	std::string who = "";
@@ -54,14 +62,18 @@ typedef std::shared_ptr<CommandToProcess> CommandToProcessPtr;
 struct ChatCommandHandlerArg
 {
 public:
-	ChatCommandHandlerArg(const std::string &w, const std::string &c, const std::string &a)
-	    : who(w), channel(c), args(a) {}
+	ChatCommandHandlerArg(const std::string &w, const std::string &c,
+		const std::string &a)
+		: who(w), channel(c), args(a)
+	{}
+
 	std::string who = "";
 	std::string channel = "";
 	std::string args = "";
 };
 
-typedef std::function<bool(const ChatCommandHandlerArg &, std::stringstream &)> ChatCommandRequestHandler;
+typedef std::function<bool(const ChatCommandHandlerArg &,
+	std::stringstream &)> ChatCommandRequestHandler;
 
 struct ChatCommand
 {
@@ -88,37 +100,49 @@ struct ChatCommand
 
 enum ChatCommandSearchResult
 {
-	CHAT_COMMAND_OK,		 // found accessible command by command string
-	CHAT_COMMAND_UNKNOWN,		 // first level command not found
+	CHAT_COMMAND_OK,         // found accessible command by command string
+	CHAT_COMMAND_UNKNOWN,         // first level command not found
 	CHAT_COMMAND_UNKNOWN_SUBCOMMAND, // command found but some level subcommand
-					 // not find in subcommand list
+	// not find in subcommand list
 };
 
 class ConsoleHandler
 {
 public:
-	ConsoleHandler() {}
-	virtual ~ConsoleHandler() {}
+	ConsoleHandler()
+	{}
+
+	virtual ~ConsoleHandler()
+	{}
+
 	virtual void enqueue(const CommandToProcessPtr &cmd) = 0;
+
 	virtual void process_queue() = 0;
 
 protected:
-	virtual bool handle_command(const CommandToProcessPtr &cmd, std::stringstream &ss) = 0;
-	virtual bool handle_command_help(const ChatCommandHandlerArg &args, std::stringstream &ss) = 0;
+	virtual bool
+	handle_command(const CommandToProcessPtr &cmd, std::stringstream &ss) = 0;
+
+	virtual bool
+	handle_command_help(const ChatCommandHandlerArg &args, std::stringstream &ss) = 0;
 };
 
 class ConsoleThread : public Thread
 {
 public:
-	ConsoleThread(ConsoleHandler *hdl, const std::string &&prompt, const std::string &thread_name = "ConsoleThread")
-	    : Thread(), m_thread_name(thread_name), m_console_handler(hdl), m_prompt(prompt) {}
+	ConsoleThread(ConsoleHandler *hdl, const std::string &&prompt,
+		const std::string &thread_name = "ConsoleThread")
+		: Thread(), m_thread_name(thread_name), m_console_handler(hdl), m_prompt(prompt)
+	{}
 
-	~ConsoleThread() {}
+	~ConsoleThread()
+	{}
 
 	void *run();
 
 	// These functions only have effect is ENABLE_READLINE is true
 	std::string get_completion(uint32_t index);
+
 	void add_completion(const std::string &completion);
 
 private:
@@ -132,3 +156,4 @@ private:
 
 	char *m_line_read = nullptr;
 };
+}

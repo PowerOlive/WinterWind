@@ -28,6 +28,8 @@
 #include <iostream>
 #include <postgresqlclient.h>
 
+namespace winterwind
+{
 int LuaEngine::l_create_postgresql_client(lua_State *L)
 {
 	std::string connect_string = luaL_checkstring(L, 1);
@@ -48,12 +50,15 @@ int LuaEngine::l_create_postgresql_client(lua_State *L)
 
 const char LuaRefPostgreSQLClient::className[] = "LuaRefPostgreSQLClient";
 const luaL_Reg LuaRefPostgreSQLClient::methods[] = {
-    luamethod(LuaRefPostgreSQLClient, register_statement), {0, 0},
+	luamethod(LuaRefPostgreSQLClient, register_statement), {0, 0},
 };
 
-LuaRefPostgreSQLClient::LuaRefPostgreSQLClient(PostgreSQLClient *object) : m_object(object) {}
+LuaRefPostgreSQLClient::LuaRefPostgreSQLClient(PostgreSQLClient *object) : m_object(
+	object)
+{}
 
-LuaRefPostgreSQLClient::~LuaRefPostgreSQLClient() { delete m_object; }
+LuaRefPostgreSQLClient::~LuaRefPostgreSQLClient()
+{ delete m_object; }
 
 LuaRefPostgreSQLClient *LuaRefPostgreSQLClient::checkobject(lua_State *L, int narg)
 {
@@ -123,4 +128,5 @@ int LuaRefPostgreSQLClient::l_register_statement(lua_State *L)
 
 	write<bool>(L, pg->register_statement(name, statement));
 	return 1;
+}
 }

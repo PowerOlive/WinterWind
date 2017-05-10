@@ -79,7 +79,7 @@ private:
 
 typedef std::shared_ptr<ElasticsearchBulkAction> ElasticsearchBulkActionPtr;
 
-class ElasticsearchClient : public HTTPClient
+class ElasticsearchClient : public winterwind::HTTPClient
 {
 public:
 	ElasticsearchClient(const std::string &url);

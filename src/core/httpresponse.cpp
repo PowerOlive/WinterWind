@@ -26,6 +26,9 @@
 #include "httpresponse.h"
 #include "httpserver.h"
 
+namespace winterwind
+{
+
 HTTPResponse &HTTPResponse::operator<<(const std::string &r)
 {
 	m_response += r;
@@ -68,4 +71,6 @@ HTTPResponse &JSONHTTPResponse::operator>>(HTTPRequestSession &s)
 	s.result = Json::FastWriter().write(m_json_response);
 	s.http_code = m_http_code;
 	return *this;
+}
+
 }
