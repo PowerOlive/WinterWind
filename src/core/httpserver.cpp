@@ -156,7 +156,7 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	MHD_get_connection_values(conn, MHD_GET_ARGUMENT_KIND, &HTTPServer::mhd_iter_getargs,
 				  q.get());
 
-	std::unique_ptr<HTTPResponse> http_response(url_handler->second(q));
+	HTTPResponsePtr http_response = url_handler->second(q);
 	if (!http_response) {
 		if (content_type && strcmp(content_type, "application/json") == 0) {
 			session->result = "{}";

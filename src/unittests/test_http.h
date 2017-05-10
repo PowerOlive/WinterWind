@@ -65,12 +65,12 @@ public:
 	void tearDown() { delete m_http_server; }
 
 protected:
-	HTTPResponse *httpserver_testhandler(const HTTPQueryPtr q)
+	HTTPResponsePtr httpserver_testhandler(const HTTPQueryPtr q)
 	{
-		return new HTTPResponse(HTTPSERVER_TEST01_STR);
+		return std::make_shared<HTTPResponse>(HTTPSERVER_TEST01_STR);
 	}
 
-	HTTPResponse *httpserver_testhandler2(const HTTPQueryPtr q)
+	HTTPResponsePtr httpserver_testhandler2(const HTTPQueryPtr q)
 	{
 		std::string res = "no";
 
@@ -78,10 +78,10 @@ protected:
 		if (it != q->headers.end() && it->second == "1") {
 			res = "yes";
 		}
-		return new HTTPResponse(res);
+		return std::make_shared<HTTPResponse>(res);
 	}
 
-	HTTPResponse *httpserver_testhandler3(const HTTPQueryPtr q)
+	HTTPResponsePtr httpserver_testhandler3(const HTTPQueryPtr q)
 	{
 		std::string res = "no";
 
@@ -90,10 +90,10 @@ protected:
 			res = "yes";
 		}
 
-		return new HTTPResponse(res);
+		return std::make_shared<HTTPResponse>(res);
 	}
 
-	HTTPResponse *httpserver_testhandler4(const HTTPQueryPtr q)
+	HTTPResponsePtr httpserver_testhandler4(const HTTPQueryPtr q)
 	{
 		std::string res = "no";
 		CPPUNIT_ASSERT(q->get_type() == HTTPQUERY_TYPE_FORM);
@@ -106,10 +106,10 @@ protected:
 			res = "yes";
 		}
 
-		return new HTTPResponse(res);
+		return std::make_shared<HTTPResponse>(res);
 	}
 
-	HTTPResponse *httpserver_testhandler5(const HTTPQueryPtr q)
+	HTTPResponsePtr httpserver_testhandler5(const HTTPQueryPtr q)
 	{
 		Json::Value json_res;
 		json_res["status"] = "no";
@@ -123,7 +123,7 @@ protected:
 			json_res["status"] = "yes";
 		}
 
-		return new JSONHTTPResponse(json_res);
+		return std::make_shared<JSONHTTPResponse>(json_res);
 	}
 
 	void httpserver_handle_get()

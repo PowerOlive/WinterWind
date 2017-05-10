@@ -39,7 +39,7 @@ struct HTTPRequestSession;
 class HTTPResponse
 {
 public:
-	HTTPResponse(const std::string &r, const uint32_t http_code = 200) : m_response(r), m_http_code(http_code) {}
+	HTTPResponse(const std::string &r, const uint16_t http_code = 200) : m_response(r), m_http_code(http_code) {}
 	virtual ~HTTPResponse(){};
 
 	virtual HTTPResponse &operator<<(const std::string &r);
@@ -49,8 +49,8 @@ public:
 	virtual const HTTPResponseType get_type() const { return HTTPRESPONSE_RAW; }
 
 protected:
-	HTTPResponse(const uint32_t http_code = 200) : m_http_code(http_code) {}
-	uint32_t m_http_code = 200;
+	HTTPResponse(const uint16_t http_code = 200) : m_http_code(http_code) {}
+	uint16_t m_http_code = 200;
 
 private:
 	std::string m_response = "";
@@ -60,7 +60,7 @@ class JSONHTTPResponse : public HTTPResponse
 {
 public:
 	JSONHTTPResponse() : HTTPResponse() {}
-	JSONHTTPResponse(const Json::Value &r, const uint32_t http_code = 200)
+	JSONHTTPResponse(const Json::Value &r, const uint16_t http_code = 200)
 	    : HTTPResponse(http_code), m_json_response(r) {}
 
 	virtual ~JSONHTTPResponse() {}

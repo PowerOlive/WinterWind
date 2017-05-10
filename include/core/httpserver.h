@@ -72,8 +72,9 @@ struct HTTPRequestSession
 };
 
 typedef std::shared_ptr<HTTPQuery> HTTPQueryPtr;
+typedef std::shared_ptr<HTTPResponse> HTTPResponsePtr;
 
-typedef std::function<HTTPResponse *(const HTTPQueryPtr)> HTTPServerRequestHandler;
+typedef std::function<HTTPResponsePtr (const HTTPQueryPtr)> HTTPServerRequestHandler;
 
 #define BIND_HTTPSERVER_HANDLER(s, m, u, hdl, obj)                                                                     \
 	s->register_handler(HTTP_METHOD_##m, u, std::bind(hdl, obj, std::placeholders::_1));
