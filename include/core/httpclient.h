@@ -69,39 +69,39 @@ public:
 	_post(const std::string &url, const std::string &post_data, std::string &res,
 		int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
-		request(url, res, flag, HTTP_METHOD_POST, post_data);
+		request(url, res, flag, METHOD_POST, post_data);
 	}
 
 	inline void
 	_get(const std::string &url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
-		request(url, res, flag, HTTP_METHOD_GET);
+		request(url, res, flag, METHOD_GET);
 	}
 
 	inline void _delete(const std::string &url, std::string &res,
 		int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
-		request(url, res, flag, HTTP_METHOD_DELETE);
+		request(url, res, flag, METHOD_DELETE);
 	}
 
 	inline void
 	_head(const std::string &url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
-		request(url, res, flag, HTTP_METHOD_HEAD);
+		request(url, res, flag, METHOD_HEAD);
 	}
 
 	inline void _propfind(const std::string &url, std::string &res,
 		int32_t flag = HTTPClient::REQ_SIMPLE,
 		const std::string &post_data = "")
 	{
-		request(url, res, flag, HTTP_METHOD_PROPFIND, post_data);
+		request(url, res, flag, METHOD_PROPFIND, post_data);
 	}
 
 	inline void
 	_put(const std::string &url, std::string &res, const std::string &post_data = "",
 		int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
-		request(url, res, flag, HTTP_METHOD_PUT, post_data);
+		request(url, res, flag, METHOD_PUT, post_data);
 	}
 
 	void get_html_tag_value(const std::string &url, const std::string &xpath,
@@ -135,7 +135,7 @@ protected:
 	static size_t curl_writer(char *data, size_t size, size_t nmemb, void *user_data);
 
 	void request(std::string url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE,
-		HTTPMethod method = HTTP_METHOD_GET, std::string post_data = "");
+		Method method = METHOD_GET, std::string post_data = "");
 
 	void prepare_json_query();
 

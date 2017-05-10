@@ -51,7 +51,7 @@ class WinterWindTest_HTTP : public CppUnit::TestFixture
 public:
 	void setUp()
 	{
-		m_http_server = new HTTPServer(58080);
+		m_http_server = new Server(58080);
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
 					&WinterWindTest_HTTP::httpserver_testhandler, this)
 		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest2.html",
@@ -67,12 +67,12 @@ public:
 	void tearDown() { delete m_http_server; }
 
 protected:
-	HTTPResponsePtr httpserver_testhandler(const HTTPQueryPtr q)
+	ResponsePtr httpserver_testhandler(const HTTPQueryPtr q)
 	{
-		return std::make_shared<HTTPResponse>(HTTPSERVER_TEST01_STR);
+		return std::make_shared<Response>(HTTPSERVER_TEST01_STR);
 	}
 
-	HTTPResponsePtr httpserver_testhandler2(const HTTPQueryPtr q)
+	ResponsePtr httpserver_testhandler2(const HTTPQueryPtr q)
 	{
 		std::string res = "no";
 
@@ -80,10 +80,10 @@ protected:
 		if (it != q->headers.end() && it->second == "1") {
 			res = "yes";
 		}
-		return std::make_shared<HTTPResponse>(res);
+		return std::make_shared<Response>(res);
 	}
 
-	HTTPResponsePtr httpserver_testhandler3(const HTTPQueryPtr q)
+	ResponsePtr httpserver_testhandler3(const HTTPQueryPtr q)
 	{
 		std::string res = "no";
 
@@ -92,10 +92,10 @@ protected:
 			res = "yes";
 		}
 
-		return std::make_shared<HTTPResponse>(res);
+		return std::make_shared<Response>(res);
 	}
 
-	HTTPResponsePtr httpserver_testhandler4(const HTTPQueryPtr q)
+	ResponsePtr httpserver_testhandler4(const HTTPQueryPtr q)
 	{
 		std::string res = "no";
 		CPPUNIT_ASSERT(q->get_type() == HTTPQUERY_TYPE_FORM);
@@ -108,10 +108,10 @@ protected:
 			res = "yes";
 		}
 
-		return std::make_shared<HTTPResponse>(res);
+		return std::make_shared<Response>(res);
 	}
 
-	HTTPResponsePtr httpserver_testhandler5(const HTTPQueryPtr q)
+	ResponsePtr httpserver_testhandler5(const HTTPQueryPtr q)
 	{
 		Json::Value json_res;
 		json_res["status"] = "no";
@@ -125,7 +125,7 @@ protected:
 			json_res["status"] = "yes";
 		}
 
-		return std::make_shared<JSONHTTPResponse>(json_res);
+		return std::make_shared<JSONResponse>(json_res);
 	}
 
 	void httpserver_handle_get()
@@ -175,6 +175,6 @@ protected:
 	}
 
 private:
-	HTTPServer *m_http_server = nullptr;
+	Server *m_http_server = nullptr;
 	std::string HTTPSERVER_TEST01_STR = "<h1>unittest_result</h1>";
 };

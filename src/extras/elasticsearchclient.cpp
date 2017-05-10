@@ -115,7 +115,7 @@ void ElasticsearchClient::create_doc(const std::string &index, const std::string
 	std::string res;
 	Json::FastWriter writer;
 	request(node.http_addr + "/" + index + "/" + type + "/", res, HTTPClient::REQ_SIMPLE,
-		HTTP_METHOD_GET, writer.write(doc));
+		METHOD_GET, writer.write(doc));
 }
 
 void ElasticsearchClient::insert_doc(const std::string &index, const std::string &type,

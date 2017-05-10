@@ -78,7 +78,7 @@ size_t HTTPClient::curl_writer(char *data, size_t size, size_t nmemb, void *read
 }
 
 void
-HTTPClient::request(std::string url, std::string &res, int32_t flag, HTTPMethod method,
+HTTPClient::request(std::string url, std::string &res, int32_t flag, Method method,
 	std::string post_data)
 {
 	CURL *curl = curl_easy_init();
@@ -115,33 +115,33 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, HTTPMethod 
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1);
 
 	switch (method) {
-		case HTTP_METHOD_DELETE: {
+		case METHOD_DELETE: {
 			static const std::string method_propfind = "DELETE";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
-		case HTTP_METHOD_HEAD: {
+		case METHOD_HEAD: {
 			static const std::string method_propfind = "HEAD";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
-		case HTTP_METHOD_PATCH: {
+		case METHOD_PATCH: {
 			static const std::string method_propfind = "PATCH";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
-		case HTTP_METHOD_PROPFIND: {
+		case METHOD_PROPFIND: {
 			static const std::string method_propfind = "PROPFIND";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
-		case HTTP_METHOD_PUT: {
+		case METHOD_PUT: {
 			static const std::string method_propfind = "PUT";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
-		case HTTP_METHOD_POST:
-		case HTTP_METHOD_GET:
+		case METHOD_POST:
+		case METHOD_GET:
 		default:
 			break;
 	}

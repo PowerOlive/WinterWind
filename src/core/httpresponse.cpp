@@ -30,44 +30,44 @@ namespace winterwind
 {
 namespace http
 {
-HTTPResponse &HTTPResponse::operator<<(const std::string &r)
+Response &Response::operator<<(const std::string &r)
 {
 	m_response += r;
 	return *this;
 }
 
-HTTPResponse &HTTPResponse::operator>>(std::string &r)
+Response &Response::operator>>(std::string &r)
 {
 	r = m_response;
 	return *this;
 }
 
-HTTPResponse &HTTPResponse::operator>>(HTTPRequestSession &s)
+Response &Response::operator>>(ServerRequestSession &s)
 {
 	s.http_code = m_http_code;
 	s.result = m_response;
 	return *this;
 }
 
-JSONHTTPResponse &JSONHTTPResponse::operator<<(const Json::Value &r)
+JSONResponse &JSONResponse::operator<<(const Json::Value &r)
 {
 	m_json_response = r;
 	return *this;
 }
 
-HTTPResponse &JSONHTTPResponse::operator>>(std::string &r)
+Response &JSONResponse::operator>>(std::string &r)
 {
 	r = Json::FastWriter().write(m_json_response);
 	return *this;
 }
 
-JSONHTTPResponse &JSONHTTPResponse::operator>>(Json::Value &r)
+JSONResponse &JSONResponse::operator>>(Json::Value &r)
 {
 	r = m_json_response;
 	return *this;
 }
 
-HTTPResponse &JSONHTTPResponse::operator>>(HTTPRequestSession &s)
+Response &JSONResponse::operator>>(ServerRequestSession &s)
 {
 	s.result = Json::FastWriter().write(m_json_response);
 	s.http_code = m_http_code;

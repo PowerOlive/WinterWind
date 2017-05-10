@@ -33,35 +33,35 @@ namespace winterwind
 
 namespace http
 {
-enum HTTPResponseType
+enum ResponseType
 {
-	HTTPRESPONSE_RAW,
-	HTTPRESPONSE_JSON,
+	RESPONSE_RAW,
+	RESPONSE_JSON,
 };
 
-struct HTTPRequestSession;
+struct ServerRequestSession;
 
-class HTTPResponse
+class Response
 {
 public:
-	HTTPResponse(const std::string &r, const uint16_t http_code = 200) : m_response(r),
+	Response(const std::string &r, const uint16_t http_code = 200) : m_response(r),
 		m_http_code(http_code)
 	{}
 
-	virtual ~HTTPResponse()
+	virtual ~Response()
 	{};
 
-	virtual HTTPResponse &operator<<(const std::string &r);
+	virtual Response &operator<<(const std::string &r);
 
-	virtual HTTPResponse &operator>>(std::string &r);
+	virtual Response &operator>>(std::string &r);
 
-	virtual HTTPResponse &operator>>(HTTPRequestSession &s);
+	virtual Response &operator>>(ServerRequestSession &s);
 
-	virtual const HTTPResponseType get_type() const
-	{ return HTTPRESPONSE_RAW; }
+	virtual const ResponseType get_type() const
+	{ return RESPONSE_RAW; }
 
 protected:
-	HTTPResponse(const uint16_t http_code = 200) : m_http_code(http_code)
+	Response(const uint16_t http_code = 200) : m_http_code(http_code)
 	{}
 
 	uint16_t m_http_code = 200;
@@ -70,29 +70,29 @@ private:
 	std::string m_response = "";
 };
 
-class JSONHTTPResponse : public HTTPResponse
+class JSONResponse : public Response
 {
 public:
-	JSONHTTPResponse() : HTTPResponse()
+	JSONResponse() : Response()
 	{}
 
-	JSONHTTPResponse(const Json::Value &r, const uint16_t http_code = 200)
-		: HTTPResponse(http_code), m_json_response(r)
+	JSONResponse(const Json::Value &r, const uint16_t http_code = 200)
+		: Response(http_code), m_json_response(r)
 	{}
 
-	virtual ~JSONHTTPResponse()
+	virtual ~JSONResponse()
 	{}
 
-	JSONHTTPResponse &operator<<(const Json::Value &r);
+	JSONResponse &operator<<(const Json::Value &r);
 
-	virtual HTTPResponse &operator>>(std::string &r);
+	virtual Response &operator>>(std::string &r);
 
-	JSONHTTPResponse &operator>>(Json::Value &r);
+	JSONResponse &operator>>(Json::Value &r);
 
-	virtual HTTPResponse &operator>>(HTTPRequestSession &s);
+	virtual Response &operator>>(ServerRequestSession &s);
 
-	virtual const HTTPResponseType get_type() const
-	{ return HTTPRESPONSE_JSON; }
+	virtual const ResponseType get_type() const
+	{ return RESPONSE_JSON; }
 
 private:
 	Json::Value m_json_response;

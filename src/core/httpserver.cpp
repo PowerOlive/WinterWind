@@ -39,45 +39,45 @@ namespace winterwind
 {
 namespace http
 {
-HTTPServer::HTTPServer(const uint16_t http_port) : m_http_port(http_port)
+Server::Server(const uint16_t http_port) : m_http_port(http_port)
 {
 	m_mhd_daemon = MHD_start_daemon(
-		MHD_USE_POLL_INTERNALLY, m_http_port, NULL, NULL, &HTTPServer::request_handler,
+		MHD_USE_POLL_INTERNALLY, m_http_port, NULL, NULL, &Server::request_handler,
 		this,
-		MHD_OPTION_NOTIFY_COMPLETED, &HTTPServer::request_completed, NULL,
+		MHD_OPTION_NOTIFY_COMPLETED, &Server::request_completed, NULL,
 		MHD_OPTION_END);
 }
 
-HTTPServer::~HTTPServer()
+Server::~Server()
 {
 	if (m_mhd_daemon) {
 		MHD_stop_daemon(m_mhd_daemon);
 	}
 }
 
-int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connection,
+int Server::request_handler(void *http_server, struct MHD_Connection *connection,
 	const char *url, const char *method, const char *version,
 	const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
-	HTTPServer *httpd = (HTTPServer *) http_server;
-	HTTPMethod http_method;
+	Server *httpd = (Server *) http_server;
+	Method http_method;
 	struct MHD_Response *response;
 	int ret;
 
 	if (strcmp(method, "GET") == 0) {
-		http_method = HTTP_METHOD_GET;
+		http_method = METHOD_GET;
 	} else if (strcmp(method, "POST") == 0) {
-		http_method = HTTP_METHOD_POST;
+		http_method = METHOD_POST;
 	} else if (strcmp(method, "PUT") == 0) {
-		http_method = HTTP_METHOD_PUT;
+		http_method = METHOD_PUT;
 	} else if (strcmp(method, "PATCH") == 0) {
-		http_method = HTTP_METHOD_PATCH;
+		http_method = METHOD_PATCH;
 	} else if (strcmp(method, "PROPFIND") == 0) {
-		http_method = HTTP_METHOD_PROPFIND;
+		http_method = METHOD_PROPFIND;
 	} else if (strcmp(method, "DELETE") == 0) {
-		http_method = HTTP_METHOD_DELETE;
+		http_method = METHOD_DELETE;
 	} else if (strcmp(method, "HEAD") == 0) {
-		http_method = HTTP_METHOD_HEAD;
+		http_method = METHOD_HEAD;
 	} else {
 		return MHD_NO; /* unexpected method */
 	}
@@ -86,13 +86,13 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 		// The first time only the headers are valid,
 		//   do not respond in the first round...
 		//   Just init our response
-		HTTPRequestSession *session = new HTTPRequestSession();
+		ServerRequestSession *session = new ServerRequestSession();
 		*con_cls = session;
 		return MHD_YES;
 	}
 
 	// Handle request
-	HTTPRequestSession *session = (HTTPRequestSession *) *con_cls;
+	ServerRequestSession *session = (ServerRequestSession *) *con_cls;
 	if (!session->data_handled &&
 		!httpd->handle_query(http_method, connection, std::string(url),
 			std::string(upload_data, *upload_data_size), session)) {
@@ -120,18 +120,18 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 	return ret;
 }
 
-void HTTPServer::request_completed(void *cls, struct MHD_Connection *connection,
+void Server::request_completed(void *cls, struct MHD_Connection *connection,
 	void **con_cls,
 	MHD_RequestTerminationCode toe)
 {
 }
 
-bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url,
-	const std::string &upload_data, HTTPRequestSession *session)
+bool Server::handle_query(Method m, MHD_Connection *conn, const std::string &url,
+	const std::string &upload_data, ServerRequestSession *session)
 {
-	assert(m < HTTP_METHOD_MAX);
+	assert(m < METHOD_MAX);
 
-	HTTPServerReqHandlerMap::const_iterator url_handler = m_handlers[m].find(url);
+	ServerReqHandlerMap::const_iterator url_handler = m_handlers[m].find(url);
 	if (url_handler == m_handlers[m].end()) {
 		return false;
 	}
@@ -160,12 +160,12 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	}
 
 	q->url = url;
-	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_headers,
+	MHD_get_connection_values(conn, MHD_HEADER_KIND, &Server::mhd_iter_headers,
 		q.get());
-	MHD_get_connection_values(conn, MHD_GET_ARGUMENT_KIND, &HTTPServer::mhd_iter_getargs,
+	MHD_get_connection_values(conn, MHD_GET_ARGUMENT_KIND, &Server::mhd_iter_getargs,
 		q.get());
 
-	HTTPResponsePtr http_response = url_handler->second(q);
+	ResponsePtr http_response = url_handler->second(q);
 	if (!http_response) {
 		if (content_type && strcmp(content_type, "application/json") == 0) {
 			session->result = "{}";
@@ -180,7 +180,7 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 }
 
 int
-HTTPServer::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key, const char *value)
+Server::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key, const char *value)
 {
 	HTTPQuery *q = (HTTPQuery *) cls;
 	if (q && key && value) {
@@ -190,7 +190,7 @@ HTTPServer::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key, const ch
 }
 
 int
-HTTPServer::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key, const char *value)
+Server::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key, const char *value)
 {
 	HTTPQuery *q = (HTTPQuery *) cls;
 	if (q && key && value) {
@@ -199,7 +199,7 @@ HTTPServer::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key, const ch
 	return MHD_YES; // continue iteration
 }
 
-bool HTTPServer::parse_post_data(const std::string &data, HTTPFormQuery *qf)
+bool Server::parse_post_data(const std::string &data, HTTPFormQuery *qf)
 {
 	std::vector<std::string> first_split;
 	str_split(data, '&', first_split);
