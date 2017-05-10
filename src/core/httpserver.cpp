@@ -148,7 +148,7 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 			return false;
 		}
 	} else {
-		q = HTTPQueryPtr(new HTTPQuery());
+		q = std::make_shared<HTTPQuery>();
 	}
 
 	q->url = url;
