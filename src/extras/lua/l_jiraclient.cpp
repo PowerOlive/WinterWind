@@ -28,17 +28,19 @@
 #include <cassert>
 #include <iostream>
 
-using namespace winterwind;
-
+namespace winterwind
+{
+namespace extras
+{
 #define JIRA_RETURN_FAILURE \
-	write<uint16_t>(L, jira->get_http_code()); \
-	lua_pushnil(L); \
-	return 2;
+    write<uint16_t>(L, jira->get_http_code()); \
+    lua_pushnil(L); \
+    return 2;
 
 #define JIRA_RETURN_JSON \
-	write<uint16_t>(L, jira->get_http_code()); \
-	write<Json::Value>(L, res); \
-	return 2;
+    write<uint16_t>(L, jira->get_http_code()); \
+    write<Json::Value>(L, res); \
+    return 2;
 
 
 int LuaEngineExtras::l_create_jiraclient(lua_State *L)
@@ -64,7 +66,7 @@ int LuaEngineExtras::l_create_jiraclient(lua_State *L)
 
 const char LuaRefJiraClient::className[] = "LuaRefJiraClient";
 const luaL_Reg LuaRefJiraClient::methods[] = {
-    luamethod(LuaRefJiraClient, get_issue),
+	luamethod(LuaRefJiraClient, get_issue),
 	luamethod(LuaRefJiraClient, get_issue_transitions),
 	luamethod(LuaRefJiraClient, create_issue),
 	luamethod(LuaRefJiraClient, comment_issue),
@@ -72,12 +74,14 @@ const luaL_Reg LuaRefJiraClient::methods[] = {
 	luamethod(LuaRefJiraClient, assign_issue),
 	luamethod(LuaRefJiraClient, issue_transition),
 	luamethod(LuaRefJiraClient, list_projects),
-    {0, 0},
+	{0, 0},
 };
 
-LuaRefJiraClient::LuaRefJiraClient(JiraClient *object) : m_object(object) {}
+LuaRefJiraClient::LuaRefJiraClient(JiraClient *object) : m_object(object)
+{}
 
-LuaRefJiraClient::~LuaRefJiraClient() { delete m_object; }
+LuaRefJiraClient::~LuaRefJiraClient()
+{ delete m_object; }
 
 LuaRefJiraClient *LuaRefJiraClient::checkobject(lua_State *L, int narg)
 {
@@ -163,23 +167,23 @@ int LuaRefJiraClient::l_create_issue(lua_State *L)
 			return 0;
 		}
 
-		if (!jira->create_issue(read<uint32_t>(L, 2), read<uint32_t>(L, 3), read<std::string>(L, 4),
-						   read<std::string>(L, 5), res)) {
+		if (!jira->create_issue(read<uint32_t>(L, 2), read<uint32_t>(L, 3),
+			read<std::string>(L, 4),
+			read<std::string>(L, 5), res)) {
 			return 0;
 		}
-	}
-	else if (lua_isstring(L, 2)) {
+	} else if (lua_isstring(L, 2)) {
 		if (!lua_isstring(L, 3)) {
 			std::cerr << "Invalid issue_type (should be a string)." << std::endl;
 			return 0;
 		}
 
-		if (!jira->create_issue(read<std::string>(L, 2), read<std::string>(L, 3), read<std::string>(L, 4),
-				read<std::string>(L, 5), res)) {
+		if (!jira->create_issue(read<std::string>(L, 2), read<std::string>(L, 3),
+			read<std::string>(L, 4),
+			read<std::string>(L, 5), res)) {
 			JIRA_RETURN_FAILURE
 		}
-	}
-	else {
+	} else {
 		std::cerr << __FUNCTION__ << ": invalid project variable type." << std::endl;
 		return 0;
 	}
@@ -200,11 +204,9 @@ int LuaRefJiraClient::l_assign_issue(lua_State *L)
 
 	if (lua_isinteger(L, 2)) {
 		issue = std::to_string(read<uint32_t>(L, 2));
-	}
-	else if (lua_isstring(L, 2)) {
+	} else if (lua_isstring(L, 2)) {
 		issue = read<std::string>(L, 2);
-	}
-	else {
+	} else {
 		std::cerr << __FUNCTION__ << ": invalid issue variable type." << std::endl;
 		return 0;
 	}
@@ -227,11 +229,9 @@ int LuaRefJiraClient::l_comment_issue(lua_State *L)
 
 	if (lua_isinteger(L, 2)) {
 		issue = std::to_string(read<uint32_t>(L, 2));
-	}
-	else if (lua_isstring(L, 2)) {
+	} else if (lua_isstring(L, 2)) {
 		issue = read<std::string>(L, 2);
-	}
-	else {
+	} else {
 		std::cerr << __FUNCTION__ << ": invalid issue variable type." << std::endl;
 		return 0;
 	}
@@ -253,11 +253,9 @@ int LuaRefJiraClient::l_add_link_to_issue(lua_State *L)
 
 	if (lua_isinteger(L, 2)) {
 		issue = std::to_string(read<uint32_t>(L, 2));
-	}
-	else if (lua_isstring(L, 2)) {
+	} else if (lua_isstring(L, 2)) {
 		issue = read<std::string>(L, 2);
-	}
-	else {
+	} else {
 		std::cerr << __FUNCTION__ << ": invalid issue variable type." << std::endl;
 		return 0;
 	}
@@ -266,7 +264,7 @@ int LuaRefJiraClient::l_add_link_to_issue(lua_State *L)
 	std::string title = read<std::string>(L, 4);
 	std::string summary = "";
 	std::string relationship = "";
-	std::string icon_url ="";
+	std::string icon_url = "";
 	if (lua_isstring(L, 5)) {
 		summary = read<std::string>(L, 5);
 	}
@@ -279,7 +277,8 @@ int LuaRefJiraClient::l_add_link_to_issue(lua_State *L)
 		icon_url = read<std::string>(L, 7);
 	}
 
-	if (!jira->add_link_to_issue(issue, res, link, title, summary, relationship, icon_url)) {
+	if (!jira->add_link_to_issue(issue, res, link, title, summary, relationship,
+		icon_url)) {
 		JIRA_RETURN_FAILURE
 	}
 
@@ -297,11 +296,9 @@ int LuaRefJiraClient::l_issue_transition(lua_State *L)
 
 	if (lua_isinteger(L, 2)) {
 		issue = std::to_string(read<uint32_t>(L, 2));
-	}
-	else if (lua_isstring(L, 2)) {
+	} else if (lua_isstring(L, 2)) {
 		issue = read<std::string>(L, 2);
-	}
-	else {
+	} else {
 		std::cerr << __FUNCTION__ << ": invalid issue variable type." << std::endl;
 		return 0;
 	}
@@ -331,11 +328,9 @@ int LuaRefJiraClient::l_get_issue_transitions(lua_State *L)
 	std::string issue = "";
 	if (lua_isinteger(L, 2)) {
 		issue = std::to_string(read<uint32_t>(L, 2));
-	}
-	else if (lua_isstring(L, 2)) {
+	} else if (lua_isstring(L, 2)) {
 		issue = read<std::string>(L, 2);
-	}
-	else {
+	} else {
 		std::cerr << __FUNCTION__ << ": invalid issue variable type." << std::endl;
 		return 0;
 	}
@@ -363,4 +358,6 @@ int LuaRefJiraClient::l_list_projects(lua_State *L)
 	}
 
 	JIRA_RETURN_JSON
+}
+}
 }

@@ -27,8 +27,10 @@
 #include <algorithm>
 #include <cassert>
 
-using namespace winterwind;
-
+namespace winterwind
+{
+namespace extras
+{
 struct RATPLineDef
 {
 	std::string url;
@@ -37,20 +39,20 @@ struct RATPLineDef
 };
 
 static const RATPLineDef ratp_line_defs[RATPClient::RATP_LINE_MAX] = {
-    {"http://www.ratp.fr/horaires/fr/ratp/rer/prochains_passages/RA/", "R", "A"},
-    {"http://www.ratp.fr/horaires/fr/ratp/rer/prochains_passages/RB/", "R", "A"},
+	{"http://www.ratp.fr/horaires/fr/ratp/rer/prochains_passages/RA/", "R", "A"},
+	{"http://www.ratp.fr/horaires/fr/ratp/rer/prochains_passages/RB/", "R", "A"},
 };
 
 static const std::string xpath_rer = "//div[@id='prochains_passages']/fieldset/table/tbody/"
-				     "tr[td[@class='passing_time']/text()!='Train sans arrêt' and "
-				     "text()!='Supprimé']/td[position() = 2 or position() = 3]";
+	"tr[td[@class='passing_time']/text()!='Train sans arrêt' and "
+	"text()!='Supprimé']/td[position() = 2 or position() = 3]";
 
 static const RATPScheduleList EMPTY_SCHEDULE_LIST = {};
 static constexpr uint32_t RATP_CACHE_TIME = 60;
 
 const RATPScheduleList &RATPClient::get_next_trains(const RATPClient::Line line,
-						    const std::string &stop,
-						    const uint8_t direction)
+	const std::string &stop,
+	const uint8_t direction)
 {
 	assert(line < RATP_LINE_MAX);
 	assert(direction > 0 && direction < 3);
@@ -72,8 +74,8 @@ const RATPScheduleList &RATPClient::get_next_trains(const RATPClient::Line line,
 
 	std::vector<std::string> res;
 	get_html_tag_value(
-	    url + (direction == 1 ? ratp_line_defs[line].dir_1 : ratp_line_defs[line].dir_2),
-	    xpath_rer, res, XMLParser::Flag::FLAG_XML_WITHOUT_TAGS);
+		url + (direction == 1 ? ratp_line_defs[line].dir_1 : ratp_line_defs[line].dir_2),
+		xpath_rer, res, XMLParser::Flag::FLAG_XML_WITHOUT_TAGS);
 	if (res.size() == 0) {
 		return EMPTY_SCHEDULE_LIST;
 	}
@@ -101,4 +103,6 @@ const RATPScheduleList &RATPClient::get_next_trains(const RATPClient::Line line,
 	}
 
 	return m_stop_cache[line][stop].schedules;
+}
+}
 }

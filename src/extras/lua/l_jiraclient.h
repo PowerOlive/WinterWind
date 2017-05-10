@@ -29,16 +29,30 @@
 #include <core/luahelper.h>
 #include <lua.hpp>
 
-class LuaRefJiraClient : protected winterwind::LuaHelper
+namespace winterwind
 {
-	LUAREF_OBJECT(JiraClient)
+namespace extras
+{
+class LuaRefJiraClient : protected LuaHelper
+{
+LUAREF_OBJECT(JiraClient)
+
 private:
 	static int l_get_issue(lua_State *L);
+
 	static int l_create_issue(lua_State *L);
+
 	static int l_assign_issue(lua_State *L);
+
 	static int l_comment_issue(lua_State *L);
+
 	static int l_add_link_to_issue(lua_State *L);
+
 	static int l_issue_transition(lua_State *L);
+
 	static int l_get_issue_transitions(lua_State *L);
+
 	static int l_list_projects(lua_State *L);
 };
+}
+}

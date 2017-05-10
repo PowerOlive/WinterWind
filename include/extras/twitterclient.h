@@ -27,7 +27,11 @@
 
 #include "core/oauthclient.h"
 
-class TwitterClient : private winterwind::OAuthClient
+namespace winterwind
+{
+namespace extras
+{
+class TwitterClient : private OAuthClient
 {
 public:
 	enum Response
@@ -39,18 +43,27 @@ public:
 	};
 
 	TwitterClient(const std::string &consumer_key, const std::string &consumer_secret,
-		      const std::string &access_token = "", const std::string &access_token_secret = "");
-	TwitterClient::Response authenticate() { return get_oauth2_token(); }
+		const std::string &access_token = "",
+		const std::string &access_token_secret = "");
+
+	TwitterClient::Response authenticate()
+	{ return get_oauth2_token(); }
+
 	TwitterClient::Response get_user_timeline(Json::Value &res, const uint16_t count = 0,
-						  const uint32_t since_id = 0, bool include_rts = false,
-						  bool contributor_details = false);
+		const uint32_t since_id = 0, bool include_rts = false,
+		bool contributor_details = false);
+
 	TwitterClient::Response get_home_timeline(Json::Value &res, const uint16_t count = 0,
-						  const uint32_t since_id = 0);
+		const uint32_t since_id = 0);
 
 private:
 	void append_auth_header();
+
 	void append_bearer_header();
+
 	TwitterClient::Response get_oauth2_token();
 
 	std::string m_bearer_token = "";
 };
+}
+}

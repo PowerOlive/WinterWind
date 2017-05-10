@@ -27,30 +27,56 @@
 
 #include <core/httpclient.h>
 
-class JiraClient : private winterwind::HTTPClient
+namespace winterwind
+{
+namespace extras
+{
+class JiraClient : private HTTPClient
 {
 public:
-	JiraClient(const std::string &instance_url, const std::string &user, const std::string &password);
-	~JiraClient() {}
+	JiraClient(const std::string &instance_url, const std::string &user,
+		const std::string &password);
+
+	~JiraClient()
+	{}
 
 	bool test_connection();
+
 	bool get_issue(const std::string &issue_id, Json::Value &result);
-	bool create_issue(const std::string &project_key, const std::string &issue_type, const std::string &summary,
-					  const std::string &description, Json::Value &res);
-	bool create_issue(const uint32_t project_id, const uint32_t issue_type_id, const std::string &summary,
-					  const std::string &description, Json::Value &res);
+
+	bool create_issue(const std::string &project_key, const std::string &issue_type,
+		const std::string &summary,
+		const std::string &description, Json::Value &res);
+
+	bool create_issue(const uint32_t project_id, const uint32_t issue_type_id,
+		const std::string &summary,
+		const std::string &description, Json::Value &res);
+
 	bool assign_issue(const std::string &issue, const std::string &who, Json::Value &res);
-	bool comment_issue(const std::string &issue, const std::string &body, Json::Value &res);
-	bool issue_transition(const std::string &issue, const std::string &transition_id, Json::Value &res,
-			const std::string &comment = "", const Json::Value &fields = {});
-	bool add_link_to_issue(const std::string &issue, Json::Value &res, const std::string &link,
-			const std::string &title, const std::string &summary = "", const std::string &relationship = "linked with",
-			const std::string &icon_url = "");
-	bool get_issue_transitions(const std::string &issue, Json::Value &res, bool transition_fields = false);
+
+	bool
+	comment_issue(const std::string &issue, const std::string &body, Json::Value &res);
+
+	bool issue_transition(const std::string &issue, const std::string &transition_id,
+		Json::Value &res,
+		const std::string &comment = "", const Json::Value &fields = {});
+
+	bool
+	add_link_to_issue(const std::string &issue, Json::Value &res, const std::string &link,
+		const std::string &title, const std::string &summary = "",
+		const std::string &relationship = "linked with",
+		const std::string &icon_url = "");
+
+	bool get_issue_transitions(const std::string &issue, Json::Value &res,
+		bool transition_fields = false);
 
 	bool list_projects(Json::Value &res);
 
-	virtual long get_http_code() const { return winterwind::HTTPClient::get_http_code(); }
+	virtual long get_http_code() const
+	{ return HTTPClient::get_http_code(); }
+
 private:
 	std::string m_instance_url = "";
 };
+}
+}

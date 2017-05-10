@@ -27,6 +27,10 @@
 
 #include <core/httpclient.h>
 
+namespace winterwind
+{
+namespace extras
+{
 enum GitlabRetCod
 {
 	GITLAB_RC_OK = 0,
@@ -39,10 +43,14 @@ enum GitlabRetCod
 struct GitlabIssue
 {
 public:
-	GitlabIssue(const std::string &t) : title(t) {}
-	GitlabIssue(const std::string &t, const std::string &desc, bool c = false, const std::string &dd = "",
-		    const std::vector<std::string> &l = {})
-	    : title(t), description(desc), confidential(c), due_date(dd), labels(l) {}
+	GitlabIssue(const std::string &t) : title(t)
+	{}
+
+	GitlabIssue(const std::string &t, const std::string &desc, bool c = false,
+		const std::string &dd = "",
+		const std::vector<std::string> &l = {})
+		: title(t), description(desc), confidential(c), due_date(dd), labels(l)
+	{}
 
 	std::string title = "";
 	std::string description = "";
@@ -54,10 +62,13 @@ public:
 struct GitlabTag
 {
 public:
-	GitlabTag(const std::string &n, const std::string &r) : name(n), ref(r) {}
+	GitlabTag(const std::string &n, const std::string &r) : name(n), ref(r)
+	{}
 
-	GitlabTag(const std::string &n, const std::string &r, const std::string &m, const std::string &rd)
-	    : name(n), ref(r), message(m), release_description(rd) {}
+	GitlabTag(const std::string &n, const std::string &r, const std::string &m,
+		const std::string &rd)
+		: name(n), ref(r), message(m), release_description(rd)
+	{}
 
 	std::string name = "";
 	std::string ref = "";
@@ -82,7 +93,8 @@ enum GitlabProjectVisibility
 struct GitlabGroup
 {
 public:
-	GitlabGroup(const std::string &n, const std::string &p) : name(n), path(p) {}
+	GitlabGroup(const std::string &n, const std::string &p) : name(n), path(p)
+	{}
 
 	std::string name = "";
 	std::string path = "";
@@ -95,7 +107,8 @@ public:
 struct GitlabProject
 {
 public:
-	GitlabProject(const std::string &n) : name(n) {}
+	GitlabProject(const std::string &n) : name(n)
+	{}
 
 	std::string name = "";
 	std::string path = "";
@@ -125,70 +138,113 @@ enum GitlabProjectSearchScope
 	GITLAB_PROJECT_SS_STARRED,
 };
 
-class GitlabAPIClient : protected winterwind::HTTPClient
+class GitlabAPIClient : protected HTTPClient
 {
 public:
 	GitlabAPIClient(const std::string &server_uri, const std::string &api_token)
-	    : m_server_uri(server_uri), m_api_token(api_token) {}
+		: m_server_uri(server_uri), m_api_token(api_token)
+	{}
 
 	// Issues
-	const GitlabRetCod get_issue(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
-	const GitlabRetCod get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
-	const GitlabRetCod get_issue(const std::string &ns, const std::string &project, const uint32_t issue_id,
-				     Json::Value &result,
-				     const GitlabProjectSearchScope proj_search_scope = GITLAB_PROJECT_SS_STANDARD);
+	const GitlabRetCod
+	get_issue(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
+
+	const GitlabRetCod
+	get_issues(const uint32_t project_id, const std::string &filter, Json::Value &result);
+
+	const GitlabRetCod
+	get_issue(const std::string &ns, const std::string &project, const uint32_t issue_id,
+		Json::Value &result,
+		const GitlabProjectSearchScope proj_search_scope = GITLAB_PROJECT_SS_STANDARD);
+
 	const GitlabRetCod create_issue(const uint32_t project_id, const GitlabIssue &issue);
-	const GitlabRetCod modify_issue(const uint32_t project_id, const uint32_t issue_id, const GitlabIssue &issue);
+
+	const GitlabRetCod modify_issue(const uint32_t project_id, const uint32_t issue_id,
+		const GitlabIssue &issue);
+
 	const GitlabRetCod close_issue(const uint32_t project_id, const uint32_t issue_id);
+
 	const GitlabRetCod delete_issue(const uint32_t project_id, const uint32_t issue_id);
 
 	// Merge requests
-	const GitlabRetCod get_merge_request(const uint32_t project_id, const uint32_t issue_id, Json::Value &result);
-	const GitlabRetCod get_merge_requests(const uint32_t project_id, const std::string &filter,
-					      Json::Value &result);
-	const GitlabRetCod close_merge_request(const uint32_t project_id, const uint32_t issue_id);
-	const GitlabRetCod delete_merge_request(const uint32_t project_id, const uint32_t issue_id);
+	const GitlabRetCod
+	get_merge_request(const uint32_t project_id, const uint32_t issue_id,
+		Json::Value &result);
+
+	const GitlabRetCod
+	get_merge_requests(const uint32_t project_id, const std::string &filter,
+		Json::Value &result);
+
+	const GitlabRetCod
+	close_merge_request(const uint32_t project_id, const uint32_t issue_id);
+
+	const GitlabRetCod
+	delete_merge_request(const uint32_t project_id, const uint32_t issue_id);
 
 	// Labels
 	const GitlabRetCod get_labels(const uint32_t project_id, Json::Value &result);
-	const GitlabRetCod get_label(const uint32_t project_id, const std::string &name, Json::Value &result);
-	const GitlabRetCod get_label(const std::string &ns, const std::string &project, const std::string &name,
-				     Json::Value &result,
-				     const GitlabProjectSearchScope proj_search_scope = GITLAB_PROJECT_SS_STANDARD);
+
+	const GitlabRetCod
+	get_label(const uint32_t project_id, const std::string &name, Json::Value &result);
+
+	const GitlabRetCod
+	get_label(const std::string &ns, const std::string &project, const std::string &name,
+		Json::Value &result,
+		const GitlabProjectSearchScope proj_search_scope = GITLAB_PROJECT_SS_STANDARD);
+
 	const GitlabRetCod create_label(const uint32_t project_id, const std::string &label,
-					const std::string &color_id, Json::Value &res);
-	const GitlabRetCod create_label(const std::string &ns, const std::string &project, const std::string &label,
-					const std::string &color_id, Json::Value &res);
+		const std::string &color_id, Json::Value &res);
+
+	const GitlabRetCod create_label(const std::string &ns, const std::string &project,
+		const std::string &label,
+		const std::string &color_id, Json::Value &res);
+
 	const GitlabRetCod delete_label(const uint32_t project_id, const std::string &label);
-	const GitlabRetCod delete_label(const std::string &ns, const std::string &project, const std::string &label);
+
+	const GitlabRetCod delete_label(const std::string &ns, const std::string &project,
+		const std::string &label);
 
 	// Tags
 	const GitlabRetCod create_tag(const uint32_t project_id, const GitlabTag &tag);
+
 	const GitlabRetCod delete_tag(const uint32_t project_id, const std::string &tag_name);
 
 	// Namespaces
 	const GitlabRetCod get_namespaces(const std::string &name, Json::Value &result);
+
 	const GitlabRetCod get_namespace(const std::string &name, Json::Value &result);
 
 	// Groups
 	const GitlabRetCod get_groups(const std::string &filter, Json::Value &result);
+
 	const GitlabRetCod get_group(const std::string &name, Json::Value &result);
+
 	bool create_group(const GitlabGroup &group, Json::Value &res);
+
 	const GitlabRetCod delete_group(const std::string &name);
+
 	const GitlabRetCod delete_groups(const std::vector<std::string> &groups);
 
 	// Projects
 	const GitlabRetCod create_project(const GitlabProject &project, Json::Value &res);
+
 	const GitlabRetCod get_projects(const std::string &name, Json::Value &result,
-					const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+		const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+
 	const GitlabRetCod get_project(const std::string &name, Json::Value &result,
-				       const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
-	const GitlabRetCod get_project_ns(const std::string &name, const std::string &ns, Json::Value &result,
-					  const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+		const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+
+	const GitlabRetCod
+	get_project_ns(const std::string &name, const std::string &ns, Json::Value &result,
+		const GitlabProjectSearchScope search_scope = GITLAB_PROJECT_SS_STANDARD);
+
 	const GitlabRetCod delete_project(const std::string &name);
+
 	const GitlabRetCod delete_projects(const std::vector<std::string> &projects);
 
-	virtual long get_http_code() const { return winterwind::HTTPClient::get_http_code(); }
+	virtual long get_http_code() const
+	{ return winterwind::HTTPClient::get_http_code(); }
+
 private:
 	void build_issue_data(const GitlabIssue &issue, std::string &post_data);
 
@@ -196,3 +252,5 @@ private:
 	std::string m_api_token = "";
 	static const std::string api_v3_endpoint;
 };
+}
+}

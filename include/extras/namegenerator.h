@@ -27,11 +27,18 @@
 
 #include <random>
 
+namespace winterwind
+{
+namespace extras
+{
 class NameGenerator
 {
 public:
 	NameGenerator(const uint64_t &seed);
-	~NameGenerator() {}
+
+	~NameGenerator()
+	{}
+
 	std::string generate_name();
 
 private:
@@ -41,3 +48,5 @@ private:
 	std::uniform_int_distribution<uint8_t> m_vowel_generator;
 	std::uniform_int_distribution<uint16_t> m_name_generators[4];
 };
+}
+}

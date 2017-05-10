@@ -27,6 +27,10 @@
 #include <cmath>
 #include <iostream>
 
+namespace winterwind
+{
+namespace extras
+{
 Weather &Weather::operator>>(Json::Value &res)
 {
 	res["city"] = city;
@@ -37,15 +41,17 @@ Weather &Weather::operator>>(Json::Value &res)
 	res["sunset"] = (int) sunset;
 	return *this;
 }
-OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weather &result)
+
+OpenWeatherMapReturnCode
+OpenWeatherMapClient::get(const std::string &city, Weather &result)
 {
 	Json::Value res;
 	std::string city_encoded = "";
 	http_string_escape(city, city_encoded);
 	if (!_get_json("http://api.openweathermap.org/data/2.5/"
-		       "weather?mode=json&APPID=" +
-			   m_api_key + "&units=metric&q=" + city_encoded,
-		       res)) {
+			"weather?mode=json&APPID=" +
+			m_api_key + "&units=metric&q=" + city_encoded,
+		res)) {
 		return OWMRC_INVALID_RESPONSE;
 	}
 
@@ -57,11 +63,9 @@ OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weat
 		uint32_t rcode = 0;
 		if (res["cod"].isUInt()) {
 			rcode = res["code"].asUInt();
-		}
-		else if (res["cod"].isString()) {
+		} else if (res["cod"].isString()) {
 			rcode = (uint32_t) std::atoi(res["cod"].asString().c_str());
-		}
-		else {
+		} else {
 			return OWMRC_INVALID_RESPONSE;
 		}
 
@@ -81,8 +85,8 @@ OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weat
 		result.temperature = std::round(res["main"]["temp"].asFloat() * 100) / 100;
 
 		if (res.isMember("weather") && res["weather"].isArray() &&
-		    res["weather"].isValidIndex(0) && res["weather"][0].isMember("main") &&
-		    res["weather"][0]["main"].isString()) {
+			res["weather"].isValidIndex(0) && res["weather"][0].isMember("main") &&
+			res["weather"][0]["main"].isString()) {
 			result.weather_desc = res["weather"][0]["main"].asString();
 		}
 
@@ -91,7 +95,7 @@ OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weat
 		}
 
 		if (res.isMember("sys") && res["sys"].isMember("sunrise") &&
-		    res["sys"].isMember("sunset")) {
+			res["sys"].isMember("sunset")) {
 			result.sunrise = res["sys"]["sunrise"].asInt();
 			result.sunset = res["sys"]["sunset"].asInt();
 		}
@@ -101,4 +105,6 @@ OpenWeatherMapReturnCode OpenWeatherMapClient::get(const std::string &city, Weat
 	} catch (Json::LogicError &e) {
 		return OWMRC_INVALID_RESPONSE;
 	}
+}
+}
 }

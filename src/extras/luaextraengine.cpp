@@ -27,7 +27,11 @@
 #include "luaextraengine.h"
 #include "lua/l_jiraclient.h"
 
-winterwind::LuaReturnCode LuaEngineExtras::init_winterwind_extra_bindings()
+namespace winterwind
+{
+namespace extras
+{
+LuaReturnCode LuaEngineExtras::init_winterwind_extra_bindings()
 {
 	init_winterwind_bindings();
 
@@ -44,5 +48,7 @@ winterwind::LuaReturnCode LuaEngineExtras::init_winterwind_extra_bindings()
 #endif
 #endif
 	pop(1);
-	return winterwind::LUA_RC_OK;
+	return LUA_RC_OK;
+}
+}
 }

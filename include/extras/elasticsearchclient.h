@@ -32,25 +32,36 @@
 #include <memory>
 #include <queue>
 
+namespace winterwind
+{
+namespace extras
+{
 class ElasticsearchException : public BaseException
 {
 public:
-	ElasticsearchException(const std::string &what) : BaseException(what) {}
-	~ElasticsearchException() throw() {}
+	ElasticsearchException(const std::string &what) : BaseException(what)
+	{}
+
+	~ElasticsearchException() throw()
+	{}
 };
 
 struct ElasticsearchNode
 {
 public:
-	ElasticsearchNode(const std::string &id) : tech_id(id) {}
+	ElasticsearchNode(const std::string &id) : tech_id(id)
+	{}
+
 	std::string http_addr = "";
 	std::string tech_id;
 	std::string version = "";
 	bool is_master = false;
 
-	std::string to_string() const {
-		return "id: " + tech_id + " http_addr: " + http_addr + " version: " + version + " master: " +
-		       std::to_string(is_master);
+	std::string to_string() const
+	{
+		return "id: " + tech_id + " http_addr: " + http_addr + " version: " + version +
+			" master: " +
+			std::to_string(is_master);
 	};
 };
 
@@ -66,11 +77,14 @@ enum ElasticsearchBulkActionType
 struct ElasticsearchBulkAction
 {
 public:
-	ElasticsearchBulkAction(const ElasticsearchBulkActionType a) : action(a) {}
+	ElasticsearchBulkAction(const ElasticsearchBulkActionType a) : action(a)
+	{}
+
 	std::string index = "";
 	std::string type = "";
 	std::string doc_id = "";
 	Json::Value doc;
+
 	void toJson(Json::FastWriter &writer, std::string &res);
 
 private:
@@ -79,20 +93,27 @@ private:
 
 typedef std::shared_ptr<ElasticsearchBulkAction> ElasticsearchBulkActionPtr;
 
-class ElasticsearchClient : public winterwind::HTTPClient
+class ElasticsearchClient : public HTTPClient
 {
 public:
 	ElasticsearchClient(const std::string &url);
+
 	~ElasticsearchClient();
 
 	void discover_cluster();
 
-	void create_doc(const std::string &index, const std::string &type, const Json::Value &doc);
-	void insert_doc(const std::string &index, const std::string &type, const std::string &doc_id,
-			const Json::Value &doc);
-	void delete_doc(const std::string &index, const std::string &type, const std::string &doc_id);
+	void
+	create_doc(const std::string &index, const std::string &type, const Json::Value &doc);
 
-	void add_bulkaction_to_queue(const ElasticsearchBulkActionPtr &action) { m_bulk_queue.push(action); }
+	void insert_doc(const std::string &index, const std::string &type,
+		const std::string &doc_id,
+		const Json::Value &doc);
+
+	void delete_doc(const std::string &index, const std::string &type,
+		const std::string &doc_id);
+
+	void add_bulkaction_to_queue(const ElasticsearchBulkActionPtr &action)
+	{ m_bulk_queue.push(action); }
 
 	void process_bulkaction_queue(std::string &res, uint32_t actions_limit = 0);
 
@@ -108,3 +129,6 @@ private:
 
 	CL_HELPER_VAR_GET(std::string, cluster_name, "");
 };
+
+}
+}

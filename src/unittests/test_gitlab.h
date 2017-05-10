@@ -37,6 +37,8 @@
 #include <core/utils/time.h>
 #include <extras/gitlabapiclient.h>
 
+using namespace winterwind::extras;
+
 static std::string GITLAB_TOKEN = "";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
 

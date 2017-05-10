@@ -35,19 +35,26 @@
 #endif
 #include <websocketpp/config/asio_client.hpp>
 
-typedef std::function<bool(const Json::Value &req, websocketpp::connection_hdl &hdl)> SlackMessageHandler;
+namespace winterwind
+{
+namespace extras
+{
+typedef std::function<bool(const Json::Value &req,
+	websocketpp::connection_hdl &hdl)> SlackMessageHandler;
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> ws_tls_client;
-class SlackClient : protected Thread, protected winterwind::HTTPClient,
-	private ws_tls_client
+
+class SlackClient : protected Thread, protected HTTPClient, private ws_tls_client
 {
 public:
 	SlackClient(const std::string &api_token);
+
 	virtual ~SlackClient();
 
 	bool auth_test();
 
 	bool create_channel(const std::string &channel);
+
 	bool join_channel(const std::string &channel);
 
 	bool post_message(const std::string &channel, const std::string &text);
@@ -55,10 +62,14 @@ public:
 	virtual void *run();
 
 	bool register_callback(const std::string &method, const SlackMessageHandler &hdl);
-	void send(websocketpp::connection_hdl hdl, const Json::Value &msg);
-	void send_message(websocketpp::connection_hdl hdl, const std::string &channel, const std::string &msg);
 
-	const std::string &get_channel_id_by_name(const std::string &name) const {
+	void send(websocketpp::connection_hdl hdl, const Json::Value &msg);
+
+	void send_message(websocketpp::connection_hdl hdl, const std::string &channel,
+		const std::string &msg);
+
+	const std::string &get_channel_id_by_name(const std::string &name) const
+	{
 		static const std::string noname = "";
 		const auto &chan = m_groups_reverse.find("name");
 		if (chan != m_groups_reverse.end()) {
@@ -67,13 +78,17 @@ public:
 		return noname;
 	}
 
-	void set_retry_on_fail(const bool retry) { m_retry_on_fail = retry; }
-	void set_retry_interval(const uint32_t s) { m_retry_interval = s; }
+	void set_retry_on_fail(const bool retry)
+	{ m_retry_on_fail = retry; }
+
+	void set_retry_interval(const uint32_t s)
+	{ m_retry_interval = s; }
 
 private:
 	typedef std::unordered_map<std::string, std::vector<SlackMessageHandler>> SlackMessageHdlMap;
 
 	bool rtm_start(Json::Value &res);
+
 	std::string m_api_token;
 
 	uint32_t m_internal_message_id = 1;
@@ -87,3 +102,5 @@ private:
 	bool m_retry_on_fail = false;
 	uint32_t m_retry_interval = 30;
 };
+}
+}

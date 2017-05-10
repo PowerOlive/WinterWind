@@ -27,6 +27,10 @@
 
 #include <core/httpclient.h>
 
+namespace winterwind
+{
+namespace extras
+{
 struct RATPSchedule
 {
 	std::string destination = "";
@@ -44,7 +48,7 @@ struct RATPStop
 
 typedef std::unordered_map<std::string, RATPStop> RATPStopMap;
 
-class RATPClient : private winterwind::HTTPClient
+class RATPClient : private HTTPClient
 {
 public:
 	enum Line
@@ -54,12 +58,18 @@ public:
 		RATP_LINE_MAX,
 	};
 
-	RATPClient() : HTTPClient() {};
-	~RATPClient(){};
+	RATPClient() : HTTPClient()
+	{};
 
-	const RATPScheduleList &get_next_trains(const RATPClient::Line line, const std::string &stop,
-						const uint8_t direction);
+	~RATPClient()
+	{};
+
+	const RATPScheduleList &
+	get_next_trains(const RATPClient::Line line, const std::string &stop,
+		const uint8_t direction);
 
 private:
 	std::map<RATPClient::Line, RATPStopMap> m_stop_cache;
 };
+}
+}

@@ -26,15 +26,20 @@
 #include "extras/twitterclient.h"
 #include <core/utils/base64.h>
 
+namespace winterwind
+{
+namespace extras
+{
 static const std::string TWITTER_API_URL = "https://api.twitter.com";
 static const std::string TWITTER_OAUTH2_TOKEN = "/oauth2/token";
 static const std::string TWITTER_HOME_TIMELINE_1_1 = "/1.1/statuses/home_timeline.json";
 static const std::string TWITTER_USER_TIMELINE_1_1 = "/1.1/statuses/user_timeline.json";
 
-TwitterClient::TwitterClient(const std::string &consumer_key, const std::string &consumer_secret,
-			     const std::string &access_token,
-			     const std::string &access_token_secret)
-    : OAuthClient(consumer_key, consumer_secret, access_token, access_token_secret)
+TwitterClient::TwitterClient(const std::string &consumer_key,
+	const std::string &consumer_secret,
+	const std::string &access_token,
+	const std::string &access_token_secret)
+	: OAuthClient(consumer_key, consumer_secret, access_token, access_token_secret)
 {
 }
 
@@ -42,7 +47,8 @@ void TwitterClient::append_auth_header()
 {
 	std::string tmp_auth = m_consumer_key + ":" + m_consumer_secret;
 	std::string authorization =
-	    "Basic " + base64_encode((const unsigned char *) tmp_auth.c_str(), tmp_auth.length());
+		"Basic " +
+			base64_encode((const unsigned char *) tmp_auth.c_str(), tmp_auth.length());
 	add_http_header("Authorization", authorization);
 }
 
@@ -77,9 +83,10 @@ TwitterClient::Response TwitterClient::get_oauth2_token()
 	return TWITTER_OK;
 }
 
-TwitterClient::Response TwitterClient::get_user_timeline(Json::Value &res, const uint16_t count,
-							 const uint32_t since_id, bool include_rts,
-							 bool contributor_details)
+TwitterClient::Response
+TwitterClient::get_user_timeline(Json::Value &res, const uint16_t count,
+	const uint32_t since_id, bool include_rts,
+	bool contributor_details)
 {
 	std::string request = TWITTER_API_URL + TWITTER_USER_TIMELINE_1_1;
 
@@ -115,8 +122,9 @@ TwitterClient::Response TwitterClient::get_user_timeline(Json::Value &res, const
 	return TWITTER_OK;
 }
 
-TwitterClient::Response TwitterClient::get_home_timeline(Json::Value &res, const uint16_t count,
-							 const uint32_t since_id)
+TwitterClient::Response
+TwitterClient::get_home_timeline(Json::Value &res, const uint16_t count,
+	const uint32_t since_id)
 {
 	std::string request = TWITTER_API_URL + TWITTER_HOME_TIMELINE_1_1;
 
@@ -142,4 +150,6 @@ TwitterClient::Response TwitterClient::get_home_timeline(Json::Value &res, const
 	}
 
 	return TWITTER_OK;
+}
+}
 }

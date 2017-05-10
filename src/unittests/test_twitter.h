@@ -36,6 +36,8 @@
 
 #include "cmake_config.h"
 
+using namespace winterwind::extras;
+
 static std::string TWITTER_CONSUMER_KEY = "";
 static std::string TWITTER_CONSUMER_SECRET = "";
 static std::string TWITTER_ACCESS_TOKEN = "";

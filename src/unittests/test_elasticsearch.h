@@ -36,6 +36,8 @@
 
 #include "cmake_config.h"
 
+using namespace winterwind::extras;
+
 static std::string ES_HOST = "localhost";
 
 class WinterWindTest_Elasticsearch : public CppUnit::TestFixture

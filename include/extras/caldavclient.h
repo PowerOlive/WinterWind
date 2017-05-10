@@ -27,12 +27,20 @@
 
 #include <core/httpclient.h>
 
-class CaldavClient : public winterwind::HTTPClient
+namespace winterwind
+{
+namespace extras
+{
+
+class CaldavClient : public HTTPClient
 {
 public:
-	CaldavClient(const std::string &url, const std::string &username, const std::string &password,
-		     bool dont_verify_peer);
-	virtual ~CaldavClient() {}
+	CaldavClient(const std::string &url, const std::string &username,
+		const std::string &password,
+		bool dont_verify_peer);
+
+	virtual ~CaldavClient()
+	{}
 
 	void load_calendars();
 
@@ -41,3 +49,6 @@ private:
 	std::string m_url = "";
 	bool m_dont_verify_peer = false;
 };
+
+}
+}

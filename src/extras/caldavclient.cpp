@@ -27,22 +27,25 @@
 #include <iostream>
 #include <regex>
 
-using namespace winterwind;
+namespace winterwind
+{
+namespace extras
+{
 
 static const std::string calendar_list_request = "<d:propfind xmlns:d=\"DAV:\" "
-						 "xmlns:cs=\"http://calendarserver.org/ns/\" "
-						 "xmlns:c=\"urn:ietf:params:xml:ns:caldav\">"
-						 "  <d:prop>"
-						 "     <d:resourcetype></d:resourcetype>"
-						 "     <d:displayname />"
-						 "     <cs:getctag />"
-						 "     <c:supported-calendar-component-set />"
-						 "  </d:prop>"
-						 "</d:propfind>";
+	"xmlns:cs=\"http://calendarserver.org/ns/\" "
+	"xmlns:c=\"urn:ietf:params:xml:ns:caldav\">"
+	"  <d:prop>"
+	"     <d:resourcetype></d:resourcetype>"
+	"     <d:displayname />"
+	"     <cs:getctag />"
+	"     <c:supported-calendar-component-set />"
+	"  </d:prop>"
+	"</d:propfind>";
 
 CaldavClient::CaldavClient(const std::string &url, const std::string &username,
-			   const std::string &password, bool dont_verify_peer)
-    : HTTPClient(10 * 1024 * 1024), m_url(url), m_dont_verify_peer(dont_verify_peer)
+	const std::string &password, bool dont_verify_peer)
+	: HTTPClient(10 * 1024 * 1024), m_url(url), m_dont_verify_peer(dont_verify_peer)
 {
 	m_username = username;
 	m_password = password;
@@ -60,7 +63,8 @@ void CaldavClient::load_calendars()
 	add_http_header("Content-Type", "application/xml; charset=utf-8");
 	add_http_header("Depth", "1");
 	add_http_header("Prefer", "return-minimal");
-	_propfind(m_url + "/calendars/" + m_username + "/", res, reqflag, calendar_list_request);
+	_propfind(m_url + "/calendars/" + m_username + "/", res, reqflag,
+		calendar_list_request);
 
 	reqflag |= XMLParser::Flag::FLAG_XML_SIMPLE | XMLParser::Flag::FLAG_XML_STRIP_NEWLINE;
 
@@ -81,4 +85,6 @@ void CaldavClient::load_calendars()
 			m_calendars.push_back(rem.str(1));
 		}
 	}
+}
+}
 }

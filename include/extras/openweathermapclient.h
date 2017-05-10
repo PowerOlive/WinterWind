@@ -27,6 +27,10 @@
 
 #include <core/httpclient.h>
 
+namespace winterwind
+{
+namespace extras
+{
 struct Weather
 {
 	std::string city = "";
@@ -48,16 +52,22 @@ enum OpenWeatherMapReturnCode
 	OWMRC_INVALID_RESPONSE,
 };
 
-class OpenWeatherMapClient : public winterwind::HTTPClient
+class OpenWeatherMapClient : public HTTPClient
 {
 public:
-	OpenWeatherMapClient(const std::string &api_key) : m_api_key(api_key) {}
-	~OpenWeatherMapClient() {}
+	OpenWeatherMapClient(const std::string &api_key) : m_api_key(api_key)
+	{}
+
+	~OpenWeatherMapClient()
+	{}
 
 	OpenWeatherMapReturnCode get(const std::string &city, Weather &result);
 
-	void set_api_key(const std::string &api_key) { m_api_key = api_key; }
+	void set_api_key(const std::string &api_key)
+	{ m_api_key = api_key; }
 
 private:
 	std::string m_api_key = "";
 };
+}
+}

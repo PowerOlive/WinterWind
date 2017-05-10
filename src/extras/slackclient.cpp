@@ -25,12 +25,17 @@
 
 #include "slackclient.h"
 
+namespace winterwind
+{
+namespace extras
+{
 SlackClient::SlackClient(const std::string &api_token) : Thread(), m_api_token(api_token)
 {
 	init_asio();
 }
 
-SlackClient::~SlackClient() {}
+SlackClient::~SlackClient()
+{}
 
 bool SlackClient::auth_test()
 {
@@ -42,8 +47,9 @@ bool SlackClient::auth_test()
 bool SlackClient::create_channel(const std::string &channel)
 {
 	Json::Value res;
-	_get_json("https://slack.com/api/channels.create?token=" + m_api_token + "&name=" + channel,
-		  res);
+	_get_json(
+		"https://slack.com/api/channels.create?token=" + m_api_token + "&name=" + channel,
+		res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
@@ -51,8 +57,8 @@ bool SlackClient::join_channel(const std::string &channel)
 {
 	Json::Value res;
 	_get_json("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" +
-		      channel,
-		  res);
+			channel,
+		res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
@@ -60,8 +66,8 @@ bool SlackClient::post_message(const std::string &channel, const std::string &me
 {
 	Json::Value res;
 	_get_json("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" +
-		      channel + "&text=" + message + "&as_user=true&username=Icecrown",
-		  res);
+			channel + "&text=" + message + "&as_user=true&username=Icecrown",
+		res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
@@ -83,16 +89,19 @@ void *SlackClient::run()
 		if (!rtm_start(res)) {
 			failure_number++;
 			std::cerr << "Failed to start RTM with slack, retrying in "
-					<< (m_retry_interval * failure_number) << "sec..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::seconds(m_retry_interval * failure_number));
+				<< (m_retry_interval * failure_number) << "sec..." << std::endl;
+			std::this_thread::sleep_for(
+				std::chrono::seconds(m_retry_interval * failure_number));
 			continue;
 		}
 
 		if (!res.isMember("url")) {
 			failure_number++;
-			std::cerr << "WSS URL not present in slack response, retrying in " << (m_retry_interval * failure_number)
-					<< "sec..." << std::endl;
-			std::this_thread::sleep_for(std::chrono::seconds(m_retry_interval * failure_number));
+			std::cerr << "WSS URL not present in slack response, retrying in "
+				<< (m_retry_interval * failure_number)
+				<< "sec..." << std::endl;
+			std::this_thread::sleep_for(
+				std::chrono::seconds(m_retry_interval * failure_number));
 			continue;
 		}
 
@@ -101,7 +110,7 @@ void *SlackClient::run()
 				if (group.isMember("id") && group.isMember("name")) {
 					m_groups[group["id"].asString()] = group["name"].asString();
 					m_groups_reverse[group["name"].asString()] =
-					    group["id"].asString();
+						group["id"].asString();
 				}
 			}
 		}
@@ -110,50 +119,50 @@ void *SlackClient::run()
 			set_tls_init_handler([this](websocketpp::connection_hdl) {
 				SSL_library_init();
 				return websocketpp::lib::make_shared<asio::ssl::context>(
-						asio::ssl::context::tlsv12_client);
+					asio::ssl::context::tlsv12_client);
 			});
 
 			set_access_channels(websocketpp::log::alevel::connect |
-					    websocketpp::log::alevel::disconnect |
-					    websocketpp::log::alevel::fail);
+				websocketpp::log::alevel::disconnect |
+				websocketpp::log::alevel::fail);
 
 			set_message_handler(
-			    [this](websocketpp::connection_hdl hdl,
-				   websocketpp::config::asio_client::message_type::ptr msg) {
-				    Json::Value recv_msg;
+				[this](websocketpp::connection_hdl hdl,
+					websocketpp::config::asio_client::message_type::ptr msg) {
+					Json::Value recv_msg;
 
-				    if (!this->json_reader()->parse(msg->get_payload(), recv_msg)) {
-					    std::cerr << "Invalid slack payload, ignoring."
-						      << std::endl;
-					    return;
-				    }
+					if (!this->json_reader()->parse(msg->get_payload(), recv_msg)) {
+						std::cerr << "Invalid slack payload, ignoring."
+							<< std::endl;
+						return;
+					}
 
-				    // Ignore some payload not containing type
-				    if (!recv_msg.isMember("type")) {
-					    return;
-				    }
+					// Ignore some payload not containing type
+					if (!recv_msg.isMember("type")) {
+						return;
+					}
 
-				    const std::string &type = recv_msg["type"].asString();
-				    if (type == "reconnect_url") {
-					    // This should be handled when slack will use it
-					    return;
-				    }
+					const std::string &type = recv_msg["type"].asString();
+					if (type == "reconnect_url") {
+						// This should be handled when slack will use it
+						return;
+					}
 
-				    // Send callbacks
-				    const auto &callback_list = m_callbacks.find(type);
-				    if (callback_list != m_callbacks.end()) {
-					    for (const auto &cb : callback_list->second) {
-						    cb(recv_msg, hdl);
-					    }
-				    }
-			    });
+					// Send callbacks
+					const auto &callback_list = m_callbacks.find(type);
+					if (callback_list != m_callbacks.end()) {
+						for (const auto &cb : callback_list->second) {
+							cb(recv_msg, hdl);
+						}
+					}
+				});
 
 			websocketpp::lib::error_code ec;
 			ws_tls_client::connection_ptr con =
-			    get_connection(res["url"].asString(), ec);
+				get_connection(res["url"].asString(), ec);
 			if (ec) {
 				std::cout << "could not create connection because: " << ec.message()
-					  << std::endl;
+					<< std::endl;
 				return nullptr;
 			}
 
@@ -162,19 +171,22 @@ void *SlackClient::run()
 			ws_tls_client::run();
 		} catch (websocketpp::exception const &e) {
 			std::cerr << "ERROR handler exception" << std::endl
-				  << e.what() << std::endl;
+				<< e.what() << std::endl;
 		}
 
 		failure_number++;
-		std::cerr << "SlackClient failure, retrying in " << (m_retry_interval * failure_number) << "sec..."
-			  << std::endl;
-		std::this_thread::sleep_for(std::chrono::seconds(m_retry_interval * failure_number));
+		std::cerr << "SlackClient failure, retrying in "
+			<< (m_retry_interval * failure_number) << "sec..."
+			<< std::endl;
+		std::this_thread::sleep_for(
+			std::chrono::seconds(m_retry_interval * failure_number));
 	}
 
 	return nullptr;
 }
 
-bool SlackClient::register_callback(const std::string &method, const SlackMessageHandler &hdl)
+bool
+SlackClient::register_callback(const std::string &method, const SlackMessageHandler &hdl)
 {
 	if (m_callbacks.find(method) == m_callbacks.end()) {
 		m_callbacks[method] = {};
@@ -187,11 +199,13 @@ bool SlackClient::register_callback(const std::string &method, const SlackMessag
 void SlackClient::send(websocketpp::connection_hdl hdl, const Json::Value &msg)
 {
 	websocketpp::lib::error_code ec;
-	ws_tls_client::send(hdl, json_writer()->write(msg), websocketpp::frame::opcode::text, ec);
+	ws_tls_client::send(hdl, json_writer()->write(msg), websocketpp::frame::opcode::text,
+		ec);
 }
 
-void SlackClient::send_message(websocketpp::connection_hdl hdl, const std::string &channel,
-			       const std::string &msg)
+void
+SlackClient::send_message(websocketpp::connection_hdl hdl, const std::string &channel,
+	const std::string &msg)
 {
 	Json::Value json_msg;
 	json_msg["id"] = m_internal_message_id;
@@ -201,4 +215,6 @@ void SlackClient::send_message(websocketpp::connection_hdl hdl, const std::strin
 
 	send(hdl, json_msg);
 	m_internal_message_id++;
+}
+}
 }

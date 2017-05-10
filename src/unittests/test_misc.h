@@ -37,6 +37,8 @@
 
 #include "cmake_config.h"
 
+using namespace winterwind::extras;
+
 class WinterWindTest_Misc : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_Misc);

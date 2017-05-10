@@ -27,6 +27,10 @@
 #include "ratpclient.h"
 #include <iostream>
 
+namespace winterwind
+{
+namespace extras
+{
 int LuaEngineExtras::l_get_ratp_schedules(lua_State *L)
 {
 	if (lua_isnil(L, 1) || lua_isnil(L, 2)) {
@@ -38,19 +42,16 @@ int LuaEngineExtras::l_get_ratp_schedules(lua_State *L)
 	int direction;
 	if (lua_isnil(L, 3)) {
 		direction = 1;
-	}
-	else {
+	} else {
 		direction = read<int>(L, 3);
 	}
 
 	RATPClient::Line ratp_line;
 	if (line == "RER_A") {
 		ratp_line = RATPClient::Line::LINE_RER_A;
-	}
-	else if (line == "RER_B") {
+	} else if (line == "RER_B") {
 		ratp_line = RATPClient::Line::LINE_RER_B;
-	}
-	else {
+	} else {
 		std::cerr << "Lua: " << __FUNCTION__ << ": Invalid RATP Line" << std::endl;
 		return 0;
 	}
@@ -72,4 +73,6 @@ int LuaEngineExtras::l_get_ratp_schedules(lua_State *L)
 		idx++;
 	}
 	return 1;
+}
+}
 }

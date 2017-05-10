@@ -30,25 +30,38 @@
 #include <lua.hpp>
 #include <string>
 
+namespace winterwind
+{
+namespace extras
+{
 #define luamethod(class, name)                                                                                         \
-	{ #name, class ::l_##name }
+    { #name, class ::l_##name }
 #define REGISTER_LUA_FCT(name) register_function(#name, l_##name, top)
 
-class LuaEngineExtras : public winterwind::LuaEngine
+class LuaEngineExtras : public LuaEngine
 {
 public:
-	LuaEngineExtras() {}
-	virtual ~LuaEngineExtras() {}
+	LuaEngineExtras()
+	{}
 
-	winterwind::LuaReturnCode init_winterwind_extra_bindings();
+	virtual ~LuaEngineExtras()
+	{}
+
+	LuaReturnCode init_winterwind_extra_bindings();
 
 	// Handlers
 #if ENABLE_HTTPCLIENT
 #if ENABLE_RATPCLIENT
+
 	static int l_get_ratp_schedules(lua_State *L);
+
 #endif
 #if ENABLE_JIRACLIENT
+
 	static int l_create_jiraclient(lua_State *L);
+
 #endif
 #endif
 };
+}
+}
