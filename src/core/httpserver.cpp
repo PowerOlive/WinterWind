@@ -134,17 +134,17 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	const char *content_type =
 	    MHD_lookup_connection_value(conn, MHD_HEADER_KIND, "Content-Type");
 	if (!content_type) {
-		q = HTTPQueryPtr(new HTTPQuery());
+		q = std::make_shared<HTTPQuery>();
 	} else if (strcmp(content_type, "application/x-www-form-urlencoded") == 0) {
-		q = HTTPQueryPtr(new HTTPFormQuery());
+		q = std::make_shared<HTTPFormQuery>();
 		if (!parse_post_data(upload_data, dynamic_cast<HTTPFormQuery *>(q.get()))) {
 			return false;
 		}
 	} else if (strcmp(content_type, "application/json") == 0) {
-		HTTPJsonQuery *jq = new HTTPJsonQuery();
-		q = HTTPQueryPtr(jq);
+		q = std::make_shared<HTTPJsonQuery>();
 		Json::Reader reader;
-		if (!reader.parse(upload_data, jq->json_query)) {
+		if (!reader.parse(upload_data,
+			dynamic_cast<HTTPJsonQuery *>(q.get())->json_query)) {
 			return false;
 		}
 	} else {
