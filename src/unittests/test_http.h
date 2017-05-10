@@ -36,7 +36,7 @@
 
 #include "cmake_config.h"
 
-using namespace winterwind;
+using namespace winterwind::http;
 
 class WinterWindTest_HTTP : public CppUnit::TestFixture
 {

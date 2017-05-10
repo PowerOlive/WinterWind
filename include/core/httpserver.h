@@ -37,8 +37,10 @@
 #include <unordered_map>
 #include <vector>
 
-namespace winterwind {
-
+namespace winterwind
+{
+namespace http
+{
 enum HTTPQueryType
 {
 	HTTPQUERY_TYPE_NONE,
@@ -52,21 +54,24 @@ struct HTTPQuery
 	std::unordered_map<std::string, std::string> headers;
 	std::unordered_map<std::string, std::string> get_params;
 
-	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_NONE; }
+	virtual HTTPQueryType get_type() const
+	{ return HTTPQUERY_TYPE_NONE; }
 };
 
 struct HTTPFormQuery : public HTTPQuery
 {
 	std::unordered_map<std::string, std::string> post_data;
 
-	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_FORM; }
+	virtual HTTPQueryType get_type() const
+	{ return HTTPQUERY_TYPE_FORM; }
 };
 
 struct HTTPJsonQuery : public HTTPQuery
 {
 	Json::Value json_query;
 
-	virtual HTTPQueryType get_type() const { return HTTPQUERY_TYPE_JSON; }
+	virtual HTTPQueryType get_type() const
+	{ return HTTPQUERY_TYPE_JSON; }
 };
 
 struct HTTPRequestSession
@@ -145,5 +150,5 @@ private:
 	 */
 	uint16_t m_http_port;
 };
-
+}
 }

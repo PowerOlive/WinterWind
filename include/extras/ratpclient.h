@@ -48,7 +48,7 @@ struct RATPStop
 
 typedef std::unordered_map<std::string, RATPStop> RATPStopMap;
 
-class RATPClient : private HTTPClient
+class RATPClient : private http::HTTPClient
 {
 public:
 	enum Line
@@ -58,7 +58,7 @@ public:
 		RATP_LINE_MAX,
 	};
 
-	RATPClient() : HTTPClient()
+	RATPClient(): http::HTTPClient()
 	{};
 
 	~RATPClient()

@@ -32,7 +32,7 @@ namespace winterwind
 namespace extras
 {
 
-class CaldavClient : public HTTPClient
+class CaldavClient : public http::HTTPClient
 {
 public:
 	CaldavClient(const std::string &url, const std::string &username,

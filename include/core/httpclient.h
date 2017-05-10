@@ -32,7 +32,10 @@
 #include <string>
 #include <unordered_map>
 
-namespace winterwind {
+namespace winterwind
+{
+namespace http
+{
 typedef std::unordered_map<std::string, std::string> HTTPHeadersMap;
 
 class HTTPClient
@@ -154,4 +157,5 @@ private:
 
 	static std::atomic_bool m_inited;
 };
+}
 }

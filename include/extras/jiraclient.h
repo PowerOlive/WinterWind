@@ -31,7 +31,7 @@ namespace winterwind
 {
 namespace extras
 {
-class JiraClient : private HTTPClient
+class JiraClient : private http::HTTPClient
 {
 public:
 	JiraClient(const std::string &instance_url, const std::string &user,

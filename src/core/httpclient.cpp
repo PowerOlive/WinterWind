@@ -30,7 +30,10 @@
 #include <iostream>
 #include "cmake_config.h"
 
-namespace winterwind {
+namespace winterwind
+{
+namespace http
+{
 std::atomic_bool HTTPClient::m_inited(false);
 
 HTTPClient::HTTPClient(uint32_t max_file_size) : m_maxfilesize(max_file_size)
@@ -345,5 +348,5 @@ void HTTPClient::add_form_param(const std::string &param, const std::string &val
 		m_form_params[param] = value;
 	}
 }
-
+}
 }

@@ -28,8 +28,11 @@
 #include <json/json.h>
 #include <string>
 
-namespace winterwind {
+namespace winterwind
+{
 
+namespace http
+{
 enum HTTPResponseType
 {
 	HTTPRESPONSE_RAW,
@@ -42,9 +45,11 @@ class HTTPResponse
 {
 public:
 	HTTPResponse(const std::string &r, const uint16_t http_code = 200) : m_response(r),
-		m_http_code(http_code) {}
+		m_http_code(http_code)
+	{}
 
-	virtual ~HTTPResponse() {};
+	virtual ~HTTPResponse()
+	{};
 
 	virtual HTTPResponse &operator<<(const std::string &r);
 
@@ -52,7 +57,8 @@ public:
 
 	virtual HTTPResponse &operator>>(HTTPRequestSession &s);
 
-	virtual const HTTPResponseType get_type() const { return HTTPRESPONSE_RAW; }
+	virtual const HTTPResponseType get_type() const
+	{ return HTTPRESPONSE_RAW; }
 
 protected:
 	HTTPResponse(const uint16_t http_code = 200) : m_http_code(http_code)
@@ -67,12 +73,15 @@ private:
 class JSONHTTPResponse : public HTTPResponse
 {
 public:
-	JSONHTTPResponse() : HTTPResponse() {}
+	JSONHTTPResponse() : HTTPResponse()
+	{}
 
 	JSONHTTPResponse(const Json::Value &r, const uint16_t http_code = 200)
-		: HTTPResponse(http_code), m_json_response(r) {}
+		: HTTPResponse(http_code), m_json_response(r)
+	{}
 
-	virtual ~JSONHTTPResponse() {}
+	virtual ~JSONHTTPResponse()
+	{}
 
 	JSONHTTPResponse &operator<<(const Json::Value &r);
 
@@ -82,10 +91,13 @@ public:
 
 	virtual HTTPResponse &operator>>(HTTPRequestSession &s);
 
-	virtual const HTTPResponseType get_type() const { return HTTPRESPONSE_JSON; }
+	virtual const HTTPResponseType get_type() const
+	{ return HTTPRESPONSE_JSON; }
 
 private:
 	Json::Value m_json_response;
 };
+
+}
 
 }

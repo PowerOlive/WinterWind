@@ -93,7 +93,7 @@ private:
 
 typedef std::shared_ptr<ElasticsearchBulkAction> ElasticsearchBulkActionPtr;
 
-class ElasticsearchClient : public HTTPClient
+class ElasticsearchClient : public http::HTTPClient
 {
 public:
 	ElasticsearchClient(const std::string &url);

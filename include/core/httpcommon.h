@@ -27,6 +27,8 @@
 
 namespace winterwind
 {
+namespace http
+{
 enum HTTPMethod
 {
 	HTTP_METHOD_DELETE,
@@ -38,4 +40,5 @@ enum HTTPMethod
 	HTTP_METHOD_PUT,
 	HTTP_METHOD_MAX,
 };
+}
 }

@@ -28,7 +28,8 @@
 
 namespace winterwind
 {
-
+namespace http
+{
 HTTPResponse &HTTPResponse::operator<<(const std::string &r)
 {
 	m_response += r;
@@ -72,5 +73,5 @@ HTTPResponse &JSONHTTPResponse::operator>>(HTTPRequestSession &s)
 	s.http_code = m_http_code;
 	return *this;
 }
-
+}
 }

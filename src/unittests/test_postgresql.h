@@ -34,6 +34,7 @@
 
 #include <core/postgresqlclient.h>
 
+using namespace winterwind;
 #define INIT_PG_CLIENT                                                                             \
 	PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db "                    \
 			    "password=un1Ttests");

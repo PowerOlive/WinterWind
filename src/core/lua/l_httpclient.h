@@ -31,6 +31,9 @@
 
 namespace winterwind
 {
+
+using namespace http;
+
 class LuaRefHTTPClient : protected LuaHelper
 {
 LUAREF_OBJECT(HTTPClient)

@@ -44,7 +44,7 @@ typedef std::function<bool(const Json::Value &req,
 
 typedef websocketpp::client<websocketpp::config::asio_tls_client> ws_tls_client;
 
-class SlackClient : protected Thread, protected HTTPClient, private ws_tls_client
+class SlackClient : protected Thread, protected http::HTTPClient, private ws_tls_client
 {
 public:
 	SlackClient(const std::string &api_token);

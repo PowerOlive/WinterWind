@@ -30,7 +30,7 @@
 
 namespace winterwind
 {
-class OAuthClient : protected HTTPClient
+class OAuthClient : protected http::HTTPClient
 {
 public:
 	OAuthClient(const std::string &consumer_key, const std::string &consumer_secret,

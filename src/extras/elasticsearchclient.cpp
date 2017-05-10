@@ -28,9 +28,9 @@
 
 namespace winterwind
 {
+using namespace http;
 namespace extras
 {
-
 #define ES_URL_CLUSTER_STATE "/_cluster/state"
 #define ES_URL_NODES "/_nodes"
 #define ES_BULK "/_bulk"

@@ -37,12 +37,15 @@ static const char *BAD_REQUEST =
 
 namespace winterwind
 {
-
+namespace http
+{
 HTTPServer::HTTPServer(const uint16_t http_port) : m_http_port(http_port)
 {
 	m_mhd_daemon = MHD_start_daemon(
-	    MHD_USE_POLL_INTERNALLY, m_http_port, NULL, NULL, &HTTPServer::request_handler, this,
-	    MHD_OPTION_NOTIFY_COMPLETED, &HTTPServer::request_completed, NULL, MHD_OPTION_END);
+		MHD_USE_POLL_INTERNALLY, m_http_port, NULL, NULL, &HTTPServer::request_handler,
+		this,
+		MHD_OPTION_NOTIFY_COMPLETED, &HTTPServer::request_completed, NULL,
+		MHD_OPTION_END);
 }
 
 HTTPServer::~HTTPServer()
@@ -53,8 +56,8 @@ HTTPServer::~HTTPServer()
 }
 
 int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connection,
-				const char *url, const char *method, const char *version,
-				const char *upload_data, size_t *upload_data_size, void **con_cls)
+	const char *url, const char *method, const char *version,
+	const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
 	HTTPServer *httpd = (HTTPServer *) http_server;
 	HTTPMethod http_method;
@@ -91,8 +94,8 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 	// Handle request
 	HTTPRequestSession *session = (HTTPRequestSession *) *con_cls;
 	if (!session->data_handled &&
-	    !httpd->handle_query(http_method, connection, std::string(url),
-				 std::string(upload_data, *upload_data_size), session)) {
+		!httpd->handle_query(http_method, connection, std::string(url),
+			std::string(upload_data, *upload_data_size), session)) {
 		session->result = std::string(BAD_REQUEST);
 		session->http_code = MHD_HTTP_BAD_REQUEST;
 	}
@@ -106,7 +109,8 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 	}
 
 	response = MHD_create_response_from_buffer(
-	    session->result.length(), (void *) session->result.c_str(), MHD_RESPMEM_MUST_COPY);
+		session->result.length(), (void *) session->result.c_str(),
+		MHD_RESPMEM_MUST_COPY);
 	ret = MHD_queue_response(connection, session->http_code, response);
 	MHD_destroy_response(response);
 
@@ -116,13 +120,14 @@ int HTTPServer::request_handler(void *http_server, struct MHD_Connection *connec
 	return ret;
 }
 
-void HTTPServer::request_completed(void *cls, struct MHD_Connection *connection, void **con_cls,
-				   MHD_RequestTerminationCode toe)
+void HTTPServer::request_completed(void *cls, struct MHD_Connection *connection,
+	void **con_cls,
+	MHD_RequestTerminationCode toe)
 {
 }
 
 bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::string &url,
-			      const std::string &upload_data, HTTPRequestSession *session)
+	const std::string &upload_data, HTTPRequestSession *session)
 {
 	assert(m < HTTP_METHOD_MAX);
 
@@ -135,7 +140,7 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 
 	// Read which params we want and store them
 	const char *content_type =
-	    MHD_lookup_connection_value(conn, MHD_HEADER_KIND, "Content-Type");
+		MHD_lookup_connection_value(conn, MHD_HEADER_KIND, "Content-Type");
 	if (!content_type) {
 		q = std::make_shared<HTTPQuery>();
 	} else if (strcmp(content_type, "application/x-www-form-urlencoded") == 0) {
@@ -155,9 +160,10 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	}
 
 	q->url = url;
-	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_headers, q.get());
+	MHD_get_connection_values(conn, MHD_HEADER_KIND, &HTTPServer::mhd_iter_headers,
+		q.get());
 	MHD_get_connection_values(conn, MHD_GET_ARGUMENT_KIND, &HTTPServer::mhd_iter_getargs,
-				  q.get());
+		q.get());
 
 	HTTPResponsePtr http_response = url_handler->second(q);
 	if (!http_response) {
@@ -173,7 +179,8 @@ bool HTTPServer::handle_query(HTTPMethod m, MHD_Connection *conn, const std::str
 	return true;
 }
 
-int HTTPServer::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key, const char *value)
+int
+HTTPServer::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key, const char *value)
 {
 	HTTPQuery *q = (HTTPQuery *) cls;
 	if (q && key && value) {
@@ -182,7 +189,8 @@ int HTTPServer::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key, cons
 	return MHD_YES; // continue iteration
 }
 
-int HTTPServer::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key, const char *value)
+int
+HTTPServer::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key, const char *value)
 {
 	HTTPQuery *q = (HTTPQuery *) cls;
 	if (q && key && value) {
@@ -216,4 +224,5 @@ bool HTTPServer::parse_post_data(const std::string &data, HTTPFormQuery *qf)
 	return true;
 }
 
+}
 }
