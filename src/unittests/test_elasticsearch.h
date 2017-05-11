@@ -43,15 +43,15 @@ namespace unittests {
 
 static std::string ES_HOST = "localhost";
 
-class WinterWindTest_Elasticsearch : public CppUnit::TestFixture
+class Test_Elasticsearch : public CppUnit::TestFixture
 {
-CPPUNIT_TEST_SUITE(WinterWindTest_Elasticsearch);
-		CPPUNIT_TEST(es_bulk_to_json);
-		CPPUNIT_TEST(es_bulk_update_to_json);
-		CPPUNIT_TEST(es_bulk_delete_to_json);
-		CPPUNIT_TEST(es_bulk_play_index);
-		CPPUNIT_TEST(es_bulk_play_update);
-		CPPUNIT_TEST(es_bulk_play_delete);
+	CPPUNIT_TEST_SUITE(Test_Elasticsearch);
+	CPPUNIT_TEST(es_bulk_to_json);
+	CPPUNIT_TEST(es_bulk_update_to_json);
+	CPPUNIT_TEST(es_bulk_delete_to_json);
+	CPPUNIT_TEST(es_bulk_play_index);
+	CPPUNIT_TEST(es_bulk_play_update);
+	CPPUNIT_TEST(es_bulk_play_delete);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -76,8 +76,8 @@ protected:
 
 		CPPUNIT_ASSERT(
 				res ==
-				"{\"index\":{\"_id\":\"7\",\"_index\":\"library\",\"_type\":\"book\"}}\n"
-						"{\"title\":\"A great history\"}\n");
+						"{\"index\":{\"_id\":\"7\",\"_index\":\"library\",\"_type\":\"book\"}}\n"
+								"{\"title\":\"A great history\"}\n");
 	}
 
 	void es_bulk_update_to_json()
@@ -94,8 +94,8 @@ protected:
 
 		CPPUNIT_ASSERT(
 				res ==
-				"{\"update\":{\"_id\":\"666\",\"_index\":\"car\",\"_type\":\"truck\"}}\n"
-						"{\"doc\":{\"engine\":\"Toyota\"}}\n");
+						"{\"update\":{\"_id\":\"666\",\"_index\":\"car\",\"_type\":\"truck\"}}\n"
+								"{\"doc\":{\"engine\":\"Toyota\"}}\n");
 	}
 
 	void es_bulk_delete_to_json()
@@ -111,7 +111,7 @@ protected:
 
 		CPPUNIT_ASSERT(
 				res ==
-				"{\"delete\":{\"_id\":\"5877\",\"_index\":\"food\",\"_type\":\"meat\"}}\n");
+						"{\"delete\":{\"_id\":\"5877\",\"_index\":\"food\",\"_type\":\"meat\"}}\n");
 	}
 
 	void es_bulk_play_index()

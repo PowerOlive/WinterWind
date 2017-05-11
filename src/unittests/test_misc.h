@@ -39,15 +39,14 @@
 
 using namespace winterwind::extras;
 
-namespace winterwind
+namespace winterwind {
+namespace unittests {
+
+class Test_Misc : public CppUnit::TestFixture
 {
-namespace unittests
-{
-class WinterWindTest_Misc : public CppUnit::TestFixture
-{
-CPPUNIT_TEST_SUITE(WinterWindTest_Misc);
-		CPPUNIT_TEST(weather_to_json);
-		CPPUNIT_TEST(lua_winterwind_engine);
+	CPPUNIT_TEST_SUITE(Test_Misc);
+	CPPUNIT_TEST(weather_to_json);
+	CPPUNIT_TEST(lua_winterwind_engine);
 	CPPUNIT_TEST_SUITE_END();
 
 public:

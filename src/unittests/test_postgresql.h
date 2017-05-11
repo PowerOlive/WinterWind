@@ -36,23 +36,22 @@
 
 using namespace winterwind;
 
-namespace winterwind
-{
-namespace unittests
-{
+namespace winterwind {
+namespace unittests {
+
 #define INIT_PG_CLIENT                                                                             \
     PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db "                    \
                 "password=un1Ttests");
 
-class WinterWindTest_PostgreSQL : public CppUnit::TestFixture
+class Test_PostgreSQL : public CppUnit::TestFixture
 {
-CPPUNIT_TEST_SUITE(WinterWindTest_PostgreSQL);
-		CPPUNIT_TEST(pg_register_embedded_statements);
-		CPPUNIT_TEST(pg_register_custom_statement);
-		CPPUNIT_TEST(pg_add_admin_views);
-		CPPUNIT_TEST(pg_drop_schema);
-		CPPUNIT_TEST(pg_create_schema);
-		CPPUNIT_TEST(pg_show_tables);
+	CPPUNIT_TEST_SUITE(Test_PostgreSQL);
+	CPPUNIT_TEST(pg_register_embedded_statements);
+	CPPUNIT_TEST(pg_register_custom_statement);
+	CPPUNIT_TEST(pg_add_admin_views);
+	CPPUNIT_TEST(pg_drop_schema);
+	CPPUNIT_TEST(pg_create_schema);
+	CPPUNIT_TEST(pg_show_tables);
 	CPPUNIT_TEST_SUITE_END();
 
 public:

@@ -39,10 +39,8 @@
 
 using namespace winterwind::extras;
 
-namespace winterwind
-{
-namespace unittests
-{
+namespace winterwind {
+namespace unittests {
 static std::string GITLAB_TOKEN = "";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
 
@@ -56,9 +54,9 @@ if (gitlab_has_failed_in_init) { \
     gitlab_has_failed_in_init = true; \
 }
 
-class WinterWindTest_Gitlab : public CppUnit::TestFixture
+class Test_Gitlab : public CppUnit::TestFixture
 {
-	CPPUNIT_TEST_SUITE(WinterWindTest_Gitlab);
+	CPPUNIT_TEST_SUITE(Test_Gitlab);
 	CPPUNIT_TEST(create_default_groups);
 	CPPUNIT_TEST(create_group);
 	CPPUNIT_TEST(get_group);

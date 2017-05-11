@@ -36,13 +36,12 @@
 
 #include "cmake_config.h"
 
-namespace winterwind
+namespace winterwind {
+namespace unittests {
+
+class Test_Time : public CppUnit::TestFixture
 {
-namespace unittests
-{
-class WinterWindTest_Time : public CppUnit::TestFixture
-{
-	CPPUNIT_TEST_SUITE(WinterWindTest_Time);
+	CPPUNIT_TEST_SUITE(Test_Time);
 	CPPUNIT_TEST(time_str_to_timestamp);
 	CPPUNIT_TEST_SUITE_END();
 

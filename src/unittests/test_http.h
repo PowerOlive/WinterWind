@@ -38,13 +38,12 @@
 
 using namespace winterwind::http;
 
-namespace winterwind
+namespace winterwind {
+namespace unittests {
+
+class Test_HTTP : public CppUnit::TestFixture
 {
-namespace unittests
-{
-class WinterWindTest_HTTP : public CppUnit::TestFixture
-{
-	CPPUNIT_TEST_SUITE(WinterWindTest_HTTP);
+	CPPUNIT_TEST_SUITE(Test_HTTP);
 	CPPUNIT_TEST(httpserver_handle_get);
 	CPPUNIT_TEST(httpserver_header);
 	CPPUNIT_TEST(httpserver_getparam);
@@ -57,19 +56,19 @@ public:
 	{
 		m_http_server = new Server(58080);
 		m_http_server->register_handler(winterwind::http::Method::GET, "/unittest.html",
-				std::bind(&WinterWindTest_HTTP::httpserver_testhandler, this,
+				std::bind(&Test_HTTP::httpserver_testhandler, this,
 						std::placeholders::_1));
 		m_http_server->register_handler(winterwind::http::Method::GET, "/unittest2.html",
-				std::bind(&WinterWindTest_HTTP::httpserver_testhandler2, this,
+				std::bind(&Test_HTTP::httpserver_testhandler2, this,
 						std::placeholders::_1));
 		m_http_server->register_handler(winterwind::http::Method::GET, "/unittest3.html",
-				std::bind(&WinterWindTest_HTTP::httpserver_testhandler3, this,
+				std::bind(&Test_HTTP::httpserver_testhandler3, this,
 						std::placeholders::_1));
 		m_http_server->register_handler(winterwind::http::Method::POST, "/unittest4.html",
-				std::bind(&WinterWindTest_HTTP::httpserver_testhandler4, this,
+				std::bind(&Test_HTTP::httpserver_testhandler4, this,
 						std::placeholders::_1));
 		m_http_server->register_handler(winterwind::http::Method::POST, "/unittest5.html",
-				std::bind(&WinterWindTest_HTTP::httpserver_testhandler5, this,
+				std::bind(&Test_HTTP::httpserver_testhandler5, this,
 						std::placeholders::_1));
 	}
 

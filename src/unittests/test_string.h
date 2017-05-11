@@ -38,13 +38,12 @@
 
 #include "cmake_config.h"
 
-namespace winterwind
+namespace winterwind {
+namespace unittests {
+
+class Test_String : public CppUnit::TestFixture
 {
-namespace unittests
-{
-class WinterWindTest_String : public CppUnit::TestFixture
-{
-	CPPUNIT_TEST_SUITE(WinterWindTest_String);
+	CPPUNIT_TEST_SUITE(Test_String);
 	CPPUNIT_TEST(split_string);
 	CPPUNIT_TEST(remove_substring);
 	CPPUNIT_TEST(base64_encode_test);

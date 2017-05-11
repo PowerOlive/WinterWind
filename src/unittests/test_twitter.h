@@ -38,21 +38,20 @@
 
 using namespace winterwind::extras;
 
-namespace winterwind
-{
-namespace unittests
-{
+namespace winterwind {
+namespace unittests {
+
 static std::string TWITTER_CONSUMER_KEY = "";
 static std::string TWITTER_CONSUMER_SECRET = "";
 static std::string TWITTER_ACCESS_TOKEN = "";
 static std::string TWITTER_ACCESS_TOKEN_SECRET = "";
 
-class WinterWindTest_Twitter : public CppUnit::TestFixture
+class Test_Twitter : public CppUnit::TestFixture
 {
-CPPUNIT_TEST_SUITE(WinterWindTest_Twitter);
-		CPPUNIT_TEST(twitter_authenticate);
-		CPPUNIT_TEST(twitter_user_timeline);
-		CPPUNIT_TEST(twitter_home_timeline);
+	CPPUNIT_TEST_SUITE(Test_Twitter);
+	CPPUNIT_TEST(twitter_authenticate);
+	CPPUNIT_TEST(twitter_user_timeline);
+	CPPUNIT_TEST(twitter_home_timeline);
 	CPPUNIT_TEST_SUITE_END();
 
 public:

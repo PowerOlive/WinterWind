@@ -37,13 +37,12 @@
 
 #include "cmake_config.h"
 
-namespace winterwind
+namespace winterwind {
+namespace unittests {
+
+class Test_Threads : public CppUnit::TestFixture
 {
-namespace unittests
-{
-class WinterWindTest_Threads : public CppUnit::TestFixture
-{
-	CPPUNIT_TEST_SUITE(WinterWindTest_Threads);
+	CPPUNIT_TEST_SUITE(Test_Threads);
 	CPPUNIT_TEST(thread_pool);
 	CPPUNIT_TEST(working_queue);
 	CPPUNIT_TEST_SUITE_END();
