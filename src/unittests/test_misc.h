@@ -37,19 +37,25 @@
 
 #include "cmake_config.h"
 
-using namespace winterwind;
 using namespace winterwind::extras;
 
+namespace winterwind
+{
+namespace unittests
+{
 class WinterWindTest_Misc : public CppUnit::TestFixture
 {
-	CPPUNIT_TEST_SUITE(WinterWindTest_Misc);
-	CPPUNIT_TEST(weather_to_json);
-	CPPUNIT_TEST(lua_winterwind_engine);
+CPPUNIT_TEST_SUITE(WinterWindTest_Misc);
+		CPPUNIT_TEST(weather_to_json);
+		CPPUNIT_TEST(lua_winterwind_engine);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp() {}
-	void tearDown() {}
+	void setUp()
+	{}
+
+	void tearDown()
+	{}
 
 protected:
 	void lua_winterwind_engine()
@@ -79,3 +85,5 @@ protected:
 		CPPUNIT_ASSERT(res["city"].asString() == "test_city");
 	}
 };
+}
+}

@@ -38,6 +38,10 @@
 
 using namespace winterwind::http;
 
+namespace winterwind
+{
+namespace unittests
+{
 class WinterWindTest_HTTP : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_HTTP);
@@ -53,18 +57,24 @@ public:
 	{
 		m_http_server = new Server(58080);
 		m_http_server->register_handler(winterwind::http::Method::GET, "/unittest.html",
-			std::bind(&WinterWindTest_HTTP::httpserver_testhandler, this, std::placeholders::_1));
+				std::bind(&WinterWindTest_HTTP::httpserver_testhandler, this,
+						std::placeholders::_1));
 		m_http_server->register_handler(winterwind::http::Method::GET, "/unittest2.html",
-			std::bind(&WinterWindTest_HTTP::httpserver_testhandler2, this, std::placeholders::_1));
+				std::bind(&WinterWindTest_HTTP::httpserver_testhandler2, this,
+						std::placeholders::_1));
 		m_http_server->register_handler(winterwind::http::Method::GET, "/unittest3.html",
-			std::bind(&WinterWindTest_HTTP::httpserver_testhandler3, this, std::placeholders::_1));
+				std::bind(&WinterWindTest_HTTP::httpserver_testhandler3, this,
+						std::placeholders::_1));
 		m_http_server->register_handler(winterwind::http::Method::POST, "/unittest4.html",
-			std::bind(&WinterWindTest_HTTP::httpserver_testhandler4, this, std::placeholders::_1));
+				std::bind(&WinterWindTest_HTTP::httpserver_testhandler4, this,
+						std::placeholders::_1));
 		m_http_server->register_handler(winterwind::http::Method::POST, "/unittest5.html",
-			std::bind(&WinterWindTest_HTTP::httpserver_testhandler5, this, std::placeholders::_1));
+				std::bind(&WinterWindTest_HTTP::httpserver_testhandler5, this,
+						std::placeholders::_1));
 	}
 
-	void tearDown() { delete m_http_server; }
+	void tearDown()
+	{ delete m_http_server; }
 
 protected:
 	ResponsePtr httpserver_testhandler(const HTTPQueryPtr q)
@@ -121,7 +131,7 @@ protected:
 		CPPUNIT_ASSERT(jq);
 
 		if (jq->json_query.isMember("json_param") &&
-		    jq->json_query["json_param"].asString() == "catsarebeautiful") {
+			jq->json_query["json_param"].asString() == "catsarebeautiful") {
 			json_res["status"] = "yes";
 		}
 
@@ -150,7 +160,7 @@ protected:
 		HTTPClient cli;
 		std::string res;
 		cli._get("http://localhost:58080/unittest3.html?UnitTestParam=thisistestparam",
-			 res);
+				res);
 		CPPUNIT_ASSERT(res == "yes");
 	}
 
@@ -178,3 +188,5 @@ private:
 	Server *m_http_server = nullptr;
 	std::string HTTPSERVER_TEST01_STR = "<h1>unittest_result</h1>";
 };
+}
+}

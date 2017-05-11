@@ -39,17 +39,21 @@
 
 using namespace winterwind::extras;
 
+namespace winterwind
+{
+namespace unittests
+{
 static std::string GITLAB_TOKEN = "";
 static std::string RUN_TIMESTAMP = std::to_string(time(NULL));
 
 #define ONLY_IF_GITLAB_INIT_SUCCEED \
 if (gitlab_has_failed_in_init) { \
-	return; \
+    return; \
 }
 
 #define MARK_GITLAB_FAILURE_ON_INIT_IF \
-	if (m_gitlab_client->get_http_code() == 502) { \
-	gitlab_has_failed_in_init = true; \
+    if (m_gitlab_client->get_http_code() == 502) { \
+    gitlab_has_failed_in_init = true; \
 }
 
 class WinterWindTest_Gitlab : public CppUnit::TestFixture
@@ -88,7 +92,8 @@ public:
 	{
 		// Cleanup very old projects
 		Json::Value projects;
-		if (m_gitlab_client->get_projects("", projects, GITLAB_PROJECT_SS_OWNED) == GITLAB_RC_OK) {
+		if (m_gitlab_client->get_projects("", projects, GITLAB_PROJECT_SS_OWNED) ==
+			GITLAB_RC_OK) {
 			for (const auto &p: projects) {
 				// Creation date is mandatory
 				if (!p.isMember("created_at") || !p["created_at"].isString()) {
@@ -97,13 +102,15 @@ public:
 
 				std::time_t t;
 				if (!str_to_timestamp(p["created_at"].asString(), t)) {
-					std::cerr << "Failed to parse date: '" << p["create_at"].asString() << "'" << std::endl;
+					std::cerr << "Failed to parse date: '" << p["create_at"].asString()
+							  << "'" << std::endl;
 					continue;
 				}
 
 				// Remove projects older than 24 hours
 				if (t < std::time(0) - 86400) {
-					std::cout << "Project " << p["name"].asString() << " will be deleted" << std::endl;
+					std::cout << "Project " << p["name"].asString() << " will be deleted"
+							  << std::endl;
 					m_gitlab_client->delete_project(p["name"].asString());
 				}
 
@@ -133,7 +140,7 @@ protected:
 	{
 		Json::Value res;
 		GitlabGroup g("ww_testgroup_default_" + RUN_TIMESTAMP,
-			      "ww_testgroup_default_" + RUN_TIMESTAMP);
+				"ww_testgroup_default_" + RUN_TIMESTAMP);
 
 		bool rc = m_gitlab_client->create_group(g, res);
 		std::string error_msg = std::string("Unable to create 1st default group (rc: ");
@@ -146,13 +153,13 @@ protected:
 		ONLY_IF_GITLAB_INIT_SUCCEED
 
 		GitlabGroup g2("ww_testgroup2_default_" + RUN_TIMESTAMP,
-			       "ww_testgroup2_default_" + RUN_TIMESTAMP);
+				"ww_testgroup2_default_" + RUN_TIMESTAMP);
 
 		rc = m_gitlab_client->create_group(g2, res);
 		error_msg = std::string("Unable to create 2nd default group (rc: ");
 		error_msg += std::to_string(m_gitlab_client->get_http_code()) + ")";
 		CPPUNIT_ASSERT_MESSAGE(error_msg, rc
-			|| m_gitlab_client->get_http_code() == 502);
+										  || m_gitlab_client->get_http_code() == 502);
 
 		MARK_GITLAB_FAILURE_ON_INIT_IF
 	}
@@ -166,7 +173,7 @@ protected:
 		g.description = "test";
 		g.visibility = GITLAB_GROUP_PUBLIC;
 		CPPUNIT_ASSERT(m_gitlab_client->create_group(g, res)
-			|| m_gitlab_client->get_http_code() == 502);
+					   || m_gitlab_client->get_http_code() == 502);
 
 		MARK_GITLAB_FAILURE_ON_INIT_IF
 	}
@@ -176,24 +183,24 @@ protected:
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value result;
 		CPPUNIT_ASSERT(m_gitlab_client->get_group(std::string("ww_testgroup_")
-				+ RUN_TIMESTAMP, result) == GITLAB_RC_OK
-			|| m_gitlab_client->get_http_code() == 502);
+												  + RUN_TIMESTAMP, result) == GITLAB_RC_OK
+					   || m_gitlab_client->get_http_code() == 502);
 	}
 
 	void remove_group()
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_group(TEST_GROUP) == GITLAB_RC_OK
-			|| m_gitlab_client->get_http_code() == 502);
+					   || m_gitlab_client->get_http_code() == 502);
 	}
 
 	void remove_groups()
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_groups(
-				   {"ww_testgroup_default_" + RUN_TIMESTAMP,
-				    "ww_testgroup2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK
-			|| m_gitlab_client->get_http_code() == 502);
+				{"ww_testgroup_default_" + RUN_TIMESTAMP,
+				 "ww_testgroup2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK
+					   || m_gitlab_client->get_http_code() == 502);
 	}
 
 	void get_namespaces()
@@ -208,8 +215,9 @@ protected:
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value result;
 		CPPUNIT_ASSERT(
-		    m_gitlab_client->get_namespace(std::string("ww_testgroup_") + RUN_TIMESTAMP,
-						   result) == GITLAB_RC_OK);
+				m_gitlab_client->get_namespace(
+						std::string("ww_testgroup_") + RUN_TIMESTAMP,
+						result) == GITLAB_RC_OK);
 
 		m_testing_namespace_id = result["id"].asUInt();
 	}
@@ -219,16 +227,16 @@ protected:
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value res;
 		CPPUNIT_ASSERT(m_gitlab_client->create_project(
-				   GitlabProject("ww_testproj1_default_" + RUN_TIMESTAMP), res) ==
-			       GITLAB_RC_OK || m_gitlab_client->get_http_code() == 502);
+				GitlabProject("ww_testproj1_default_" + RUN_TIMESTAMP), res) ==
+					   GITLAB_RC_OK || m_gitlab_client->get_http_code() == 502);
 
 		MARK_GITLAB_FAILURE_ON_INIT_IF
 
 		ONLY_IF_GITLAB_INIT_SUCCEED
 
 		CPPUNIT_ASSERT(m_gitlab_client->create_project(
-				   GitlabProject("ww_testproj2_default_" + RUN_TIMESTAMP), res) ==
-			       GITLAB_RC_OK || m_gitlab_client->get_http_code() == 502);
+				GitlabProject("ww_testproj2_default_" + RUN_TIMESTAMP), res) ==
+					   GITLAB_RC_OK || m_gitlab_client->get_http_code() == 502);
 
 		MARK_GITLAB_FAILURE_ON_INIT_IF
 	}
@@ -264,8 +272,9 @@ protected:
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value res;
-		CPPUNIT_ASSERT(m_gitlab_client->get_project("ww_testproj1_default_" + RUN_TIMESTAMP,
-							    res) == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(
+				m_gitlab_client->get_project("ww_testproj1_default_" + RUN_TIMESTAMP,
+						res) == GITLAB_RC_OK);
 		CPPUNIT_ASSERT(res.isMember("name_with_namespace"));
 	}
 
@@ -274,7 +283,7 @@ protected:
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value res;
 		CPPUNIT_ASSERT(m_gitlab_client->get_project_ns("ww_testproj_" + RUN_TIMESTAMP,
-							       TEST_GROUP, res) == GITLAB_RC_OK);
+				TEST_GROUP, res) == GITLAB_RC_OK);
 		CPPUNIT_ASSERT(res.isMember("avatar_url"));
 	}
 
@@ -282,15 +291,15 @@ protected:
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_project(std::string("ww_testproj_") +
-							       RUN_TIMESTAMP) == GITLAB_RC_OK);
+													   RUN_TIMESTAMP) == GITLAB_RC_OK);
 	}
 
 	void remove_projects()
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_projects(
-				   {"ww_testproj1_default_" + RUN_TIMESTAMP,
-				    "ww_testproj2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
+				{"ww_testproj1_default_" + RUN_TIMESTAMP,
+				 "ww_testproj2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
 	}
 
 	void create_label()
@@ -298,8 +307,9 @@ protected:
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value result;
 		CPPUNIT_ASSERT(
-		    m_gitlab_client->create_label(TEST_GROUP, "ww_testproj_" + RUN_TIMESTAMP,
-						  TEST_LABEL, TEST_COLOR, result) == GITLAB_RC_OK);
+				m_gitlab_client->create_label(TEST_GROUP, "ww_testproj_" + RUN_TIMESTAMP,
+						TEST_LABEL, TEST_COLOR, result) ==
+				GITLAB_RC_OK);
 	}
 
 	void get_label()
@@ -307,18 +317,18 @@ protected:
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		Json::Value result;
 		CPPUNIT_ASSERT(m_gitlab_client->get_label(TEST_GROUP,
-							  "ww_testproj_" + RUN_TIMESTAMP,
-							  TEST_LABEL, result) == GITLAB_RC_OK);
+				"ww_testproj_" + RUN_TIMESTAMP,
+				TEST_LABEL, result) == GITLAB_RC_OK);
 		CPPUNIT_ASSERT(result.isMember("color") &&
-			       result["color"].asString() == TEST_COLOR);
+					   result["color"].asString() == TEST_COLOR);
 	}
 
 	void remove_label()
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
 		CPPUNIT_ASSERT(m_gitlab_client->delete_label(TEST_GROUP,
-							     "ww_testproj_" + RUN_TIMESTAMP,
-							     TEST_LABEL) == GITLAB_RC_OK);
+				"ww_testproj_" + RUN_TIMESTAMP,
+				TEST_LABEL) == GITLAB_RC_OK);
 	}
 
 private:
@@ -329,3 +339,5 @@ private:
 	std::string TEST_GROUP = "ww_testgroup_" + RUN_TIMESTAMP;
 	std::string TEST_LABEL = "test_label_1";
 };
+}
+}

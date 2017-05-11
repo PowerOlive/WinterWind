@@ -37,6 +37,10 @@
 
 #include "cmake_config.h"
 
+namespace winterwind
+{
+namespace unittests
+{
 class WinterWindTest_Threads : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_Threads);
@@ -44,65 +48,71 @@ class WinterWindTest_Threads : public CppUnit::TestFixture
 	CPPUNIT_TEST(working_queue);
 	CPPUNIT_TEST_SUITE_END();
 
-	class ThreadTest: public Thread
+	class ThreadTest : public Thread
 	{
-		public:
-			virtual void *run()
-			{
-				ThreadStarted();
-				std::this_thread::sleep_for(std::chrono::seconds(5));
-				return nullptr;
-			}
+	public:
+		virtual void *run()
+		{
+			ThreadStarted();
+			std::this_thread::sleep_for(std::chrono::seconds(5));
+			return nullptr;
+		}
 	};
 
 	struct WorkerIn
 	{
 		uint32_t a = 0;
-		uint32_t b =0;
+		uint32_t b = 0;
 	};
 
-	struct WorkerOut: public WorkerIn
+	struct WorkerOut : public WorkerIn
 	{
 		uint32_t r = 0;
 	};
 
-	class TPTestWorker: public Thread
+	class TPTestWorker : public Thread
 	{
-		public:
-			virtual void *run()
-			{
-				ThreadStarted();
-				CPPUNIT_ASSERT(m_work_queue);
-				while (!stopRequested()) {
-					while (!m_work_queue->input_queue_empty()) {
-						WorkerIn wi = m_work_queue->read_input_queue();
-						WorkerOut wo;
-						wo.a = wi.a;
-						wo.b = wi.b;
-						wo.r = wi.a + wi.b;
-						m_work_queue->write_output(wo);
-					}
-					std::this_thread::sleep_for(std::chrono::milliseconds(5));
+	public:
+		virtual void *run()
+		{
+			ThreadStarted();
+			CPPUNIT_ASSERT(m_work_queue);
+			while (!stopRequested()) {
+				while (!m_work_queue->input_queue_empty()) {
+					WorkerIn wi = m_work_queue->read_input_queue();
+					WorkerOut wo;
+					wo.a = wi.a;
+					wo.b = wi.b;
+					wo.r = wi.a + wi.b;
+					m_work_queue->write_output(wo);
 				}
-				return nullptr;
+				std::this_thread::sleep_for(std::chrono::milliseconds(5));
 			}
+			return nullptr;
+		}
 
-			void set_work_queue(ThreadPoolWorkQueue<TPTestWorker, WorkerIn, WorkerOut> *t)
-			{
-				m_work_queue = t;
-			}
-		private:
-			ThreadPoolWorkQueue<TPTestWorker, WorkerIn, WorkerOut> *m_work_queue = nullptr;
+		void set_work_queue(ThreadPoolWorkQueue<TPTestWorker, WorkerIn, WorkerOut> *t)
+		{
+			m_work_queue = t;
+		}
+
+	private:
+		ThreadPoolWorkQueue<TPTestWorker, WorkerIn, WorkerOut> *m_work_queue = nullptr;
 	};
 
-	class TPWQTest: public ThreadPoolWorkQueue<TPTestWorker, WorkerIn, WorkerOut>
+	class TPWQTest : public ThreadPoolWorkQueue<TPTestWorker, WorkerIn, WorkerOut>
 	{
-		public:
-			TPWQTest(const uint32_t tn): ThreadPoolWorkQueue(tn) {}
+	public:
+		TPWQTest(const uint32_t tn) : ThreadPoolWorkQueue(tn)
+		{}
 	};
+
 public:
-	void setUp() {}
-	void tearDown() {}
+	void setUp()
+	{}
+
+	void tearDown()
+	{}
 
 protected:
 	void thread_pool()
@@ -141,3 +151,5 @@ protected:
 		delete wq;
 	}
 };
+}
+}

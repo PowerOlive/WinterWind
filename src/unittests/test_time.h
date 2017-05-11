@@ -36,6 +36,10 @@
 
 #include "cmake_config.h"
 
+namespace winterwind
+{
+namespace unittests
+{
 class WinterWindTest_Time : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_Time);
@@ -47,7 +51,10 @@ public:
 	{
 		setenv("TZ", "/usr/share/zoneinfo/Europe/Paris", 1);
 	}
-	void tearDown() {}
+
+	void tearDown()
+	{}
+
 protected:
 	void time_str_to_timestamp()
 	{
@@ -73,3 +80,5 @@ protected:
 		CPPUNIT_ASSERT(!res);
 	}
 };
+}
+}

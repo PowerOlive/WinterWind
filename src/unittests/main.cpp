@@ -33,6 +33,8 @@
 #include "test_twitter.h"
 #include "test_threads.h"
 
+using namespace winterwind::unittests;
+
 int main(int argc, const char *argv[])
 {
 	CppUnit::TextUi::TestRunner runner;

@@ -38,6 +38,10 @@
 
 #include "cmake_config.h"
 
+namespace winterwind
+{
+namespace unittests
+{
 class WinterWindTest_String : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(WinterWindTest_String);
@@ -51,8 +55,11 @@ class WinterWindTest_String : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp() {}
-	void tearDown() {}
+	void setUp()
+	{}
+
+	void tearDown()
+	{}
 
 protected:
 	void str_hex()
@@ -106,3 +113,5 @@ protected:
 		CPPUNIT_ASSERT(base64_encode(res) == "rfsumIkQ/lUjuI68D1t0eJe/PgE=");
 	}
 };
+}
+}

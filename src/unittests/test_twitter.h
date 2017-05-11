@@ -38,6 +38,10 @@
 
 using namespace winterwind::extras;
 
+namespace winterwind
+{
+namespace unittests
+{
 static std::string TWITTER_CONSUMER_KEY = "";
 static std::string TWITTER_CONSUMER_SECRET = "";
 static std::string TWITTER_ACCESS_TOKEN = "";
@@ -45,21 +49,22 @@ static std::string TWITTER_ACCESS_TOKEN_SECRET = "";
 
 class WinterWindTest_Twitter : public CppUnit::TestFixture
 {
-	CPPUNIT_TEST_SUITE(WinterWindTest_Twitter);
-	CPPUNIT_TEST(twitter_authenticate);
-	CPPUNIT_TEST(twitter_user_timeline);
-	CPPUNIT_TEST(twitter_home_timeline);
+CPPUNIT_TEST_SUITE(WinterWindTest_Twitter);
+		CPPUNIT_TEST(twitter_authenticate);
+		CPPUNIT_TEST(twitter_user_timeline);
+		CPPUNIT_TEST(twitter_home_timeline);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
 	void setUp()
 	{
 		m_twitter_client =
-		    new TwitterClient(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET,
-				      TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET);
+				new TwitterClient(TWITTER_CONSUMER_KEY, TWITTER_CONSUMER_SECRET,
+						TWITTER_ACCESS_TOKEN, TWITTER_ACCESS_TOKEN_SECRET);
 	}
 
-	void tearDown() { delete m_twitter_client; }
+	void tearDown()
+	{ delete m_twitter_client; }
 
 protected:
 	void twitter_authenticate()
@@ -72,7 +77,7 @@ protected:
 		twitter_authenticate();
 		Json::Value res;
 		CPPUNIT_ASSERT(m_twitter_client->get_user_timeline(res, 10, 0, true) ==
-			       TwitterClient::TWITTER_OK);
+				TwitterClient::TWITTER_OK);
 	}
 
 	void twitter_home_timeline()
@@ -80,10 +85,12 @@ protected:
 		twitter_authenticate();
 		Json::Value res;
 		CPPUNIT_ASSERT(m_twitter_client->get_home_timeline(res, 10) ==
-			       TwitterClient::TWITTER_OK);
+				TwitterClient::TWITTER_OK);
 		CPPUNIT_ASSERT(res.isObject() || res.isArray());
 	}
 
 private:
 	TwitterClient *m_twitter_client = nullptr;
 };
+}
+}
