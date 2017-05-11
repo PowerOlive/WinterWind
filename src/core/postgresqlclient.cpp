@@ -38,8 +38,14 @@ PostgreSQLResult::PostgreSQLResult(PostgreSQLClient *client, PGresult *result) :
 	m_result(result)
 {
 	m_status = PQresultStatus(result);
-	if (m_status != PGRES_COMMAND_OK) {
-		client->m_last_error = std::string(PQresultErrorMessage(result));
+	switch (m_status) {
+		case PGRES_COMMAND_OK:
+		case PGRES_TUPLES_OK:
+			break;
+		case PGRES_FATAL_ERROR:
+		default:
+			client->m_last_error = std::string(PQresultErrorMessage(result));
+			break;
 	}
 }
 
@@ -47,6 +53,12 @@ PostgreSQLResult::~PostgreSQLResult()
 {
 	PQclear(m_result);
 }
+
+#define PGR(q) PostgreSQLResult result(this, q);
+
+/*
+ * PostgreSQL Client
+ */
 
 PostgreSQLClient::PostgreSQLClient(const std::string &connect_string,
 	int32_t minimum_db_version)
@@ -108,7 +120,7 @@ PGresult *PostgreSQLClient::exec(const char *query)
 	return PQexec(m_conn, query);
 }
 
-PGresult * PostgreSQLClient::exec_prepared(const char *stmtName, const int paramsNumber,
+PGresult *PostgreSQLClient::exec_prepared(const char *stmtName, const int paramsNumber,
 	const char **params, const int *paramsLengths, const int *paramsFormats,
 	bool clear, bool nobinary)
 {
@@ -120,12 +132,12 @@ PGresult * PostgreSQLClient::exec_prepared(const char *stmtName, const int param
 
 void PostgreSQLClient::begin()
 {
-	check_results(exec("BEGIN;"));
+	PGR(exec("BEGIN;"));
 }
 
 void PostgreSQLClient::commit()
 {
-	check_results(exec("COMMIT;"));
+	PGR(exec("COMMIT;"));
 }
 
 void PostgreSQLClient::set_client_encoding(const std::string &encoding)
@@ -146,7 +158,7 @@ void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 	std::string request = "SET client_encoding='";
 	request += encoding;
 	request += "';";
-	check_results(exec(request.c_str()));
+	PGR(exec(request.c_str()));
 }
 
 int PostgreSQLClient::pg_to_int(PGresult *res, int row, int col)
@@ -187,6 +199,7 @@ PGresult *PostgreSQLClient::check_results(PGresult *result, bool clear)
 			break;
 		case PGRES_FATAL_ERROR:
 		default:
+			PQclear(result);
 			throw PostgreSQLException(std::string("PostgreSQL database error: ") +
 				PQresultErrorMessage(result));
 	}
@@ -214,7 +227,7 @@ bool PostgreSQLClient::register_statement(const std::string &stn, const std::str
 		return false;
 	}
 
-	check_results(PQprepare(m_conn, stn.c_str(), st.c_str(), 0, NULL));
+	PGR(PQprepare(m_conn, stn.c_str(), st.c_str(), 0, NULL));
 
 	m_statements[stn] = st;
 	return true;
@@ -233,8 +246,6 @@ void PostgreSQLClient::register_embedded_statements()
 		"SELECT indexname, indexdef "
 			"FROM pg_indexes WHERE schemaname=$1 AND tablename=$2");
 }
-
-#define PGR(q) PostgreSQLResult result(this, q);
 
 ExecStatusType PostgreSQLClient::show_schemas(std::vector<std::string> &res)
 {
