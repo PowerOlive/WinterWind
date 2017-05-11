@@ -33,8 +33,10 @@
 
 namespace winterwind
 {
-PostgreSQLResult::PostgreSQLResult(PostgreSQLClient *client, PGresult *result) : m_result(
-	result)
+namespace db
+{
+PostgreSQLResult::PostgreSQLResult(PostgreSQLClient *client, PGresult *result) :
+	m_result(result)
 {
 	m_status = PQresultStatus(result);
 	if (m_status != PGRES_COMMAND_OK) {
@@ -93,14 +95,24 @@ void PostgreSQLClient::check_db_connection()
 	PQresetStart(m_conn);
 }
 
+pg_result *PostgreSQLClient::exec(const char *query)
+{
+	if (m_check_before_exec) {
+		check_db_connection();
+	}
+
+	return PQexec(m_conn, query);
+}
+
 void PostgreSQLClient::begin()
 {
-	check_db_connection();
-	check_results(PQexec(m_conn, "BEGIN;"));
+	check_results(exec("BEGIN;"));
 }
 
 void PostgreSQLClient::commit()
-{ check_results(PQexec(m_conn, "COMMIT;")); }
+{
+	check_results(exec("COMMIT;"));
+}
 
 void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 {
@@ -120,7 +132,7 @@ void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 	std::string request = "SET client_encoding='";
 	request += encoding;
 	request += "';";
-	check_results(PQexec(m_conn, request.c_str()));
+	check_results(exec(request.c_str()));
 }
 
 PGresult *PostgreSQLClient::check_results(PGresult *result, bool clear)
@@ -184,9 +196,7 @@ void PostgreSQLClient::register_embedded_statements()
 
 ExecStatusType PostgreSQLClient::show_schemas(std::vector<std::string> &res)
 {
-	check_db_connection();
-
-	PGR(PQexec(m_conn, "select nspname from pg_catalog.pg_namespace"));
+	PGR(exec("select nspname from pg_catalog.pg_namespace"));
 
 	int32_t nbres = PQntuples(*result);
 	for (int32_t i = 0; i < nbres; i++) {
@@ -198,27 +208,23 @@ ExecStatusType PostgreSQLClient::show_schemas(std::vector<std::string> &res)
 
 ExecStatusType PostgreSQLClient::create_schema(const std::string &name)
 {
-	check_db_connection();
-
 	std::string name_esc = "";
 	escape_string(name, name_esc);
 	std::string query = "CREATE SCHEMA " + name_esc;
-	PGR(PQexec(m_conn, query.c_str()));
+	PGR(exec(query.c_str()));
 
 	return result.get_status();
 }
 
 ExecStatusType PostgreSQLClient::drop_schema(const std::string &name, bool if_exists)
 {
-	check_db_connection();
-
 	std::string name_esc = "";
 	escape_string(name, name_esc);
 	std::string query = "DROP SCHEMA ";
 	if (if_exists)
 		query += "IF EXISTS ";
 	query += name_esc;
-	PGR(PQexec(m_conn, query.c_str()));
+	PGR(exec(query.c_str()));
 
 	return result.get_status();
 }
@@ -226,8 +232,6 @@ ExecStatusType PostgreSQLClient::drop_schema(const std::string &name, bool if_ex
 ExecStatusType PostgreSQLClient::show_tables(const std::string &schema,
 	std::vector<std::string> &res)
 {
-	check_db_connection();
-
 	const char *values[]{schema.c_str()};
 	PGR(exec_prepared("list_tables_into_schema", 1, values, NULL, NULL, false, false));
 	int32_t nbres = PQntuples(*result);
@@ -242,8 +246,6 @@ ExecStatusType PostgreSQLClient::show_create_table(const std::string &schema,
 	const std::string &table,
 	PostgreSQLTableDefinition &definition)
 {
-	check_db_connection();
-
 	const char *values[]{schema.c_str(), table.c_str()};
 
 	{
@@ -282,13 +284,11 @@ ExecStatusType PostgreSQLClient::show_create_table(const std::string &schema,
 
 ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 {
-	check_db_connection();
-
 	// @TODO
 	// create_schema(schema)
 	// use schema
 	{
-		PGR(PQexec(m_conn,
+		PGR(exec(
 			"CREATE OR REPLACE VIEW view_relations_size AS\n"
 				"SELECT\n"
 				"    c.relname AS name,\n"
@@ -318,7 +318,7 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 	}
 
 	{
-		PGR(PQexec(m_conn, "CREATE OR REPLACE VIEW view_relations_size_pretty AS\n"
+		PGR(exec("CREATE OR REPLACE VIEW view_relations_size_pretty AS\n"
 			"SELECT\n"
 			"    name,\n"
 			"    tuples,\n"
@@ -334,8 +334,7 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 	}
 
 	{
-		PGR(PQexec(
-			m_conn,
+		PGR(exec(
 			"CREATE OR REPLACE VIEW object_privileges AS\n"
 				"SELECT  objtype,\n"
 				"        schemaname,\n"
@@ -416,5 +415,7 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 	}
 
 	return PGRES_COMMAND_OK;
+}
+
 }
 }

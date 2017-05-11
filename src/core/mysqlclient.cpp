@@ -30,6 +30,8 @@
 
 namespace winterwind
 {
+namespace db
+{
 #define MYSQL_STORE_RES(_res)                                                                      \
     MYSQL_RES *_res = mysql_store_result(m_conn);                                              \
     if (_res == NULL) {                                                                        \
@@ -158,5 +160,6 @@ bool MySQLClient::explain(const std::string &q, std::vector<MySQLExplainEntry> &
 
 	mysql_free_result(mysql_res);
 	return true;
+}
 }
 }

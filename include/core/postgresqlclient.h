@@ -34,6 +34,8 @@
 
 namespace winterwind
 {
+namespace db
+{
 class PostgreSQLException : public BaseException
 {
 public:
@@ -95,6 +97,16 @@ public:
 	void begin();
 
 	void commit();
+
+	pg_result *exec(const char *query);
+
+	/**
+	 * Enable or disable connection check before execute a query
+	 *
+	 * @param e enable/disable flag
+	 */
+	void set_check_before_exec(bool e)
+	{ m_check_before_exec = e; }
 
 	bool register_statement(const std::string &stn, const std::string &st);
 
@@ -171,7 +183,9 @@ private:
 	int32_t m_min_pgversion = 0;
 
 	std::string m_last_error = "";
+	bool m_check_before_exec = true;
 
 	std::unordered_map<std::string, std::string> m_statements;
 };
+}
 }

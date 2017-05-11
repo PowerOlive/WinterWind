@@ -31,6 +31,9 @@
 
 namespace winterwind
 {
+
+using namespace db;
+
 class LuaRefPostgreSQLClient : protected LuaHelper
 {
 LUAREF_OBJECT(PostgreSQLClient)

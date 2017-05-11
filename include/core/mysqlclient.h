@@ -33,6 +33,8 @@
 
 namespace winterwind
 {
+namespace db
+{
 struct MySQLExplainEntry
 {
 	uint16_t id;
@@ -86,4 +88,5 @@ private:
 	std::string m_db = "";
 	uint16_t m_port = 3306;
 };
+}
 }

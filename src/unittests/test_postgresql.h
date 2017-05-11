@@ -34,13 +34,12 @@
 
 #include <core/postgresqlclient.h>
 
-using namespace winterwind;
-
 namespace winterwind {
+
 namespace unittests {
 
 #define INIT_PG_CLIENT                                                                             \
-    PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db "                    \
+    db::PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db "                    \
                 "password=un1Ttests");
 
 class Test_PostgreSQL : public CppUnit::TestFixture
