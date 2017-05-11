@@ -109,23 +109,72 @@ public:
 		m_handlers[method][url] = hdl;
 	}
 
-	uint16_t get_port() const
-	{ return m_http_port; }
+	/**
+	 * @return current server listening port
+	 */
+	uint16_t get_port() const { return m_http_port; }
 
 private:
+	/**
+	 * Loop iteration which copy header key and value to HTTPQuery object
+	 * @param cls
+	 * @param kind
+	 * @param key
+	 * @param value
+	 * @return
+	 */
 	static int mhd_iter_headers(void *cls, MHD_ValueKind kind, const char *key,
 		const char *value);
 
+	/**
+	 * Loop iteration which copy GET parameter key and value to HTTPQuery object
+	 * @param cls
+	 * @param kind
+	 * @param key
+	 * @param value
+	 * @return MHD_YES
+	 */
 	static int mhd_iter_getargs(void *cls, MHD_ValueKind kind, const char *key,
 		const char *value);
 
+	/**
+	 * Route requests from libmicrohttpd to WinterWind handlers
+	 *
+	 * @param http_server
+	 * @param connection
+	 * @param url
+	 * @param method
+	 * @param version
+	 * @param upload_data
+	 * @param upload_data_size
+	 * @param ptr
+	 * @return MHD_YES if success, MHD_NO if request was in error
+	 */
 	static int request_handler(void *http_server, MHD_Connection *connection,
 		const char *url, const char *method, const char *version, const char *upload_data,
 		size_t *upload_data_size, void **ptr);
 
+	/**
+	 * Callback called when a request is complete
+	 * Currently does nothing
+	 *
+	 * @param cls Session object
+	 * @param connection
+	 * @param con_cls
+	 * @param toe
+	 *
+	 */
 	static void request_completed(void *cls, struct MHD_Connection *connection,
 		void **con_cls, MHD_RequestTerminationCode toe);
 
+	/**
+	 * Read post data and copy key,values to HTTPFormQuery object
+	 * This applies only for application/x-www-form-urlencoded content type
+	 *
+	 * @param data
+	 * @param qf
+	 * @return parsing success status
+	 */
 	bool parse_post_data(const std::string &data, HTTPFormQuery *qf);
 
 	bool handle_query(Method m, MHD_Connection *conn, const std::string &url,
