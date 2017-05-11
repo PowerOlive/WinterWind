@@ -36,7 +36,8 @@ namespace winterwind
 {
 namespace http
 {
-typedef std::unordered_map<std::string, std::string> HTTPHeadersMap;
+
+typedef std::unordered_map<std::string, std::string> HeadersMap;
 
 class HTTPClient
 {
@@ -45,7 +46,7 @@ public:
 
 	virtual ~HTTPClient();
 
-	enum ReqFlag
+	enum ReqFlag: uint8_t
 	{
 		REQ_SIMPLE = 0x01,
 		REQ_AUTH = 0x02,
@@ -69,39 +70,39 @@ public:
 	_post(const std::string &url, const std::string &post_data, std::string &res,
 		int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
-		request(url, res, flag, METHOD_POST, post_data);
+		request(url, res, flag, POST, post_data);
 	}
 
 	inline void
 	_get(const std::string &url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
-		request(url, res, flag, METHOD_GET);
+		request(url, res, flag, GET);
 	}
 
 	inline void _delete(const std::string &url, std::string &res,
 		int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
-		request(url, res, flag, METHOD_DELETE);
+		request(url, res, flag, DELETE);
 	}
 
 	inline void
 	_head(const std::string &url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
-		request(url, res, flag, METHOD_HEAD);
+		request(url, res, flag, HEAD);
 	}
 
 	inline void _propfind(const std::string &url, std::string &res,
 		int32_t flag = HTTPClient::REQ_SIMPLE,
 		const std::string &post_data = "")
 	{
-		request(url, res, flag, METHOD_PROPFIND, post_data);
+		request(url, res, flag, PROPFIND, post_data);
 	}
 
 	inline void
 	_put(const std::string &url, std::string &res, const std::string &post_data = "",
 		int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
-		request(url, res, flag, METHOD_PUT, post_data);
+		request(url, res, flag, PUT, post_data);
 	}
 
 	void get_html_tag_value(const std::string &url, const std::string &xpath,
@@ -135,7 +136,7 @@ protected:
 	static size_t curl_writer(char *data, size_t size, size_t nmemb, void *user_data);
 
 	void request(std::string url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE,
-		Method method = METHOD_GET, std::string post_data = "");
+		Method method = GET, std::string post_data = "");
 
 	void prepare_json_query();
 

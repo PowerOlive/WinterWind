@@ -25,19 +25,21 @@
 
 #pragma once
 
+#include <cstdint>
+
 namespace winterwind
 {
 namespace http
 {
-enum Method
+enum Method: uint8_t
 {
-	METHOD_DELETE,
-	METHOD_GET,
-	METHOD_HEAD,
-	METHOD_PATCH,
-	METHOD_POST,
-	METHOD_PROPFIND,
-	METHOD_PUT,
+	DELETE,
+	GET,
+	HEAD,
+	PATCH,
+	POST,
+	PROPFIND,
+	PUT,
 	METHOD_MAX,
 };
 }

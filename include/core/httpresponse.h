@@ -33,17 +33,18 @@ namespace winterwind
 
 namespace http
 {
-enum ResponseType
-{
-	RESPONSE_RAW,
-	RESPONSE_JSON,
-};
 
 struct ServerRequestSession;
 
 class Response
 {
 public:
+	enum Type: uint8_t
+	{
+		RESPONSE_RAW,
+		RESPONSE_JSON,
+	};
+
 	Response(const std::string &r, const uint16_t http_code = 200) : m_response(r),
 		m_http_code(http_code)
 	{}
@@ -57,12 +58,10 @@ public:
 
 	virtual Response &operator>>(ServerRequestSession &s);
 
-	virtual const ResponseType get_type() const
-	{ return RESPONSE_RAW; }
+	virtual const Type get_type() const { return RESPONSE_RAW; }
 
 protected:
-	Response(const uint16_t http_code = 200) : m_http_code(http_code)
-	{}
+	Response(const uint16_t http_code = 200) : m_http_code(http_code) {}
 
 	uint16_t m_http_code = 200;
 
@@ -73,15 +72,12 @@ private:
 class JSONResponse : public Response
 {
 public:
-	JSONResponse() : Response()
-	{}
+	JSONResponse() : Response() {}
 
 	JSONResponse(const Json::Value &r, const uint16_t http_code = 200)
-		: Response(http_code), m_json_response(r)
-	{}
+		: Response(http_code), m_json_response(r) {}
 
-	virtual ~JSONResponse()
-	{}
+	virtual ~JSONResponse() {}
 
 	JSONResponse &operator<<(const Json::Value &r);
 
@@ -91,8 +87,7 @@ public:
 
 	virtual Response &operator>>(ServerRequestSession &s);
 
-	virtual const ResponseType get_type() const
-	{ return RESPONSE_JSON; }
+	virtual const Type get_type() const { return RESPONSE_JSON; }
 
 private:
 	Json::Value m_json_response;

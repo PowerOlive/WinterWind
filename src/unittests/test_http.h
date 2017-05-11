@@ -52,16 +52,16 @@ public:
 	void setUp()
 	{
 		m_http_server = new Server(58080);
-		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest.html",
-					&WinterWindTest_HTTP::httpserver_testhandler, this)
-		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest2.html",
-					&WinterWindTest_HTTP::httpserver_testhandler2, this)
-		BIND_HTTPSERVER_HANDLER(m_http_server, GET, "/unittest3.html",
-					&WinterWindTest_HTTP::httpserver_testhandler3, this)
-		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest4.html",
-					&WinterWindTest_HTTP::httpserver_testhandler4, this)
-		BIND_HTTPSERVER_HANDLER(m_http_server, POST, "/unittest5.html",
-					&WinterWindTest_HTTP::httpserver_testhandler5, this)
+		m_http_server->register_handler(winterwind::http::Method::GET, "/unittest.html",
+			std::bind(&WinterWindTest_HTTP::httpserver_testhandler, this, std::placeholders::_1));
+		m_http_server->register_handler(winterwind::http::Method::GET, "/unittest2.html",
+			std::bind(&WinterWindTest_HTTP::httpserver_testhandler2, this, std::placeholders::_1));
+		m_http_server->register_handler(winterwind::http::Method::GET, "/unittest3.html",
+			std::bind(&WinterWindTest_HTTP::httpserver_testhandler3, this, std::placeholders::_1));
+		m_http_server->register_handler(winterwind::http::Method::POST, "/unittest4.html",
+			std::bind(&WinterWindTest_HTTP::httpserver_testhandler4, this, std::placeholders::_1));
+		m_http_server->register_handler(winterwind::http::Method::POST, "/unittest5.html",
+			std::bind(&WinterWindTest_HTTP::httpserver_testhandler5, this, std::placeholders::_1));
 	}
 
 	void tearDown() { delete m_http_server; }

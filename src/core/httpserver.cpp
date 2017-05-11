@@ -65,19 +65,19 @@ int Server::request_handler(void *http_server, struct MHD_Connection *connection
 	int ret;
 
 	if (strcmp(method, "GET") == 0) {
-		http_method = METHOD_GET;
+		http_method = GET;
 	} else if (strcmp(method, "POST") == 0) {
-		http_method = METHOD_POST;
+		http_method = POST;
 	} else if (strcmp(method, "PUT") == 0) {
-		http_method = METHOD_PUT;
+		http_method = PUT;
 	} else if (strcmp(method, "PATCH") == 0) {
-		http_method = METHOD_PATCH;
+		http_method = PATCH;
 	} else if (strcmp(method, "PROPFIND") == 0) {
-		http_method = METHOD_PROPFIND;
+		http_method = PROPFIND;
 	} else if (strcmp(method, "DELETE") == 0) {
-		http_method = METHOD_DELETE;
+		http_method = DELETE;
 	} else if (strcmp(method, "HEAD") == 0) {
-		http_method = METHOD_HEAD;
+		http_method = HEAD;
 	} else {
 		return MHD_NO; /* unexpected method */
 	}

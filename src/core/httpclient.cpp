@@ -115,33 +115,33 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1);
 
 	switch (method) {
-		case METHOD_DELETE: {
+		case DELETE: {
 			static const std::string method_propfind = "DELETE";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
-		case METHOD_HEAD: {
+		case HEAD: {
 			static const std::string method_propfind = "HEAD";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
-		case METHOD_PATCH: {
+		case PATCH: {
 			static const std::string method_propfind = "PATCH";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
-		case METHOD_PROPFIND: {
+		case PROPFIND: {
 			static const std::string method_propfind = "PROPFIND";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
-		case METHOD_PUT: {
+		case PUT: {
 			static const std::string method_propfind = "PUT";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
 			break;
 		}
-		case METHOD_POST:
-		case METHOD_GET:
+		case POST:
+		case GET:
 		default:
 			break;
 	}

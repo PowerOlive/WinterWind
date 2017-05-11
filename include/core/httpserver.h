@@ -86,9 +86,6 @@ typedef std::shared_ptr<Response> ResponsePtr;
 
 typedef std::function<ResponsePtr(const HTTPQueryPtr)> ServerRequestHandler;
 
-#define BIND_HTTPSERVER_HANDLER(s, m, u, hdl, obj)                                                                     \
-    s->register_handler(METHOD_##m, u, std::bind(hdl, obj, std::placeholders::_1));
-
 typedef std::unordered_map<std::string, ServerRequestHandler> ServerReqHandlerMap;
 
 class Server
