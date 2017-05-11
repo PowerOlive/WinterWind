@@ -26,11 +26,11 @@
 #pragma once
 
 #include "core/utils/exception.h"
-#include <libpq-fe.h>
-#include <stdlib.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <libpq-fe.h>
+
 
 namespace winterwind
 {
@@ -55,9 +55,7 @@ class PostgreSQLResult
 {
 public:
 	PostgreSQLResult(PostgreSQLClient *client, PGresult *result);
-
-	~PostgreSQLResult()
-	{ PQclear(m_result); }
+	~PostgreSQLResult();
 
 	PGresult *operator*()
 	{ return m_result; }
@@ -94,32 +92,84 @@ public:
 
 	virtual ~PostgreSQLClient();
 
+	/**
+	 * Start a transaction
+	 */
 	void begin();
 
+	/**
+	 * Commit a transaction
+	 */
 	void commit();
 
-	pg_result *exec(const char *query);
+	/**
+	 * Execute a raw query and return a PGResult
+	 * PGResult should be cleared using PQClear
+	 *
+	 * @param query SQL string
+	 * @return PGResult object
+	 */
+	PGresult *exec(const char *query);
 
 	/**
 	 * Enable or disable connection check before execute a query
 	 *
 	 * @param e enable/disable flag
 	 */
-	void set_check_before_exec(bool e)
-	{ m_check_before_exec = e; }
+	void set_check_before_exec(bool e) { m_check_before_exec = e; }
 
+	/**
+	 * Register a statement with a name
+	 *
+	 * @param stn statement name
+	 * @param st  statement value
+	 * @return registering success (false means statement already exists)
+	 */
 	bool register_statement(const std::string &stn, const std::string &st);
 
+	/**
+	 * Register some winterwind statements for managing databases
+	 */
 	void register_embedded_statements();
 
+	/**
+	 * List all schemas in current database
+	 *
+	 * @param res result vector containing list of schemas
+	 * @return request status
+	 */
 	ExecStatusType show_schemas(std::vector<std::string> &res);
 
+	/**
+	 * Create a new schema in current database
+	 * @param name schema name
+	 * @return request status
+	 */
 	ExecStatusType create_schema(const std::string &name);
 
+	/**
+	 * Drop a schema from current database
+	 * @param name schema name
+	 * @param if_exists if exists flags (permitting to avoid error if schema doesn't exists.
+	 * @return request status
+	 */
 	ExecStatusType drop_schema(const std::string &name, bool if_exists = false);
 
+	/**
+	 * List all tables present in schema
+	 * @param schema schema affected by query
+	 * @param res result vector containing table list
+	 * @return request status
+	 */
 	ExecStatusType show_tables(const std::string &schema, std::vector<std::string> &res);
 
+	/**
+	 * Populate a PostgreSQLTableDefinition object with table definition for schema
+	 * @param schema selected schema
+	 * @param table selected table
+	 * @param definition result object
+	 * @return request status
+	 */
 	ExecStatusType show_create_table(const std::string &schema, const std::string &table,
 		PostgreSQLTableDefinition &definition);
 
@@ -137,42 +187,17 @@ protected:
 
 	PGresult *check_results(PGresult *result, bool clear = true);
 
-	inline int pg_to_int(PGresult *res, int row, int col)
-	{ return atoi(PQgetvalue(res, row, col)); }
-
-	inline const std::string pg_to_string(PGresult *res, int row, int col)
-	{
-		return std::string(PQgetvalue(res, row, col),
-			(unsigned long) PQgetlength(res, row, col));
-	}
-
-	inline const uint32_t pg_to_uint(PGresult *res, int row, int col)
-	{
-		return (const uint32_t) atoi(PQgetvalue(res, row, col));
-	}
-
-	inline const uint64_t pg_to_uint64(PGresult *res, int row, int col)
-	{
-		return (const uint64_t) atoll(PQgetvalue(res, row, col));
-	}
-
-	inline const int64_t pg_to_int64(PGresult *res, int row, int col)
-	{
-		unsigned char *data = (unsigned char *) PQgetvalue(res, row, col);
-		return (const int64_t) atoll((char *) data);
-	}
+	int pg_to_int(PGresult *res, int row, int col);
+	const std::string pg_to_string(PGresult *res, int row, int col);
+	const uint32_t pg_to_uint(PGresult *res, int row, int col);
+	const uint64_t pg_to_uint64(PGresult *res, int row, int col);
+	const int64_t pg_to_int64(PGresult *res, int row, int col);
 
 	PGresult *
 	exec_prepared(const char *stmtName, const int paramsNumber, const char **params,
 		const int *paramsLengths = NULL, const int *paramsFormats = NULL,
 		bool clear = true,
-		bool nobinary = true)
-	{
-		return check_results(
-			PQexecPrepared(m_conn, stmtName, paramsNumber, (const char *const *) params,
-				paramsLengths, paramsFormats, nobinary ? 1 : 0),
-			clear);
-	}
+		bool nobinary = true);
 
 private:
 	void connect();

@@ -24,7 +24,6 @@
  */
 
 #include "postgresqlclient.h"
-#include <array>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -42,6 +41,11 @@ PostgreSQLResult::PostgreSQLResult(PostgreSQLClient *client, PGresult *result) :
 	if (m_status != PGRES_COMMAND_OK) {
 		client->m_last_error = std::string(PQresultErrorMessage(result));
 	}
+}
+
+PostgreSQLResult::~PostgreSQLResult()
+{
+	PQclear(m_result);
 }
 
 PostgreSQLClient::PostgreSQLClient(const std::string &connect_string,
@@ -95,13 +99,23 @@ void PostgreSQLClient::check_db_connection()
 	PQresetStart(m_conn);
 }
 
-pg_result *PostgreSQLClient::exec(const char *query)
+PGresult *PostgreSQLClient::exec(const char *query)
 {
 	if (m_check_before_exec) {
 		check_db_connection();
 	}
 
 	return PQexec(m_conn, query);
+}
+
+PGresult * PostgreSQLClient::exec_prepared(const char *stmtName, const int paramsNumber,
+	const char **params, const int *paramsLengths, const int *paramsFormats,
+	bool clear, bool nobinary)
+{
+	return check_results(
+		PQexecPrepared(m_conn, stmtName, paramsNumber, (const char *const *) params,
+			paramsLengths, paramsFormats, nobinary ? 1 : 0),
+		clear);
 }
 
 void PostgreSQLClient::begin()
@@ -134,6 +148,34 @@ void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 	request += "';";
 	check_results(exec(request.c_str()));
 }
+
+int PostgreSQLClient::pg_to_int(PGresult *res, int row, int col)
+{
+	return atoi(PQgetvalue(res, row, col));
+}
+
+const std::string PostgreSQLClient::pg_to_string(PGresult *res, int row, int col)
+{
+	return std::string(PQgetvalue(res, row, col),
+		(unsigned long) PQgetlength(res, row, col));
+}
+
+const uint32_t PostgreSQLClient::pg_to_uint(PGresult *res, int row, int col)
+{
+	return (const uint32_t) atoi(PQgetvalue(res, row, col));
+}
+
+const uint64_t PostgreSQLClient::pg_to_uint64(PGresult *res, int row, int col)
+{
+	return (const uint64_t) atoll(PQgetvalue(res, row, col));
+}
+
+const int64_t PostgreSQLClient::pg_to_int64(PGresult *res, int row, int col)
+{
+	unsigned char *data = (unsigned char *) PQgetvalue(res, row, col);
+	return (const int64_t) atoll((char *) data);
+}
+
 
 PGresult *PostgreSQLClient::check_results(PGresult *result, bool clear)
 {
