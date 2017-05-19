@@ -28,14 +28,31 @@
 #include <exception>
 #include <string>
 
+/**
+ * A base exception containing a string reason
+ * It's useful when logging exceptions or debugging
+ */
 class BaseException : public std::exception
 {
 public:
+	/**
+	 * Creates the BaseException object
+	 * @param what reason string
+	 */
 	BaseException(const std::string &what) throw(): m_what(what) {}
 
 	virtual ~BaseException() throw() {}
+
+	/**
+	 *
+	 * @return m_what reason
+	 */
 	virtual const char *what() const throw() { return m_what.c_str(); }
 
 private:
+
+	/**
+	 * Exception reason
+	 */
 	std::string m_what = "";
 };

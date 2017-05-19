@@ -29,6 +29,17 @@
 #include <string>
 #include <vector>
 
+/**
+ * Join A elements using T and return result
+ * A is generally a std::vector and T a std::string
+ *
+ * @tparam T result type
+ * @tparam A iterator type
+ * @param begin
+ * @param end
+ * @param t joining element to append
+ * @return join result
+ */
 template <class T, class A> T join(const A &begin, const A &end, const T &t) {
 	T result;
 	for (A it = begin; it != end; it++) {
@@ -39,10 +50,39 @@ template <class T, class A> T join(const A &begin, const A &end, const T &t) {
 	return result;
 }
 
+/**
+ * Split str using delim and return splitted res
+ * @param str String to split
+ * @param delim Splitting character
+ * @param res results
+ */
 void str_split(const std::string &str, char delim, std::vector<std::string> &res);
+
+/**
+ * Remove pattern from src string
+ * @param src string to modify
+ * @param pattern pattern to remove
+ */
 void str_remove_substr(std::string &src, const std::string &pattern);
 
+/**
+ * Count words in str phrase
+ * @param str Phrase to analyze
+ * @return word count
+ */
 uint32_t count_words(const std::string &str);
+
+/**
+ * Split string using word delimiters and write result to res
+ * @param str String to split
+ * @param res Result container
+ */
 void split_string_to_words(const std::string &str, std::vector<std::string> &res);
 
+/**
+ * Encode str string to hex
+ * @param str String to encode
+ * @param res Result container
+ * @param upper_case uppercase the result
+ */
 void str_to_hex(const std::string &str, std::string &res, bool upper_case = false);

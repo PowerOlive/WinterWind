@@ -28,14 +28,37 @@
 #include "classhelpers.h"
 #include <semaphore.h>
 
+/**
+ * Semaphore object
+ *
+ * It's a wrapper around UNIX semaphores
+ */
 class Semaphore
 {
 public:
+	/**
+	 *
+	 * @param val semaphore init value
+	 */
 	Semaphore(int val = 0);
 	~Semaphore();
 
+	/**
+	 * Posts num times to semaphore permitting to waking up
+	 * @param num number of times to post
+	 */
 	void post(unsigned int num = 1);
+
+	/**
+	 * Wait until post() is called
+	 */
 	void wait();
+
+	/**
+	 * Wait until post() is called or time_ms is expired
+	 * @param time_ms waiting time
+	 * @return timed wait status
+	 */
 	bool wait(unsigned int time_ms);
 
 private:

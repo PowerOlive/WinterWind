@@ -27,4 +27,10 @@
 
 #include <string>
 
+/**
+ * Hash data with key using hmac_sha1 algorithm
+ * @param key
+ * @param data
+ * @return hmac_sha1 binary string
+ */
 std::string hmac_sha1(const std::string &key, const std::string &data);
