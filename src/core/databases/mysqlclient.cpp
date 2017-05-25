@@ -23,10 +23,9 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "mysqlclient.h"
+#include "databases/mysqlclient.h"
 #include <cstring>
 #include <iostream>
-#include <stdlib.h>
 
 namespace winterwind
 {
@@ -50,24 +49,29 @@ MySQLClient::MySQLClient(const std::string &host, const std::string &user,
 	const std::string &password, uint16_t port, const std::string &db)
 	: m_host(host), m_user(user), m_password(password), m_port(port), m_db(db)
 {
-	m_conn = mysql_init(NULL);
-	if (!m_conn) {
-		throw MySQLException("MySQL Exception: unable to init client " +
-			std::string(mysql_error(m_conn)));
-	}
-
 	connect();
 }
 
 MySQLClient::~MySQLClient()
-{ disconnect(); }
+{
+	disconnect();
+}
 
 void MySQLClient::connect()
 {
+	if (m_conn) {
+		disconnect();
+	}
+
+	m_conn = mysql_init(NULL);
+	if (!m_conn) {
+		throw MySQLException("unable to init client " +
+			std::string(mysql_error(m_conn)));
+	}
+
 	if (mysql_real_connect(m_conn, m_host.c_str(), m_user.c_str(), m_password.c_str(),
 		(!m_db.empty() ? m_db.c_str() : NULL), m_port, NULL, 0) == NULL) {
-		throw MySQLException("MySQL Exception: connection failed " +
-			std::string(mysql_error(m_conn)));
+		throw MySQLException("connection failed " + std::string(mysql_error(m_conn)));
 	}
 }
 
@@ -75,15 +79,30 @@ void MySQLClient::disconnect()
 {
 	if (m_conn) {
 		mysql_close(m_conn);
+		m_conn = nullptr;
 	}
 }
 
 void MySQLClient::query(const std::string &query)
 {
 	if (mysql_query(m_conn, query.c_str()) != 0) {
-		throw MySQLException("MySQL Exception: query failed " +
-			std::string(mysql_error(m_conn)));
+		throw MySQLException("query failed " + std::string(mysql_error(m_conn)));
 	}
+}
+
+void MySQLClient::begin()
+{
+	query("BEGIN");
+}
+
+void MySQLClient::commit()
+{
+	query("END");
+}
+
+void MySQLClient::rollback()
+{
+	query("ROLLBACK");
 }
 
 void MySQLClient::list_tables(std::vector<std::string> &result)

@@ -70,15 +70,13 @@ PostgreSQLClient::PostgreSQLClient(const std::string &connect_string,
 
 PostgreSQLClient::~PostgreSQLClient()
 {
-	if (m_conn) {
-		PQfinish(m_conn);
-	}
+	disconnect();
 }
 
 void PostgreSQLClient::connect()
 {
 	if (m_conn) {
-		PQfinish(m_conn);
+		disconnect();
 	}
 
 	m_conn = PQconnectdb(m_connect_string.c_str());
@@ -97,6 +95,14 @@ void PostgreSQLClient::connect()
 	}
 
 	check_connection();
+}
+
+void PostgreSQLClient::disconnect()
+{
+	if (m_conn) {
+		PQfinish(m_conn);
+		m_conn = nullptr;
+	}
 }
 
 void PostgreSQLClient::check_connection()
@@ -141,6 +147,11 @@ void PostgreSQLClient::commit()
 	PGR(exec("COMMIT;"));
 }
 
+void PostgreSQLClient::rollback()
+{
+	PGR(exec("ROLLBACK;"));
+}
+
 void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 {
 	static const std::array<std::string, 2> allowed_encoding = {"LATIN1", "UTF8"};
@@ -169,26 +180,26 @@ int PostgreSQLClient::read_field(PGresult *res, int row, int col)
 }
 
 template<>
-const std::string PostgreSQLClient::read_field(PGresult *res, int row, int col)
+std::string PostgreSQLClient::read_field(PGresult *res, int row, int col)
 {
 	return std::string(PQgetvalue(res, row, col),
 		(unsigned long) PQgetlength(res, row, col));
 }
 
 template<>
-const uint32_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
+uint32_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
 {
 	return (uint32_t) atoi(PQgetvalue(res, row, col));
 }
 
 template<>
-const uint64_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
+uint64_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
 {
 	return (uint64_t) atoll(PQgetvalue(res, row, col));
 }
 
 template<>
-const int64_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
+int64_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
 {
 	unsigned char *data = (unsigned char *) PQgetvalue(res, row, col);
 	return (const int64_t) atoll((char *) data);

@@ -26,6 +26,7 @@
 #pragma once
 
 #include "core/utils/exception.h"
+#include "database.h"
 #include <my_global.h>
 #include <mysql.h>
 #include <string>
@@ -35,6 +36,17 @@ namespace winterwind
 {
 namespace db
 {
+class MySQLException : public DatabaseException
+{
+public:
+	MySQLException(const std::string &what) :
+		DatabaseException("MySQL Exception: " + what)
+	{}
+
+	~MySQLException() throw()
+	{}
+};
+
 struct MySQLExplainEntry
 {
 	uint16_t id;
@@ -49,17 +61,7 @@ struct MySQLExplainEntry
 	std::string extra;
 };
 
-class MySQLException : public BaseException
-{
-public:
-	MySQLException(const std::string &what) : BaseException(what)
-	{}
-
-	~MySQLException() throw()
-	{}
-};
-
-class MySQLClient
+class MySQLClient: private DatabaseInterface
 {
 public:
 	MySQLClient(const std::string &host, const std::string &user,
@@ -68,9 +70,20 @@ public:
 
 	virtual ~MySQLClient();
 
-	void connect();
+	/**
+	 * Start MySQL transaction
+	 */
+	void begin();
 
-	void disconnect();
+	/**
+	 * Commit started MySQL transaction
+	 */
+	void commit();
+
+	/**
+	 * Rollback current transaction
+	 */
+	void rollback();
 
 	void query(const std::string &query);
 
@@ -80,6 +93,16 @@ public:
 
 	bool explain(const std::string &q, std::vector<MySQLExplainEntry> &res);
 
+protected:
+	/**
+	 * Try to connect to MySQL database. If connection failed a MySQLException is thrown.
+	 */
+	void connect();
+
+	/**
+	 * Disconnect from database if connected
+	 */
+	void disconnect();
 private:
 	MYSQL *m_conn = nullptr;
 	std::string m_host = "localhost";

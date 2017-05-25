@@ -59,6 +59,11 @@ public:
 	 */
 	virtual void commit() = 0;
 
+	/**
+	 * Rollbacks currently started transaction
+	 */
+	virtual void rollback() = 0;
+
 
 	/**
 	 * Check if connection is working.
@@ -74,6 +79,11 @@ protected:
 	 * thrown
 	 */
 	virtual void connect() = 0;
+
+	/**
+	 * Disconnect client from its backend
+	 */
+	virtual void disconnect() = 0;
 };
 
 }

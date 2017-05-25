@@ -92,6 +92,11 @@ public:
 	void commit();
 
 	/**
+	 * Rollback currently running transaction
+	 */
+	void rollback();
+
+	/**
 	 * Execute a raw query and return a PGResult
 	 * PGResult should be cleared using PQClear
 	 *
@@ -188,7 +193,15 @@ protected:
 		bool clear = true,
 		bool nobinary = true);
 
+	/**
+	 * Connects to database using m_connect_string
+	 */
 	void connect();
+
+	/**
+	 * Disconnects from current connected database
+	 */
+	void disconnect();
 
 private:
 	std::string m_connect_string = "";

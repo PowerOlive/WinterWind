@@ -77,8 +77,8 @@ if (ENABLE_POSTGRESQL)
 endif()
 
 if (ENABLE_MYSQL)
-	set(SRC_FILES ${SRC_FILES} mysqlclient.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/mysqlclient.h)
+	set(SRC_FILES ${SRC_FILES} databases/mysqlclient.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/databases/mysqlclient.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} mysqlclient)
 endif()
 
