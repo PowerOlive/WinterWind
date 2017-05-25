@@ -31,16 +31,16 @@ namespace winterwind
 {
 namespace db
 {
-#define MYSQL_STORE_RES(_res)                                                                      \
-    MYSQL_RES *_res = mysql_store_result(m_conn);                                              \
-    if (_res == NULL) {                                                                        \
-        throw MySQLException("MySQL Exception: mysql_store_result failed " +               \
-                     std::string(mysql_error(m_conn)));                            \
+#define MYSQL_STORE_RES(_res)                                             \
+    MYSQL_RES *_res = mysql_store_result(m_conn);                         \
+    if (_res == NULL) {                                                   \
+        throw MySQLException("mysql_store_result failed " +               \
+                     std::string(mysql_error(m_conn)));                   \
     }
 
-#define MYSQL_ROWLOOP(_res, _row)                                                                  \
-    int num_fields = mysql_num_fields(_res);                                                   \
-    MYSQL_ROW _row;                                                                            \
+#define MYSQL_ROWLOOP(_res, _row)                                         \
+    int num_fields = mysql_num_fields(_res);                              \
+    MYSQL_ROW _row;                                                       \
     while ((_row = mysql_fetch_row(_res)))
 
 #define MYSQLROW_TO_STRING(_row, i) _row[i] ? std::string(_row[i], strlen(_row[i])) : "NULL"
