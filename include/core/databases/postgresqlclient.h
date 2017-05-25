@@ -25,7 +25,7 @@
 
 #pragma once
 
-#include "core/utils/exception.h"
+#include "database.h"
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -36,14 +36,11 @@ namespace winterwind
 {
 namespace db
 {
-class PostgreSQLException : public BaseException
+class PostgreSQLException : public DatabaseException
 {
 public:
-	PostgreSQLException(const std::string &what) : BaseException(what)
-	{}
-
-	~PostgreSQLException() throw()
-	{}
+	PostgreSQLException(const std::string &what) : DatabaseException(what) {}
+	~PostgreSQLException() throw() {}
 };
 
 class PostgreSQLClient;
@@ -68,21 +65,13 @@ private:
 	ExecStatusType m_status = PGRES_COMMAND_OK;
 };
 
-struct PostgreSQLTableField
-{
-	std::string column_name = "";
-	std::string data_type = "";
-	bool is_nullable = false;
-	std::string column_default = "";
-};
-
 struct PostgreSQLTableDefinition
 {
-	std::vector<PostgreSQLTableField> fields;
+	std::vector<DatabaseTableField> fields;
 	std::unordered_map<std::string, std::string> indexes;
 };
 
-class PostgreSQLClient
+class PostgreSQLClient: private DatabaseInterface
 {
 	friend class PostgreSQLResult;
 
@@ -177,21 +166,21 @@ public:
 
 	void escape_string(const std::string &param, std::string &res);
 
-	const std::string &get_last_error() const
-	{ return m_last_error; }
+	const std::string &get_last_error() const { return m_last_error; }
 
 protected:
-	void check_db_connection();
+	/**
+	 * Verify is PostgreSQL connection is working.
+	 * If connection is inactive and database is up, reconnects.
+	 * Else throw an PostgreSQLException
+	 */
+	void check_connection();
 
 	void set_client_encoding(const std::string &encoding);
 
 	PGresult *check_results(PGresult *result, bool clear = true);
 
-	int pg_to_int(PGresult *res, int row, int col);
-	const std::string pg_to_string(PGresult *res, int row, int col);
-	const uint32_t pg_to_uint(PGresult *res, int row, int col);
-	const uint64_t pg_to_uint64(PGresult *res, int row, int col);
-	const int64_t pg_to_int64(PGresult *res, int row, int col);
+	template<typename T> T read_field(PGresult *res, int row, int col);
 
 	PGresult *
 	exec_prepared(const char *stmtName, const int paramsNumber, const char **params,
@@ -199,9 +188,9 @@ protected:
 		bool clear = true,
 		bool nobinary = true);
 
-private:
 	void connect();
 
+private:
 	std::string m_connect_string = "";
 	PGconn *m_conn = nullptr;
 	int32_t m_pgversion = 0;

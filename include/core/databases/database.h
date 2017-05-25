@@ -25,20 +25,56 @@
 
 #pragma once
 
-#include "luahelper.h"
-#include <lua.hpp>
-#include <databases/postgresqlclient.h>
+#include <string>
+#include "core/utils/exception.h"
 
-namespace winterwind
+namespace winterwind {
+namespace db {
+
+class DatabaseException : public BaseException
 {
-
-using namespace db;
-
-class LuaRefPostgreSQLClient : protected LuaHelper
-{
-LUAREF_OBJECT(PostgreSQLClient)
-
-private:
-	static int l_register_statement(lua_State *L);
+public:
+	DatabaseException(const std::string &what) : BaseException(what) {}
+	~DatabaseException() throw() {}
 };
+
+struct DatabaseTableField
+{
+	std::string column_name = "";
+	std::string data_type = "";
+	bool is_nullable = false;
+	std::string column_default = "";
+};
+
+class DatabaseInterface
+{
+public:
+	/**
+	 * Start a transaction
+	 */
+	virtual void begin() = 0;
+
+	/**
+	 * Commit a transaction
+	 */
+	virtual void commit() = 0;
+
+
+	/**
+	 * Check if connection is working.
+	 * If it's not the case this interface should:
+	 * - Fix the connection
+	 * - Trigger a DatabaseException.
+	 */
+	virtual void check_connection() = 0;
+protected:
+
+	/**
+	 * Database connection method. If connection failed a DatabaseException should be
+	 * thrown
+	 */
+	virtual void connect() = 0;
+};
+
+}
 }

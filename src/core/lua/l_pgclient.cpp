@@ -26,7 +26,6 @@
 #include "l_pgclient.h"
 #include "luaengine.h"
 #include <iostream>
-#include <postgresqlclient.h>
 
 namespace winterwind
 {

@@ -23,7 +23,7 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "postgresqlclient.h"
+#include "databases/postgresqlclient.h"
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -96,10 +96,10 @@ void PostgreSQLClient::connect()
 		throw PostgreSQLException(ss.str());
 	}
 
-	check_db_connection();
+	check_connection();
 }
 
-void PostgreSQLClient::check_db_connection()
+void PostgreSQLClient::check_connection()
 {
 	if (PQstatus(m_conn) == CONNECTION_OK)
 		return;
@@ -115,7 +115,7 @@ void PostgreSQLClient::check_db_connection()
 PGresult *PostgreSQLClient::exec(const char *query)
 {
 	if (m_check_before_exec) {
-		check_db_connection();
+		check_connection();
 	}
 
 	return PQexec(m_conn, query);
@@ -162,28 +162,33 @@ void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 	PGR(exec(request.c_str()));
 }
 
-int PostgreSQLClient::pg_to_int(PGresult *res, int row, int col)
+template<>
+int PostgreSQLClient::read_field(PGresult *res, int row, int col)
 {
 	return atoi(PQgetvalue(res, row, col));
 }
 
-const std::string PostgreSQLClient::pg_to_string(PGresult *res, int row, int col)
+template<>
+const std::string PostgreSQLClient::read_field(PGresult *res, int row, int col)
 {
 	return std::string(PQgetvalue(res, row, col),
 		(unsigned long) PQgetlength(res, row, col));
 }
 
-const uint32_t PostgreSQLClient::pg_to_uint(PGresult *res, int row, int col)
+template<>
+const uint32_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
 {
-	return (const uint32_t) atoi(PQgetvalue(res, row, col));
+	return (uint32_t) atoi(PQgetvalue(res, row, col));
 }
 
-const uint64_t PostgreSQLClient::pg_to_uint64(PGresult *res, int row, int col)
+template<>
+const uint64_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
 {
-	return (const uint64_t) atoll(PQgetvalue(res, row, col));
+	return (uint64_t) atoll(PQgetvalue(res, row, col));
 }
 
-const int64_t PostgreSQLClient::pg_to_int64(PGresult *res, int row, int col)
+template<>
+const int64_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
 {
 	unsigned char *data = (unsigned char *) PQgetvalue(res, row, col);
 	return (const int64_t) atoll((char *) data);
@@ -306,7 +311,7 @@ ExecStatusType PostgreSQLClient::show_create_table(const std::string &schema,
 		PGR(exec_prepared("show_create_table", 2, values, NULL, NULL, false, false));
 		int32_t nbres = PQntuples(*result);
 		for (int32_t i = 0; i < nbres; i++) {
-			PostgreSQLTableField field = {};
+			DatabaseTableField field = {};
 			field.column_name = PQgetvalue(*result, i, 0);
 			field.data_type = PQgetvalue(*result, i, 1);
 			field.is_nullable = strcmp(PQgetvalue(*result, i, 2), "YES") == 0;
@@ -324,8 +329,8 @@ ExecStatusType PostgreSQLClient::show_create_table(const std::string &schema,
 			false));
 		int32_t nbres = PQntuples(*result);
 		for (int32_t i = 0; i < nbres; i++) {
-			definition.indexes[pg_to_string(*result, i, 0)] =
-				pg_to_string(*result, i, 1);
+			definition.indexes[read_field<std::string>(*result, i, 0)] =
+				read_field<std::string>(*result, i, 1);
 		}
 
 		if (result.get_status() != PGRES_COMMAND_OK) {

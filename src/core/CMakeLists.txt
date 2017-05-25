@@ -71,8 +71,8 @@ endif()
 
 if (ENABLE_POSTGRESQL)
 	set(ENABLE_POSTGRESQL 1 PARENT_SCOPE)
-	set(SRC_FILES ${SRC_FILES} postgresqlclient.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/postgresqlclient.h)
+	set(SRC_FILES ${SRC_FILES} databases/postgresqlclient.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/databases/postgresqlclient.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} pq)
 endif()
 

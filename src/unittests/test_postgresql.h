@@ -32,14 +32,14 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <core/postgresqlclient.h>
+#include <core/databases/postgresqlclient.h>
 
 namespace winterwind {
 
 namespace unittests {
 
-#define INIT_PG_CLIENT                                                                             \
-    db::PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db "                    \
+#define INIT_PG_CLIENT                                                                   \
+    db::PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db "          \
                 "password=un1Ttests");
 
 class Test_PostgreSQL : public CppUnit::TestFixture
