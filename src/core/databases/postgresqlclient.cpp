@@ -45,8 +45,8 @@ PostgreSQLResult::PostgreSQLResult(PostgreSQLClient *client, PGresult *result) :
 			break;
 		case PGRES_FATAL_ERROR:
 		default:
-			client->m_last_error = std::string(PQresultErrorMessage(result));
-			break;
+			throw PostgreSQLException(std::string("PostgreSQL database error: ") +
+				PQresultErrorMessage(result));
 	}
 }
 
@@ -118,38 +118,40 @@ void PostgreSQLClient::check_connection()
 	PQresetStart(m_conn);
 }
 
-PGresult *PostgreSQLClient::exec(const char *query)
+PostgreSQLResult PostgreSQLClient::exec(const char *query)
 {
 	if (m_check_before_exec) {
 		check_connection();
 	}
 
-	return PQexec(m_conn, query);
+
+	PGR(PQexec(m_conn, query));
+	return result;
 }
 
-PGresult *PostgreSQLClient::exec_prepared(const char *stmtName, const int paramsNumber,
-	const char **params, const int *paramsLengths, const int *paramsFormats,
-	bool clear, bool nobinary)
+PostgreSQLResult PostgreSQLClient::exec_prepared(const char *stmtName,
+	const int paramsNumber, const char **params, const int *paramsLengths,
+	const int *paramsFormats, bool nobinary)
 {
-	return check_results(
-		PQexecPrepared(m_conn, stmtName, paramsNumber, (const char *const *) params,
-			paramsLengths, paramsFormats, nobinary ? 1 : 0),
-		clear);
+	PGR(PQexecPrepared(m_conn, stmtName, paramsNumber, (const char *const *) params,
+			paramsLengths, paramsFormats, nobinary ? 1 : 0));
+
+	return result;
 }
 
 void PostgreSQLClient::begin()
 {
-	PGR(exec("BEGIN;"));
+	exec("BEGIN;");
 }
 
 void PostgreSQLClient::commit()
 {
-	PGR(exec("COMMIT;"));
+	exec("COMMIT;");
 }
 
 void PostgreSQLClient::rollback()
 {
-	PGR(exec("ROLLBACK;"));
+	exec("ROLLBACK;");
 }
 
 void PostgreSQLClient::set_client_encoding(const std::string &encoding)
@@ -170,7 +172,7 @@ void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 	std::string request = "SET client_encoding='";
 	request += encoding;
 	request += "';";
-	PGR(exec(request.c_str()));
+	exec(request.c_str());
 }
 
 template<>
@@ -203,29 +205,6 @@ int64_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
 {
 	unsigned char *data = (unsigned char *) PQgetvalue(res, row, col);
 	return (const int64_t) atoll((char *) data);
-}
-
-
-PGresult *PostgreSQLClient::check_results(PGresult *result, bool clear)
-{
-	ExecStatusType statusType = PQresultStatus(result);
-
-	switch (statusType) {
-		case PGRES_COMMAND_OK:
-		case PGRES_TUPLES_OK:
-			break;
-		case PGRES_FATAL_ERROR:
-		default:
-			PQclear(result);
-			throw PostgreSQLException(std::string("PostgreSQL database error: ") +
-				PQresultErrorMessage(result));
-	}
-
-	if (clear) {
-		PQclear(result);
-	}
-
-	return result;
 }
 
 void PostgreSQLClient::escape_string(const std::string &param, std::string &res)
@@ -266,7 +245,7 @@ void PostgreSQLClient::register_embedded_statements()
 
 ExecStatusType PostgreSQLClient::show_schemas(std::vector<std::string> &res)
 {
-	PGR(exec("select nspname from pg_catalog.pg_namespace"));
+	PostgreSQLResult result = exec("select nspname from pg_catalog.pg_namespace");
 
 	int32_t nbres = PQntuples(*result);
 	for (int32_t i = 0; i < nbres; i++) {
@@ -281,7 +260,7 @@ ExecStatusType PostgreSQLClient::create_schema(const std::string &name)
 	std::string name_esc = "";
 	escape_string(name, name_esc);
 	std::string query = "CREATE SCHEMA " + name_esc;
-	PGR(exec(query.c_str()));
+	PostgreSQLResult result = exec(query.c_str());
 
 	return result.get_status();
 }
@@ -294,7 +273,7 @@ ExecStatusType PostgreSQLClient::drop_schema(const std::string &name, bool if_ex
 	if (if_exists)
 		query += "IF EXISTS ";
 	query += name_esc;
-	PGR(exec(query.c_str()));
+	PostgreSQLResult result = exec(query.c_str());
 
 	return result.get_status();
 }
@@ -303,7 +282,8 @@ ExecStatusType PostgreSQLClient::show_tables(const std::string &schema,
 	std::vector<std::string> &res)
 {
 	const char *values[]{schema.c_str()};
-	PGR(exec_prepared("list_tables_into_schema", 1, values, NULL, NULL, false, false));
+	PostgreSQLResult result = exec_prepared("list_tables_into_schema", 1, values,
+		NULL, NULL, false);
 	int32_t nbres = PQntuples(*result);
 	for (int32_t i = 0; i < nbres; i++) {
 		res.push_back(PQgetvalue(*result, i, 0));
@@ -319,7 +299,8 @@ ExecStatusType PostgreSQLClient::show_create_table(const std::string &schema,
 	const char *values[]{schema.c_str(), table.c_str()};
 
 	{
-		PGR(exec_prepared("show_create_table", 2, values, NULL, NULL, false, false));
+		PostgreSQLResult result = exec_prepared("show_create_table", 2, values,
+			NULL, NULL, false);
 		int32_t nbres = PQntuples(*result);
 		for (int32_t i = 0; i < nbres; i++) {
 			DatabaseTableField field = {};
@@ -336,8 +317,8 @@ ExecStatusType PostgreSQLClient::show_create_table(const std::string &schema,
 	}
 
 	{
-		PGR(exec_prepared("show_create_table_indexes", 2, values, NULL, NULL, false,
-			false));
+		PostgreSQLResult result = exec_prepared("show_create_table_indexes", 2, values,
+			NULL, NULL, false);
 		int32_t nbres = PQntuples(*result);
 		for (int32_t i = 0; i < nbres; i++) {
 			definition.indexes[read_field<std::string>(*result, i, 0)] =
@@ -358,7 +339,7 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 	// create_schema(schema)
 	// use schema
 	{
-		PGR(exec(
+		PostgreSQLResult result = exec(
 			"CREATE OR REPLACE VIEW view_relations_size AS\n"
 				"SELECT\n"
 				"    c.relname AS name,\n"
@@ -380,7 +361,7 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 				"    c.relkind = 'r'\n"
 				"AND n.nspname NOT IN ('pg_catalog', 'pg_toast')\n"
 				"AND pg_catalog.pg_table_is_visible(c.oid)\n"
-				"ORDER BY total_size DESC"));
+				"ORDER BY total_size DESC");
 
 		if (result.get_status() != PGRES_COMMAND_OK) {
 			return result.get_status();
@@ -388,7 +369,8 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 	}
 
 	{
-		PGR(exec("CREATE OR REPLACE VIEW view_relations_size_pretty AS\n"
+		PostgreSQLResult result = exec(
+			"CREATE OR REPLACE VIEW view_relations_size_pretty AS\n"
 			"SELECT\n"
 			"    name,\n"
 			"    tuples,\n"
@@ -396,7 +378,7 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 			"    pg_size_pretty(index_size) AS index_size,\n"
 			"    pg_size_pretty(toast_size) AS toast_size,\n"
 			"    pg_size_pretty(total_size) AS total_size\n"
-			"FROM view_relations_size"));
+			"FROM view_relations_size");
 
 		if (result.get_status() != PGRES_COMMAND_OK) {
 			return result.get_status();
@@ -404,7 +386,7 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 	}
 
 	{
-		PGR(exec(
+		PostgreSQLResult result = exec(
 			"CREATE OR REPLACE VIEW object_privileges AS\n"
 				"SELECT  objtype,\n"
 				"        schemaname,\n"
@@ -477,7 +459,7 @@ ExecStatusType PostgreSQLClient::add_admin_views(const std::string &schema)
 				"        left join pg_roles pr2 on (pr2.rolname = p2.objuser)\n"
 				"        ) as p3\n"
 				"group by objtype, schemaname,objname, owner, objuser, privs\n"
-				"order by objtype,schemaname,objname,objuser,privileges_pretty"));
+				"order by objtype,schemaname,objname,objuser,privileges_pretty");
 
 		if (result.get_status() != PGRES_COMMAND_OK) {
 			return result.get_status();

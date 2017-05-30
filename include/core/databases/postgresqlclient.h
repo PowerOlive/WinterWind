@@ -54,11 +54,9 @@ public:
 	PostgreSQLResult(PostgreSQLClient *client, PGresult *result);
 	~PostgreSQLResult();
 
-	PGresult *operator*()
-	{ return m_result; }
+	PGresult *operator*() { return m_result; }
 
-	ExecStatusType get_status() const
-	{ return m_status; }
+	ExecStatusType get_status() const { return m_status; }
 
 private:
 	PGresult *m_result = nullptr;
@@ -97,13 +95,12 @@ public:
 	void rollback();
 
 	/**
-	 * Execute a raw query and return a PGResult
-	 * PGResult should be cleared using PQClear
+	 * Execute a raw query and return a PostgreSQLResult
 	 *
 	 * @param query SQL string
-	 * @return PGResult object
+	 * @return PostgreSQLResult object
 	 */
-	PGresult *exec(const char *query);
+	PostgreSQLResult exec(const char *query);
 
 	/**
 	 * Enable or disable connection check before execute a query
@@ -171,8 +168,6 @@ public:
 
 	void escape_string(const std::string &param, std::string &res);
 
-	const std::string &get_last_error() const { return m_last_error; }
-
 protected:
 	/**
 	 * Verify is PostgreSQL connection is working.
@@ -183,15 +178,32 @@ protected:
 
 	void set_client_encoding(const std::string &encoding);
 
-	PGresult *check_results(PGresult *result, bool clear = true);
-
+	/**
+	 * Read PostgreSQL field for row and col with type T
+	 * @tparam T destination type
+	 * @param res PostgreSQL resultset
+	 * @param row
+	 * @param col
+	 * @return PostgreSQL result for row and col converted to T type
+	 */
 	template<typename T> T read_field(PGresult *res, int row, int col);
 
-	PGresult *
-	exec_prepared(const char *stmtName, const int paramsNumber, const char **params,
-		const int *paramsLengths = NULL, const int *paramsFormats = NULL,
-		bool clear = true,
-		bool nobinary = true);
+	/**
+	 * Exec a previously prepared query (stmtName)
+	 * paramsNumber, params, paramsLenghts, paramsFormats & nobinary refers to:
+	 * https://www.postgresql.org/docs/9.6/static/libpq-exec.html (see PQExecPrepared)
+	 *
+	 * @param stmtName
+	 * @param paramsNumber
+	 * @param params
+	 * @param paramsLengths
+	 * @param paramsFormats
+	 * @param nobinary
+	 * @return PostgreSQLResult object
+	 */
+	PostgreSQLResult exec_prepared(const char *stmtName, const int paramsNumber,
+		const char **params, const int *paramsLengths = NULL,
+		const int *paramsFormats = NULL, bool nobinary = true);
 
 	/**
 	 * Connects to database using m_connect_string
@@ -209,7 +221,6 @@ private:
 	int32_t m_pgversion = 0;
 	int32_t m_min_pgversion = 0;
 
-	std::string m_last_error = "";
 	bool m_check_before_exec = true;
 
 	std::unordered_map<std::string, std::string> m_statements;
