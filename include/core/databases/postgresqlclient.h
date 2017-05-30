@@ -31,7 +31,6 @@
 #include <vector>
 #include <libpq-fe.h>
 
-
 namespace winterwind
 {
 namespace db
@@ -51,11 +50,31 @@ class PostgreSQLClient;
 class PostgreSQLResult
 {
 public:
-	PostgreSQLResult(PostgreSQLClient *client, PGresult *result);
+	/**
+	 * Standard constructor from PGresult pointer
+	 * @param result
+	 */
+	PostgreSQLResult(PGresult *result);
+
+	/**
+	 * This object can only be moved
+	 * @param other
+	 */
+	PostgreSQLResult(PostgreSQLResult &&other);
+
+	/**
+	 * Copying this object is not allowed
+	 * @param other
+	 */
+	PostgreSQLResult(const PostgreSQLResult &other) = delete;
+
 	~PostgreSQLResult();
 
+	/**
+	 * Pointer to PGresult
+	 * @return m_result
+	 */
 	PGresult *operator*() { return m_result; }
-
 	ExecStatusType get_status() const { return m_status; }
 
 private:
@@ -71,8 +90,6 @@ struct PostgreSQLTableDefinition
 
 class PostgreSQLClient: private DatabaseInterface
 {
-	friend class PostgreSQLResult;
-
 public:
 	PostgreSQLClient(const std::string &connect_string,
 		int32_t minimum_db_version = 90500);

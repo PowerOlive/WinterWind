@@ -35,27 +35,35 @@ namespace winterwind
 {
 namespace db
 {
-PostgreSQLResult::PostgreSQLResult(PostgreSQLClient *client, PGresult *result) :
-	m_result(result)
+PostgreSQLResult::PostgreSQLResult(PGresult *result):
+	m_result(result),
+	m_status(PQresultStatus(result))
 {
-	m_status = PQresultStatus(result);
 	switch (m_status) {
 		case PGRES_COMMAND_OK:
 		case PGRES_TUPLES_OK:
 			break;
 		case PGRES_FATAL_ERROR:
 		default:
+			// This PQclear is mandatory. If an exception in thrown in constructor
+			// destructor is not called
+			PQclear(result);
 			throw PostgreSQLException(std::string("PostgreSQL database error: ") +
-				PQresultErrorMessage(result));
+				std::string(PQresultErrorMessage(result)));
 	}
+}
+
+PostgreSQLResult::PostgreSQLResult(PostgreSQLResult &&other):
+	m_result(std::move(other.m_result)),
+	m_status(std::move(other.m_status))
+{
+	other.m_result = nullptr;
 }
 
 PostgreSQLResult::~PostgreSQLResult()
 {
 	PQclear(m_result);
 }
-
-#define PGR(q) PostgreSQLResult result(this, q);
 
 /*
  * PostgreSQL Client
@@ -124,8 +132,7 @@ PostgreSQLResult PostgreSQLClient::exec(const char *query)
 		check_connection();
 	}
 
-
-	PGR(PQexec(m_conn, query));
+	PostgreSQLResult result(PQexec(m_conn, query));
 	return result;
 }
 
@@ -133,10 +140,9 @@ PostgreSQLResult PostgreSQLClient::exec_prepared(const char *stmtName,
 	const int paramsNumber, const char **params, const int *paramsLengths,
 	const int *paramsFormats, bool nobinary)
 {
-	PGR(PQexecPrepared(m_conn, stmtName, paramsNumber, (const char *const *) params,
-			paramsLengths, paramsFormats, nobinary ? 1 : 0));
-
-	return result;
+	return PostgreSQLResult(PQexecPrepared(m_conn, stmtName, paramsNumber,
+		(const char *const *) params,
+		paramsLengths, paramsFormats, nobinary ? 1 : 0));
 }
 
 void PostgreSQLClient::begin()
@@ -223,7 +229,7 @@ bool PostgreSQLClient::register_statement(const std::string &stn, const std::str
 		return false;
 	}
 
-	PGR(PQprepare(m_conn, stn.c_str(), st.c_str(), 0, NULL));
+	PostgreSQLResult(PQprepare(m_conn, stn.c_str(), st.c_str(), 0, NULL));
 
 	m_statements[stn] = st;
 	return true;
@@ -261,7 +267,8 @@ ExecStatusType PostgreSQLClient::create_schema(const std::string &name)
 	escape_string(name, name_esc);
 	std::string query = "CREATE SCHEMA " + name_esc;
 
-	return exec(query.c_str()).get_status();
+	PostgreSQLResult result(exec(query.c_str()));
+	return result.get_status();
 }
 
 ExecStatusType PostgreSQLClient::drop_schema(const std::string &name, bool if_exists)

@@ -42,6 +42,8 @@ namespace unittests {
     db::PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db "          \
                 "password=un1Ttests");
 
+#define PG_TEST_TABLE std::string("ut_table")
+
 class Test_PostgreSQL : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(Test_PostgreSQL);
@@ -50,6 +52,10 @@ class Test_PostgreSQL : public CppUnit::TestFixture
 	CPPUNIT_TEST(pg_add_admin_views);
 	CPPUNIT_TEST(pg_drop_schema);
 	CPPUNIT_TEST(pg_create_schema);
+	CPPUNIT_TEST(pg_create_table);
+	CPPUNIT_TEST(pg_insert);
+	CPPUNIT_TEST(pg_transaction_insert);
+	CPPUNIT_TEST(pg_drop_table);
 	CPPUNIT_TEST(pg_show_tables);
 	CPPUNIT_TEST_SUITE_END();
 
@@ -58,7 +64,11 @@ public:
 	{}
 
 	void tearDown()
-	{}
+	{
+		INIT_PG_CLIENT;
+		std::string query = "DROP TABLE IF EXISTS " + PG_TEST_TABLE;
+		pg.exec(query.c_str());
+	}
 
 protected:
 	void pg_register_embedded_statements()
@@ -106,6 +116,85 @@ protected:
 		CPPUNIT_ASSERT_MESSAGE("Schema creation (failure)",
 			pg_status == PGRES_FATAL_ERROR);
 		CPPUNIT_ASSERT(pg.drop_schema("test_schema") == PGRES_COMMAND_OK);
+	}
+
+	void pg_create_table()
+	{
+		INIT_PG_CLIENT
+		pg.register_embedded_statements();
+
+		bool create_table_ok = false;
+		try {
+			std::string query = "CREATE TABLE " + PG_TEST_TABLE
+				+ " (i INTEGER, s VARCHAR)";
+			db::PostgreSQLResult result = pg.exec(query.c_str());
+			create_table_ok = true;
+		}
+		catch (db::PostgreSQLException &e) {
+		}
+
+		CPPUNIT_ASSERT(create_table_ok);
+	}
+
+	void pg_drop_table()
+	{
+		pg_create_table();
+
+		INIT_PG_CLIENT
+		std::string query = "DROP TABLE " + PG_TEST_TABLE;
+
+		bool drop_ok = false;
+		try {
+			pg.exec(query.c_str());
+			drop_ok = true;
+		}
+		catch (db::PostgreSQLException &e) {
+		}
+
+		CPPUNIT_ASSERT(drop_ok);
+	}
+
+	void pg_insert()
+	{
+		pg_create_table();
+
+		INIT_PG_CLIENT
+
+		std::string query = "INSERT INTO " + PG_TEST_TABLE + "(i,s) VALUES (1, 'test')";
+
+		bool insert_ok = false;
+		try {
+			pg.exec(query.c_str());
+			insert_ok = true;
+		}
+		catch (db::PostgreSQLException &e) {
+		}
+
+		CPPUNIT_ASSERT_MESSAGE("PostgreSQL INSERT Test", insert_ok);
+	}
+
+	void pg_transaction_insert()
+	{
+		pg_create_table();
+
+		INIT_PG_CLIENT
+
+		bool insert_ok = false;
+		try {
+			pg.begin();
+			for (uint8_t i = 0; i < 100; i++) {
+				std::string query = "INSERT INTO " + PG_TEST_TABLE + "(i,s) VALUES ("
+					+ std::to_string(i) + ", 'test')";
+				pg.exec(query.c_str());
+			}
+
+			pg.commit();
+			insert_ok = true;
+		}
+		catch (db::PostgreSQLException &e) {
+		}
+
+		CPPUNIT_ASSERT_MESSAGE("PostgreSQL Transaction INSERT Test", insert_ok);
 	}
 
 	void pg_show_tables()
