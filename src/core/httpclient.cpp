@@ -246,7 +246,8 @@ bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t fla
 		std::cerr << "Failed to parse query for " << url << ". Response was not a JSON"
 			<< std::endl;
 #if UNITTESTS
-		std::cerr << "[DEBUG] Response was: " << res_str << std::endl;
+		std::cerr << "[DEBUG] Response was: " << res_str
+			<< " http rc: " << m_http_code << std::endl;
 #endif
 		return false;
 	}
@@ -275,7 +276,8 @@ HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Va
 	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << std::endl;
 #if UNITTESTS
-		std::cerr << "[DEBUG] Response was: " << res_str << std::endl;
+		std::cerr << "[DEBUG] Response was: " << res_str
+			<< " http rc: " << m_http_code << std::endl;
 #endif
 		return false;
 	}
@@ -304,7 +306,8 @@ HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Val
 	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << std::endl;
 #if UNITTESTS
-		std::cerr << "[DEBUG] Response was: " << res_str << std::endl;
+		std::cerr << "[DEBUG] Response was: " << res_str
+			<< " http rc: " << m_http_code << std::endl;
 #endif
 		return false;
 	}
