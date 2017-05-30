@@ -260,9 +260,8 @@ ExecStatusType PostgreSQLClient::create_schema(const std::string &name)
 	std::string name_esc = "";
 	escape_string(name, name_esc);
 	std::string query = "CREATE SCHEMA " + name_esc;
-	PostgreSQLResult result = exec(query.c_str());
 
-	return result.get_status();
+	return exec(query.c_str()).get_status();
 }
 
 ExecStatusType PostgreSQLClient::drop_schema(const std::string &name, bool if_exists)
@@ -273,9 +272,8 @@ ExecStatusType PostgreSQLClient::drop_schema(const std::string &name, bool if_ex
 	if (if_exists)
 		query += "IF EXISTS ";
 	query += name_esc;
-	PostgreSQLResult result = exec(query.c_str());
 
-	return result.get_status();
+	return exec(query.c_str()).get_status();
 }
 
 ExecStatusType PostgreSQLClient::show_tables(const std::string &schema,

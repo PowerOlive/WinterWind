@@ -92,8 +92,19 @@ protected:
 	{
 		INIT_PG_CLIENT
 		pg.register_embedded_statements();
-		CPPUNIT_ASSERT(pg.create_schema("test_schema") == PGRES_COMMAND_OK);
-		CPPUNIT_ASSERT(pg.create_schema("test_schema") != PGRES_COMMAND_OK);
+		CPPUNIT_ASSERT_MESSAGE("Schema creation (success)",
+			pg.create_schema("test_schema") == PGRES_COMMAND_OK);
+
+		ExecStatusType pg_status;
+		try {
+			pg_status = pg.create_schema("test_schema");
+		}
+		catch (db::PostgreSQLException &e) {
+			pg_status = PGRES_FATAL_ERROR;
+		}
+
+		CPPUNIT_ASSERT_MESSAGE("Schema creation (failure)",
+			pg_status == PGRES_FATAL_ERROR);
 		CPPUNIT_ASSERT(pg.drop_schema("test_schema") == PGRES_COMMAND_OK);
 	}
 
