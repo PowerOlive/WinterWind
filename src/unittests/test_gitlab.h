@@ -195,10 +195,16 @@ protected:
 	void remove_groups()
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
-		CPPUNIT_ASSERT(m_gitlab_client->delete_groups(
-				{"ww_testgroup_default_" + RUN_TIMESTAMP,
-				 "ww_testgroup2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK
-					   || m_gitlab_client->get_http_code() == 502);
+
+		GitlabRetCod rc = m_gitlab_client->delete_groups(
+			{"ww_testgroup_default_" + RUN_TIMESTAMP,
+				"ww_testgroup2_default_" + RUN_TIMESTAMP});
+
+		MARK_GITLAB_FAILURE_ON_INIT_IF
+
+		ONLY_IF_GITLAB_INIT_SUCCEED
+
+		CPPUNIT_ASSERT(rc == GITLAB_RC_OK);
 	}
 
 	void get_namespaces()
@@ -288,16 +294,29 @@ protected:
 	void remove_project()
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
-		CPPUNIT_ASSERT(m_gitlab_client->delete_project(std::string("ww_testproj_") +
-													   RUN_TIMESTAMP) == GITLAB_RC_OK);
+
+		GitlabRetCod rc = m_gitlab_client->delete_project(std::string("ww_testproj_") +
+			RUN_TIMESTAMP);
+		MARK_GITLAB_FAILURE_ON_INIT_IF
+
+		ONLY_IF_GITLAB_INIT_SUCCEED
+
+		CPPUNIT_ASSERT(rc == GITLAB_RC_OK);
 	}
 
 	void remove_projects()
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
-		CPPUNIT_ASSERT(m_gitlab_client->delete_projects(
-				{"ww_testproj1_default_" + RUN_TIMESTAMP,
-				 "ww_testproj2_default_" + RUN_TIMESTAMP}) == GITLAB_RC_OK);
+
+		GitlabRetCod rc = m_gitlab_client->delete_projects(
+			{"ww_testproj1_default_" + RUN_TIMESTAMP,
+				"ww_testproj2_default_" + RUN_TIMESTAMP});
+
+		MARK_GITLAB_FAILURE_ON_INIT_IF
+
+		ONLY_IF_GITLAB_INIT_SUCCEED
+
+		CPPUNIT_ASSERT(rc == GITLAB_RC_OK);
 	}
 
 	void create_label()
