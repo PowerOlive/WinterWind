@@ -116,7 +116,7 @@ public:
 		}
 
 		Json::Value groups;
-		if (m_gitlab_client->get_groups("ww_testgroup_", groups)) {
+		if (m_gitlab_client->get_groups("ww_testgroup_", groups) == GITLAB_RC_OK) {
 			std::regex re("ww_testgroup_([0-9]+)");
 			for (const auto &g : groups) {
 				std::smatch sm;
