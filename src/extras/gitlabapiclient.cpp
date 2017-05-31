@@ -494,8 +494,7 @@ GitlabAPIClient::get_groups(const std::string &filter, Json::Value &result)
 			(filter.length() ? "?" + filter : ""),
 		tmp_result);
 
-	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0 ||
-		!tmp_result.isArray()) {
+	if (m_http_code != 200 || !tmp_result.isArray()) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);
 	}
 

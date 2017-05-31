@@ -191,8 +191,9 @@ protected:
 	void remove_group()
 	{
 		ONLY_IF_GITLAB_INIT_SUCCEED
-		CPPUNIT_ASSERT(m_gitlab_client->delete_group(TEST_GROUP) == GITLAB_RC_OK
-					   || m_gitlab_client->get_http_code() == 502);
+		GitlabRetCode rc = m_gitlab_client->delete_group(TEST_GROUP);
+		CPPUNIT_ASSERT(rc == GITLAB_RC_OK || rc == GITLAB_RC_NOT_FOUND
+			|| m_gitlab_client->get_http_code() == 502);
 		MARK_GITLAB_FAILURE_ON_INIT_IF
 	}
 
@@ -210,7 +211,7 @@ protected:
 
 		std::string message = "Unable to remove groups. rc: " + std::to_string(rc)
 			+ " http code: " + std::to_string(m_gitlab_client->get_http_code());
-		CPPUNIT_ASSERT_MESSAGE(message, rc == GITLAB_RC_OK);
+		CPPUNIT_ASSERT_MESSAGE(message, rc == GITLAB_RC_OK || rc == GITLAB_RC_NOT_FOUND);
 	}
 
 	void get_namespaces()
