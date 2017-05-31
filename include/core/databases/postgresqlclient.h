@@ -82,15 +82,29 @@ private:
 	ExecStatusType m_status = PGRES_COMMAND_OK;
 };
 
+/**
+ * Contains table fields and indices
+ */
 struct PostgreSQLTableDefinition
 {
 	std::vector<DatabaseTableField> fields;
 	std::unordered_map<std::string, std::string> indexes;
 };
 
+/**
+ * PostgreSQL client
+ */
 class PostgreSQLClient: private DatabaseInterface
 {
 public:
+	/**
+	 * Construct PostgreSQL client and connect
+	 *
+	 * Throws a PostgreSQLException if connection failed
+	 *
+	 * @param connect_string
+	 * @param minimum_db_version
+	 */
 	PostgreSQLClient(const std::string &connect_string,
 		int32_t minimum_db_version = 90500);
 
