@@ -154,12 +154,14 @@ protected:
 				"ww_testgroup2_default_" + RUN_TIMESTAMP);
 
 		rc = m_gitlab_client->create_group(g2, res);
-		error_msg = std::string("Unable to create 2nd default group (rc: ");
-		error_msg += std::to_string(m_gitlab_client->get_http_code()) + ")";
-		CPPUNIT_ASSERT_MESSAGE(error_msg, rc
-										  || m_gitlab_client->get_http_code() == 502);
 
 		MARK_GITLAB_FAILURE_ON_INIT_IF
+
+		ONLY_IF_GITLAB_INIT_SUCCEED
+
+		error_msg = std::string("Unable to create 2nd default group (rc: ");
+		error_msg += std::to_string(m_gitlab_client->get_http_code()) + ")";
+		CPPUNIT_ASSERT_MESSAGE(error_msg, rc);
 	}
 
 	void create_group()
