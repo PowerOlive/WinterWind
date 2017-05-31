@@ -6,6 +6,10 @@ variables:
   POSTGRES_USER: unittests
   POSTGRES_PASSWORD: "un1Ttests"
   ES_HOST: elasticsearch
+  MYSQL_DATABASE: unittests_db
+  MYSQL_USER: unittests
+  MYSQL_PASSWORD: "un1Ttests"
+  MYSQL_ROOT_PASSWORD: "useless"
 
 before_script:
   - pacman --noconfirm -Sy archlinux-keyring
@@ -64,8 +68,9 @@ build:clang:
   stage: unittests
   environment: staging
   services:
-    - elasticsearch:5.2
+    - elasticsearch:5.4
     - postgres:latest
+    - mysql:latest
   dependencies:
     - build:clang
   script:
@@ -85,6 +90,7 @@ unittests:elasticsearch2:
   services:
     - elasticsearch:2
     - postgres:latest
+    - mysql:latest
 
 unittests:valgrind:
   <<: *unittests_definition

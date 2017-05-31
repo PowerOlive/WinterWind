@@ -131,6 +131,7 @@ protected:
 			create_table_ok = true;
 		}
 		catch (db::PostgreSQLException &e) {
+			std::cerr << e.what() << std::endl;
 		}
 
 		CPPUNIT_ASSERT(create_table_ok);
@@ -149,6 +150,7 @@ protected:
 			drop_ok = true;
 		}
 		catch (db::PostgreSQLException &e) {
+			std::cerr << e.what() << std::endl;
 		}
 
 		CPPUNIT_ASSERT(drop_ok);
@@ -168,6 +170,7 @@ protected:
 			insert_ok = true;
 		}
 		catch (db::PostgreSQLException &e) {
+			std::cerr << e.what() << std::endl;
 		}
 
 		CPPUNIT_ASSERT_MESSAGE("PostgreSQL INSERT Test", insert_ok);
@@ -192,6 +195,7 @@ protected:
 			insert_ok = true;
 		}
 		catch (db::PostgreSQLException &e) {
+			std::cerr << e.what() << std::endl;
 		}
 
 		CPPUNIT_ASSERT_MESSAGE("PostgreSQL Transaction INSERT Test", insert_ok);

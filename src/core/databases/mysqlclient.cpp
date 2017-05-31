@@ -31,19 +31,38 @@ namespace winterwind
 {
 namespace db
 {
-#define MYSQL_STORE_RES(_res)                                             \
-    MYSQL_RES *_res = mysql_store_result(m_conn);                         \
-    if (_res == NULL) {                                                   \
-        throw MySQLException("mysql_store_result failed " +               \
-                     std::string(mysql_error(m_conn)));                   \
-    }
-
 #define MYSQL_ROWLOOP(_res, _row)                                         \
     int num_fields = mysql_num_fields(_res);                              \
     MYSQL_ROW _row;                                                       \
     while ((_row = mysql_fetch_row(_res)))
 
 #define MYSQLROW_TO_STRING(_row, i) _row[i] ? std::string(_row[i], strlen(_row[i])) : "NULL"
+
+MySQLResult::MySQLResult(MYSQL *conn)
+{
+	m_result = mysql_use_result(conn);
+	if (!m_result && mysql_errno(conn) != 0) {
+		throw MySQLException("MySQLResult failed (errno: "
+			+ std::to_string(mysql_errno(conn))
+			+ "): '" + std::string(mysql_error(conn)) + "'");
+	}
+}
+
+MySQLResult::~MySQLResult()
+{
+	if (m_result) {
+		mysql_free_result(m_result);
+	}
+}
+
+MySQLResult::MySQLResult(MySQLResult &&other) :
+	m_result(std::move(other.m_result))
+{
+}
+
+/*
+ * MySQL Client
+ */
 
 MySQLClient::MySQLClient(const std::string &host, const std::string &user,
 	const std::string &password, uint16_t port, const std::string &db)
@@ -89,40 +108,52 @@ void MySQLClient::disconnect()
 	}
 }
 
-void MySQLClient::query(const std::string &query)
+MySQLResult MySQLClient::exec(const std::string &query)
 {
-	if (mysql_query(m_conn, query.c_str()) != 0) {
+	if (m_check_before_exec) {
+		check_connection();
+	}
+
+	if (mysql_real_query(m_conn, query.c_str(), query.size()) != 0) {
 		throw MySQLException("query failed " + std::string(mysql_error(m_conn)));
 	}
+
+	 return MySQLResult(m_conn);
 }
 
 void MySQLClient::begin()
 {
-	query("BEGIN");
+	exec("BEGIN");
 }
 
 void MySQLClient::commit()
 {
-	query("END");
+	exec("COMMIT");
 }
 
 void MySQLClient::rollback()
 {
-	query("ROLLBACK");
+	exec("ROLLBACK");
+}
+
+void MySQLClient::check_connection()
+{
+	if (!mysql_ping(m_conn)) {
+		disconnect();
+		connect();
+	}
 }
 
 void MySQLClient::list_tables(std::vector<std::string> &result)
 {
-	query("SHOW TABLES");
+	exec("SHOW TABLES");
 
-	MYSQL_STORE_RES(mysql_res)
-	MYSQL_ROWLOOP(mysql_res, row) {
+	MySQLResult mysql_res(m_conn);
+	MYSQL_ROWLOOP(*mysql_res, row) {
 		for (int i = 0; i < num_fields; i++) {
 			result.push_back(row[i] ? row[i] : "NULL");
 		}
 	}
-
-	mysql_free_result(mysql_res);
 }
 
 bool MySQLClient::get_table_definition(const std::string &table, std::string &res)
@@ -131,16 +162,15 @@ bool MySQLClient::get_table_definition(const std::string &table, std::string &re
 		return false;
 	}
 
-	query("SHOW CREATE TABLE " + table);
+	exec("SHOW CREATE TABLE " + table);
 
-	MYSQL_STORE_RES(mysql_res)
-	MYSQL_ROWLOOP(mysql_res, row) {
+	MySQLResult mysql_res(m_conn);
+	MYSQL_ROWLOOP(*mysql_res, row) {
 		for (int i = 0; i < num_fields; i++) {
 			res = (row[i] ? row[i] : "NULL");
 		}
 	}
 
-	mysql_free_result(mysql_res);
 	return true;
 }
 
@@ -150,14 +180,14 @@ bool MySQLClient::explain(const std::string &q, std::vector<MySQLExplainEntry> &
 		return false;
 	}
 
-	query("EXPLAIN " + q);
+	exec("EXPLAIN " + q);
 
-	MYSQL_STORE_RES(mysql_res)
+	MySQLResult mysql_res(m_conn);
 	MYSQL_FIELD *field;
-	MYSQL_ROWLOOP(mysql_res, row) {
+	MYSQL_ROWLOOP(*mysql_res, row) {
 		MySQLExplainEntry entry;
 		for (int i = 0; i < num_fields; i++) {
-			field = mysql_fetch_field(mysql_res);
+			field = mysql_fetch_field(*mysql_res);
 			if (strcmp(field->name, "id") == 0) {
 				entry.id = (uint16_t) (row[i] ? atoi(row[i]) : 0);
 			} else if (strcmp(field->name, "select_type") == 0) {
@@ -182,8 +212,6 @@ bool MySQLClient::explain(const std::string &q, std::vector<MySQLExplainEntry> &
 		}
 		res.push_back(entry);
 	}
-
-	mysql_free_result(mysql_res);
 	return true;
 }
 }

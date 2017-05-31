@@ -47,18 +47,32 @@ public:
 	{}
 };
 
+class MySQLResult
+{
+public:
+	MySQLResult(MYSQL *conn);
+	~MySQLResult();
+
+	MYSQL_RES *operator*() { return m_result; }
+
+	MySQLResult(MySQLResult &&other);
+	MySQLResult(MySQLResult &other) = delete;
+private:
+	MYSQL_RES *m_result = nullptr;
+};
+
 struct MySQLExplainEntry
 {
-	uint16_t id;
-	std::string select_type;
-	std::string table;
-	std::string type;
-	std::string possible_keys;
-	std::string key;
-	uint32 key_len;
-	std::string ref;
-	uint64 rows;
-	std::string extra;
+	uint16_t id = 0;
+	std::string select_type = "";
+	std::string table = "";
+	std::string type = "";
+	std::string possible_keys = "";
+	std::string key = "";
+	uint32 key_len = 0;
+	std::string ref = "";
+	uint64 rows = 0;
+	std::string extra = "";
 };
 
 class MySQLClient: private DatabaseInterface
@@ -95,7 +109,30 @@ public:
 	 */
 	void rollback();
 
-	void query(const std::string &query);
+	/**
+	 * Verify is MySQL connection is working.
+	 * If connection is inactive and database is up, reconnects.
+	 *
+	 * @throws MySQLException
+	 */
+	void check_connection();
+
+	/**
+	 * Exec raw SQL query
+	 *
+	 * @throws MySQLException if query failed
+	 * @param query
+	 * @return MySQLResult
+	 *
+	 */
+	MySQLResult exec(const std::string &query);
+
+	/**
+	 * Enable or disable connection check before execute a query
+	 *
+	 * @param e enable/disable flag
+	 */
+	void set_check_before_exec(bool e) { m_check_before_exec = e; }
 
 	void list_tables(std::vector<std::string> &result);
 
@@ -120,6 +157,7 @@ private:
 	std::string m_password = "";
 	std::string m_db = "";
 	uint16_t m_port = 3306;
+	bool m_check_before_exec = true;
 };
 }
 }

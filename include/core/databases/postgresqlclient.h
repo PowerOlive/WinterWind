@@ -42,8 +42,6 @@ public:
 	~PostgreSQLException() throw() {}
 };
 
-class PostgreSQLClient;
-
 /**
  * RAII class for PostgreSQL results
  */
@@ -203,7 +201,8 @@ protected:
 	/**
 	 * Verify is PostgreSQL connection is working.
 	 * If connection is inactive and database is up, reconnects.
-	 * Else throw an PostgreSQLException
+	 *
+	 * @throws PostgreSQLException
 	 */
 	void check_connection();
 

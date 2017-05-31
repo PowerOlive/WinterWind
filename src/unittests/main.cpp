@@ -32,6 +32,7 @@
 #include "test_time.h"
 #include "test_twitter.h"
 #include "test_threads.h"
+#include "test_mysql.h"
 
 int main(int argc, const char *argv[])
 {
@@ -86,6 +87,7 @@ int main(int argc, const char *argv[])
 		runner.addTest(winterwind::unittests::Test_Twitter::suite());
 	}
 
+	runner.addTest(winterwind::unittests::Test_MySQL::suite());
 	runner.addTest(winterwind::unittests::Test_Threads::suite());
 	runner.addTest(winterwind::unittests::Test_HTTP::suite());
 	runner.addTest(winterwind::unittests::Test_Misc::suite());
