@@ -208,7 +208,8 @@ protected:
 
 		ONLY_IF_GITLAB_INIT_SUCCEED
 
-		std::string message = "Unable to remove groups. rc: " + std::to_string(rc);
+		std::string message = "Unable to remove groups. rc: " + std::to_string(rc)
+			+ " http code: " + std::to_string(m_gitlab_client->get_http_code());
 		CPPUNIT_ASSERT_MESSAGE(message, rc == GITLAB_RC_OK);
 	}
 
