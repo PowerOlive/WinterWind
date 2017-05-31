@@ -29,7 +29,6 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
-#include <array>
 
 namespace winterwind
 {
@@ -44,12 +43,16 @@ PostgreSQLResult::PostgreSQLResult(PGresult *result):
 		case PGRES_TUPLES_OK:
 			break;
 		case PGRES_FATAL_ERROR:
-		default:
+		default: {
+			std::string errormsg("PostgreSQL database error: ");
+			errormsg += std::string(PQresultErrorMessage(result));
+
 			// This PQclear is mandatory. If an exception in thrown in constructor
 			// destructor is not called
 			PQclear(result);
-			throw PostgreSQLException(std::string("PostgreSQL database error: ") +
-				std::string(PQresultErrorMessage(result)));
+
+			throw PostgreSQLException(errormsg);
+		}
 	}
 }
 
@@ -57,7 +60,6 @@ PostgreSQLResult::PostgreSQLResult(PostgreSQLResult &&other):
 	m_result(std::move(other.m_result)),
 	m_status(std::move(other.m_status))
 {
-	other.m_result = nullptr;
 }
 
 PostgreSQLResult::~PostgreSQLResult()
@@ -73,7 +75,15 @@ PostgreSQLClient::PostgreSQLClient(const std::string &connect_string,
 	int32_t minimum_db_version)
 	: m_connect_string(connect_string), m_min_pgversion(minimum_db_version)
 {
-	connect();
+	try {
+		connect();
+	}
+	catch (PostgreSQLException &e) {
+		// On connection failure, disconnect & rethrow (destructor not called,
+		// we are in constructor)
+		disconnect();
+		throw e;
+	}
 }
 
 PostgreSQLClient::~PostgreSQLClient()
