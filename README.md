@@ -26,7 +26,7 @@ You need a full C++11 compliant compiler to use this library (GCC 5.1 or Clang 3
 ## Build
 
 ```bash
-mkdir build && cmake .. && make -jX && make install
+mkdir build && cd build && cmake .. && make -j X && make install
 ```
 
 # Components
