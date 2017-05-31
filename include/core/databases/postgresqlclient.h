@@ -100,7 +100,7 @@ public:
 	/**
 	 * Construct PostgreSQL client and connect
 	 *
-	 * Throws a PostgreSQLException if connection failed
+	 * @throws a PostgreSQLException if connection failed
 	 *
 	 * @param connect_string
 	 * @param minimum_db_version

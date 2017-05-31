@@ -64,6 +64,16 @@ struct MySQLExplainEntry
 class MySQLClient: private DatabaseInterface
 {
 public:
+	/**
+	 * Connect to a MySQL server
+	 *
+	 * @throws MySQLException on connection failure
+	 * @param host
+	 * @param user
+	 * @param password
+	 * @param port
+	 * @param db
+	 */
 	MySQLClient(const std::string &host, const std::string &user,
 		const std::string &password, uint16_t port = 3306,
 		const std::string &db = "");

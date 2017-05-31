@@ -49,7 +49,13 @@ MySQLClient::MySQLClient(const std::string &host, const std::string &user,
 	const std::string &password, uint16_t port, const std::string &db)
 	: m_host(host), m_user(user), m_password(password), m_port(port), m_db(db)
 {
-	connect();
+	try {
+		connect();
+	}
+	catch (MySQLException &e) {
+		disconnect();
+		throw e;
+	}
 }
 
 MySQLClient::~MySQLClient()
