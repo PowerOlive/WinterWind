@@ -730,7 +730,7 @@ GitlabAPIClient::delete_projects(const std::vector<std::string> &projects)
 {
 	for (const auto &p : projects) {
 		const GitlabRetCod rc = delete_project(p);
-		if (rc != GITLAB_RC_OK) {
+		if (rc != GITLAB_RC_OK && rc != GITLAB_RC_NOT_FOUND) {
 			return rc;
 		}
 	}

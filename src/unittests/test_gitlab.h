@@ -323,7 +323,7 @@ protected:
 
 		ONLY_IF_GITLAB_INIT_SUCCEED
 
-		CPPUNIT_ASSERT(rc == GITLAB_RC_OK);
+		CPPUNIT_ASSERT(rc == GITLAB_RC_OK || rc == GITLAB_RC_NOT_FOUND);
 	}
 
 	void create_label()
