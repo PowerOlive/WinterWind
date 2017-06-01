@@ -34,10 +34,12 @@
 
 #include <extras/openweathermapclient.h>
 #include <extras/luaextraengine.h>
+#include <core/utils/jsonwebtokens.h>
 
 #include "cmake_config.h"
 
 using namespace winterwind::extras;
+using namespace winterwind::web;
 
 namespace winterwind {
 namespace unittests {
@@ -47,6 +49,7 @@ class Test_Misc : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE(Test_Misc);
 	CPPUNIT_TEST(weather_to_json);
 	CPPUNIT_TEST(lua_winterwind_engine);
+	CPPUNIT_TEST(jsonwebtokens_hs256);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -82,6 +85,22 @@ protected:
 		CPPUNIT_ASSERT(res["humidity"].asInt() == 4);
 		CPPUNIT_ASSERT(res["temperature"].asFloat() == 25.0f);
 		CPPUNIT_ASSERT(res["city"].asString() == "test_city");
+	}
+
+	void jsonwebtokens_hs256()
+	{
+		Json::Value payload;
+		payload["sub"] = "1234567890";
+		payload["name"] = "John Doe";
+		payload["admin"] = true;
+		JsonWebToken jwt(JsonWebToken::Algorithm::HS256, payload, "secret");
+
+		std::string res;
+		jwt.get(res);
+
+		CPPUNIT_ASSERT(res.compare("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9Cg==."
+			"eyJhZG1pbiI6dHJ1ZSwibmFtZSI6IkpvaG4gRG9lIiwic3ViIjoiMTIzNDU2Nzg5MCJ9Cg==."
+			"tyCpKsAQHAVmicQEgpaoYO1VGeg6kCmFeheW0oJ+U7A=") == 0);
 	}
 };
 }

@@ -31,6 +31,7 @@ option(ENABLE_HTTPSERVER "Enable HTTP server features" TRUE)
 option(ENABLE_REDIS "Enable redis client" TRUE)
 option(ENABLE_OAUTHCLIENT "Enable OAuth client (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_LUA_ENGINE "Enable lua engine" TRUE)
+option(ENABLE_JWT "Enable Json WebTokens" TRUE)
 
 set(SRC_FILES
 	utils/base64.cpp
@@ -80,6 +81,11 @@ if (ENABLE_MYSQL)
 	set(SRC_FILES ${SRC_FILES} databases/mysqlclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/databases/mysqlclient.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} mysqlclient)
+endif()
+
+if (ENABLE_JWT)
+	set(SRC_FILES ${SRC_FILES} utils/jsonwebtokens.cpp)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/util/jsonwebtokens.h)
 endif()
 
 if (ENABLE_HTTPCLIENT)
