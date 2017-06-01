@@ -55,6 +55,18 @@ int LuaString::l_base64_encode(lua_State *L)
 	return 1;
 }
 
+int LuaString::l_hmac_md5(lua_State *L)
+{
+	if (lua_isnil(L, 1) || lua_isnil(L, 2)) {
+		return 0;
+	}
+
+	std::string key = read<std::string>(L, 1);
+	std::string to_hash = read<std::string>(L, 2);
+	write<std::string>(L, hmac_md5(key, to_hash));
+	return 1;
+}
+
 int LuaString::l_hmac_sha1(lua_State *L)
 {
 	if (lua_isnil(L, 1) || lua_isnil(L, 2)) {
@@ -64,6 +76,18 @@ int LuaString::l_hmac_sha1(lua_State *L)
 	std::string key = read<std::string>(L, 1);
 	std::string to_hash = read<std::string>(L, 2);
 	write<std::string>(L, hmac_sha1(key, to_hash));
+	return 1;
+}
+
+int LuaString::l_hmac_sha256(lua_State *L)
+{
+	if (lua_isnil(L, 1) || lua_isnil(L, 2)) {
+		return 0;
+	}
+
+	std::string key = read<std::string>(L, 1);
+	std::string to_hash = read<std::string>(L, 2);
+	write<std::string>(L, hmac_sha256(key, to_hash));
 	return 1;
 }
 
@@ -138,7 +162,9 @@ void LuaString::register_functions(LuaEngine *engine, int top)
 {
 	engine->REGISTER_LUA_FCT(base64_encode);
 	engine->REGISTER_LUA_FCT(base64_decode);
+	engine->REGISTER_LUA_FCT(hmac_md5);
 	engine->REGISTER_LUA_FCT(hmac_sha1);
+	engine->REGISTER_LUA_FCT(hmac_sha256);
 	engine->REGISTER_LUA_FCT(read_json);
 	engine->REGISTER_LUA_FCT(write_json);
 	engine->REGISTER_LUA_FCT(string_to_hex);

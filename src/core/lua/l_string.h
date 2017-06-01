@@ -40,7 +40,11 @@ private:
 
 	static int l_base64_encode(lua_State *L);
 
+	static int l_hmac_md5(lua_State *L);
+
 	static int l_hmac_sha1(lua_State *L);
+
+	static int l_hmac_sha256(lua_State *L);
 
 	static int l_read_json(lua_State *L);
 
