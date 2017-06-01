@@ -26,14 +26,43 @@
 #include "utils/hmac.h"
 #include <openssl/hmac.h>
 
-std::string hmac_sha1(const std::string &key, const std::string &data)
-{
-	unsigned char *digest;
+#define MD5_LEN 16
+#define SHA1_LEN 20
+#define SHA256_LEN 32
 
-	digest = HMAC(EVP_sha1(), key.c_str(), key.length(), (unsigned char *)data.c_str(), data.length(), NULL, NULL);
+std::string hmac_md5(const std::string &key, const std::string &data)
+{
+	unsigned char *digest = HMAC(EVP_md5(), key.c_str(), key.length(),
+			(unsigned char *)data.c_str(), data.length(), NULL, NULL);
 
 	std::string res = "";
-	for (int i = 0; i < 20; i++) {
+	for (int i = 0; i < MD5_LEN; i++) {
+		res += digest[i];
+	}
+
+	return res;
+}
+
+std::string hmac_sha1(const std::string &key, const std::string &data)
+{
+	unsigned char *digest = HMAC(EVP_sha1(), key.c_str(), key.length(),
+		(unsigned char *)data.c_str(), data.length(), NULL, NULL);
+
+	std::string res = "";
+	for (int i = 0; i < SHA1_LEN; i++) {
+		res += digest[i];
+	}
+
+	return res;
+}
+
+std::string hmac_sha256(const std::string &key, const std::string &data)
+{
+	unsigned char *digest = HMAC(EVP_sha256(), key.c_str(), key.length(),
+			(unsigned char *)data.c_str(), data.length(), NULL, NULL);
+
+	std::string res = "";
+	for (int i = 0; i < SHA256_LEN; i++) {
 		res += digest[i];
 	}
 

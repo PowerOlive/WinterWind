@@ -28,9 +28,25 @@
 #include <string>
 
 /**
+ * Hash data with key using hmac_md5 algorithm
+ * @param key
+ * @param data
+ * @return hmac_md5 binary string
+ */
+std::string hmac_md5(const std::string &key, const std::string &data);
+
+/**
  * Hash data with key using hmac_sha1 algorithm
  * @param key
  * @param data
  * @return hmac_sha1 binary string
  */
 std::string hmac_sha1(const std::string &key, const std::string &data);
+
+/**
+ * Hash data with key using hmac_sha1 algorithm
+ * @param key
+ * @param data
+ * @return hmac_sha256 binary string
+ */
+std::string hmac_sha256(const std::string &key, const std::string &data);

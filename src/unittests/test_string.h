@@ -49,7 +49,9 @@ class Test_String : public CppUnit::TestFixture
 	CPPUNIT_TEST(base64_encode_test);
 	CPPUNIT_TEST(base64_encode_test2);
 	CPPUNIT_TEST(base64_decode_test);
+	CPPUNIT_TEST(hmac_md5_test);
 	CPPUNIT_TEST(hmac_sha1_test);
+	CPPUNIT_TEST(hmac_sha256_test);
 	CPPUNIT_TEST(str_hex);
 	CPPUNIT_TEST_SUITE_END();
 
@@ -106,10 +108,28 @@ protected:
 		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
 	}
 
+	void hmac_md5_test()
+	{
+		static const std::string expected_result = "P4Dt/+VJbIzei9pPGqWybQ==";
+		std::string res = base64_encode(hmac_md5("unittest_key_5", "hashthatmd5"));
+		std::string message = res + " != '" + expected_result + "'";
+		CPPUNIT_ASSERT_MESSAGE(message, res == expected_result);
+	}
+
 	void hmac_sha1_test()
 	{
-		std::string res = hmac_sha1("unittest_key", "hashthatthing");
-		CPPUNIT_ASSERT(base64_encode(res) == "rfsumIkQ/lUjuI68D1t0eJe/PgE=");
+		static const std::string expected_result = "rfsumIkQ/lUjuI68D1t0eJe/PgE=";
+		std::string res = base64_encode(hmac_sha1("unittest_key", "hashthatthing"));
+		std::string message = res + " != '" + expected_result + "'";
+		CPPUNIT_ASSERT_MESSAGE(message, res == expected_result);
+	}
+
+	void hmac_sha256_test()
+	{
+		static const std::string expected_result = "gcYLiiayTR4BW+X4U4WOnEYPM54Jv7iUwssb0EPYwWU=";
+		std::string res = base64_encode(hmac_sha256("unittest_key_256", "hashthat256thing"));
+		std::string message = res + " != '" + expected_result + "'";
+		CPPUNIT_ASSERT_MESSAGE(message, res == expected_result);
 	}
 };
 }

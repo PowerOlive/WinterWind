@@ -83,11 +83,11 @@ int main(int argc, const char *argv[])
 
 		runner.addTest(winterwind::unittests::Test_Elasticsearch::suite());
 		runner.addTest(winterwind::unittests::Test_Gitlab::suite());
+		runner.addTest(winterwind::unittests::Test_MySQL::suite());
 		runner.addTest(winterwind::unittests::Test_PostgreSQL::suite());
 		runner.addTest(winterwind::unittests::Test_Twitter::suite());
 	}
 
-	runner.addTest(winterwind::unittests::Test_MySQL::suite());
 	runner.addTest(winterwind::unittests::Test_Threads::suite());
 	runner.addTest(winterwind::unittests::Test_HTTP::suite());
 	runner.addTest(winterwind::unittests::Test_Misc::suite());
