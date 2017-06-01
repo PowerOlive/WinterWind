@@ -28,6 +28,8 @@
 #include <cassert>
 #include <core/httpclient.h>
 #include <core/utils/hmac.h>
+#include <core/utils/stringutils.h>
+#include <iostream>
 #include "utils/jsonwebtokens.h"
 
 namespace winterwind {
@@ -64,7 +66,43 @@ void JsonWebToken::get(std::string &result) const
 
 	std::string signature = hmac_sha256(m_secret, tmp_result);
 	tmp_result += "." + base64_encode(signature);
+
+	// Strip '=' char from the whole string
+	str_remove_substr(tmp_result, "=");
+
 	result = std::move(tmp_result);
+}
+
+JsonWebToken::JWTStatus JsonWebToken::decode(std::string raw_token)
+{
+	// Strip '=' char
+	str_remove_substr(raw_token, "=");
+
+	std::vector<std::string> res = {};
+	str_split(raw_token, '.', res);
+	if (res.size() != 3) {
+		return STATUS_INVALID_STRING;
+	}
+
+	Json::Reader reader;
+	if (!reader.parse(base64_urldecode(res[0]), m_header)) {
+		return STATUS_JSON_PARSE_ERROR;
+	}
+
+	Json::Value payload;
+	if (!reader.parse(base64_urldecode(res[1]), m_payload)) {
+		return STATUS_JSON_PARSE_ERROR;
+	}
+
+	std::string signature = base64_urlencode(hmac_sha256(m_secret, res[0] + "." + res[1]));
+	// Strip '=' char
+	str_remove_substr(signature, "=");
+
+	if (signature.compare(res[2]) != 0) {
+		return STATUS_INVALID_SIGNATURE;
+	}
+
+	return STATUS_OK;
 }
 
 }

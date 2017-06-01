@@ -32,17 +32,37 @@ namespace web {
 
 class JsonWebToken {
 public:
-	enum Algorithm {
-		HS256,
+	enum Algorithm: uint8_t {
+		ALG_HS256,
 		JWT_ALG_MAX,
 	};
 
+	enum JWTStatus: uint8_t {
+		STATUS_OK = 0,
+		STATUS_INVALID_STRING,
+		STATUS_JSON_PARSE_ERROR,
+		STATUS_INVALID_SIGNATURE,
+	};
+
 	JsonWebToken(Algorithm alg, const Json::Value &payload, const std::string &secret);
+	JsonWebToken(const std::string &secret) :
+		m_secret(secret)
+	{}
+
 	~JsonWebToken() {}
 
+	/**
+	 * Generate JWT from object attributes and store it to result
+	 *
+	 * @param result
+	 */
 	void get(std::string &result) const;
+
+	JWTStatus decode(std::string raw_token);
+
+	Json::Value get_payload() const { return m_payload; }
 private:
-	Algorithm m_algorithm = HS256;
+	Algorithm m_algorithm = ALG_HS256;
 	Json::Value m_header = {};
 	Json::Value m_payload = {};
 	std::string m_secret = "";

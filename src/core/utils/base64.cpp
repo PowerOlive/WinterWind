@@ -36,7 +36,7 @@ static inline bool is_base64(unsigned char c) { return (isalnum(c) || (c == '+')
 std::string base64_encode_priv(unsigned char const *bytes_to_encode, unsigned int in_len,
 		const std::string &chars)
 {
-	std::string ret;
+	std::string ret = "";
 	int i = 0;
 	unsigned char char_array_3[3];
 	unsigned char char_array_4[4];
@@ -78,12 +78,12 @@ std::string base64_encode_priv(unsigned char const *bytes_to_encode, unsigned in
 
 std::string base64_encode(const std::string &str)
 {
-	return base64_encode((const unsigned char *) str.data(), str.size());
+	return base64_encode((const unsigned char *) str.c_str(), str.size());
 }
 
 std::string base64_urlencode(const std::string &str)
 {
-	return base64_urlencode((const unsigned char *) str.data(), str.size());
+	return base64_urlencode((const unsigned char *) str.c_str(), str.size());
 }
 
 /*
@@ -97,7 +97,7 @@ std::string base64_decode_priv(const std::string &encoded_string,
 	int i = 0;
 	int in_ = 0;
 	unsigned char char_array_4[4], char_array_3[3];
-	std::string ret;
+	std::string ret = "";
 
 	while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
 		char_array_4[i++] = encoded_string[in_];
