@@ -27,13 +27,14 @@
 #include "utils/base64.h"
 #include <iostream>
 
-static const std::string base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-					"abcdefghijklmnopqrstuvwxyz"
-					"0123456789+/";
-
 static inline bool is_base64(unsigned char c) { return (isalnum(c) || (c == '+') || (c == '/')); }
 
-std::string base64_encode(unsigned char const *bytes_to_encode, unsigned int in_len)
+/*
+ * Base64 encoding private interface
+ */
+
+std::string base64_encode_priv(unsigned char const *bytes_to_encode, unsigned int in_len,
+		const std::string &chars)
 {
 	std::string ret;
 	int i = 0;
@@ -51,7 +52,7 @@ std::string base64_encode(unsigned char const *bytes_to_encode, unsigned int in_
 			char_array_4[3] = char_array_3[2] & 0x3f;
 
 			for (i = 0; (i < 4); i++)
-				ret += base64_chars[char_array_4[i]];
+				ret += chars[char_array_4[i]];
 			i = 0;
 		}
 	}
@@ -66,7 +67,7 @@ std::string base64_encode(unsigned char const *bytes_to_encode, unsigned int in_
 		char_array_4[3] = char_array_3[2] & 0x3f;
 
 		for (int j = 0; (j < i + 1); j++)
-			ret += base64_chars[char_array_4[j]];
+			ret += chars[char_array_4[j]];
 
 		while ((i++ < 3))
 			ret += '=';
@@ -80,7 +81,17 @@ std::string base64_encode(const std::string &str)
 	return base64_encode((const unsigned char *) str.data(), str.size());
 }
 
-std::string base64_decode(const std::string &encoded_string)
+std::string base64_urlencode(const std::string &str)
+{
+	return base64_urlencode((const unsigned char *) str.data(), str.size());
+}
+
+/*
+ * Base64 decoding private interface
+ */
+
+std::string base64_decode_priv(const std::string &encoded_string,
+	   const std::string &chars)
 {
 	int in_len = encoded_string.size();
 	int i = 0;
@@ -93,7 +104,7 @@ std::string base64_decode(const std::string &encoded_string)
 		in_++;
 		if (i == 4) {
 			for (i = 0; i < 4; i++)
-				char_array_4[i] = base64_chars.find(char_array_4[i]);
+				char_array_4[i] = chars.find(char_array_4[i]);
 
 			char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
 			char_array_3[1] =
@@ -111,7 +122,7 @@ std::string base64_decode(const std::string &encoded_string)
 			char_array_4[j] = 0;
 
 		for (int j = 0; j < 4; j++)
-			char_array_4[j] = base64_chars.find(char_array_4[j]);
+			char_array_4[j] = chars.find(char_array_4[j]);
 
 		char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
 		char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
@@ -122,4 +133,31 @@ std::string base64_decode(const std::string &encoded_string)
 	}
 
 	return ret;
+}
+
+static const std::string base64_chars =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+static const std::string base64url_chars =
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+
+
+std::string base64_encode(unsigned char const *str, unsigned int len)
+{
+	return base64_encode_priv(str, len, base64_chars);
+}
+
+std::string base64_urlencode(unsigned char const *str, unsigned int len)
+{
+	return base64_encode_priv(str, len, base64url_chars);
+}
+
+std::string base64_decode(std::string const &s)
+{
+	return base64_decode_priv(s, base64_chars);
+}
+
+std::string base64_urldecode(std::string const &s)
+{
+	return base64_decode_priv(s, base64url_chars);
 }

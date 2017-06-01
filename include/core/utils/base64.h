@@ -37,6 +37,14 @@
 std::string base64_encode(unsigned char const *str, unsigned int len);
 
 /**
+ * URLEncode str with len to base64 and return the std::string result
+ * @param str string to encode
+ * @param len string length to encode
+ * @return encoded string
+ */
+std::string base64_urlencode(unsigned char const *str, unsigned int len);
+
+/**
  * Encode str to base64
  * @param str string to encode
  * @return encoded string
@@ -44,8 +52,23 @@ std::string base64_encode(unsigned char const *str, unsigned int len);
 std::string base64_encode(const std::string &str);
 
 /**
+ * URLEncode str to base64
+ * @param str string to encode
+ * @return encoded string
+ */
+std::string base64_urlencode(const std::string &str);
+
+/**
  * Decode a base64 encoded string
  * @param s string to decode
  * @return decoded string
  */
 std::string base64_decode(std::string const &s);
+
+
+/**
+ * Decode a base64 urlencoded string
+ * @param s string to decode
+ * @return decoded string
+ */
+std::string base64_urldecode(std::string const &s);

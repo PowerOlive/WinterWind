@@ -127,9 +127,14 @@ public:
 	bool _put_json(const std::string &url, const Json::Value &data, Json::Value &res,
 		int32_t flags = HTTPClient::REQ_SIMPLE);
 
-	virtual long get_http_code() const
-	{ return m_http_code; }
+	virtual long get_http_code() const { return m_http_code; }
 
+	/**
+	 * HTTP Escape src string
+	 *
+	 * @param src
+	 * @param dst
+	 */
 	void http_string_escape(const std::string &src, std::string &dst);
 
 protected:

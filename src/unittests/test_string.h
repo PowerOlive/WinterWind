@@ -48,7 +48,10 @@ class Test_String : public CppUnit::TestFixture
 	CPPUNIT_TEST(remove_substring);
 	CPPUNIT_TEST(base64_encode_test);
 	CPPUNIT_TEST(base64_encode_test2);
+	CPPUNIT_TEST(base64_urlencode_test);
+	CPPUNIT_TEST(base64_urlencode_test2);
 	CPPUNIT_TEST(base64_decode_test);
+	CPPUNIT_TEST(base64_urldecode_test);
 	CPPUNIT_TEST(hmac_md5_test);
 	CPPUNIT_TEST(hmac_sha1_test);
 	CPPUNIT_TEST(hmac_sha256_test);
@@ -106,6 +109,30 @@ protected:
 		std::string src = "unittest_b64encode";
 		std::string res = base64_encode(src);
 		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
+	}
+
+	void base64_urlencode_test()
+	{
+		std::string src = "unittest_b64urlencode / me";
+		std::string res = base64_urlencode((const unsigned char *) src.c_str(), src.size());
+		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0dXJsZW5jb2RlIC8gbWU=") == 0);
+	}
+
+	void base64_urldecode_test()
+	{
+		std::string src = "dW5pdHRlc3RfYjY0dXJsZGVjb2RlIC8gbWU=";
+		std::string res = base64_urldecode(src);
+
+		static const std::string req_result = "unittest_b64urldecode / me";
+
+		CPPUNIT_ASSERT_MESSAGE(res + " != " + req_result, res.compare(req_result) == 0);
+	}
+
+	void base64_urlencode_test2()
+	{
+		std::string src = "unittest_b64urlencode / me";
+		std::string res = base64_urlencode(src);
+		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0dXJsZW5jb2RlIC8gbWU=") == 0);
 	}
 
 	void hmac_md5_test()
