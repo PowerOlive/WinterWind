@@ -26,6 +26,7 @@
 #pragma once
 
 #include <json/json.h>
+#include <ctime>
 
 namespace winterwind {
 namespace web {
@@ -46,6 +47,11 @@ public:
 		STATUS_INVALID_SIGNATURE,
 	};
 
+	enum JWTGenStatus: uint8_t {
+		GENSTATUS_OK,
+		GENSTATUS_JWT_CLAIM_IN_PAYLOAD,
+	};
+
 	JsonWebToken(Algorithm alg, const Json::Value &payload, const std::string &secret);
 	JsonWebToken(const std::string &secret) :
 		m_secret(secret)
@@ -53,14 +59,20 @@ public:
 
 	~JsonWebToken() {}
 
+	JsonWebToken &issuedAt(std::time_t when);
+	JsonWebToken &expirationTime(std::time_t when);
+	JsonWebToken &issuer(const std::string &issuer);
+	JsonWebToken &subject(const std::string &subject);
+
 	/**
 	 * Generate JWT from object attributes and store it to result
 	 *
 	 * @param result
+	 * @returns successful generation
 	 */
-	void get(std::string &result) const;
+	JWTGenStatus get(std::string &result) const;
 
-	JWTStatus decode(std::string raw_token);
+	JWTStatus read_and_verify(std::string raw_token);
 
 	Json::Value get_payload() const { return m_payload; }
 private:
@@ -70,6 +82,15 @@ private:
 	Json::Value m_header = {};
 	Json::Value m_payload = {};
 	std::string m_secret = "";
+
+	std::string m_issuer = "";
+	bool m_issuer_set = false;
+	std::string m_subject = "";
+	bool m_subject_set = false;
+	std::time_t m_issued_at = 0;
+	bool m_issued_at_set = false;
+	std::time_t m_expiration_time = 0;
+	bool m_expirationtime_set = false;
 };
 }
 }

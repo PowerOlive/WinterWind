@@ -49,9 +49,16 @@ JsonWebToken::JsonWebToken(Algorithm alg, const Json::Value &payload,
 {
 }
 
-void JsonWebToken::get(std::string &result) const
+JsonWebToken::JWTGenStatus JsonWebToken::get(std::string &result) const
 {
 	assert(m_algorithm < Algorithm::JWT_ALG_MAX);
+
+	// Forbid JWT reserved claim in payload
+	for (const auto &m: {"iss", "exp", "iat", "sub"}) {
+		if (m_payload.isMember(m)) {
+			return JWTGenStatus::GENSTATUS_JWT_CLAIM_IN_PAYLOAD;
+		}
+	}
 
 	Json::FastWriter json_writer;
 	std::string tmp_result = "";
@@ -64,8 +71,30 @@ void JsonWebToken::get(std::string &result) const
 		tmp_result = base64_urlencode(json_writer.write(header)) + ".";
 	}
 
-	tmp_result += base64_urlencode(json_writer.write(m_payload));
+	// Copy payload to add reserved claims
+	Json::Value final_payload = m_payload;
 
+	// Add reserved claims
+	if (m_subject_set) {
+		final_payload["sub"] = m_subject;
+	}
+
+	if (m_issuer_set) {
+		final_payload["iss"] = m_issuer;
+	}
+
+	if (m_expirationtime_set) {
+		final_payload["exp"] = m_expiration_time;
+	}
+
+	if (m_issued_at_set) {
+		final_payload["iat"] = m_issued_at;
+	}
+
+	// concat payload with header
+	tmp_result += base64_urlencode(json_writer.write(final_payload));
+
+	// Sign from current concat header . payload
 	std::string signature;
 	sign(tmp_result, signature);
 
@@ -75,9 +104,10 @@ void JsonWebToken::get(std::string &result) const
 	str_remove_substr(tmp_result, "=");
 
 	result = std::move(tmp_result);
+	return JWTGenStatus::GENSTATUS_OK;
 }
 
-JsonWebToken::JWTStatus JsonWebToken::decode(std::string raw_token)
+JsonWebToken::JWTStatus JsonWebToken::read_and_verify(std::string raw_token)
 {
 	// Strip '=' char
 	str_remove_substr(raw_token, "=");
@@ -117,6 +147,34 @@ void JsonWebToken::sign(const std::string &payload, std::string &signature) cons
 		case ALG_HS512: signature = std::move(hmac_sha512(m_secret, payload)); break;
 		default: assert(false);
 	}
+}
+
+JsonWebToken & JsonWebToken::issuedAt(std::time_t when)
+{
+	m_issued_at = when;
+	m_issuer_set = true;
+	return *this;
+}
+
+JsonWebToken & JsonWebToken::expirationTime(std::time_t when)
+{
+	m_expiration_time = when;
+	m_expirationtime_set = true;
+	return *this;
+}
+
+JsonWebToken& JsonWebToken::subject(const std::string &subject)
+{
+	m_subject = subject;
+	m_subject_set = true;
+	return *this;
+}
+
+JsonWebToken& JsonWebToken::issuer(const std::string &issuer)
+{
+	m_issuer = issuer;
+	m_issuer_set = true;
+	return *this;
 }
 
 }

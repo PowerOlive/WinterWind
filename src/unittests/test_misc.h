@@ -49,6 +49,7 @@ class Test_Misc : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE(Test_Misc);
 	CPPUNIT_TEST(weather_to_json);
 	CPPUNIT_TEST(lua_winterwind_engine);
+	CPPUNIT_TEST(jsonwebtokens_write_payload_reserved_claim);
 	CPPUNIT_TEST(jsonwebtokens_write_hs256);
 	CPPUNIT_TEST(jsonwebtokens_read_hs256);
 	CPPUNIT_TEST_SUITE_END();
@@ -88,7 +89,7 @@ protected:
 		CPPUNIT_ASSERT(res["city"].asString() == "test_city");
 	}
 
-	void jsonwebtokens_write_hs256()
+	void jsonwebtokens_write_payload_reserved_claim()
 	{
 		Json::Value payload;
 		payload["sub"] = "1234567890";
@@ -97,11 +98,23 @@ protected:
 		JsonWebToken jwt(JsonWebToken::Algorithm::ALG_HS256, payload, "secret");
 
 		std::string res;
-		jwt.get(res);
+		CPPUNIT_ASSERT(jwt.get(res) == JsonWebToken::JWTGenStatus::GENSTATUS_JWT_CLAIM_IN_PAYLOAD);
+	}
 
-		CPPUNIT_ASSERT(res.compare("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9Cg."
-			"eyJhZG1pbiI6dHJ1ZSwibmFtZSI6IkpvaG4gRG9lIiwic3ViIjoiMTIzNDU2Nzg5MCJ9Cg."
-			"tyCpKsAQHAVmicQEgpaoYO1VGeg6kCmFeheW0oJ+U7A") == 0);
+	void jsonwebtokens_write_hs256()
+	{
+		Json::Value payload;
+		payload["name"] = "John Doe";
+		payload["admin"] = true;
+		JsonWebToken jwt(JsonWebToken::Algorithm::ALG_HS256, payload, "secret");
+		jwt.subject("1234567890");
+
+		std::string res;
+		CPPUNIT_ASSERT(jwt.get(res) == JsonWebToken::JWTGenStatus::GENSTATUS_OK);
+
+		static const std::string raw_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9Cg.eyJhZG1pbiI6dHJ1ZSwibmFtZSI6IkpvaG4gRG9lIiwic3ViIjoiMTIzNDU2Nzg5MCJ9Cg.tyCpKsAQHAVmicQEgpaoYO1VGeg6kCmFeheW0oJ+U7A";
+		const std::string message = res + " != " + raw_jwt;
+		CPPUNIT_ASSERT_MESSAGE(message, res.compare(raw_jwt) == 0);
 	}
 
 	void jsonwebtokens_read_hs256()
@@ -111,7 +124,7 @@ protected:
 			"GunUY5CARG1fNOHd9cOneFQQfT-OlF1gWB8SeyaXTAE";
 
 		JsonWebToken jwt("secret");
-		JsonWebToken::JWTStatus rc = jwt.decode(raw_jwt);
+		JsonWebToken::JWTStatus rc = jwt.read_and_verify(raw_jwt);
 		CPPUNIT_ASSERT(rc == JsonWebToken::STATUS_OK);
 	}
 };
