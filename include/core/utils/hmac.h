@@ -44,9 +44,25 @@ std::string hmac_md5(const std::string &key, const std::string &data);
 std::string hmac_sha1(const std::string &key, const std::string &data);
 
 /**
- * Hash data with key using hmac_sha1 algorithm
+ * Hash data with key using hmac_sha256 algorithm
  * @param key
  * @param data
  * @return hmac_sha256 binary string
  */
 std::string hmac_sha256(const std::string &key, const std::string &data);
+
+/**
+ * Hash data with key using hmac_sha384 algorithm
+ * @param key
+ * @param data
+ * @return hmac_sha384 binary string
+ */
+std::string hmac_sha384(const std::string &key, const std::string &data);
+
+/**
+ * Hash data with key using hmac_sha512 algorithm
+ * @param key
+ * @param data
+ * @return hmac_sha512 binary string
+ */
+std::string hmac_sha512(const std::string &key, const std::string &data);

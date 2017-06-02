@@ -29,42 +29,44 @@
 #define MD5_LEN 16
 #define SHA1_LEN 20
 #define SHA256_LEN 32
+#define SHA384_LEN 48
+#define SHA512_LEN 64
 
-std::string hmac_md5(const std::string &key, const std::string &data)
+inline std::string hmac_generic(const std::string &key, const std::string &data,
+		const evp_md_st *(*F)(void), uint16_t hash_len)
 {
-	unsigned char *digest = HMAC(EVP_md5(), key.c_str(), key.length(),
-			(unsigned char *)data.c_str(), data.length(), NULL, NULL);
+	unsigned char *digest = HMAC(F(), key.c_str(), key.length(),
+		(unsigned char *)data.c_str(), data.length(), NULL, NULL);
 
 	std::string res = "";
-	for (int i = 0; i < MD5_LEN; i++) {
+	for (int i = 0; i < hash_len; i++) {
 		res += digest[i];
 	}
 
 	return res;
+};
+
+std::string hmac_md5(const std::string &key, const std::string &data)
+{
+	return hmac_generic(key, data, EVP_md5, MD5_LEN);
 }
 
 std::string hmac_sha1(const std::string &key, const std::string &data)
 {
-	unsigned char *digest = HMAC(EVP_sha1(), key.c_str(), key.length(),
-		(unsigned char *)data.c_str(), data.length(), NULL, NULL);
-
-	std::string res = "";
-	for (int i = 0; i < SHA1_LEN; i++) {
-		res += digest[i];
-	}
-
-	return res;
+	return hmac_generic(key, data, EVP_sha1, SHA1_LEN);
 }
 
 std::string hmac_sha256(const std::string &key, const std::string &data)
 {
-	unsigned char *digest = HMAC(EVP_sha256(), key.c_str(), key.length(),
-			(unsigned char *)data.c_str(), data.length(), NULL, NULL);
+	return hmac_generic(key, data, EVP_sha256, SHA256_LEN);
+}
 
-	std::string res = "";
-	for (int i = 0; i < SHA256_LEN; i++) {
-		res += digest[i];
-	}
+std::string hmac_sha384(const std::string &key, const std::string &data)
+{
+	return hmac_generic(key, data, EVP_sha384, SHA384_LEN);
+}
 
-	return res;
+std::string hmac_sha512(const std::string &key, const std::string &data)
+{
+	return hmac_generic(key, data, EVP_sha512, SHA512_LEN);
 }

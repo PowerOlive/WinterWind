@@ -91,6 +91,30 @@ int LuaString::l_hmac_sha256(lua_State *L)
 	return 1;
 }
 
+int LuaString::l_hmac_sha384(lua_State *L)
+{
+	if (lua_isnil(L, 1) || lua_isnil(L, 2)) {
+		return 0;
+	}
+
+	std::string key = read<std::string>(L, 1);
+	std::string to_hash = read<std::string>(L, 2);
+	write<std::string>(L, hmac_sha384(key, to_hash));
+	return 1;
+}
+
+int LuaString::l_hmac_sha512(lua_State *L)
+{
+	if (lua_isnil(L, 1) || lua_isnil(L, 2)) {
+		return 0;
+	}
+
+	std::string key = read<std::string>(L, 1);
+	std::string to_hash = read<std::string>(L, 2);
+	write<std::string>(L, hmac_sha512(key, to_hash));
+	return 1;
+}
+
 int LuaString::l_read_json(lua_State *L)
 {
 	const char *jsonstr = luaL_checkstring(L, 1);

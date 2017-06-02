@@ -112,7 +112,6 @@ protected:
 
 		JsonWebToken jwt("secret");
 		JsonWebToken::JWTStatus rc = jwt.decode(raw_jwt);
-		std::cout << jwt.get_payload() << " / " << rc << std::endl;
 		CPPUNIT_ASSERT(rc == JsonWebToken::STATUS_OK);
 	}
 };

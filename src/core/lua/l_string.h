@@ -46,6 +46,10 @@ private:
 
 	static int l_hmac_sha256(lua_State *L);
 
+	static int l_hmac_sha384(lua_State *L);
+
+	static int l_hmac_sha512(lua_State *L);
+
 	static int l_read_json(lua_State *L);
 
 	static int l_write_json(lua_State *L);

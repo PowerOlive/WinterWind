@@ -34,6 +34,8 @@ class JsonWebToken {
 public:
 	enum Algorithm: uint8_t {
 		ALG_HS256,
+		ALG_HS384,
+		ALG_HS512,
 		JWT_ALG_MAX,
 	};
 
@@ -62,6 +64,8 @@ public:
 
 	Json::Value get_payload() const { return m_payload; }
 private:
+	void sign(const std::string &payload, std::string &signature) const;
+
 	Algorithm m_algorithm = ALG_HS256;
 	Json::Value m_header = {};
 	Json::Value m_payload = {};

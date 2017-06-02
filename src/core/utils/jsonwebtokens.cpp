@@ -36,7 +36,9 @@ namespace winterwind {
 namespace web {
 
 static const std::string jwt_alg_str[JsonWebToken::Algorithm::JWT_ALG_MAX] {
-		"HS256",
+	"HS256",
+	"HS384",
+	"HS512",
 };
 
 JsonWebToken::JsonWebToken(Algorithm alg, const Json::Value &payload,
@@ -64,7 +66,9 @@ void JsonWebToken::get(std::string &result) const
 
 	tmp_result += base64_urlencode(json_writer.write(m_payload));
 
-	std::string signature = hmac_sha256(m_secret, tmp_result);
+	std::string signature;
+	sign(tmp_result, signature);
+
 	tmp_result += "." + base64_encode(signature);
 
 	// Strip '=' char from the whole string
@@ -103,6 +107,16 @@ JsonWebToken::JWTStatus JsonWebToken::decode(std::string raw_token)
 	}
 
 	return STATUS_OK;
+}
+
+void JsonWebToken::sign(const std::string &payload, std::string &signature) const
+{
+	switch (m_algorithm) {
+		case ALG_HS256: signature = std::move(hmac_sha256(m_secret, payload)); break;
+		case ALG_HS384: signature = std::move(hmac_sha384(m_secret, payload)); break;
+		case ALG_HS512: signature = std::move(hmac_sha512(m_secret, payload)); break;
+		default: assert(false);
+	}
 }
 
 }
