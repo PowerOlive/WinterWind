@@ -35,6 +35,7 @@
 #include <extras/openweathermapclient.h>
 #include <extras/luaextraengine.h>
 #include <core/utils/jsonwebtokens.h>
+#include <core/utils/base64.h>
 
 #include "cmake_config.h"
 
@@ -52,6 +53,9 @@ class Test_Misc : public CppUnit::TestFixture
 	CPPUNIT_TEST(jsonwebtokens_write_payload_reserved_claim);
 	CPPUNIT_TEST(jsonwebtokens_write_hs256);
 	CPPUNIT_TEST(jsonwebtokens_read_hs256);
+	CPPUNIT_TEST(jsonwebtokens_read_wrong_string);
+	CPPUNIT_TEST(jsonwebtokens_read_wrong_header);
+	CPPUNIT_TEST(jsonwebtokens_read_wrong_algo);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -95,7 +99,7 @@ protected:
 		payload["sub"] = "1234567890";
 		payload["name"] = "John Doe";
 		payload["admin"] = true;
-		JsonWebToken jwt(JsonWebToken::Algorithm::ALG_HS256, payload, "secret");
+		JsonWebToken jwt(JWTAlgorithm::ALG_HS256, payload, "secret");
 
 		std::string res;
 		CPPUNIT_ASSERT(jwt.get(res) == JsonWebToken::JWTGenStatus::GENSTATUS_JWT_CLAIM_IN_PAYLOAD);
@@ -106,7 +110,7 @@ protected:
 		Json::Value payload;
 		payload["name"] = "John Doe";
 		payload["admin"] = true;
-		JsonWebToken jwt(JsonWebToken::Algorithm::ALG_HS256, payload, "secret");
+		JsonWebToken jwt(JWTAlgorithm::ALG_HS256, payload, "secret");
 		jwt.subject("1234567890");
 
 		std::string res;
@@ -124,8 +128,65 @@ protected:
 			"GunUY5CARG1fNOHd9cOneFQQfT-OlF1gWB8SeyaXTAE";
 
 		JsonWebToken jwt("secret");
-		JsonWebToken::JWTStatus rc = jwt.read_and_verify(raw_jwt);
-		CPPUNIT_ASSERT(rc == JsonWebToken::STATUS_OK);
+		JWTDecoder::JWTStatus rc = JWTDecoder().read_and_verify(raw_jwt, jwt);
+		CPPUNIT_ASSERT(rc == JWTDecoder::STATUS_OK);
+	}
+
+	void jsonwebtokens_read_wrong_string()
+	{
+		static const std::string raw_jwt = "eyJhbGciOiJ3cm9uZ19hbGciLCJ0eXAiOiJKV1QifQo."
+			"eyJzdWIiOiJibGFoIiwibmFtZSI6IkpvaG4gRG9lIiwidW5pdHRlGunUY5CARG1fNOHd9cOneFQQfT-Ol";
+
+		JsonWebToken jwt("secret");
+		JWTDecoder::JWTStatus rc = JWTDecoder().read_and_verify(raw_jwt, jwt);
+		CPPUNIT_ASSERT(rc == JWTDecoder::STATUS_INVALID_STRING);
+	}
+
+	void jsonwebtokens_read_wrong_header()
+	{
+		{
+			// missing alg & wrong typ
+			static const std::string raw_jwt = "eyJ0eXAiOiJXSEFUIn0K."
+				"eyJzdWIiOiJibGFoIiwibmFtZSI6IkpvaG4gRG9lIiwidW5pdHRlc3QiOnRydWV9."
+				"GunUY5CARG1fNOHd9cOneFQQfT-OlF1gWB8SeyaXTAE";
+
+			JsonWebToken jwt("secret");
+			JWTDecoder::JWTStatus rc = JWTDecoder().read_and_verify(raw_jwt, jwt);
+			CPPUNIT_ASSERT(rc == JWTDecoder::STATUS_INVALID_HEADER);
+		}
+
+		{
+			// missing typ
+			static const std::string raw_jwt = "eyJhbGciOiJIUzI1NiJ9Cg."
+				"eyJzdWIiOiJibGFoIiwibmFtZSI6IkpvaG4gRG9lIiwidW5pdHRlc3QiOnRydWV9."
+				"GunUY5CARG1fNOHd9cOneFQQfT-OlF1gWB8SeyaXTAE";
+
+			JsonWebToken jwt("secret");
+			JWTDecoder::JWTStatus rc = JWTDecoder().read_and_verify(raw_jwt, jwt);
+			CPPUNIT_ASSERT(rc == JWTDecoder::STATUS_INVALID_HEADER);
+		}
+
+		{
+			// wrong alg variable typ
+			static const std::string raw_jwt = "eyJhbGciOjMsInR5cCI6IkpXVCJ9Cg."
+				"eyJzdWIiOiJibGFoIiwibmFtZSI6IkpvaG4gRG9lIiwidW5pdHRlc3QiOnRydWV9."
+				"GunUY5CARG1fNOHd9cOneFQQfT-OlF1gWB8SeyaXTAE";
+
+			JsonWebToken jwt("secret");
+			JWTDecoder::JWTStatus rc = JWTDecoder().read_and_verify(raw_jwt, jwt);
+			CPPUNIT_ASSERT(rc == JWTDecoder::STATUS_INVALID_HEADER);
+		}
+	}
+
+	void jsonwebtokens_read_wrong_algo()
+	{
+		static const std::string raw_jwt = "eyJhbGciOiJ3cm9uZ19hbGciLCJ0eXAiOiJKV1QifQo."
+			"eyJzdWIiOiJibGFoIiwibmFtZSI6IkpvaG4gRG9lIiwidW5pdHRlc3QiOnRydWV9."
+			"GunUY5CARG1fNOHd9cOneFQQfT-OlF1gWB8SeyaXTAE";
+
+		JsonWebToken jwt("secret");
+		JWTDecoder::JWTStatus rc = JWTDecoder().read_and_verify(raw_jwt, jwt);
+		CPPUNIT_ASSERT(rc == JWTDecoder::STATUS_INVALID_ALGORITHM);
 	}
 };
 }

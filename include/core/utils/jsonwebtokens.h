@@ -27,32 +27,115 @@
 
 #include <json/json.h>
 #include <ctime>
+#include <functional>
 
 namespace winterwind {
 namespace web {
 
-class JsonWebToken {
-public:
-	enum Algorithm: uint8_t {
-		ALG_HS256,
-		ALG_HS384,
-		ALG_HS512,
-		JWT_ALG_MAX,
-	};
+class JsonWebToken;
 
+typedef std::function<bool (const std::string &)> JWTValidationFctStr;
+typedef std::function<bool (const time_t)> JWTValidationFctTime;
+
+/**
+ * Validate and decode JsonWebToken from raw string
+ */
+class JWTDecoder
+{
+public:
 	enum JWTStatus: uint8_t {
 		STATUS_OK = 0,
-		STATUS_INVALID_STRING,
-		STATUS_JSON_PARSE_ERROR,
-		STATUS_INVALID_SIGNATURE,
+		STATUS_INVALID_STRING, // JWT raw string is malformed
+		STATUS_INVALID_HEADER, // Header doesn't contain required fields
+		STATUS_INVALID_ALGORITHM, // Algorithm not supported
+		STATUS_JSON_PARSE_ERROR, // Invalid Json found (header or claims)
+		STATUS_INVALID_CLAIM, // Invalid claim found (only for standard claims)
+		STATUS_INVALID_SIGNATURE, // Signature is wrong
+		STATUS_ISSUER_ERROR, // Validation failed for issuer
+		STATUS_SUBJECT_ERROR, // Validation failed for subject
+		STATUS_TOKEN_EXPIRED, // JWT expired
+		STATUS_ISSUED_AT_ERROR, // Validation failed for issued at
 	};
+
+	JWTDecoder() {}
+	~JWTDecoder() {}
+
+	/**
+	 * Declare a callback function to check issuer
+	 * @param f
+	 * @return
+	 */
+	JWTDecoder &add_issuer_validator(JWTValidationFctStr &f);
+
+	/**
+	 * Declare a callback function to check subject
+	 * @param f
+	 * @return
+	 */
+	JWTDecoder &add_subject_validator(JWTValidationFctStr &f);
+
+	/**
+	 * Declare a callback function to check issued_at timestamp
+	 * @param f
+	 * @return
+	 */
+	JWTDecoder &add_issued_at_validator(JWTValidationFctTime &f);
+
+	/**
+	 * Declare a callback function to check expiration time
+	 * @param f
+	 * @return
+	 */
+	JWTDecoder &add_expiration_time_validator(JWTValidationFctTime &f);
+
+	/**
+	 * Verify and decode raw_token to jwt using jwt m_secret
+	 *
+	 * @param raw_token
+	 * @param jwt
+	 * @return STATUS_OK if decoding & verification are okay, else an error status.
+	 * @return jwt object partially decoded depending on the failure.
+	 */
+	JWTStatus read_and_verify(std::string raw_token, JsonWebToken &jwt);
+private:
+	std::vector<JWTValidationFctStr> m_issuer_validators = {};
+	std::vector<JWTValidationFctStr> m_subject_validators = {};
+	std::vector<JWTValidationFctTime> m_issued_at_validators = {};
+	std::vector<JWTValidationFctTime> m_expiration_time_validators = {};
+};
+
+enum JWTAlgorithm: uint8_t
+{
+	ALG_HS256,
+	ALG_HS384,
+	ALG_HS512,
+	JWT_ALG_MAX,
+};
+
+class JsonWebToken
+{
+	friend class JWTDecoder;
+public:
+
 
 	enum JWTGenStatus: uint8_t {
 		GENSTATUS_OK,
 		GENSTATUS_JWT_CLAIM_IN_PAYLOAD,
 	};
 
-	JsonWebToken(Algorithm alg, const Json::Value &payload, const std::string &secret);
+	/**
+	 * Used to create JsonWebToken and send it to server
+	 * @param alg
+	 * @param payload
+	 * @param secret
+	 */
+	JsonWebToken(JWTAlgorithm alg, const Json::Value &payload, const std::string &secret);
+
+	/**
+	 * Used to validate the JsonWebToken
+	 *
+	 * @param secret
+	 */
 	JsonWebToken(const std::string &secret) :
 		m_secret(secret)
 	{}
@@ -72,13 +155,11 @@ public:
 	 */
 	JWTGenStatus get(std::string &result) const;
 
-	JWTStatus read_and_verify(std::string raw_token);
-
 	Json::Value get_payload() const { return m_payload; }
 private:
 	void sign(const std::string &payload, std::string &signature) const;
 
-	Algorithm m_algorithm = ALG_HS256;
+	JWTAlgorithm m_algorithm = ALG_HS256;
 	Json::Value m_header = {};
 	Json::Value m_payload = {};
 	std::string m_secret = "";
@@ -92,5 +173,6 @@ private:
 	std::time_t m_expiration_time = 0;
 	bool m_expirationtime_set = false;
 };
+
 }
 }

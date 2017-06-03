@@ -44,6 +44,7 @@ mkdir build && cd build && cmake .. && make -j X && make install
 
 * Client (High level cURL interface)
 * HTTP daemon (based on libmicrohttpd)
+* JsonWebToken encoder & decoder/validator
 
 ### Databases
 
@@ -73,6 +74,7 @@ mkdir build && cd build && cmake .. && make -j X && make install
 * __ENABLE_OAUTHCLIENT__: enable OAuth client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_REDIS__: enable Redis client support
 * __ENABLE_HTTPSERVER__: enable HTTP server support
+* __ENABLE_JWT__: enable JsonWebTokens support
 * __ENABLE_LUA_ENGINE__: enable Lua engine with bindings (depending on previous options)
 * __ENABLE_EXTRAS__: enable WinterWind extras library compilation
 
