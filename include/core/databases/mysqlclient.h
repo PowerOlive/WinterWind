@@ -57,6 +57,7 @@ public:
 
 	MySQLResult(MySQLResult &&other);
 	MySQLResult(MySQLResult &other) = delete;
+	MySQLResult operator=(MySQLResult &other) = delete;
 private:
 	MYSQL_RES *m_result = nullptr;
 };

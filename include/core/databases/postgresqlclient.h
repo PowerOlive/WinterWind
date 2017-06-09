@@ -65,6 +65,7 @@ public:
 	 * @param other
 	 */
 	PostgreSQLResult(const PostgreSQLResult &other) = delete;
+	PostgreSQLResult operator=(const PostgreSQLResult &other) = delete;
 
 	~PostgreSQLResult();
 
