@@ -47,6 +47,7 @@ public:
  */
 class PostgreSQLResult
 {
+
 public:
 	/**
 	 * Standard constructor from PGresult pointer
@@ -131,13 +132,6 @@ public:
 	 * @return PostgreSQLResult object
 	 */
 	PostgreSQLResult exec(const char *query);
-
-	/**
-	 * Enable or disable connection check before execute a query
-	 *
-	 * @param e enable/disable flag
-	 */
-	void set_check_before_exec(bool e) { m_check_before_exec = e; }
 
 	/**
 	 * Register a statement with a name
@@ -251,8 +245,6 @@ private:
 	PGconn *m_conn = nullptr;
 	int32_t m_pgversion = 0;
 	int32_t m_min_pgversion = 0;
-
-	bool m_check_before_exec = true;
 
 	std::unordered_map<std::string, std::string> m_statements;
 };

@@ -128,13 +128,6 @@ public:
 	 */
 	MySQLResult exec(const std::string &query);
 
-	/**
-	 * Enable or disable connection check before execute a query
-	 *
-	 * @param e enable/disable flag
-	 */
-	void set_check_before_exec(bool e) { m_check_before_exec = e; }
-
 	void list_tables(std::vector<std::string> &result);
 
 	bool get_table_definition(const std::string &table, std::string &res);
@@ -158,7 +151,6 @@ private:
 	std::string m_password = "";
 	std::string m_db = "";
 	uint16_t m_port = 3306;
-	bool m_check_before_exec = true;
 };
 }
 }

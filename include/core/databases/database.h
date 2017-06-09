@@ -84,6 +84,15 @@ protected:
 	 * Disconnect client from its backend
 	 */
 	virtual void disconnect() = 0;
+
+	/**
+	 * Enable or disable connection check before execute a query
+	 *
+	 * @param e enable/disable flag
+	 */
+	void set_check_before_exec(bool e) { m_check_before_exec = e; }
+
+	bool m_check_before_exec = true;
 };
 
 }
