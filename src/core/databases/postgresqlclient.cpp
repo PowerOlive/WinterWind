@@ -192,34 +192,34 @@ void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 }
 
 template<>
-int PostgreSQLClient::read_field(PGresult *res, int row, int col)
+int PostgreSQLClient::read_field(PostgreSQLResult &res, int row, int col)
 {
-	return atoi(PQgetvalue(res, row, col));
+	return atoi(PQgetvalue(*res, row, col));
 }
 
 template<>
-std::string PostgreSQLClient::read_field(PGresult *res, int row, int col)
+std::string PostgreSQLClient::read_field(PostgreSQLResult &res, int row, int col)
 {
-	return std::string(PQgetvalue(res, row, col),
-		(unsigned long) PQgetlength(res, row, col));
+	return std::string(PQgetvalue(*res, row, col),
+		(unsigned long) PQgetlength(*res, row, col));
 }
 
 template<>
-uint32_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
+uint32_t PostgreSQLClient::read_field(PostgreSQLResult &res, int row, int col)
 {
-	return (uint32_t) atoi(PQgetvalue(res, row, col));
+	return (uint32_t) atoi(PQgetvalue(*res, row, col));
 }
 
 template<>
-uint64_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
+uint64_t PostgreSQLClient::read_field(PostgreSQLResult &res, int row, int col)
 {
-	return (uint64_t) atoll(PQgetvalue(res, row, col));
+	return (uint64_t) atoll(PQgetvalue(*res, row, col));
 }
 
 template<>
-int64_t PostgreSQLClient::read_field(PGresult *res, int row, int col)
+int64_t PostgreSQLClient::read_field(PostgreSQLResult &res, int row, int col)
 {
-	unsigned char *data = (unsigned char *) PQgetvalue(res, row, col);
+	unsigned char *data = (unsigned char *) PQgetvalue(*res, row, col);
 	return (const int64_t) atoll((char *) data);
 }
 
@@ -336,8 +336,8 @@ ExecStatusType PostgreSQLClient::show_create_table(const std::string &schema,
 			NULL, NULL, false);
 		int32_t nbres = PQntuples(*result);
 		for (int32_t i = 0; i < nbres; i++) {
-			definition.indexes[read_field<std::string>(*result, i, 0)] =
-				read_field<std::string>(*result, i, 1);
+			definition.indexes[read_field<std::string>(result, i, 0)] =
+				read_field<std::string>(result, i, 1);
 		}
 
 		if (result.get_status() != PGRES_COMMAND_OK) {

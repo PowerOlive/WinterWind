@@ -211,12 +211,12 @@ protected:
 	/**
 	 * Read PostgreSQL field for row and col with type T
 	 * @tparam T destination type
-	 * @param res PostgreSQL resultset
+	 * @param res
 	 * @param row
-	 * @param col
+	 * @param colconst
 	 * @return PostgreSQL result for row and col converted to T type
 	 */
-	template<typename T> T read_field(PGresult *res, int row, int col);
+	template<typename T> T read_field(PostgreSQLResult &res, int row, int col);
 
 	/**
 	 * Exec a previously prepared query (stmtName)
