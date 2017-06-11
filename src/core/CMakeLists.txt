@@ -85,7 +85,7 @@ endif()
 
 if (ENABLE_JWT)
 	set(SRC_FILES ${SRC_FILES} utils/jsonwebtokens.cpp)
-	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/util/jsonwebtokens.h)
+	set(HEADER_FILES ${HEADER_FILES} ${INCLUDE_SRC_PATH}/core/utils/jsonwebtokens.h)
 endif()
 
 if (ENABLE_HTTPCLIENT)
