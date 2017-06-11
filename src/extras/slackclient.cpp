@@ -31,7 +31,6 @@ namespace extras
 {
 SlackClient::SlackClient(const std::string &api_token) : Thread(), m_api_token(api_token)
 {
-	init_asio();
 }
 
 SlackClient::~SlackClient()
@@ -85,6 +84,8 @@ void *SlackClient::run()
 	uint32_t failure_number = 0;
 
 	while (!stopRequested()) {
+		init_asio();
+
 		Json::Value res;
 		if (!rtm_start(res)) {
 			failure_number++;
