@@ -24,6 +24,7 @@
  */
 
 #include "databases/postgresqlclient.h"
+#include <array>
 #include <cmath>
 #include <cstring>
 #include <iostream>
