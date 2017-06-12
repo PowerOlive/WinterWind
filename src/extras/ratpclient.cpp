@@ -34,7 +34,8 @@ namespace extras
 {
 
 static const std::string url_rer = "https://www.ratp.fr/horaires?networks=rer&line_busratp=&name_line_busratp=&id_line_busratp=&line_noctilien=&name_line_noctilien=&id_line_noctilien=&type=now&op=Rechercher&stop_point_rer=";
-static const std::string xpath_rer = "/html/body/div[1]/main/div[1]/div/div[1]/div[1]/div/div/div/div[4]/div[3]/ul/li/span[position() = 2 or position() = 3]";
+static const std::string xpath_rer_dir1 = "/html/body/div[1]/main/div[1]/div/div[1]/div[1]/div/div/div/div[4]/div[2]/ul/li/span[position() = 2 or position() = 3]";
+static const std::string xpath_rer_dir2 = "/html/body/div[1]/main/div[1]/div/div[1]/div[1]/div/div/div/div[4]/div[3]/ul/li/span[position() = 2 or position() = 3]";
 
 static const RATPScheduleList EMPTY_SCHEDULE_LIST = {};
 static constexpr uint32_t RATP_CACHE_TIME = 60;
@@ -67,6 +68,7 @@ const RATPScheduleList &RATPClient::get_next_trains(const RATPClient::Line line,
 		url += "B";
 	}
 
+	const std::string &xpath_rer = (direction == 1 ? xpath_rer_dir1 : xpath_rer_dir2);
 	std::vector<std::string> res;
 	get_html_tag_value(url, xpath_rer, res, XMLParser::Flag::FLAG_XML_WITHOUT_TAGS);
 	if (res.size() == 0) {
@@ -93,7 +95,6 @@ const RATPScheduleList &RATPClient::get_next_trains(const RATPClient::Line line,
 		} else {
 			tmp_schedule.hour = s;
 			m_stop_cache[line][stop].schedules.push_back(tmp_schedule);
-			std::cout << tmp_schedule.destination << ": " << tmp_schedule.hour << std::endl;
 		}
 
 		offset++;
