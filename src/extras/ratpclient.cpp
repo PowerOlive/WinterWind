@@ -26,26 +26,15 @@
 #include "ratpclient.h"
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 namespace winterwind
 {
 namespace extras
 {
-struct RATPLineDef
-{
-	std::string url;
-	std::string dir_1;
-	std::string dir_2;
-};
 
-static const RATPLineDef ratp_line_defs[RATPClient::RATP_LINE_MAX] = {
-	{"http://www.ratp.fr/horaires/fr/ratp/rer/prochains_passages/RA/", "R", "A"},
-	{"http://www.ratp.fr/horaires/fr/ratp/rer/prochains_passages/RB/", "R", "A"},
-};
-
-static const std::string xpath_rer = "//div[@id='prochains_passages']/fieldset/table/tbody/"
-	"tr[td[@class='passing_time']/text()!='Train sans arrêt' and "
-	"text()!='Supprimé']/td[position() = 2 or position() = 3]";
+static const std::string url_rer = "https://www.ratp.fr/horaires?networks=rer&line_busratp=&name_line_busratp=&id_line_busratp=&line_noctilien=&name_line_noctilien=&id_line_noctilien=&type=now&op=Rechercher&stop_point_rer=";
+static const std::string xpath_rer = "/html/body/div[1]/main/div[1]/div/div[1]/div[1]/div/div/div/div[4]/div[3]/ul/li/span[position() = 2 or position() = 3]";
 
 static const RATPScheduleList EMPTY_SCHEDULE_LIST = {};
 static constexpr uint32_t RATP_CACHE_TIME = 60;
@@ -70,12 +59,16 @@ const RATPScheduleList &RATPClient::get_next_trains(const RATPClient::Line line,
 
 	std::string html_stop = stop;
 	std::replace(html_stop.begin(), html_stop.end(), ' ', '+');
-	const std::string url = ratp_line_defs[line].url + html_stop + "/";
+	std::string url = url_rer + html_stop + "&line_rer=";
+	if (line == LINE_RER_A) {
+		url += "A";
+	}
+	else if (line == LINE_RER_B) {
+		url += "B";
+	}
 
 	std::vector<std::string> res;
-	get_html_tag_value(
-		url + (direction == 1 ? ratp_line_defs[line].dir_1 : ratp_line_defs[line].dir_2),
-		xpath_rer, res, XMLParser::Flag::FLAG_XML_WITHOUT_TAGS);
+	get_html_tag_value(url, xpath_rer, res, XMLParser::Flag::FLAG_XML_WITHOUT_TAGS);
 	if (res.size() == 0) {
 		return EMPTY_SCHEDULE_LIST;
 	}
@@ -90,13 +83,17 @@ const RATPScheduleList &RATPClient::get_next_trains(const RATPClient::Line line,
 
 	RATPSchedule tmp_schedule;
 	uint16_t offset = 0;
-	for (const auto &s : res) {
+	// We do explicit copy because we remove spaces
+	for (std::string s : res) {
+		s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
+		s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
 		if (offset % 2 == 0) {
 			tmp_schedule = {};
 			tmp_schedule.destination = s;
 		} else {
 			tmp_schedule.hour = s;
 			m_stop_cache[line][stop].schedules.push_back(tmp_schedule);
+			std::cout << tmp_schedule.destination << ": " << tmp_schedule.hour << std::endl;
 		}
 
 		offset++;
