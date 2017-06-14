@@ -86,3 +86,5 @@ void split_string_to_words(const std::string &str, std::vector<std::string> &res
  * @param upper_case uppercase the result
  */
 void str_to_hex(const std::string &str, std::string &res, bool upper_case = false);
+
+void trim(std::string &str);

@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <core/utils/stringutils.h>
 
 namespace winterwind
 {
@@ -87,7 +88,7 @@ const RATPScheduleList &RATPClient::get_next_trains(const RATPClient::Line line,
 	uint16_t offset = 0;
 	// We do explicit copy because we remove spaces
 	for (std::string s : res) {
-		s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
+		trim(s);
 		s.erase(std::remove(s.begin(), s.end(), '\n'), s.end());
 		if (offset % 2 == 0) {
 			tmp_schedule = {};

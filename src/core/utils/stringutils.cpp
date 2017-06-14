@@ -25,11 +25,14 @@
 
 #include "utils/stringutils.h"
 #include <sstream>
+#include <cstring>
 #include <iomanip>
+#include <string>
 
 #define IF_WORD_SEPARATOR                                                                          \
 	if (c == ' ' || c == '\'' || c == '\n' || c == '\t' || c == ';' || c == '\r' ||            \
 	    c == '!' || c == '?' || c == ',' || c == '.' || c == '/' || c == ':')
+
 
 void str_split(const std::string &str, char delim, std::vector<std::string> &res)
 {
@@ -101,4 +104,29 @@ void str_to_hex(const std::string &str, std::string &res, bool upper_case)
 			<< (upper_case ? std::uppercase : std::nouppercase) << (int)str[i];
 
 	res = ret.str();
+}
+
+void trim(std::string &str)
+{
+	char *p = new char[str.length() + 1];
+	char *p_orig = p;
+	memcpy(p, str.c_str(), str.length() + 1);
+
+	// Trim leading space
+	while (isspace((unsigned char)*p)) p++;
+
+	if (*p == 0) {
+		str = "";
+		return;
+	}
+
+	// Trim trailing space
+	char *end = p + strlen(p) - 1;
+	while (end > str && isspace((unsigned char)*end)) end--;
+
+	// Write new null terminator
+	*(end+1) = '\0';
+
+	str = std::string(p, strlen(p));
+	delete [] p_orig;
 }
