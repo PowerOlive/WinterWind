@@ -116,6 +116,7 @@ void trim(std::string &str)
 	while (isspace((unsigned char)*p)) p++;
 
 	if (*p == 0) {
+		delete [] p_orig;
 		str = "";
 		return;
 	}
