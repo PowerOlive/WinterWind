@@ -58,6 +58,7 @@ class Test_String : public CppUnit::TestFixture
 	CPPUNIT_TEST(hmac_sha384_test);
 	CPPUNIT_TEST(hmac_sha512_test);
 	CPPUNIT_TEST(str_hex);
+	CPPUNIT_TEST(trim_test);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -175,6 +176,37 @@ protected:
 		std::string res = base64_encode(hmac_sha512("secret512", "hash512_message"));
 		std::string message = res + " != '" + expected_result + "'";
 		CPPUNIT_ASSERT_MESSAGE(message, res == expected_result);
+	}
+
+	void trim_test()
+	{
+		static const std::vector<std::string> trim_start = {
+			"",
+			"test_0",
+			"test_1 \t\f \n  \t ",
+			"  \n\f  test_2",
+			"\ntest_3\t",
+			" \n\f test\n_4\t  "
+		};
+
+		static const std::vector<std::string> trim_expected = {
+			"",
+			"test_0",
+			"test_1",
+			"test_2",
+			"test_3",
+			"test\n_4"
+		};
+
+		CPPUNIT_ASSERT_MESSAGE("trim_start size != trim_expected size",
+			trim_start.size() == trim_expected.size());
+
+		for (uint8_t i = 0; i < trim_start.size(); i++) {
+			std::string to_trim = trim_start[i];
+			trim(to_trim);
+			CPPUNIT_ASSERT_MESSAGE("trim expected: '" + trim_expected[i]
+				+ "' but found: '" + to_trim + "'", to_trim == trim_expected[i]);
+		}
 	}
 };
 }

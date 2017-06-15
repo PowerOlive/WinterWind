@@ -122,11 +122,11 @@ void trim(std::string &str)
 
 	// Trim trailing space
 	char *end = p + strlen(p) - 1;
-	while (end > str && isspace((unsigned char)*end)) end--;
+	while (end > p && isspace((unsigned char)*end)) end--;
 
 	// Write new null terminator
 	*(end+1) = '\0';
 
-	str = std::string(p, strlen(p));
+	str = std::string(p);
 	delete [] p_orig;
 }

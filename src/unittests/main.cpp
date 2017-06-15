@@ -37,8 +37,7 @@
 int main(int argc, const char *argv[])
 {
 	CppUnit::TextUi::TestRunner runner;
-	runner.addTest(winterwind::unittests::Test_String::suite());
-	runner.addTest(winterwind::unittests::Test_Time::suite());
+
 	if (!getenv("NO_REMOTE_TESTS")) {
 		if (!getenv("GITLAB_API_KEY")) {
 			std::cerr << argv[0] << ": Missing gitlab token" << std::endl;
@@ -88,6 +87,8 @@ int main(int argc, const char *argv[])
 		runner.addTest(winterwind::unittests::Test_Twitter::suite());
 	}
 
+	runner.addTest(winterwind::unittests::Test_String::suite());
+	runner.addTest(winterwind::unittests::Test_Time::suite());
 	runner.addTest(winterwind::unittests::Test_Threads::suite());
 	runner.addTest(winterwind::unittests::Test_HTTP::suite());
 	runner.addTest(winterwind::unittests::Test_Misc::suite());
