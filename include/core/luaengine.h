@@ -67,6 +67,8 @@ public:
 
 	void register_function(const char *name, lua_CFunction f, int top);
 
+	void add_package_path(const std::string &path);
+
 #if UNITTESTS
 
 	bool run_unittests();

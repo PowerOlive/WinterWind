@@ -87,4 +87,17 @@ void split_string_to_words(const std::string &str, std::vector<std::string> &res
  */
 void str_to_hex(const std::string &str, std::string &res, bool upper_case = false);
 
+/**
+ * Trim str
+ * @param str
+ */
 void trim(std::string &str);
+
+/**
+ * Replace from with to in str
+ * @param str
+ * @param from
+ * @param to
+ * @return
+ */
+bool replace(std::string &str, const std::string &from, const std::string &to);

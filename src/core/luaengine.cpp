@@ -105,6 +105,22 @@ LuaReturnCode LuaEngine::init_winterwind_bindings()
 	return LUA_RC_OK;
 }
 
+
+void LuaEngine::add_package_path(const std::string &path)
+{
+	getglobal("package");
+	lua_gettop(m_lua);
+
+	lua_getfield(m_lua, -1, "path");
+	std::string cur_path = lua_tostring(m_lua, -1);
+	cur_path.append(";" + path);
+	pop(1);
+
+	write<std::string>(m_lua, cur_path);
+	lua_setfield(m_lua, -2, "path");
+	pop(1);
+}
+
 #if UNITTESTS
 bool LuaEngine::run_unittests()
 {
