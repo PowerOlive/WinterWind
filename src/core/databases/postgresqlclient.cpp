@@ -68,6 +68,61 @@ PostgreSQLResult::~PostgreSQLResult()
 	PQclear(m_result);
 }
 
+#define BOOLOID                 16
+#define CHAROID                 18
+#define INT8OID                 20
+#define INT2OID                 21
+#define INT4OID                 23
+#define TEXTOID                 25
+#define FLOAT4OID 				700
+#define FLOAT8OID 				701
+
+
+
+void PostgreSQLResult::toJson(Json::Value &res)
+{
+	res.clear();
+
+	int result_count = PQntuples(m_result);
+	res["result_count"] = result_count;
+	res["status"] = m_status;
+	res["results"] = Json::Value();
+
+	int field_number = PQnfields(m_result);
+
+	for (int row = 0; row < result_count; row++) {
+		res["results"][row] = Json::Value();
+		Json::Value &json_row = res["results"][row];
+
+		for (int col = 0; col < field_number; col++) {
+			if (PQgetisnull(m_result, row, col)) {
+				json_row[col] = nullptr;
+			}
+			else {
+				switch (PQftype(m_result, col)) {
+					case BOOLOID:
+						json_row[col] = (bool) (PQgetvalue(m_result, row, col) == "t");
+						break;
+					case INT2OID:
+					case INT4OID:
+					case INT8OID:
+						json_row[col] = std::atoi(PQgetvalue(m_result, row, col));
+						break;
+					case FLOAT4OID:
+					case FLOAT8OID:
+						json_row[col] = std::atof(PQgetvalue(m_result, row, col));
+						break;
+					case CHAROID:
+					case TEXTOID:
+					default:
+						json_row[col] = PQgetvalue(m_result, row, col);
+						break;
+				}
+			}
+		}
+	}
+}
+
 /*
  * PostgreSQL Client
  */
@@ -190,6 +245,12 @@ void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 	request += encoding;
 	request += "';";
 	exec(request.c_str());
+}
+
+template<>
+bool PostgreSQLClient::read_field(PostgreSQLResult &res, int row, int col)
+{
+	return PQgetvalue(*res, row, col) == "t";
 }
 
 template<>

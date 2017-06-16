@@ -29,6 +29,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <json/json.h>
 #include <libpq-fe.h>
 
 namespace winterwind
@@ -77,6 +78,7 @@ public:
 	PGresult *operator*() { return m_result; }
 	ExecStatusType get_status() const { return m_status; }
 
+	void toJson(Json::Value &res);
 private:
 	PGresult *m_result = nullptr;
 	ExecStatusType m_status = PGRES_COMMAND_OK;
@@ -96,6 +98,7 @@ struct PostgreSQLTableDefinition
  */
 class PostgreSQLClient: private DatabaseInterface
 {
+	friend class PostgreSQLResult;
 public:
 	/**
 	 * Construct PostgreSQL client and connect
