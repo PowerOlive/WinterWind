@@ -20,6 +20,7 @@ You need a full C++11 compliant compiler to use this library (GCC 5.1 or Clang 3
 * libircclient
 * libressl/openssl
 * libpq
+* log4cplus
 * hiredis
 * websocketpp
 * asio

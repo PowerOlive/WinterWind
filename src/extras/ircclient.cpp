@@ -26,6 +26,52 @@
 #include "ircclient.h"
 #include <libircclient/libircclient.h>
 
+void IRCClient::join_channel(const std::string &channel)
+{
+	if (irc_cmd_join(m_irc_session, channel.c_str(), NULL) != 0) {
+		log_warn(irc_log, "IRC join channel error: "
+			<< irc_strerror(irc_errno(m_irc_session)));
+	}
+}
+
+void IRCClient::leave_channel(const std::string &channel)
+{
+	if (irc_cmd_part(m_irc_session, channel.c_str()) != 0) {
+		log_warn(irc_log, "IRC leave channel error: "
+			<< irc_strerror(irc_errno(m_irc_session)));
+	}
+}
+
+void IRCClient::send_message(const std::string &channel, const std::string &what)
+{
+	if (!is_connected()) {
+		log_error(irc_log, "Not connected to IRC " << __FUNCTION__);
+		return;
+	}
+
+	irc_cmd_msg(m_irc_session, channel.c_str(), what.c_str());
+}
+
+void IRCClient::send_notice(const std::string &channel, const std::string &what)
+{
+	if (!is_connected()) {
+		log_error(irc_log, "Not connected to IRC " << __FUNCTION__);
+		return;
+	}
+
+	irc_cmd_notice(m_irc_session, channel.c_str(), what.c_str());
+}
+
+bool IRCClient::send_ctcp_ping(const std::string &who)
+{
+	if (!is_connected()) {
+		log_error(irc_log, "Not connected to IRC " << __FUNCTION__);
+		return false;
+	}
+
+	return irc_cmd_ctcp_request(m_irc_session, who.c_str(), "PING") == 0;
+}
+
 const bool IRCClient::is_connected() const
 {
 	return m_irc_session && irc_is_connected(m_irc_session);
