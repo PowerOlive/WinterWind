@@ -30,10 +30,11 @@ include_directories(
 )
 
 add_subdirectory(core)
-add_subdirectory(extras)
 if(ENABLE_EXTRAS)
-	add_subdirectory(unittests)
+	add_subdirectory(extras)
 endif()
+add_subdirectory(unittests)
+
 
 configure_file(
 		"${CMAKE_CURRENT_SOURCE_DIR}/cmake_config.h.in"
