@@ -34,6 +34,11 @@
 #include "test_threads.h"
 #include "test_mysql.h"
 
+#include <core/utils/log.h>
+
+log4cplus::Logger logger = log4cplus::Logger::getRoot();
+log4cplus::Logger irc_log = logger.getInstance(LOG4CPLUS_TEXT("irc"));
+
 int main(int argc, const char *argv[])
 {
 	CppUnit::TextUi::TestRunner runner;
