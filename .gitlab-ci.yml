@@ -13,7 +13,7 @@ variables:
 
 before_script:
   - pacman --noconfirm -Sy archlinux-keyring
-  - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient lua websocketpp asio valgrind curl openssl-1.0
+  - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient lua websocketpp asio valgrind curl openssl-1.0 libircclient
 # These are already included in image
 # - pacman --noconfirm -S libxml2 jsoncpp curl
 
