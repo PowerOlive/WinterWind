@@ -33,6 +33,9 @@ public:
 	IRCClient() {}
 	~IRCClient() {};
 
+	/**
+	 * @return the connecting status
+	 */
 	const bool is_connected() const;
 protected:
 	irc_session_t *m_irc_session = nullptr;
