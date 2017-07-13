@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <string>
+
 typedef struct irc_session_s irc_session_t;
 
 class IRCClient
@@ -37,6 +39,13 @@ public:
 	 * @return the connecting status
 	 */
 	const bool is_connected() const;
+
+	virtual void join_channel(const std::string &channel) = 0;
+	virtual void leave_channel(const std::string &channel) = 0;
+	virtual void send_message(const std::string &channel, const std::string &what) = 0;
+	virtual void send_notice(const std::string &channel, const std::string &what) = 0;
+	virtual bool send_ctcp_ping(const std::string &who) = 0;
+
 protected:
 	irc_session_t *m_irc_session = nullptr;
 };
