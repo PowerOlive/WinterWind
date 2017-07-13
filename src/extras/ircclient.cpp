@@ -23,7 +23,8 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "extras/ircclient.h"
+#include "ircclient.h"
+#include <libircclient/libircclient.h>
 
 const bool IRCClient::is_connected() const
 {

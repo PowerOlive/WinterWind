@@ -105,6 +105,7 @@ endif()
 if (ENABLE_IRCCLIENT)
 	set(SRC_FILES ${SRC_FILES} ircclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/ircclient.h)
+	set(PROJECT_LIBS ${PROJECT_LIBS} ircclient)
 endif()
 
 include_directories(${EXTRAS_INCLUDE_PATH})
