@@ -31,7 +31,11 @@ if (ENABLE_UNITTESTS)
 	set(UNITTESTS_LUA_FILE ${CMAKE_CURRENT_SOURCE_DIR}/unittests.lua PARENT_SCOPE)
 
 	add_executable(winterwind_unittests main.cpp)
-	target_link_libraries(winterwind_unittests cppunit winterwind winterwind_extras)
+	target_link_libraries(winterwind_unittests
+		cppunit
+		log4cplus
+		winterwind
+		winterwind_extras)
 
 	install(TARGETS winterwind_unittests
 		RUNTIME DESTINATION ${BINDIR}
