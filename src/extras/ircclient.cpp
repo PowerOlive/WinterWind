@@ -26,6 +26,79 @@
 #include "ircclient.h"
 #include <libircclient/libircclient.h>
 
+#define IRC_CB_EVENT(n) \
+void on_irc_event_##n(irc_session_t *session, const char *, \
+	const char *origin, const char **params, unsigned int count) \
+{ \
+	IRCClient *client = (IRCClient *) irc_get_ctx(session); \
+	std::vector<std::string> vparams; \
+	for (uint32_t i = 0; i < count; i++) { \
+		vparams.push_back(std::string(params[i])); \
+	} \
+	\
+	client->on_event_##n(std::string(origin), vparams); \
+}
+
+void on_irc_event_numeric(irc_session_t *session, unsigned int event,
+	const char *origin, const char **params, unsigned int count)
+{
+	IRCClient *client = (IRCClient *) irc_get_ctx(session);
+	std::vector<std::string> vparams;
+	for (uint32_t i = 0; i < count; i++) {
+		vparams.push_back(std::string(params[i]));
+	}
+
+	client->on_event_numeric(event, std::string(origin), vparams);
+}
+
+IRC_CB_EVENT(connect)
+IRC_CB_EVENT(join)
+IRC_CB_EVENT(part)
+IRC_CB_EVENT(notice)
+IRC_CB_EVENT(message)
+IRC_CB_EVENT(privmsg)
+IRC_CB_EVENT(channel_notice)
+IRC_CB_EVENT(kick)
+IRC_CB_EVENT(nick)
+IRC_CB_EVENT(quit)
+IRC_CB_EVENT(topic)
+
+#define DECL_IRC_CB(n) \
+	callbacks.event_##n = &on_irc_event_##n;
+
+static bool irc_callbacks_inited = false;
+static irc_callbacks_t callbacks = { 0 };
+
+IRCClient::IRCClient()
+{
+	if (!irc_callbacks_inited) {
+		DECL_IRC_CB(connect)
+		DECL_IRC_CB(join)
+		DECL_IRC_CB(part)
+		DECL_IRC_CB(notice)
+		callbacks.event_channel = &on_irc_event_message;
+		DECL_IRC_CB(privmsg)
+		DECL_IRC_CB(channel_notice)
+		DECL_IRC_CB(kick)
+		DECL_IRC_CB(nick)
+		DECL_IRC_CB(quit)
+		DECL_IRC_CB(numeric)
+		DECL_IRC_CB(topic)
+		irc_callbacks_inited = true;
+	}
+}
+bool IRCClient::create_session()
+{
+	m_irc_session = irc_create_session(&callbacks);
+
+	if (!m_irc_session) {
+		return false;
+	}
+
+	irc_set_ctx(m_irc_session, this);
+	return true;
+}
+
 void IRCClient::join_channel(const std::string &channel)
 {
 	if (irc_cmd_join(m_irc_session, channel.c_str(), NULL) != 0) {

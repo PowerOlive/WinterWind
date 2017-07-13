@@ -35,7 +35,7 @@ typedef struct irc_session_s irc_session_t;
 class IRCClient
 {
 public:
-	IRCClient() {}
+	IRCClient();
 	~IRCClient() {};
 
 	/**
@@ -49,6 +49,37 @@ public:
 	void send_notice(const std::string &channel, const std::string &what);
 	bool send_ctcp_ping(const std::string &who);
 
+	virtual void on_event_connect(const std::string &origin,
+		const std::vector<std::string> &params) {}
+	virtual void on_event_join(const std::string &origin,
+		const std::vector<std::string> &params) {}
+	virtual void on_event_part(const std::string &origin,
+		const std::vector<std::string> &params) {}
+
+	virtual void on_event_topic(const std::string &origin,
+		const std::vector<std::string> &params) {}
+
+	virtual void on_event_notice(const std::string &origin,
+		const std::vector<std::string> &params) {}
+	virtual void on_event_channel_notice(const std::string &origin,
+		const std::vector<std::string> &params) {}
+
+	virtual void on_event_message(const std::string &origin,
+		const std::vector<std::string> &params) {}
+	virtual void on_event_privmsg(const std::string &origin,
+		const std::vector<std::string> &params) {}
+
+	virtual void on_event_kick(const std::string &origin,
+		const std::vector<std::string> &params) {}
+
+	virtual void on_event_nick(const std::string &origin,
+		const std::vector<std::string> &params) {}
+	virtual void on_event_quit(const std::string &origin,
+		const std::vector<std::string> &params) {}
+
+	virtual void on_event_numeric(uint32_t event_id, const std::string &origin,
+		const std::vector<std::string> &params) {}
 protected:
+	bool create_session();
 	irc_session_t *m_irc_session = nullptr;
 };
