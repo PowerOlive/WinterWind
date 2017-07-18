@@ -87,6 +87,14 @@ IRCClient::IRCClient()
 		irc_callbacks_inited = true;
 	}
 }
+
+IRCClient::~IRCClient()
+{
+	if (m_irc_session) {
+		irc_destroy_session(m_irc_session);
+	}
+}
+
 bool IRCClient::create_session()
 {
 	m_irc_session = irc_create_session(&callbacks);

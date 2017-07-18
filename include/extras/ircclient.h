@@ -36,7 +36,7 @@ class IRCClient
 {
 public:
 	IRCClient();
-	~IRCClient() {};
+	~IRCClient();
 
 	/**
 	 * @return the connecting status
