@@ -34,6 +34,7 @@ namespace extras
 #define ES_URL_CLUSTER_STATE "/_cluster/state"
 #define ES_URL_NODES "/_nodes"
 #define ES_BULK "/_bulk"
+#define ES_ANALYZE "/_analyze"
 
 ElasticsearchClient::ElasticsearchClient(const std::string &url)
 	: HTTPClient(100 * 1024), m_init_url(url)
@@ -172,8 +173,8 @@ void ElasticsearchBulkAction::toJson(Json::FastWriter &writer, std::string &res)
 	}
 }
 
-void
-ElasticsearchClient::process_bulkaction_queue(std::string &res, uint32_t actions_limit)
+void ElasticsearchClient::process_bulkaction_queue(std::string &res,
+	uint32_t actions_limit)
 {
 	const ElasticsearchNode &node = get_fresh_node();
 	std::string post_data = "";
@@ -190,5 +191,17 @@ ElasticsearchClient::process_bulkaction_queue(std::string &res, uint32_t actions
 
 	_post(node.http_addr + ES_BULK, post_data, res);
 }
+
+bool ElasticsearchClient::analyze(const std::string &index, const std::string &analyzer,
+		const std::string &str, Json::Value &res)
+{
+	const ElasticsearchNode &node = get_fresh_node();
+	Json::Value request;
+	request["analyzer"] = analyzer;
+	request["text"] = str;
+
+	return _get_json(node.http_addr + "/" + index + ES_ANALYZE, request, res);
+}
+
 }
 }

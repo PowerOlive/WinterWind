@@ -102,8 +102,8 @@ public:
 
 	void discover_cluster();
 
-	void
-	create_doc(const std::string &index, const std::string &type, const Json::Value &doc);
+	void create_doc(const std::string &index, const std::string &type,
+					const Json::Value &doc);
 
 	void insert_doc(const std::string &index, const std::string &type,
 		const std::string &doc_id,
@@ -111,6 +111,9 @@ public:
 
 	void delete_doc(const std::string &index, const std::string &type,
 		const std::string &doc_id);
+
+	bool analyze(const std::string &index, const std::string &analyzer,
+		const std::string &str, Json::Value &res);
 
 	void add_bulkaction_to_queue(const ElasticsearchBulkActionPtr &action)
 	{ m_bulk_queue.push(action); }

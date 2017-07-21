@@ -235,12 +235,24 @@ void HTTPClient::prepare_json_query()
 	add_http_header("Content-Type", "application/json");
 }
 
-bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t flag)
+bool HTTPClient::_get_json(const std::string &url, const Json::Value &req,
+		Json::Value &res, int32_t flag)
+{
+	return _get_json(url, res, flag, json_writer()->write(req));
+}
+
+bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t flag,
+		const std::string &reqdata)
 {
 	std::string res_str = "";
 	prepare_json_query();
 
-	_get(url, res_str, flag);
+	if (!reqdata.empty()) {
+		request(url, res_str, flag, GET, reqdata);
+	}
+	else {
+		_get(url, res_str, flag);
+	}
 
 	if (!json_reader()->parse(res_str, res)) {
 		std::cerr << "Failed to parse query for " << url << ". Response was not a JSON"

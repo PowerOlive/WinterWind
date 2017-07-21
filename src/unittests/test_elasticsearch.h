@@ -52,6 +52,7 @@ class Test_Elasticsearch : public CppUnit::TestFixture
 	CPPUNIT_TEST(es_bulk_play_index);
 	CPPUNIT_TEST(es_bulk_play_update);
 	CPPUNIT_TEST(es_bulk_play_delete);
+	CPPUNIT_TEST(es_analyze);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -181,6 +182,17 @@ protected:
 		CPPUNIT_ASSERT(es_res.isMember("errors"));
 		CPPUNIT_ASSERT(es_res["errors"].isBool());
 		CPPUNIT_ASSERT(!es_res["errors"].asBool());
+	}
+
+	void es_analyze()
+	{
+		ElasticsearchClient client("http://" + ES_HOST + ":9200");
+		Json::Value res;
+		bool status = client.analyze("post", "autocomplete", "unittests are nice!", res);
+
+		CPPUNIT_ASSERT_MESSAGE("Analyze failed, bad request", status);
+		CPPUNIT_ASSERT_MESSAGE("Analyze failed, invalid response: "
+			+ res.toStyledString(), res.isMember("tokens") && res["tokens"].isArray());
 	}
 };
 }

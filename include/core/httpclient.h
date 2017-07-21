@@ -109,8 +109,10 @@ public:
 		std::vector<std::string> &res,
 		int32_t pflag = XMLParser::Flag::FLAG_XML_SIMPLE);
 
-	bool _get_json(const std::string &url, Json::Value &res,
+	bool _get_json(const std::string &url, const Json::Value &req, Json::Value &res,
 		int32_t flag = HTTPClient::REQ_SIMPLE);
+	bool _get_json(const std::string &url, Json::Value &res,
+		int32_t flag = HTTPClient::REQ_SIMPLE, const std::string &reqdata = "");
 
 	void add_http_header(const std::string &header, const std::string &value)
 	{ m_http_headers[header] = value; }
