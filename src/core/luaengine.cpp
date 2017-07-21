@@ -138,7 +138,7 @@ bool LuaEngine::run_unittests()
 		return false;
 	}
 
-	bool ret = read<bool>(m_lua, -1);
+	auto ret = read<bool>(m_lua, -1);
 	pop(1);
 	return ret;
 }

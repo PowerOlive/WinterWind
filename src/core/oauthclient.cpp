@@ -48,7 +48,7 @@ OAuthClient::OAuthClient(const std::string &consumer_key,
 
 void OAuthClient::append_oauth_header(const std::string &method, const std::string &url)
 {
-	std::string oauth_nonce = "";
+	std::string oauth_nonce;
 	std::uniform_int_distribution<uint8_t> normal_dist(0, 255);
 	for (uint8_t i = 0; i < OAUTH_NONCE_LENGTH; i++) {
 		oauth_nonce += (uint8_t) normal_dist(m_rand_engine);
@@ -56,9 +56,11 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 
 	std::string buf = base64_encode(oauth_nonce);
 	buf.erase(
-		std::remove_if(buf.begin(), buf.end(), [](char c) { return !std::isalnum(c); }),
+		std::remove_if(buf.begin(), buf.end(), [](char c) {
+			return std::isalnum(c) == 0;
+		}),
 		buf.end());
-	time_t t = std::time(0);
+	time_t t = std::time(nullptr);
 
 	std::map<std::string, std::string> ordered_params = {};
 
@@ -75,7 +77,7 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 	}
 
 	// Generate parameter string
-	std::string parameter_string = "";
+	std::string parameter_string;
 	uint32_t p_count = 0, p_max = (uint32_t) ordered_params.size();
 	for (const auto &p : ordered_params) {
 		http_string_escape(p.first, buf);
@@ -98,7 +100,7 @@ void OAuthClient::append_oauth_header(const std::string &method, const std::stri
 
 	// Generate signing key
 	{
-		std::string signing_key = "";
+		std::string signing_key;
 		http_string_escape(m_consumer_secret, buf);
 		signing_key += buf + "&";
 		http_string_escape(m_access_token_secret, buf);

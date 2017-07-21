@@ -227,7 +227,7 @@ JWTDecoder::JWTStatus JWTDecoder::read_and_verify(std::string raw_token,
 	// Strip '=' char
 	str_remove_substr(signature, "=");
 
-	if (signature.compare(res[2]) != 0) {
+	if (signature != res[2]) {
 		return STATUS_INVALID_SIGNATURE;
 	}
 

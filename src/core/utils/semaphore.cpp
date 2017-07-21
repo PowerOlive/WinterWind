@@ -28,9 +28,9 @@
 #include <cassert>
 #include <iostream>
 
-#define UNUSED(expr)                                                                               \
-	do {                                                                                       \
-		(void) (expr);                                                                     \
+#define UNUSED(expr)                                                                     \
+	do {                                                                                 \
+		(void) (expr);                                                                   \
 	} while (0)
 
 #include <sys/time.h>
@@ -72,8 +72,8 @@ void Semaphore::wait()
 
 bool Semaphore::wait(unsigned int time_ms)
 {
-	struct timespec wait_time;
-	struct timeval now;
+	timespec wait_time;
+	timeval now;
 
 	if (gettimeofday(&now, NULL) == -1) {
 		std::cerr << "Semaphore::wait(ms): Unable to get time with gettimeofday!"
@@ -89,5 +89,5 @@ bool Semaphore::wait(unsigned int time_ms)
 	int ret = sem_timedwait(&semaphore, &wait_time);
 
 	assert(!ret || (errno == ETIMEDOUT || errno == EINTR));
-	return !ret;
+	return ret == 0;
 }

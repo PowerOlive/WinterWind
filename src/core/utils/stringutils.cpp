@@ -29,8 +29,8 @@
 #include <iomanip>
 #include <string>
 
-#define IF_WORD_SEPARATOR                                                                          \
-	if (c == ' ' || c == '\'' || c == '\n' || c == '\t' || c == ';' || c == '\r' ||            \
+#define IF_WORD_SEPARATOR                                                                \
+	if (c == ' ' || c == '\'' || c == '\n' || c == '\t' || c == ';' || c == '\r' ||      \
 	    c == '!' || c == '?' || c == ',' || c == '.' || c == '/' || c == ':')
 
 
@@ -72,7 +72,7 @@ uint32_t count_words(const std::string &str)
 
 void split_string_to_words(const std::string &str, std::vector<std::string> &res)
 {
-	std::string buf = "";
+	std::string buf;
 	bool prev_was_word_separator = false;
 	for (const auto &c : str) {
 		IF_WORD_SEPARATOR
@@ -99,21 +99,22 @@ void str_to_hex(const std::string &str, std::string &res, bool upper_case)
 {
 	std::ostringstream ret;
 
-	for (std::string::size_type i = 0; i < str.length(); ++i)
+	for (char i : str) {
 		ret << std::hex << std::setfill('0') << std::setw(2)
-			<< (upper_case ? std::uppercase : std::nouppercase) << (int)str[i];
+			<< (upper_case ? std::uppercase : std::nouppercase) << (int) i;
+	}
 
 	res = ret.str();
 }
 
 void trim(std::string &str)
 {
-	char *p = new char[str.length() + 1];
+	auto *p = new char[str.length() + 1];
 	char *p_orig = p;
 	memcpy(p, str.c_str(), str.length() + 1);
 
 	// Trim leading space
-	while (isspace((unsigned char)*p)) p++;
+	while (isspace((unsigned char)*p) != 0) p++;
 
 	if (*p == 0) {
 		delete [] p_orig;
@@ -123,7 +124,7 @@ void trim(std::string &str)
 
 	// Trim trailing space
 	char *end = p + strlen(p) - 1;
-	while (end > p && isspace((unsigned char)*end)) end--;
+	while (end > p && (isspace((unsigned char)*end) != 0)) end--;
 
 	// Write new null terminator
 	*(end+1) = '\0';

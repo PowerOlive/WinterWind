@@ -45,7 +45,7 @@ void on_irc_event_numeric(irc_session_t *session, unsigned int event,
 	IRCClient *client = (IRCClient *) irc_get_ctx(session);
 	std::vector<std::string> vparams;
 	for (uint32_t i = 0; i < count; i++) {
-		vparams.push_back(std::string(params[i]));
+		vparams.emplace_back(params[i]);
 	}
 
 	client->on_event_numeric(event, std::string(origin), vparams);

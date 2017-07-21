@@ -39,7 +39,7 @@ RedisClient::RedisClient(const std::string &host, const uint16_t port,
 
 RedisClient::~RedisClient()
 {
-	if (m_context) {
+	if (m_context != nullptr) {
 		redisFree(m_context);
 	}
 }
@@ -47,52 +47,53 @@ RedisClient::~RedisClient()
 void RedisClient::connect()
 {
 	// Circuit breaker
-	if ((time(NULL) - m_last_failed_connection) < m_circuit_breaker_interval) {
+	if ((time(nullptr) - m_last_failed_connection) < m_circuit_breaker_interval) {
 		return;
 	}
 
-	if (m_context) {
+	if (m_context != nullptr) {
 		redisFree(m_context);
 	}
 
 	m_context = redisConnect(m_host.c_str(), m_port);
-	if (m_context == NULL || m_context->err) {
+	if (m_context == nullptr || (m_context->err != 0)) {
 		// Set last failed connection for circuit breaker
-		m_last_failed_connection = time(NULL);
-		if (m_context) {
+		m_last_failed_connection = time(nullptr);
+		if (m_context != nullptr) {
 			std::cerr << "Redis " << __FUNCTION__ << " error: " << m_context->errstr
 				<< std::endl;
 			redisFree(m_context);
 			m_context = nullptr;
 			return;
-		} else {
-			std::cerr << "Unable to set redis context." << std::endl;
 		}
+
+		std::cerr << "Unable to set redis context." << std::endl;
+
 	}
 
 	redisEnableKeepAlive(m_context);
 }
 
 // This function permits to test connect & reconnect or fail
-#define REDIS_CONNECT                                                                              \
-    if (!m_context) {                                                                          \
-        connect();                                                                         \
-        if (!m_context) {                                                                  \
-            return false;                                                              \
-        }                                                                                  \
+#define REDIS_CONNECT                                                                    \
+    if (!m_context) {                                                                    \
+        connect();                                                                       \
+        if (!m_context) {                                                                \
+            return false;                                                                \
+        }                                                                                \
     }
 
-#define REDIS_REPLY_HANDLER                                                                        \
-    if (!reply) {                                                                              \
-        std::cerr << "Redis " << __FUNCTION__ << " error: " << m_context->errstr           \
-              << std::endl;                                                            \
-        return false;                                                                      \
+#define REDIS_REPLY_HANDLER                                                              \
+    if (!reply) {                                                                        \
+        std::cerr << "Redis " << __FUNCTION__ << " error: " << m_context->errstr         \
+              << std::endl;                                                              \
+        return false;                                                                    \
     }
 
 bool RedisClient::type(const std::string &key, std::string &res)
 {
 	REDIS_CONNECT;
-	redisReply *reply = (redisReply *) redisCommand(m_context, "TYPE %s", key.c_str());
+	auto *reply = (redisReply *) redisCommand(m_context, "TYPE %s", key.c_str());
 	REDIS_REPLY_HANDLER;
 	switch (reply->type) {
 		case REDIS_REPLY_STRING:
@@ -118,7 +119,7 @@ bool RedisClient::set(const std::string &key, const std::string &value,
 	const uint32_t expire_value)
 {
 	REDIS_CONNECT;
-	redisReply *reply =
+	auto *reply =
 		(redisReply *) redisCommand(m_context, "SET %s %s", key.c_str(), value.c_str());
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
@@ -128,7 +129,7 @@ bool RedisClient::set(const std::string &key, const std::string &value,
 bool RedisClient::get(const std::string &key, std::string &res)
 {
 	REDIS_CONNECT;
-	redisReply *reply = (redisReply *) redisCommand(m_context, "GET %s", key.c_str());
+	auto *reply = (redisReply *) redisCommand(m_context, "GET %s", key.c_str());
 	REDIS_REPLY_HANDLER;
 	switch (reply->type) {
 		case REDIS_REPLY_STRING:
@@ -152,7 +153,7 @@ bool RedisClient::get(const std::string &key, std::string &res)
 bool RedisClient::del(const std::string &key)
 {
 	REDIS_CONNECT;
-	redisReply *reply = (redisReply *) redisCommand(m_context, "DEL %s", key.c_str());
+	auto *reply = (redisReply *) redisCommand(m_context, "DEL %s", key.c_str());
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
 	return true;
@@ -161,8 +162,8 @@ bool RedisClient::del(const std::string &key)
 bool RedisClient::expire(const std::string &key, const uint32_t value)
 {
 	REDIS_CONNECT;
-	redisReply *reply =
-		(redisReply *) redisCommand(m_context, "EXPIRE %s %d", key.c_str(), value);
+	auto *reply = (redisReply *) redisCommand(m_context, "EXPIRE %s %d",
+		key.c_str(), value);
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
 	return true;
@@ -174,14 +175,13 @@ bool RedisClient::hset(const std::string &key, const std::string &skey,
 {
 	REDIS_CONNECT;
 	// Verify type & del wrong key type
-	std::string type_verification = "";
+	std::string type_verification;
 	type(key, type_verification);
-	if (type_verification.compare("hash") != 0 &&
-		type_verification.compare("none") != 0) {
+	if (type_verification != "hash" && type_verification != "none") {
 		del(key);
 	}
 
-	redisReply *reply = (redisReply *) redisCommand(m_context, "HSET %s %s %s",
+	auto *reply = (redisReply *) redisCommand(m_context, "HSET %s %s %s",
 		key.c_str(),
 		skey.c_str(), value.c_str());
 	REDIS_REPLY_HANDLER;
@@ -192,7 +192,7 @@ bool RedisClient::hset(const std::string &key, const std::string &skey,
 bool RedisClient::hdel(const std::string &key, const std::string &skey)
 {
 	REDIS_CONNECT;
-	redisReply *reply =
+	auto *reply =
 		(redisReply *) redisCommand(m_context, "HDEL %s %s", key.c_str(), skey.c_str());
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
@@ -202,7 +202,7 @@ bool RedisClient::hdel(const std::string &key, const std::string &skey)
 bool RedisClient::hget(const std::string &key, const std::string &skey, std::string &res)
 {
 	REDIS_CONNECT;
-	redisReply *reply =
+	auto *reply =
 		(redisReply *) redisCommand(m_context, "HGET %s %s", key.c_str(), skey.c_str());
 	REDIS_REPLY_HANDLER;
 	switch (reply->type) {
@@ -227,7 +227,7 @@ bool RedisClient::hget(const std::string &key, const std::string &skey, std::str
 bool RedisClient::hkeys(const std::string &key, std::vector<std::string> &res)
 {
 	REDIS_CONNECT;
-	redisReply *reply = (redisReply *) redisCommand(m_context, "HKEYS %s", key.c_str());
+	auto *reply = (redisReply *) redisCommand(m_context, "HKEYS %s", key.c_str());
 	REDIS_REPLY_HANDLER;
 	switch (reply->type) {
 		case REDIS_REPLY_ERROR:
@@ -237,8 +237,8 @@ bool RedisClient::hkeys(const std::string &key, std::vector<std::string> &res)
 			break;
 		case REDIS_REPLY_ARRAY:
 			for (int i = 0; i < reply->elements; i++) {
-				res.push_back(std::string(reply->element[i]->str,
-					(unsigned long) reply->element[i]->len));
+				res.emplace_back(reply->element[i]->str,
+					(unsigned long) reply->element[i]->len);
 			}
 			break;
 		case REDIS_REPLY_NIL:

@@ -88,7 +88,7 @@ void ElasticsearchClient::discover_cluster()
 			// Master attribute is a string, not a bool
 			if (member_attrs.isMember("master") && member_attrs["master"].isString()) {
 				node.is_master =
-					member_attrs["master"].asString().compare("true") == 0;
+					member_attrs["master"].asString() == "true";
 			}
 		}
 
@@ -138,7 +138,9 @@ void ElasticsearchClient::delete_doc(const std::string &index, const std::string
 }
 
 // related to ElasticsearchBulkActionType
-static const std::string bulkaction_str_mapping[ESBULK_AT_MAX] = {"create", "delete",
+static const std::string bulkaction_str_mapping[ESBULK_AT_MAX] = {
+	"create",
+	"delete",
 	"index",
 	"update"};
 
@@ -177,7 +179,7 @@ void ElasticsearchClient::process_bulkaction_queue(std::string &res,
 	uint32_t actions_limit)
 {
 	const ElasticsearchNode &node = get_fresh_node();
-	std::string post_data = "";
+	std::string post_data;
 
 	uint32_t processed_actions = 0;
 	Json::FastWriter writer;

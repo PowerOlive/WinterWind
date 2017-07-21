@@ -34,22 +34,22 @@ namespace winterwind
 class RedisClient
 {
 public:
-	RedisClient(const std::string &host, const uint16_t port,
-		const uint32_t cb_interval = 0);
+	RedisClient(const std::string &host, uint16_t port,
+		uint32_t cb_interval = 0);
 
 	~RedisClient();
 
 	bool type(const std::string &key, std::string &res);
 
 	bool set(const std::string &key, const std::string &value,
-		const uint32_t expire_value = 0);
+		uint32_t expire_value = 0);
 
 	bool get(const std::string &key, std::string &res);
 
 	bool del(const std::string &key);
 
 	bool hset(const std::string &key, const std::string &skey, const std::string &value,
-		const uint32_t expire_value = 0);
+		uint32_t expire_value = 0);
 
 	bool hget(const std::string &key, const std::string &skey, std::string &res);
 

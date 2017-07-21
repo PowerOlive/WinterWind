@@ -33,9 +33,9 @@
 #define SHA512_LEN 64
 
 inline std::string hmac_generic(const std::string &key, const std::string &data,
-		const EVP_MD *(*F)(void), uint16_t hash_len)
+		const EVP_MD *(*F)(), uint16_t hash_len)
 {
-	unsigned char *digest = HMAC(F(), key.c_str(), key.length(),
+	unsigned char *digest = HMAC(F(), key.c_str(), static_cast<int>(key.length()),
 		(unsigned char *)data.c_str(), data.length(), NULL, NULL);
 
 	std::string res = "";

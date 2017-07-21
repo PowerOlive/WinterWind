@@ -44,6 +44,7 @@ namespace unittests {
 class Test_String : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(Test_String);
+	CPPUNIT_TEST(count_words_test);
 	CPPUNIT_TEST(split_string);
 	CPPUNIT_TEST(remove_substring);
 	CPPUNIT_TEST(base64_encode_test);
@@ -57,22 +58,23 @@ class Test_String : public CppUnit::TestFixture
 	CPPUNIT_TEST(hmac_sha256_test);
 	CPPUNIT_TEST(hmac_sha384_test);
 	CPPUNIT_TEST(hmac_sha512_test);
+	CPPUNIT_TEST(replace_str);
 	CPPUNIT_TEST(str_hex);
 	CPPUNIT_TEST(trim_test);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp()
+	void setUp() override
 	{}
 
-	void tearDown()
+	void tearDown() override
 	{}
 
 protected:
 	void str_hex()
 	{
 		std::string orig = "hello hex to convert.";
-		std::string dest = "";
+		std::string dest;
 		str_to_hex(orig, dest);
 		CPPUNIT_ASSERT(dest == "68656c6c6f2068657820746f20636f6e766572742e");
 	}
@@ -96,7 +98,8 @@ protected:
 	void base64_encode_test()
 	{
 		std::string src = "unittest_b64encode";
-		std::string res = base64_encode((const unsigned char *) src.c_str(), src.size());
+		std::string res = base64_encode((const unsigned char *) src.c_str(),
+			static_cast<unsigned int>(src.size()));
 		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
 	}
 
@@ -117,7 +120,8 @@ protected:
 	void base64_urlencode_test()
 	{
 		std::string src = "unittest_b64urlencode / me";
-		std::string res = base64_urlencode((const unsigned char *) src.c_str(), src.size());
+		std::string res = base64_urlencode((const unsigned char *) src.c_str(),
+			static_cast<unsigned int>(src.size()));
 		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0dXJsZW5jb2RlIC8gbWU=") == 0);
 	}
 
@@ -176,6 +180,24 @@ protected:
 		std::string res = base64_encode(hmac_sha512("secret512", "hash512_message"));
 		std::string message = res + " != '" + expected_result + "'";
 		CPPUNIT_ASSERT_MESSAGE(message, res == expected_result);
+	}
+
+	void count_words_test()
+	{
+		static const std::string to_count = "Red is rose as purple is blue";
+		static const uint16_t expected_count = 7;
+		CPPUNIT_ASSERT(count_words(to_count) == expected_count);
+	}
+
+	void replace_str()
+	{
+		std::string orig = "Red is rose as purple is blue";
+		static const std::string repl_expected = "Red is rose as purple is black";
+		static const std::string repl = "blue";
+		static const std::string repl_with = "black";
+
+		CPPUNIT_ASSERT(replace(orig, repl, repl_with));
+		CPPUNIT_ASSERT(orig == repl_expected);
 	}
 
 	void trim_test()

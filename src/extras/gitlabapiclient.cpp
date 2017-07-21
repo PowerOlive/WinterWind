@@ -30,9 +30,9 @@ namespace winterwind
 {
 namespace extras
 {
-#define ADD_REQ_FIELD_IF_NOT_EMPTY(r, n, f)                                                        \
-    if (!f.empty()) {                                                                          \
-        r[n] = f;                                                                          \
+#define ADD_REQ_FIELD_IF_NOT_EMPTY(r, n, f)                                              \
+    if (!f.empty()) {                                                                    \
+        r[n] = f;                                                                        \
     }
 
 #define GITLAB_RC_HTTP_CODE(c) m_http_code == 503 ? GITLAB_RC_SERVICE_UNAVAILABLE : GITLAB_RC_##c

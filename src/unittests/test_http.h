@@ -52,7 +52,7 @@ class Test_HTTP : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp()
+	void setUp() override
 	{
 		m_http_server = new Server(58080);
 		m_http_server->register_handler(winterwind::http::Method::GET, "/unittest.html",
@@ -72,7 +72,7 @@ public:
 						std::placeholders::_1));
 	}
 
-	void tearDown()
+	void tearDown() override
 	{ delete m_http_server; }
 
 protected:
@@ -126,7 +126,7 @@ protected:
 		json_res["status"] = "no";
 		CPPUNIT_ASSERT(q->get_type() == HTTPQUERY_TYPE_JSON);
 
-		HTTPJsonQuery *jq = dynamic_cast<HTTPJsonQuery *>(q.get());
+		auto *jq = dynamic_cast<HTTPJsonQuery *>(q.get());
 		CPPUNIT_ASSERT(jq);
 
 		if (jq->json_query.isMember("json_param") &&
@@ -151,7 +151,7 @@ protected:
 		std::string res;
 		cli.add_http_header("UnitTest-Header", "1");
 		cli._get("http://localhost:58080/unittest2.html", res);
-		CPPUNIT_ASSERT(res == "yes");
+		CPPUNIT_ASSERT_MESSAGE("Server header answer: " + res, res == "yes");
 	}
 
 	void httpserver_getparam()

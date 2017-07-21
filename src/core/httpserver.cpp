@@ -30,8 +30,6 @@
 #include <iostream>
 #include <sstream>
 
-static const char *NOT_FOUND_PAGE = "<html><head><title>Not found</title></head><body><h1>No "
-				    "resource found at this address.</h1></body></html>";
 static const char *BAD_REQUEST =
     "<html><head><title>Bad request</title></head><body><h1>Bad request</h1></body></html>";
 
@@ -56,7 +54,7 @@ Server::~Server()
 }
 
 int Server::request_handler(void *http_server, struct MHD_Connection *connection,
-	const char *url, const char *method, const char *version,
+	const char *url, const char *method, const char *,
 	const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
 	Server *httpd = (Server *) http_server;
@@ -120,9 +118,8 @@ int Server::request_handler(void *http_server, struct MHD_Connection *connection
 	return ret;
 }
 
-void Server::request_completed(void *cls, struct MHD_Connection *connection,
-	void **con_cls,
-	MHD_RequestTerminationCode toe)
+void Server::request_completed(void *, struct MHD_Connection *,
+	void **, MHD_RequestTerminationCode)
 {
 }
 

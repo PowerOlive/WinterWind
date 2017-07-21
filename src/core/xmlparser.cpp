@@ -85,9 +85,9 @@ XMLParser::parse(const std::string &document, const std::string &xpath, int32_t 
 				xmlNodePtr node = nodeset->nodeTab[i];
 				xmlChar *nres = nullptr;
 
-				if (pflag & FLAG_XML_SIMPLE) {
+				if ((pflag & FLAG_XML_SIMPLE) != 0) {
 					nres = xmlNodeListGetString(doc, node->xmlChildrenNode, 0);
-				} else if (pflag & FLAG_XML_WITHOUT_TAGS) {
+				} else if ((pflag & FLAG_XML_WITHOUT_TAGS) != 0) {
 					nres = xmlXPathCastNodeToString(node);
 				} else {
 					// This should not happen
@@ -95,7 +95,7 @@ XMLParser::parse(const std::string &document, const std::string &xpath, int32_t 
 				}
 
 				std::string str_nres((const char *) nres);
-				if (pflag & FLAG_XML_STRIP_NEWLINE) {
+				if ((pflag & FLAG_XML_STRIP_NEWLINE) != 0) {
 					str_nres.erase(
 						std::remove(str_nres.begin(), str_nres.end(), '\n'),
 						str_nres.end());

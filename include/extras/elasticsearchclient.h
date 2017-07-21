@@ -49,7 +49,7 @@ public:
 struct ElasticsearchNode
 {
 public:
-	ElasticsearchNode(const std::string &id) : tech_id(id)
+	explicit ElasticsearchNode(const std::string &id) : tech_id(id)
 	{}
 
 	std::string http_addr = "";

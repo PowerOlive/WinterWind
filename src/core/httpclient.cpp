@@ -50,11 +50,13 @@ HTTPClient::~HTTPClient()
 }
 
 void HTTPClient::deinit()
-{ curl_global_cleanup(); }
+{
+	curl_global_cleanup();
+}
 
 Json::Writer *HTTPClient::json_writer()
 {
-	if (!m_json_writer) {
+	if (m_json_writer == nullptr) {
 		m_json_writer = new Json::FastWriter();
 	}
 
@@ -63,7 +65,7 @@ Json::Writer *HTTPClient::json_writer()
 
 Json::Reader *HTTPClient::json_reader()
 {
-	if (!m_json_reader) {
+	if (m_json_reader == nullptr) {
 		m_json_reader = new Json::Reader();
 	}
 
@@ -85,7 +87,7 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 	m_http_code = 0;
 
 	{
-		std::string buf = "";
+		std::string buf;
 		bool first_param = true;
 		for (const auto &p : m_uri_params) {
 			if (first_param) {
@@ -146,17 +148,17 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 			break;
 	}
 
-	if (flag & HTTPClient::REQ_AUTH) {
+	if ((flag & HTTPClient::REQ_AUTH) != 0) {
 		std::string auth_str = m_username + ":" + m_password;
 		curl_easy_setopt(curl, CURLOPT_USERPWD, auth_str.c_str());
 	}
 
 	for (const auto &h : m_http_headers) {
-		const std::string header = std::string(h.first + ": " + h.second).c_str();
+		const std::string header = std::string(h.first + ": " + h.second);
 		chunk = curl_slist_append(chunk, header.c_str());
 	}
 
-	if (chunk) {
+	if (chunk != nullptr) {
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
 	}
 
@@ -210,7 +212,7 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 
 	curl_easy_cleanup(curl);
 
-	if (!(flag & HTTPClient::REQ_KEEP_HEADER_CACHE_AFTER_REQUEST)) {
+	if ((flag & HTTPClient::REQ_KEEP_HEADER_CACHE_AFTER_REQUEST) == 0) {
 		m_http_headers.clear();
 	}
 
@@ -221,7 +223,7 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 void HTTPClient::get_html_tag_value(const std::string &url, const std::string &xpath,
 	std::vector<std::string> &res, int32_t pflag)
 {
-	std::string page_res = "";
+	std::string page_res;
 	assert(!((pflag & XMLParser::Flag::FLAG_XML_SIMPLE) &&
 		(pflag & XMLParser::Flag::FLAG_XML_WITHOUT_TAGS)));
 	_get(url, page_res);
@@ -244,7 +246,7 @@ bool HTTPClient::_get_json(const std::string &url, const Json::Value &req,
 bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t flag,
 		const std::string &reqdata)
 {
-	std::string res_str = "";
+	std::string res_str;
 	prepare_json_query();
 
 	if (!reqdata.empty()) {
@@ -271,7 +273,7 @@ bool
 HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Value &res,
 	int32_t flags)
 {
-	std::string res_str = "";
+	std::string res_str;
 	prepare_json_query();
 	_post(url, json_writer()->write(data), res_str, flags);
 
@@ -281,7 +283,7 @@ HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Va
 		return false;
 	}
 
-	if ((flags & ReqFlag::REQ_NO_RESPONSE_AWAITED) && res_str.empty()) {
+	if (((flags & ReqFlag::REQ_NO_RESPONSE_AWAITED) != 0) && res_str.empty()) {
 		return true;
 	}
 
@@ -301,7 +303,7 @@ bool
 HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Value &res,
 	int32_t flags)
 {
-	std::string res_str = "";
+	std::string res_str;
 	prepare_json_query();
 	_put(url, res_str, json_writer()->write(data), flags);
 
@@ -311,7 +313,7 @@ HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Val
 		return false;
 	}
 
-	if ((flags & ReqFlag::REQ_NO_RESPONSE_AWAITED) && res_str.empty()) {
+	if (((flags & ReqFlag::REQ_NO_RESPONSE_AWAITED) != 0) && res_str.empty()) {
 		return true;
 	}
 
@@ -344,7 +346,7 @@ void
 HTTPClient::add_uri_param(const std::string &param, const std::string &value, bool escape)
 {
 	if (escape) {
-		std::string value_esc = "";
+		std::string value_esc;
 		http_string_escape(value, value_esc);
 		m_uri_params[param] = value_esc;
 	} else {
@@ -356,7 +358,7 @@ void HTTPClient::add_form_param(const std::string &param, const std::string &val
 	bool escape)
 {
 	if (escape) {
-		std::string value_esc = "";
+		std::string value_esc;
 		http_string_escape(value, value_esc);
 		m_form_params[param] = value_esc;
 	} else {
