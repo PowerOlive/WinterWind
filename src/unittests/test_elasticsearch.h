@@ -52,15 +52,31 @@ class Test_Elasticsearch : public CppUnit::TestFixture
 	CPPUNIT_TEST(es_bulk_play_index);
 	CPPUNIT_TEST(es_bulk_play_update);
 	CPPUNIT_TEST(es_bulk_play_delete);
+	CPPUNIT_TEST(es_create_index);
 	CPPUNIT_TEST(es_analyze);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp()
-	{}
+	void setUp() override
+	{
+	}
 
-	void tearDown()
-	{}
+	void tearDown() override
+	{
+		ElasticsearchClient client("http://" + ES_HOST + ":9200");
+		{
+			elasticsearch::Index index("index_unittests", &client);
+			index.remove();
+		}
+		{
+			elasticsearch::Index index("analyze_unittests", &client);
+			index.remove();
+		}
+		{
+			elasticsearch::Index index("library", &client);
+			index.remove();
+		}
+	}
 
 protected:
 	void es_bulk_to_json()
@@ -72,13 +88,12 @@ protected:
 		action.doc["title"] = "A great history";
 
 		Json::FastWriter writer;
-		std::string res = "";
+		std::string res;
 		action.toJson(writer, res);
 
-		CPPUNIT_ASSERT(
-				res ==
-						"{\"index\":{\"_id\":\"7\",\"_index\":\"library\",\"_type\":\"book\"}}\n"
-								"{\"title\":\"A great history\"}\n");
+		CPPUNIT_ASSERT(res ==
+				"{\"index\":{\"_id\":\"7\",\"_index\":\"library\",\"_type\":\"book\"}}\n"
+				"{\"title\":\"A great history\"}\n");
 	}
 
 	void es_bulk_update_to_json()
@@ -90,7 +105,7 @@ protected:
 		action.doc["engine"] = "Toyota";
 
 		Json::FastWriter writer;
-		std::string res = "";
+		std::string res;
 		action.toJson(writer, res);
 
 		CPPUNIT_ASSERT(
@@ -107,7 +122,7 @@ protected:
 		action.doc_id = "5877";
 
 		Json::FastWriter writer;
-		std::string res = "";
+		std::string res;
 		action.toJson(writer, res);
 
 		CPPUNIT_ASSERT(
@@ -123,7 +138,7 @@ protected:
 		action->doc_id = "7";
 		action->doc["title"] = "A great history";
 
-		std::string bulk_res = "";
+		std::string bulk_res;
 		ElasticsearchClient client("http://" + ES_HOST + ":9200");
 		client.add_bulkaction_to_queue(action);
 		client.process_bulkaction_queue(bulk_res);
@@ -138,7 +153,7 @@ protected:
 
 	void es_bulk_play_update()
 	{
-		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_UPDATE));
+		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_INDEX));
 		action->index = "library";
 		action->type = "book";
 		action->doc_id = "7";
@@ -150,7 +165,7 @@ protected:
 		action2->doc_id = "7";
 		action2->doc["title"] = "A great history (version 3)";
 
-		std::string bulk_res = "";
+		std::string bulk_res;
 		ElasticsearchClient client("http://" + ES_HOST + ":9200");
 		client.add_bulkaction_to_queue(action);
 		client.add_bulkaction_to_queue(action2);
@@ -171,7 +186,7 @@ protected:
 		action->type = "book";
 		action->doc_id = "7";
 
-		std::string bulk_res = "";
+		std::string bulk_res;
 		ElasticsearchClient client("http://" + ES_HOST + ":9200");
 		client.add_bulkaction_to_queue(action);
 		client.process_bulkaction_queue(bulk_res);
@@ -184,11 +199,46 @@ protected:
 		CPPUNIT_ASSERT(!es_res["errors"].asBool());
 	}
 
+	void es_create_index()
+	{
+		ElasticsearchClient client("http://" + ES_HOST + ":9200");
+		elasticsearch::Index ut_index("index_unittests", &client);
+
+		// Verify if not exists
+		CPPUNIT_ASSERT(!ut_index.exists());
+
+		// Create
+		CPPUNIT_ASSERT(ut_index.create());
+
+		// Ensure it's created
+		CPPUNIT_ASSERT(ut_index.exists());
+
+		// Remove
+		CPPUNIT_ASSERT(ut_index.remove());
+
+		// Ensure it's removed
+		CPPUNIT_ASSERT(!ut_index.exists());
+
+		// Set shard count
+		CPPUNIT_ASSERT(ut_index.set_shard_count(10));
+
+		// Create with new shard count
+		CPPUNIT_ASSERT(ut_index.create());
+	}
+
 	void es_analyze()
 	{
 		ElasticsearchClient client("http://" + ES_HOST + ":9200");
+		elasticsearch::Index ut_index("analyze_unittests", &client);
+		std::vector<std::string> filters = {"lowercase"};
+		elasticsearch::AnalyzerPtr autocomplete_analyzer =
+			std::make_shared<elasticsearch::Analyzer>("autocomplete", "standard", filters);
+		ut_index.add_analyzer(autocomplete_analyzer);
+
+		CPPUNIT_ASSERT(ut_index.create());
+
 		Json::Value res;
-		bool status = client.analyze("post", "autocomplete", "unittests are nice!", res);
+		bool status = client.analyze("analyze_unittests", "autocomplete", "unittests are nice!", res);
 
 		CPPUNIT_ASSERT_MESSAGE("Analyze failed, bad request", status);
 		CPPUNIT_ASSERT_MESSAGE("Analyze failed, invalid response: "

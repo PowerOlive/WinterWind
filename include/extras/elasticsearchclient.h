@@ -39,7 +39,7 @@ namespace extras
 class ElasticsearchException : public BaseException
 {
 public:
-	ElasticsearchException(const std::string &what) : BaseException(what)
+	explicit ElasticsearchException(const std::string &what) : BaseException(what)
 	{}
 
 	~ElasticsearchException() throw()
@@ -77,7 +77,7 @@ enum ElasticsearchBulkActionType
 struct ElasticsearchBulkAction
 {
 public:
-	ElasticsearchBulkAction(const ElasticsearchBulkActionType a) : action(a)
+	explicit ElasticsearchBulkAction(const ElasticsearchBulkActionType a) : action(a)
 	{}
 
 	std::string index = "";
@@ -116,10 +116,20 @@ public:
 		const std::string &str, Json::Value &res);
 
 	void add_bulkaction_to_queue(const ElasticsearchBulkActionPtr &action)
-	{ m_bulk_queue.push(action); }
+	{
+		m_bulk_queue.push(action);
+	}
 
 	void process_bulkaction_queue(std::string &res, uint32_t actions_limit = 0);
 
+	const std::string &get_node_addr() const
+	{
+		static const std::string empty_addr;
+		if (m_nodes.empty()) {
+			return empty_addr;
+		}
+		return m_nodes[0].http_addr;
+	}
 private:
 	// This function permits to obtain a fresh node on which perform a query
 	const ElasticsearchNode &get_fresh_node();
@@ -133,5 +143,135 @@ private:
 	CL_HELPER_VAR_GET(std::string, cluster_name, "");
 };
 
+namespace elasticsearch
+{
+
+/**
+ * Analyzer object used on indices
+ */
+class Analyzer
+{
+public:
+	/**
+	 * Create analyzer object
+	 * @param name
+	 * @param tokenizer
+	 * @param filters a list for filters, by names
+	 */
+	Analyzer(const std::string &name, const std::string &tokenizer,
+		const std::vector<std::string> &filters):
+		m_name(name), m_tokenizer(tokenizer), m_filters(filters)
+	{
+	}
+
+	/**
+	 * Analyzer type
+	 */
+	enum Type: uint8_t {
+		CUSTOM,
+	};
+
+	/**
+	 * @return analyzer name
+	 */
+	const std::string &get_name() const { return m_name; }
+
+	/**
+	 * Converts Analyzer object to json
+	 * @return jsoncpp representation of the object
+	 */
+	Json::Value to_json() const;
+private:
+	/**
+	 * Analyzer name
+	 */
+	std::string m_name;
+	/**
+	 * Name of the tokenizer to use
+	 */
+	std::string m_tokenizer;
+	/**
+	 * Filter list (names)
+	 */
+	std::vector<std::string> m_filters;
+	/**
+	 * Analyzer type
+	 */
+	Type m_type = CUSTOM;
+};
+
+typedef std::shared_ptr<Analyzer> AnalyzerPtr;
+
+class Index
+{
+public:
+	Index(const std::string &name, ElasticsearchClient *es_client);
+	~Index() = default;
+
+	/**
+	 * Requests Elasticsearch if this index exists
+	 * @return
+	 */
+	bool exists();
+
+	/**
+	 * Create index if not exists
+	 * @return true if index exists or was created
+	 */
+	bool create();
+
+	/**
+	 * Remove index from Elasticsearch
+	 * @return true if index doesn't exist or was removed
+	 */
+	bool remove();
+
+	/**
+	 * Sets the shard count before creation.
+	 * It cannot be modified after index creation.
+	 * @param count
+	 * @return true if shard_count has been set
+	 */
+	bool set_shard_count(uint16_t count);
+
+	/**
+	 * Add an analyzer to this index
+	 * @param analyzer
+	 */
+	inline void add_analyzer(const AnalyzerPtr &analyzer)
+	{
+		m_analyzers[analyzer->get_name()] = analyzer;
+	}
+
+	/**
+	 * Get the Elasticsearch index name
+	 * @return index name
+	 */
+	const std::string &get_name() const { return m_name; }
+
+private:
+	/**
+	 * Index name
+	 */
+	const std::string m_name = "";
+
+	/**
+	 * Index shard count
+	 * 0 = don't set it when set index settings
+	 */
+	uint16_t m_shard_count = 0;
+
+	/**
+	 * Analyzers for this index
+	 */
+	std::unordered_map<std::string, AnalyzerPtr> m_analyzers;
+
+	/**
+	 * Pointer to ElasticsearchClient used to do requests
+	 */
+	ElasticsearchClient *m_es_client;
+};
+
+}
 }
 }

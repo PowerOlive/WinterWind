@@ -66,18 +66,20 @@ public:
 		_post(url, "", res, flag);
 	}
 
-	inline void
-	_post(const std::string &url, const std::string &post_data, std::string &res,
-		int32_t flag = HTTPClient::REQ_SIMPLE)
+	inline void _post(const std::string &url, const std::string &post_data,
+		std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
 		request(url, res, flag, POST, post_data);
 	}
 
-	inline void
-	_get(const std::string &url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE)
+	inline void _get(const std::string &url, std::string &res,
+		int32_t flag = HTTPClient::REQ_SIMPLE)
 	{
 		request(url, res, flag, GET);
 	}
+
+	bool _delete(const std::string &url, Json::Value &res,
+		int32_t flag = HTTPClient::REQ_SIMPLE);
 
 	inline void _delete(const std::string &url, std::string &res,
 		int32_t flag = HTTPClient::REQ_SIMPLE)

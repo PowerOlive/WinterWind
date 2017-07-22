@@ -25,6 +25,7 @@
 
 #include "elasticsearchclient.h"
 #include <cassert>
+#include <iostream>
 
 namespace winterwind
 {
@@ -205,5 +206,112 @@ bool ElasticsearchClient::analyze(const std::string &index, const std::string &a
 	return _get_json(node.http_addr + "/" + index + ES_ANALYZE, request, res);
 }
 
+namespace elasticsearch {
+
+Index::Index(const std::string &name, ElasticsearchClient *es_client):
+	m_name(name), m_es_client(es_client)
+{
+
+}
+
+bool Index::exists()
+{
+	Json::Value res;
+	if (!m_es_client->_get_json(m_es_client->get_node_addr() + "/" + m_name, res)) {
+		return false;
+	}
+
+	return !(res.isMember("error") && res.isMember("status") && res["status"].isInt() &&
+	res["status"].asInt() == 404 || !res.isMember(m_name));
+}
+
+bool Index::create()
+{
+	if (exists()) {
+		return true;
+	}
+
+	Json::Value req, res;
+	req["settings"] = Json::objectValue;
+	if (m_shard_count > 0) {
+		req["settings"]["number_of_shards"] = m_shard_count;
+	}
+
+	if (!m_analyzers.empty()) {
+		req["settings"]["analysis"] = Json::objectValue;
+		req["settings"]["analysis"]["analyzer"] = Json::objectValue;
+		for (const auto &analyzer: m_analyzers) {
+			req["settings"]["analysis"]["analyzer"][analyzer.first] =
+				analyzer.second->to_json();
+		}
+	}
+
+	if (!m_es_client->_put_json(m_es_client->get_node_addr() + "/" + m_name, req, res)) {
+		return false;
+	}
+
+	if (res.isMember("error")) {
+		if (res["error"].isObject() && res["error"].isMember("reason")) {
+			std::cerr << "Elasticsearch index removal error: "
+				<< res["error"]["reason"] << std::endl;
+		}
+		return false;
+	}
+
+	return res.isMember("acknowledged") && res["acknowledged"].isBool()
+		&& res["acknowledged"].asBool();
+}
+
+bool Index::remove()
+{
+	if (!exists()) {
+		return true;
+	}
+
+	Json::Value res;
+	if (!m_es_client->_delete(m_es_client->get_node_addr() + "/" + m_name, res)) {
+		return false;
+	}
+
+	if (res.isMember("error")) {
+		if (res["error"].isObject() && res["error"].isMember("reason")) {
+			std::cerr << "Elasticsearch index removal error: "
+				<< res["error"]["reason"] << std::endl;
+		}
+		return false;
+	}
+
+	return res.isMember("acknowledged") && res["acknowledged"].asBool();
+
+}
+
+bool Index::set_shard_count(uint16_t count)
+{
+	if (exists()) {
+		std::cerr << "Unable to set shard count on an existing index" << std::endl;
+		return false;
+	}
+
+	m_shard_count = count;
+	return true;
+}
+
+Json::Value Analyzer::to_json() const
+{
+	Json::Value result;
+	switch (m_type) {
+		case CUSTOM: result["type"] = "custom"; break;
+		default: assert(false);
+	}
+
+	result["tokenizer"] = m_tokenizer;
+	result["filter"] = Json::arrayValue;
+	for (const auto &filter: m_filters) {
+		result["filter"].append(filter);
+	}
+
+	return result;
+}
+}
 }
 }
