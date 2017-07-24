@@ -36,6 +36,7 @@ option(ENABLE_JWT "Enable Json WebTokens" TRUE)
 set(SRC_FILES
 	utils/base64.cpp
 	utils/hmac.cpp
+	utils/log.cpp
 	utils/semaphore.cpp
 	utils/stringutils.cpp
 	utils/threads.cpp
@@ -46,6 +47,7 @@ set(HEADER_FILES
 	${INCLUDE_SRC_PATH}/core/utils/base64.h
 	${INCLUDE_SRC_PATH}/core/utils/classhelpers.h
 	${INCLUDE_SRC_PATH}/core/utils/exception.h
+	${INCLUDE_SRC_PATH}/core/utils/log.h
 	${INCLUDE_SRC_PATH}/core/utils/macros.h
 	${INCLUDE_SRC_PATH}/core/utils/semaphore.h
 	${INCLUDE_SRC_PATH}/core/utils/stringutils.h
@@ -57,6 +59,7 @@ set(HEADER_FILES
 
 set(PROJECT_LIBS
 	jsoncpp
+	log4cplus
 	xml2)
 
 set(READLINE 0 PARENT_SCOPE)

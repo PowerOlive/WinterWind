@@ -26,6 +26,8 @@
 #include "ircclient.h"
 #include <libircclient/libircclient.h>
 
+log4cplus::Logger irc_log = logger.getInstance(LOG4CPLUS_TEXT("irc"));
+
 #define IRC_CB_EVENT(n) \
 void on_irc_event_##n(irc_session_t *session, const char *, \
 	const char *origin, const char **params, unsigned int count) \

@@ -2,7 +2,7 @@
 
 [![build status](https://gitlab.com/WinterWind/WinterWind/badges/master/build.svg)](https://gitlab.com/WinterWind/WinterWind/commits/master)
 
-WinterWind is a high level C++ API which provides interesting high level features.
+WinterWind is a high level C++ API which provides interesting high level features to produce fast a new service ready to production.
 
 WinterWind required C++11 at least.
 
@@ -85,18 +85,19 @@ mkdir build && cd build && cmake .. && make -j X && make install
 ### Web
 
 * Client (High level cURL interface)
-	* Caldav client (WIP)
-	* Elasticsearch Client (WIP)
-	* Gitlab client
-	* Jira client
-	* RATP client (for RER only)
-	* Slack client
-	* Twitter client
+* Caldav client (WIP)
+* Elasticsearch Client (WIP)
+* Gitlab client
+* Jira client
+* RATP client (for RER only)
+* Slack client
+* Twitter client
 
 ### Misc
 
 * Name generator
 * IRC client
+* Logger interface using log4cplus
 
 ### Lua bindings
 

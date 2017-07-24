@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2016-2017, Loic Blot <loic.blot@unix-experience.fr>
+/**
+ * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -23,38 +23,33 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include <core/utils/log.h>
+#include <log4cplus/configurator.h>
+#include <log4cplus/consoleappender.h>
 
-#include <log4cplus/logger.h>
-#include <log4cplus/loggingmacros.h>
+log4cplus::Logger logger = log4cplus::Logger::getRoot();
 
-extern log4cplus::Logger logger;
-
-#define log_debug(l, s) \
-	LOG4CPLUS_DEBUG(l, s);
-
-#define log_info(l, s) \
-	LOG4CPLUS_INFO(l, s);
-
-#define log_notice(l, s) \
-	LOG4CPLUS_INFO(l, s);
-
-#define log_warn(l, s) \
-	LOG4CPLUS_WARN(l, s);
-
-#define log_error(l, s) \
-	LOG4CPLUS_ERROR(l, s);
-
-#define log_fatal(l, s) \
-	LOG4CPLUS_FATAL(l, s);
-
-class Logger
+Logger::Logger(const std::string &config): m_config(config)
 {
-public:
-	Logger(const std::string &config);
-	void load_configuration();
-protected:
-	virtual void init();
-private:
-	std::string m_config = "log4cpp.properties";
-};
+	init();
+	load_configuration();
+}
+
+void Logger::init()
+{
+	log4cplus::initialize();
+
+	// Create console appender
+	log4cplus::helpers::SharedObjectPtr<log4cplus::Appender> console_appender(
+		new log4cplus::ConsoleAppender());
+	console_appender->setName(LOG4CPLUS_TEXT("console"));
+	logger.addAppender(console_appender);
+
+	// Set log levels to INFO
+	logger.setLogLevel(log4cplus::INFO_LOG_LEVEL);
+}
+
+void Logger::load_configuration()
+{
+	log4cplus::PropertyConfigurator::doConfigure(m_config);
+}
