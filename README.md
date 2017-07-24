@@ -108,7 +108,7 @@ mkdir build && cd build && cmake .. && make -j X && make install
 * __ENABLE_CALDAV__: enable caldav client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_ELASTICSEARCH__: enable Elasticsearch client support (requires ENABLE_HTTPCLIENT)
 * __ENABLE_GITLAB__: enable Gitlab client support (requires ENABLE_HTTPCLIENT)
-* __ENABLE_IRCCLIENT__: enable Jira client support
+* __ENABLE_IRCCLIENT__: enable IRC client support
 * __ENABLE_JIRACLIENT__: enable Jira client support (required ENABLE_HTTPCLIENT)
 * __ENABLE_NAMEGENERATOR__: enable Name Generator support
 * __ENABLE_RATPCLIENT__: enable RATP client support (requires ENABLE_HTTPCLIENT)
