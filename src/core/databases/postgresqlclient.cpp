@@ -101,7 +101,7 @@ void PostgreSQLResult::toJson(Json::Value &res)
 			else {
 				switch (PQftype(m_result, col)) {
 					case BOOLOID:
-						json_row[col] = (bool) (PQgetvalue(m_result, row, col) == "t");
+						json_row[col] = (bool) (strncmp(PQgetvalue(m_result, row, col), "t", sizeof("t")) == 0);
 						break;
 					case INT2OID:
 					case INT4OID:

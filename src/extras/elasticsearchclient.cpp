@@ -221,8 +221,9 @@ bool Index::exists()
 		return false;
 	}
 
-	return !(res.isMember("error") && res.isMember("status") && res["status"].isInt() &&
-	res["status"].asInt() == 404 || !res.isMember(m_name));
+	return !res.isMember("error") && res.isMember(m_name) ||
+		!(res.isMember("status") && res["status"].isInt() &&
+			res["status"].asInt() == 404);
 }
 
 bool Index::create()
