@@ -28,6 +28,10 @@
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
 
+/**
+ * Global logger
+ * log4cplus is thread-safe you can use it from multiple threads without problem.
+ */
 extern log4cplus::Logger logger;
 
 #define log_debug(l, s) \
@@ -48,13 +52,36 @@ extern log4cplus::Logger logger;
 #define log_fatal(l, s) \
 	LOG4CPLUS_FATAL(l, s);
 
+/**
+ * The logging wrapper class
+ * You should instanciate it only one time.
+ * Having a child class in a big project permits to add more loggers to the interface
+ */
 class Logger
 {
 public:
+	/**
+	 * Create project logger and init loggers and configuration.
+	 * This object is unique in process lifetime.
+	 *
+	 * @param config path to log4cplus.properties
+	 */
 	Logger(const std::string &config);
+
+	/**
+	 * Load configuration from m_config path
+	 */
 	void load_configuration();
 protected:
+	/**
+	 * Init Logger instance. It's called at object creation and should be overloaded by
+	 * child objects
+	 */
 	virtual void init();
 private:
-	std::string m_config = "log4cpp.properties";
+	/**
+	 * Configuration path
+	 */
+	std::string m_config = "log4cplus.properties";
+	static bool s_inited;
 };

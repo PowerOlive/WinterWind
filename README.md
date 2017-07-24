@@ -116,3 +116,16 @@ mkdir build && cd build && cmake .. && make -j X && make install
 * __ENABLE_SLACKCLIENT__: enable Slack client support (requires ENABLE_HTTPCLIENT & websocketpp library)
 * __ENABLE_TWITTERCLIENT__: enable Twitter client support (requires ENABLE_HTTPCLIENT & ENABLE_OAUTHCLIENT)
 
+# Library usage
+
+Here is a snippet of basic library startup
+
+```c++
+#include <core/utils/log.h>
+
+int main(int argc, const char *argv[])
+{
+	Logger log("log4cplus.properties");
+	return 0;
+}
+```

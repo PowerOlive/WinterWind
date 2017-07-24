@@ -28,9 +28,12 @@
 #include <log4cplus/consoleappender.h>
 
 log4cplus::Logger logger = log4cplus::Logger::getRoot();
+bool Logger::s_inited = false;
 
 Logger::Logger(const std::string &config): m_config(config)
 {
+	assert(!Logger::s_inited);
+
 	init();
 	load_configuration();
 }
