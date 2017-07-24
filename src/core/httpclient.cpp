@@ -27,11 +27,13 @@
 #include <cassert>
 #include <cstring>
 #include <curl/curl.h>
-#include <iostream>
 #include "cmake_config.h"
 
 namespace winterwind
 {
+
+log4cplus::Logger httpc_log = logger.getInstance(LOG4CPLUS_TEXT("httpc"));
+
 namespace http
 {
 std::atomic_bool HTTPClient::m_inited(false);
@@ -83,6 +85,8 @@ void
 HTTPClient::request(std::string url, std::string &res, int32_t flag, Method method,
 	std::string post_data)
 {
+	log_debug(httpc_log, "request: " << url << " method " << method);
+
 	CURL *curl = curl_easy_init();
 	m_http_code = 0;
 
@@ -164,10 +168,9 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 
 	if (!m_form_params.empty()) {
 		if (!post_data.empty()) {
-			std::cerr << "HTTPClient: post_data is not empty while form_params storage "
-				"has elements. This will ignore "
-				" post_data. (url was: "
-				<< url << ")." << std::endl;
+			log_error(httpc_log, "HTTPClient: post_data is not empty while form_params "
+				"storage has elements. This will ignore "
+				" post_data. (url was: " << url << ").");
 		}
 
 		post_data.clear();
@@ -206,8 +209,8 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 	}
 
 	if (r != CURLE_OK) {
-		std::cerr << "HTTPClient: curl_easy_perform failed to do request! Error was: "
-			<< curl_easy_strerror(r) << std::endl;
+		log_error(httpc_log, "HTTPClient: curl_easy_perform failed to do request! "
+			"Error was: " << curl_easy_strerror(r));
 	}
 
 	curl_easy_cleanup(curl);
@@ -243,11 +246,10 @@ bool HTTPClient::_delete(const std::string &url, Json::Value &res, int32_t flag)
 	prepare_json_query();
 	_delete(url, res_str, flag);
 	if (!json_reader()->parse(res_str, res)) {
-		std::cerr << "Failed to parse query for " << url << ". Response was not a JSON"
-			<< std::endl;
+		log_error(httpc_log, "Failed to parse query for " << url
+			<< ". Response was not a JSON");
 #if UNITTESTS
-		std::cerr << "[DEBUG] Response was: " << res_str
-			<< " http rc: " << m_http_code << std::endl;
+		log_debug(httpc_log, "Response was: " << res_str << " http rc: " << m_http_code);
 #endif
 		return false;
 	}
@@ -275,11 +277,10 @@ bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t fla
 	}
 
 	if (!json_reader()->parse(res_str, res)) {
-		std::cerr << "Failed to parse query for " << url << ". Response was not a JSON"
-			<< std::endl;
+		log_error(httpc_log, "Failed to parse query for " << url
+			<< ". Response was not a JSON");
 #if UNITTESTS
-		std::cerr << "[DEBUG] Response was: " << res_str
-			<< " http rc: " << m_http_code << std::endl;
+		log_debug(httpc_log, "Response was: " << res_str << " http rc: " << m_http_code);
 #endif
 		return false;
 	}
@@ -296,8 +297,8 @@ HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Va
 	_post(url, json_writer()->write(data), res_str, flags);
 
 	if (m_http_code == 400) {
-		std::cerr << "Bad request for " << url << ", error was: '" << res_str << "'"
-			<< std::endl;
+		log_fatal(httpc_log, "Bad request for " << url << ", error was: '"
+			<< res_str << "'");
 		return false;
 	}
 
@@ -306,10 +307,9 @@ HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Va
 	}
 
 	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
-		std::cerr << "Failed to parse query for " << url << std::endl;
+		log_error(httpc_log, "Failed to parse query for " << url);
 #if UNITTESTS
-		std::cerr << "[DEBUG] Response was: " << res_str
-			<< " http rc: " << m_http_code << std::endl;
+		log_debug(httpc_log, "Response was: " << res_str << " http rc: " << m_http_code);
 #endif
 		return false;
 	}
@@ -326,8 +326,8 @@ HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Val
 	_put(url, res_str, json_writer()->write(data), flags);
 
 	if (m_http_code == 400) {
-		std::cerr << "Bad request for " << url << ", error was: '" << res_str << "'"
-			<< std::endl;
+		log_fatal(httpc_log, "Bad request for " << url << ", error was: '"
+			<< res_str << "'");
 		return false;
 	}
 
@@ -336,10 +336,9 @@ HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Val
 	}
 
 	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
-		std::cerr << "Failed to parse query for " << url << std::endl;
+		log_error(httpc_log, "Failed to parse query for " << url);
 #if UNITTESTS
-		std::cerr << "[DEBUG] Response was: " << res_str
-			<< " http rc: " << m_http_code << std::endl;
+		log_debug(httpc_log, "Response was: " << res_str << " http rc: " << m_http_code);
 #endif
 		return false;
 	}

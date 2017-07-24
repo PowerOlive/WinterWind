@@ -31,9 +31,13 @@
 #include <json/json.h>
 #include <string>
 #include <unordered_map>
+#include <core/utils/log.h>
 
 namespace winterwind
 {
+
+extern log4cplus::Logger httpc_log;
+
 namespace http
 {
 
