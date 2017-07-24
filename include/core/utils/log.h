@@ -52,6 +52,9 @@ extern log4cplus::Logger logger;
 #define log_fatal(l, s) \
 	LOG4CPLUS_FATAL(l, s);
 
+namespace winterwind
+{
+
 /**
  * The logging wrapper class
  * You should instanciate it only one time.
@@ -72,12 +75,14 @@ public:
 	 * Load configuration from m_config path
 	 */
 	void load_configuration();
+
 protected:
 	/**
 	 * Init Logger instance. It's called at object creation and should be overloaded by
 	 * child objects
 	 */
 	virtual void init();
+
 private:
 	/**
 	 * Configuration path
@@ -85,3 +90,5 @@ private:
 	std::string m_config = "log4cplus.properties";
 	static bool s_inited;
 };
+
+}

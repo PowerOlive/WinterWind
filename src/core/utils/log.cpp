@@ -28,6 +28,10 @@
 #include <log4cplus/consoleappender.h>
 
 log4cplus::Logger logger = log4cplus::Logger::getRoot();
+
+namespace winterwind
+{
+
 bool Logger::s_inited = false;
 
 Logger::Logger(const std::string &config): m_config(config)
@@ -55,4 +59,6 @@ void Logger::init()
 void Logger::load_configuration()
 {
 	log4cplus::PropertyConfigurator::doConfigure(m_config);
+}
+
 }
