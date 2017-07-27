@@ -79,6 +79,7 @@ mkdir build && cd build && cmake .. && make -j X && make install
 * __ENABLE_JWT__: enable JsonWebTokens support
 * __ENABLE_LUA_ENGINE__: enable Lua engine with bindings (depending on previous options)
 * __ENABLE_EXTRAS__: enable WinterWind extras library compilation
+* __ENABLE_COVERAGE__: enable code coverage analysis using gcov & lcov
 
 ## WinterWind Extras
 

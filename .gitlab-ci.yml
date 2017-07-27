@@ -18,7 +18,7 @@ stages:
   - cppcheck
   - build
   - documentation
-  - unittests
+  - test
   - deploy
 
 cppcheck:
@@ -60,8 +60,8 @@ build:clang:
     - cmake -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_C_COMPILER=clang -DENABLE_UNITTESTS=1 ..
     - make -j4
 
-.unittests_template: &unittests_definition
-  stage: unittests
+.tests_template: &tests_definition
+  stage: test
   environment: staging
   services:
     - elasticsearch:5.4
@@ -74,28 +74,28 @@ build:clang:
     - ./src/unittests/winterwind_unittests
 
 unittests:gcc6:
-  <<: *unittests_definition
+  <<: *tests_definition
   dependencies:
     - build:gcc6
 
 unittests:clang:
-  <<: *unittests_definition
+  <<: *tests_definition
 
 unittests:elasticsearch2:
-  <<: *unittests_definition
+  <<: *tests_definition
   services:
     - elasticsearch:2
     - postgres:latest
     - mysql:latest
 
 unittests:valgrind:
-  <<: *unittests_definition
+  <<: *tests_definition
   script:
     - cd build
     - valgrind --leak-check=full --undef-value-errors=no --error-exitcode=9 ./src/unittests/winterwind_unittests
 
 unittests:callgrind:
-  <<: *unittests_definition
+  <<: *tests_definition
   script:
     - cd build
     - valgrind --tool=callgrind ./src/unittests/winterwind_unittests
@@ -104,6 +104,18 @@ unittests:callgrind:
     expire_in: 3 day
     paths:
       - build/callgrind.out.*
+
+codecov:gcov:
+  <<: *tests_definition
+  script:
+    - cd build
+    - cmake .. -DENABLE_COVERAGE=1
+    - make winterwind_coverage
+  artifacts:
+    when: on_success
+    expire_in: 1 year
+    paths:
+      - build/winterwind_coverage
 
 doxygen:documentation:
   stage: documentation
@@ -133,9 +145,11 @@ pages:
     - master
   dependencies:
     - doxygen:documentation
+    - codecov:gcov
   script:
-    - mkdir public/
+    - mkdir -p public/ public/coverage/
     - cp -R build/doc/html/* public/
+    - cp -R build/winterwind_coverage/* public/coverage/
   artifacts:
     when: on_success
     expire_in: 1 year
