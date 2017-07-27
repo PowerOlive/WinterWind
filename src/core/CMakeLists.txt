@@ -32,6 +32,7 @@ option(ENABLE_REDIS "Enable redis client" TRUE)
 option(ENABLE_OAUTHCLIENT "Enable OAuth client (requires ENABLE_HTTPCLIENT)" TRUE)
 option(ENABLE_LUA_ENGINE "Enable lua engine" TRUE)
 option(ENABLE_JWT "Enable Json WebTokens" TRUE)
+option(ENABLE_COV "Enable code coverage" FALSE)
 
 set(SRC_FILES
 	utils/base64.cpp
@@ -139,8 +140,27 @@ include_directories(
 	${INCLUDE_SRC_PATH}/core
 )
 
+if (ENABLE_COV)
+	include(CodeCoverage)
+	set(PROJECT_LIBS ${PROJECT_LIBS} gcov)
+	set(COVERAGE_EXCLUDES
+		"/usr/include/jsoncpp"
+		"/usr/include/log4cplus"
+		"/usr/include/c++/*"
+		"/usr/include/c++/*/*"
+		"/usr/include/c++/*/*/*")
+
+	setup_target_for_coverage(NAME ${PROJECT_NAME}_coverage DEPENDENCIES winterwind
+		EXECUTABLE winterwind_unittests)
+	APPEND_COVERAGE_COMPILER_FLAGS()
+endif()
+
 add_library(winterwind SHARED ${SRC_FILES})
 target_link_libraries(winterwind ${PROJECT_LIBS})
+
+if (ENABLE_COV)
+
+endif()
 
 install(FILES ${HEADER_FILES} DESTINATION ${INCLUDEDIR}/core)
 
