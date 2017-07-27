@@ -32,7 +32,7 @@ cppcheck:
     - cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
     - cppcheck --enable=warning,performance --project=compile_commands.json
 
-build:gcc6:
+build:gcc:
   stage: build
   environment: staging
   artifacts:
@@ -73,10 +73,10 @@ build:clang:
     - cd build
     - ./src/unittests/winterwind_unittests
 
-unittests:gcc6:
+unittests:gcc:
   <<: *tests_definition
   dependencies:
-    - build:gcc6
+    - build:gcc
 
 unittests:clang:
   <<: *tests_definition
@@ -107,9 +107,13 @@ unittests:callgrind:
 
 codecov:gcov:
   <<: *tests_definition
+  dependencies:
+    - build:gcc
   script:
+    - curl -O https://ftp.unix-experience.fr/lcov-1.13-2-any.pkg.tar.xz
+    - pacman --noconfirm -U lcov-1.13-2-any.pkg.tar.xz
     - cd build
-    - cmake .. -DENABLE_COVERAGE=1
+    - cmake .. -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=1
     - make winterwind_coverage
   artifacts:
     when: on_success
@@ -128,7 +132,7 @@ doxygen:documentation:
       paths:
         - build/doc/html
   dependencies:
-    - build:gcc6
+    - build:gcc
     - build:clang
   before_script:
     - pacman --noconfirm -Sy archlinux-keyring
