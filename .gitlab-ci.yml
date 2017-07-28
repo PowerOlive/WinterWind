@@ -1,5 +1,5 @@
 ---
-image: docker.io/nerzhul/archlinux:2016.10.01
+image: docker.io/nerzhul/archlinux:cpp-latest
 
 variables:
   POSTGRES_DB: unittests_db
