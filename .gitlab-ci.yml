@@ -12,10 +12,7 @@ variables:
   MYSQL_ROOT_PASSWORD: "useless"
 
 before_script:
-  - pacman --noconfirm -Sy archlinux-keyring
-  - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient lua websocketpp asio valgrind curl openssl-1.0 libircclient log4cplus
-# These are already included in image
-# - pacman --noconfirm -S libxml2 jsoncpp curl
+  - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient lua websocketpp asio valgrind curl openssl-1.0 libircclient log4cplus jsoncpp curl libxml2
 
 stages:
   - cppcheck
@@ -28,8 +25,7 @@ cppcheck:
   stage: cppcheck
   environment: staging
   before_script:
-    - pacman --noconfirm -Sy archlinux-keyring
-    - pacman --noconfirm -Sy cppcheck openssl-1.0 openssl
+    - pacman --noconfirm -Sy cppcheck openssl-1.0
   script:
     - mkdir -p cppcheck_tests
     - cd cppcheck_tests
