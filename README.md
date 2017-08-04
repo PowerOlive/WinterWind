@@ -126,7 +126,7 @@ Here is a snippet of basic library startup
 
 int main(int argc, const char *argv[])
 {
-	Logger log("log4cplus.properties");
+	winterwind::Logger log("log4cplus.properties");
 	return 0;
 }
 ```
