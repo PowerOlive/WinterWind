@@ -76,7 +76,7 @@ class Test_Threads : public CppUnit::TestFixture
 		{
 			ThreadStarted();
 			CPPUNIT_ASSERT(m_work_queue);
-			while (!stopRequested()) {
+			while (!is_stopping()) {
 				while (!m_work_queue->input_queue_empty()) {
 					WorkerIn wi = m_work_queue->read_input_queue();
 					WorkerOut wo;

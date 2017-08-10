@@ -83,9 +83,9 @@ void *SlackClient::run()
 
 	uint32_t failure_number = 0;
 
-	while (!stopRequested()) {
-		init_asio();
+	init_asio();
 
+	while (!is_stopping()) {
 		Json::Value res;
 		if (!rtm_start(res)) {
 			failure_number++;
@@ -159,8 +159,7 @@ void *SlackClient::run()
 				});
 
 			websocketpp::lib::error_code ec;
-			ws_tls_client::connection_ptr con =
-				get_connection(res["url"].asString(), ec);
+			ws_tls_client::connection_ptr con = get_connection(res["url"].asString(), ec);
 			if (ec) {
 				std::cout << "could not create connection because: " << ec.message()
 					<< std::endl;
@@ -170,6 +169,7 @@ void *SlackClient::run()
 			connect(con);
 			failure_number = 0;
 			ws_tls_client::run();
+			ws_tls_client::reset();
 		} catch (websocketpp::exception const &e) {
 			std::cerr << "ERROR handler exception" << std::endl
 				<< e.what() << std::endl;

@@ -31,8 +31,8 @@
 
 Thread::Thread()
 {
-	requeststop = false;
-	running = false;
+	m_request_stop = false;
+	m_running = false;
 	started = false;
 }
 
@@ -43,7 +43,6 @@ void Thread::wait()
 	if (started) {
 		if (m_thread) {
 			m_thread->join();
-			delete m_thread;
 			m_thread = nullptr;
 		}
 		started = false;
@@ -52,21 +51,21 @@ void Thread::wait()
 
 const bool Thread::start()
 {
-	if (running) {
+	if (m_running) {
 		return false;
 	}
 
-	requeststop = false;
+	m_request_stop = false;
 
 	continuemutex.lock();
-	m_thread = new std::thread(the_thread, this);
+	m_thread = std::make_unique<std::thread>(the_thread, this);
 	if (!m_thread) {
 		continuemutex.unlock();
 		return false;
 	}
 
-	// Wait until 'running' flag is set
-	while (!running) {
+	// Wait until 'm_running' flag is set
+	while (!m_running) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 	started = true;
@@ -78,11 +77,11 @@ const bool Thread::start()
 	return true;
 }
 
-int Thread::kill()
+const bool Thread::kill()
 {
-	if (!running) {
+	if (!m_running) {
 		wait();
-		return 1;
+		return false;
 	}
 
 	if (m_thread) {
@@ -92,9 +91,9 @@ int Thread::kill()
 	}
 
 	wait();
-	running = false;
+	m_running = false;
 
-	return 0;
+	return true;
 }
 
 void *Thread::the_thread(void *data)
@@ -102,15 +101,15 @@ void *Thread::the_thread(void *data)
 	Thread *thread = (Thread *) data;
 
 	thread->continuemutex2.lock();
-	thread->running = true;
+	thread->m_running = true;
 
 	thread->continuemutex.lock();
 	thread->continuemutex.unlock();
 
 	thread->run();
 
-	thread->running = false;
-	return NULL;
+	thread->m_running = false;
+	return nullptr;
 }
 
 void Thread::ThreadStarted() { continuemutex2.unlock(); }

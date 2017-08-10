@@ -34,21 +34,67 @@ class Thread
 public:
 	Thread();
 	virtual ~Thread();
-	const bool start();
-	virtual void stop() { requeststop = true; }
-	int kill();
-	virtual void *run() = 0;
-	bool is_running() { return running; }
-	bool stopRequested() const { return requeststop; }
 
+	/**
+	 * Starts the thread and launch the run() function
+	 *
+	 * @return false if thread is already started
+	 */
+	const bool start();
+
+	/**
+	 * Flag the thread to be stopped
+	 */
+	virtual void stop() { m_request_stop = true; }
+
+	/**
+	 * Kill the current thread. It's a hard kill, state is lost.
+	 * @return true if thread has been killed successfuly
+	 */
+	const bool kill();
+
+	/**
+	 * Thread runnable function
+	 * This function should be defined in child class and use the m_request_stop flag
+	 * to detect a graceful thread stop
+	 * @return a raw pointed value if needed
+	 */
+	virtual void *run() = 0;
+
+	/**
+	 * @return thread running status
+	 */
+	bool is_running() { return m_running; }
+
+	/**
+	 * Check is thread is in stopping state
+	 * @return stopping state
+	 */
+	bool is_stopping() const { return m_request_stop; }
+
+	/**
+	 * Waits for thread to stop
+	 */
 	void wait();
+
+	/**
+	 * Flag the thread to stop and immediately wait stop.
+	 * This is a caller blocking function
+	 */
 	void stop_and_wait()
 	{
 		stop();
 		wait();
 	}
 
+	/**
+	 * Disable thread copy constructor
+	 */
 	Thread(Thread const &) = delete;
+
+	/**
+	 * Disable thread copy assignment
+	 */
 	Thread &operator=(Thread const &) = delete;
 
 protected:
@@ -57,10 +103,10 @@ protected:
 
 private:
 	static void *the_thread(void *data);
-	std::thread *m_thread = nullptr;
+	std::unique_ptr<std::thread> m_thread = nullptr;
 	std::atomic_bool started;
-	std::atomic_bool running;
-	std::atomic_bool requeststop;
+	std::atomic_bool m_running;
+	std::atomic_bool m_request_stop;
 
 	std::mutex continuemutex, continuemutex2;
 };

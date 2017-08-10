@@ -154,7 +154,7 @@ void *ConsoleThread::run()
 	std::cout.flush();
 #endif
 
-	while (!stopRequested()) {
+	while (!is_stopping()) {
 #if READLINE
 		char *command_str = rl_gets();
 #else
@@ -188,6 +188,6 @@ void *ConsoleThread::run()
 #if READLINE
 	g_console_thread = nullptr;
 #endif
-	return NULL;
+	return nullptr;
 }
 }
