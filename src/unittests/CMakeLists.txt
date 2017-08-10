@@ -33,6 +33,7 @@ if (ENABLE_UNITTESTS)
 	add_executable(winterwind_unittests
 		main.cpp
 		test_string.cpp
+		test_threads.cpp
 	)
 
 	target_link_libraries(winterwind_unittests
