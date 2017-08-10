@@ -79,12 +79,6 @@ int main(int argc, const char *argv[])
 		winterwind::unittests::TWITTER_ACCESS_TOKEN_SECRET =
 				std::string(getenv("TWITTER_ACCESS_TOKEN_SECRET"));
 
-		if (!getenv("ES_HOST")) {
-			std::cerr << argv[0] << ": Missing Elasticsearch host" << std::endl;
-			return -1;
-		}
-		winterwind::unittests::ES_HOST = std::string(getenv("ES_HOST"));
-
 		runner.addTest(winterwind::unittests::Test_Elasticsearch::suite());
 		runner.addTest(winterwind::unittests::Test_Gitlab::suite());
 		runner.addTest(winterwind::unittests::Test_MySQL::suite());

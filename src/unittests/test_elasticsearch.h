@@ -32,16 +32,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <extras/elasticsearchclient.h>
-
-#include "cmake_config.h"
-
-using namespace winterwind::extras;
-
 namespace winterwind {
 namespace unittests {
-
-static std::string ES_HOST = "localhost";
 
 class Test_Elasticsearch : public CppUnit::TestFixture
 {
@@ -57,193 +49,20 @@ class Test_Elasticsearch : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp() override
-	{
-	}
-
-	void tearDown() override
-	{
-		ElasticsearchClient client("http://" + ES_HOST + ":9200");
-		{
-			elasticsearch::Index index("index_unittests", &client);
-			index.remove();
-		}
-		{
-			elasticsearch::Index index("analyze_unittests", &client);
-			index.remove();
-		}
-		{
-			elasticsearch::Index index("library", &client);
-			index.remove();
-		}
-	}
+	void setUp() override;
+	void tearDown() override;
 
 protected:
-	void es_bulk_to_json()
-	{
-		ElasticsearchBulkAction action(ESBULK_AT_INDEX);
-		action.index = "library";
-		action.type = "book";
-		action.doc_id = "7";
-		action.doc["title"] = "A great history";
-
-		Json::FastWriter writer;
-		std::string res;
-		action.toJson(writer, res);
-
-		CPPUNIT_ASSERT(res ==
-				"{\"index\":{\"_id\":\"7\",\"_index\":\"library\",\"_type\":\"book\"}}\n"
-				"{\"title\":\"A great history\"}\n");
-	}
-
-	void es_bulk_update_to_json()
-	{
-		ElasticsearchBulkAction action(ESBULK_AT_UPDATE);
-		action.index = "car";
-		action.type = "truck";
-		action.doc_id = "666";
-		action.doc["engine"] = "Toyota";
-
-		Json::FastWriter writer;
-		std::string res;
-		action.toJson(writer, res);
-
-		CPPUNIT_ASSERT(
-				res ==
-						"{\"update\":{\"_id\":\"666\",\"_index\":\"car\",\"_type\":\"truck\"}}\n"
-								"{\"doc\":{\"engine\":\"Toyota\"}}\n");
-	}
-
-	void es_bulk_delete_to_json()
-	{
-		ElasticsearchBulkAction action(ESBULK_AT_DELETE);
-		action.index = "food";
-		action.type = "meat";
-		action.doc_id = "5877";
-
-		Json::FastWriter writer;
-		std::string res;
-		action.toJson(writer, res);
-
-		CPPUNIT_ASSERT(
-				res ==
-						"{\"delete\":{\"_id\":\"5877\",\"_index\":\"food\",\"_type\":\"meat\"}}\n");
-	}
-
-	void es_bulk_play_index()
-	{
-		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_INDEX));
-		action->index = "library";
-		action->type = "book";
-		action->doc_id = "7";
-		action->doc["title"] = "A great history";
-
-		std::string bulk_res;
-		ElasticsearchClient client("http://" + ES_HOST + ":9200");
-		client.add_bulkaction_to_queue(action);
-		client.process_bulkaction_queue(bulk_res);
-
-		Json::Reader reader;
-		Json::Value es_res;
-		CPPUNIT_ASSERT(reader.parse(bulk_res, es_res));
-		CPPUNIT_ASSERT(es_res.isMember("errors"));
-		CPPUNIT_ASSERT(es_res["errors"].isBool());
-		CPPUNIT_ASSERT(!es_res["errors"].asBool());
-	}
-
-	void es_bulk_play_update()
-	{
-		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_INDEX));
-		action->index = "library";
-		action->type = "book";
-		action->doc_id = "7";
-		action->doc["title"] = "A great history (version 2)";
-
-		ElasticsearchBulkActionPtr action2(new ElasticsearchBulkAction(ESBULK_AT_UPDATE));
-		action2->index = "library";
-		action2->type = "book";
-		action2->doc_id = "7";
-		action2->doc["title"] = "A great history (version 3)";
-
-		std::string bulk_res;
-		ElasticsearchClient client("http://" + ES_HOST + ":9200");
-		client.add_bulkaction_to_queue(action);
-		client.add_bulkaction_to_queue(action2);
-		client.process_bulkaction_queue(bulk_res);
-
-		Json::Reader reader;
-		Json::Value es_res;
-		CPPUNIT_ASSERT(reader.parse(bulk_res, es_res));
-		CPPUNIT_ASSERT(es_res.isMember("errors"));
-		CPPUNIT_ASSERT(es_res["errors"].isBool());
-		CPPUNIT_ASSERT(!es_res["errors"].asBool());
-	}
-
-	void es_bulk_play_delete()
-	{
-		ElasticsearchBulkActionPtr action(new ElasticsearchBulkAction(ESBULK_AT_DELETE));
-		action->index = "library";
-		action->type = "book";
-		action->doc_id = "7";
-
-		std::string bulk_res;
-		ElasticsearchClient client("http://" + ES_HOST + ":9200");
-		client.add_bulkaction_to_queue(action);
-		client.process_bulkaction_queue(bulk_res);
-
-		Json::Reader reader;
-		Json::Value es_res;
-		CPPUNIT_ASSERT(reader.parse(bulk_res, es_res));
-		CPPUNIT_ASSERT(es_res.isMember("errors"));
-		CPPUNIT_ASSERT(es_res["errors"].isBool());
-		CPPUNIT_ASSERT(!es_res["errors"].asBool());
-	}
-
-	void es_create_index()
-	{
-		ElasticsearchClient client("http://" + ES_HOST + ":9200");
-		elasticsearch::Index ut_index("index_unittests", &client);
-
-		// Verify if not exists
-		CPPUNIT_ASSERT(!ut_index.exists());
-
-		// Create
-		CPPUNIT_ASSERT(ut_index.create());
-
-		// Ensure it's created
-		CPPUNIT_ASSERT(ut_index.exists());
-
-		// Remove
-		CPPUNIT_ASSERT(ut_index.remove());
-
-		// Ensure it's removed
-		CPPUNIT_ASSERT(!ut_index.exists());
-
-		// Set shard count
-		CPPUNIT_ASSERT(ut_index.set_shard_count(10));
-
-		// Create with new shard count
-		CPPUNIT_ASSERT(ut_index.create());
-	}
-
-	void es_analyze()
-	{
-		ElasticsearchClient client("http://" + ES_HOST + ":9200");
-		elasticsearch::Index ut_index("analyze_unittests", &client);
-		std::vector<std::string> filters = {"lowercase"};
-		elasticsearch::AnalyzerPtr autocomplete_analyzer =
-			std::make_shared<elasticsearch::Analyzer>("autocomplete", "standard", filters);
-		ut_index.add_analyzer(autocomplete_analyzer);
-
-		CPPUNIT_ASSERT(ut_index.create());
-
-		Json::Value res;
-		bool status = client.analyze("analyze_unittests", "autocomplete", "unittests are nice!", res);
-
-		CPPUNIT_ASSERT_MESSAGE("Analyze failed, bad request", status);
-		CPPUNIT_ASSERT_MESSAGE("Analyze failed, invalid response: "
-			+ res.toStyledString(), res.isMember("tokens") && res["tokens"].isArray());
-	}
+	void es_bulk_to_json();
+	void es_bulk_update_to_json();
+	void es_bulk_delete_to_json();
+	void es_bulk_play_index();
+	void es_bulk_play_update();
+	void es_bulk_play_delete();
+	void es_create_index();
+	void es_analyze();
+private:
+	std::string m_es_host = "localhost";
 };
 }
 }
