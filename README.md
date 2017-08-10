@@ -6,7 +6,7 @@ WinterWind is a high level C++ API which provides interesting high level feature
 
 WinterWind required C++11 at least.
 
-You can found library documentation (Doxygen) [here](https://winterwind.gitlab.io/WinterWind/)
+You can found library documentation (Doxygen) [here](https://winterwind.gitlab.io/WinterWind/) and code coverage report [here](https://winterwind.gitlab.io/WinterWind/coverage/)
 
 # Compilation
 
