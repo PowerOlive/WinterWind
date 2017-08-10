@@ -36,7 +36,7 @@ template <class T>
 class ThreadPool
 {
 public:
-	ThreadPool(const uint32_t thread_number):
+	explicit ThreadPool(const uint32_t thread_number):
 		m_thread_number(thread_number)
 	{
 		assert(m_thread_number > 0);
@@ -58,6 +58,9 @@ public:
 		}
 	}
 
+	/**
+	 * Start thread pool workers
+	 */
 	void start_threads()
 	{
 		for (uint32_t i = 0; i < m_thread_number; i++) {
@@ -65,6 +68,10 @@ public:
 		}
 	}
 
+	/**
+	 * Stop threadpool and optionnaly wait stopping gracefully
+	 * @param wait
+	 */
 	void stop_threads(bool wait = false)
 	{
 		for (uint32_t i = 0; i < m_thread_number; i++) {
