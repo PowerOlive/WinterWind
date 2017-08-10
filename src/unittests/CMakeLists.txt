@@ -30,7 +30,11 @@ if (ENABLE_UNITTESTS)
 	set(UNITTESTS 1 PARENT_SCOPE)
 	set(UNITTESTS_LUA_FILE ${CMAKE_CURRENT_SOURCE_DIR}/unittests.lua PARENT_SCOPE)
 
-	add_executable(winterwind_unittests main.cpp)
+	add_executable(winterwind_unittests
+		main.cpp
+		test_string.cpp
+	)
+
 	target_link_libraries(winterwind_unittests
 		cppunit
 		log4cplus

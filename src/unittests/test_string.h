@@ -32,12 +32,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <core/utils/base64.h>
-#include <core/utils/stringutils.h>
-#include <core/utils/hmac.h>
-
-#include "cmake_config.h"
-
 namespace winterwind {
 namespace unittests {
 
@@ -64,172 +58,27 @@ class Test_String : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp() override
-	{}
-
-	void tearDown() override
-	{}
+	void setUp() override {}
+	void tearDown() override {}
 
 protected:
-	void str_hex()
-	{
-		std::string orig = "hello hex to convert.";
-		std::string dest;
-		str_to_hex(orig, dest);
-		CPPUNIT_ASSERT(dest == "68656c6c6f2068657820746f20636f6e766572742e");
-	}
-
-	void split_string()
-	{
-		std::string orig = "hello, this is winterwind.";
-		std::vector<std::string> res;
-		str_split(orig, ' ', res);
-		CPPUNIT_ASSERT(res.size() == 4 && res[2] == "is");
-	}
-
-	void remove_substring()
-	{
-		std::string orig = "The world is mine, the world is not yours";
-		std::string to_alter = orig;
-		str_remove_substr(to_alter, "world ");
-		CPPUNIT_ASSERT(to_alter == "The is mine, the is not yours");
-	}
-
-	void base64_encode_test()
-	{
-		std::string src = "unittest_b64encode";
-		std::string res = base64_encode((const unsigned char *) src.c_str(),
-			static_cast<unsigned int>(src.size()));
-		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
-	}
-
-	void base64_decode_test()
-	{
-		std::string src = "dW5pdHRlc3RfYjY0ZGVjb2Rl";
-		std::string res = base64_decode(src);
-		CPPUNIT_ASSERT(res.compare("unittest_b64decode") == 0);
-	}
-
-	void base64_encode_test2()
-	{
-		std::string src = "unittest_b64encode";
-		std::string res = base64_encode(src);
-		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0ZW5jb2Rl") == 0);
-	}
-
-	void base64_urlencode_test()
-	{
-		std::string src = "unittest_b64urlencode / me";
-		std::string res = base64_urlencode((const unsigned char *) src.c_str(),
-			static_cast<unsigned int>(src.size()));
-		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0dXJsZW5jb2RlIC8gbWU=") == 0);
-	}
-
-	void base64_urldecode_test()
-	{
-		std::string src = "dW5pdHRlc3RfYjY0dXJsZGVjb2RlIC8gbWU=";
-		std::string res = base64_urldecode(src);
-
-		static const std::string req_result = "unittest_b64urldecode / me";
-
-		CPPUNIT_ASSERT_MESSAGE(res + " != " + req_result, res.compare(req_result) == 0);
-	}
-
-	void base64_urlencode_test2()
-	{
-		std::string src = "unittest_b64urlencode / me";
-		std::string res = base64_urlencode(src);
-		CPPUNIT_ASSERT(res.compare("dW5pdHRlc3RfYjY0dXJsZW5jb2RlIC8gbWU=") == 0);
-	}
-
-	void hmac_md5_test()
-	{
-		static const std::string expected_result = "P4Dt/+VJbIzei9pPGqWybQ==";
-		std::string res = base64_encode(hmac_md5("unittest_key_5", "hashthatmd5"));
-		std::string message = res + " != '" + expected_result + "'";
-		CPPUNIT_ASSERT_MESSAGE(message, res == expected_result);
-	}
-
-	void hmac_sha1_test()
-	{
-		static const std::string expected_result = "rfsumIkQ/lUjuI68D1t0eJe/PgE=";
-		std::string res = base64_encode(hmac_sha1("unittest_key", "hashthatthing"));
-		std::string message = res + " != '" + expected_result + "'";
-		CPPUNIT_ASSERT_MESSAGE(message, res == expected_result);
-	}
-
-	void hmac_sha256_test()
-	{
-		static const std::string expected_result = "gcYLiiayTR4BW+X4U4WOnEYPM54Jv7iUwssb0EPYwWU=";
-		std::string res = base64_encode(hmac_sha256("unittest_key_256", "hashthat256thing"));
-		std::string message = res + " != '" + expected_result + "'";
-		CPPUNIT_ASSERT_MESSAGE(message, res == expected_result);
-	}
-
-	void hmac_sha384_test()
-	{
-		static const std::string expected_result = "Z1YKhbAW6ZLo5+wywZvFHR3SskgMApO5C8DKmA/htbBaahCfuIDhj3j6ANue9JST";
-		std::string res = base64_encode(hmac_sha384("secret384", "hash384_message"));
-		std::string message = res + " != '" + expected_result + "'";
-		CPPUNIT_ASSERT_MESSAGE(message, res == expected_result);
-	}
-
-	void hmac_sha512_test()
-	{
-		static const std::string expected_result = "88YMIWdFi9oIlfwZp3uYzxXgxrcV2ToV29q0f5JC08Cq5tZ5FNSc3f+2iMQVIQpOYu8vtN0u5/kBgCXpmkLqBg==";
-		std::string res = base64_encode(hmac_sha512("secret512", "hash512_message"));
-		std::string message = res + " != '" + expected_result + "'";
-		CPPUNIT_ASSERT_MESSAGE(message, res == expected_result);
-	}
-
-	void count_words_test()
-	{
-		static const std::string to_count = "Red is rose as purple is blue";
-		static const uint16_t expected_count = 7;
-		CPPUNIT_ASSERT(count_words(to_count) == expected_count);
-	}
-
-	void replace_str()
-	{
-		std::string orig = "Red is rose as purple is blue";
-		static const std::string repl_expected = "Red is rose as purple is black";
-		static const std::string repl = "blue";
-		static const std::string repl_with = "black";
-
-		CPPUNIT_ASSERT(replace(orig, repl, repl_with));
-		CPPUNIT_ASSERT(orig == repl_expected);
-	}
-
-	void trim_test()
-	{
-		static const std::vector<std::string> trim_start = {
-			"",
-			"test_0",
-			"test_1 \t\f \n  \t ",
-			"  \n\f  test_2",
-			"\ntest_3\t",
-			" \n\f test\n_4\t  "
-		};
-
-		static const std::vector<std::string> trim_expected = {
-			"",
-			"test_0",
-			"test_1",
-			"test_2",
-			"test_3",
-			"test\n_4"
-		};
-
-		CPPUNIT_ASSERT_MESSAGE("trim_start size != trim_expected size",
-			trim_start.size() == trim_expected.size());
-
-		for (uint8_t i = 0; i < trim_start.size(); i++) {
-			std::string to_trim = trim_start[i];
-			trim(to_trim);
-			CPPUNIT_ASSERT_MESSAGE("trim expected: '" + trim_expected[i]
-				+ "' but found: '" + to_trim + "'", to_trim == trim_expected[i]);
-		}
-	}
+	void str_hex();
+	void split_string();
+	void remove_substring();
+	void base64_encode_test();
+	void base64_decode_test();
+	void base64_encode_test2();
+	void base64_urlencode_test();
+	void base64_urldecode_test();
+	void base64_urlencode_test2();
+	void hmac_md5_test();
+	void hmac_sha1_test();
+	void hmac_sha256_test();
+	void hmac_sha384_test();
+	void hmac_sha512_test();
+	void count_words_test();
+	void replace_str();
+	void trim_test();
 };
 }
 }

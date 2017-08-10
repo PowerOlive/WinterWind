@@ -116,16 +116,15 @@ public:
 protected:
 	void thread_pool()
 	{
-		ThreadPool<ThreadTest> *tp = new ThreadPool<ThreadTest>(4);
+		std::unique_ptr<ThreadPool<ThreadTest>> tp = std::make_unique<ThreadPool<ThreadTest>>(4);
 		CPPUNIT_ASSERT(tp);
 		tp->start_threads();
 		tp->stop_threads(true);
-		delete tp;
 	}
 
 	void working_queue()
 	{
-		TPWQTest *wq = new TPWQTest(6);
+		std::unique_ptr<TPWQTest> wq = std::make_unique<TPWQTest>(6);
 		CPPUNIT_ASSERT(wq);
 
 		static const uint8_t TEST_INPUT_NUMBERS = 100;
@@ -147,7 +146,6 @@ protected:
 			WorkerOut wo = wq->read_output();
 			CPPUNIT_ASSERT(wo.a + wo.b == wo.r);
 		}
-		delete wq;
 	}
 };
 }
