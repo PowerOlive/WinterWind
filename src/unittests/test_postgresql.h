@@ -38,12 +38,6 @@ namespace winterwind {
 
 namespace unittests {
 
-#define INIT_PG_CLIENT                                                                   \
-    db::PostgreSQLClient pg("host=postgres user=unittests dbname=unittests_db "          \
-                "password=un1Ttests");
-
-#define PG_TEST_TABLE std::string("ut_table")
-
 class Test_PostgreSQL : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(Test_PostgreSQL);
@@ -60,154 +54,21 @@ class Test_PostgreSQL : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp()
-	{}
+	void setUp() override {}
 
-	void tearDown()
-	{
-		INIT_PG_CLIENT;
-		std::string query = "DROP TABLE IF EXISTS " + PG_TEST_TABLE;
-		pg.exec(query.c_str());
-	}
+	void tearDown() override;
 
 protected:
-	void pg_register_embedded_statements()
-	{
-		INIT_PG_CLIENT
-		pg.register_embedded_statements();
-		CPPUNIT_ASSERT(true);
-	}
-
-	void pg_register_custom_statement()
-	{
-		INIT_PG_CLIENT
-		CPPUNIT_ASSERT(pg.register_statement("test_stmt", "SELECT * FROM pg_indexes"));
-		CPPUNIT_ASSERT(!pg.register_statement("test_stmt", "SELECT * FROM pg_indexes"));
-	}
-
-	void pg_add_admin_views()
-	{
-		INIT_PG_CLIENT
-		CPPUNIT_ASSERT(pg.add_admin_views("public") == PGRES_COMMAND_OK);
-	}
-
-	void pg_drop_schema()
-	{
-		INIT_PG_CLIENT
-		pg.register_embedded_statements();
-		CPPUNIT_ASSERT(pg.drop_schema("test_schema", true) == PGRES_COMMAND_OK);
-	}
-
-	void pg_create_schema()
-	{
-		INIT_PG_CLIENT
-		pg.register_embedded_statements();
-		CPPUNIT_ASSERT_MESSAGE("Schema creation (success)",
-			pg.create_schema("test_schema") == PGRES_COMMAND_OK);
-
-		ExecStatusType pg_status;
-		try {
-			pg_status = pg.create_schema("test_schema");
-		}
-		catch (db::PostgreSQLException &e) {
-			pg_status = PGRES_FATAL_ERROR;
-		}
-
-		CPPUNIT_ASSERT_MESSAGE("Schema creation (failure)",
-			pg_status == PGRES_FATAL_ERROR);
-		CPPUNIT_ASSERT(pg.drop_schema("test_schema") == PGRES_COMMAND_OK);
-	}
-
-	void pg_create_table()
-	{
-		INIT_PG_CLIENT
-		pg.register_embedded_statements();
-
-		bool create_table_ok = false;
-		try {
-			std::string query = "CREATE TABLE " + PG_TEST_TABLE
-				+ " (i INTEGER, s VARCHAR)";
-			db::PostgreSQLResult result = pg.exec(query.c_str());
-			create_table_ok = true;
-		}
-		catch (db::PostgreSQLException &e) {
-			std::cerr << e.what() << std::endl;
-		}
-
-		CPPUNIT_ASSERT(create_table_ok);
-	}
-
-	void pg_drop_table()
-	{
-		pg_create_table();
-
-		INIT_PG_CLIENT
-		std::string query = "DROP TABLE " + PG_TEST_TABLE;
-
-		bool drop_ok = false;
-		try {
-			pg.exec(query.c_str());
-			drop_ok = true;
-		}
-		catch (db::PostgreSQLException &e) {
-			std::cerr << e.what() << std::endl;
-		}
-
-		CPPUNIT_ASSERT(drop_ok);
-	}
-
-	void pg_insert()
-	{
-		pg_create_table();
-
-		INIT_PG_CLIENT
-
-		std::string query = "INSERT INTO " + PG_TEST_TABLE + "(i,s) VALUES (1, 'test')";
-
-		bool insert_ok = false;
-		try {
-			pg.exec(query.c_str());
-			insert_ok = true;
-		}
-		catch (db::PostgreSQLException &e) {
-			std::cerr << e.what() << std::endl;
-		}
-
-		CPPUNIT_ASSERT_MESSAGE("PostgreSQL INSERT Test", insert_ok);
-	}
-
-	void pg_transaction_insert()
-	{
-		pg_create_table();
-
-		INIT_PG_CLIENT
-
-		bool insert_ok = false;
-		try {
-			pg.begin();
-			for (uint8_t i = 0; i < 100; i++) {
-				std::string query = "INSERT INTO " + PG_TEST_TABLE + "(i,s) VALUES ("
-					+ std::to_string(i) + ", 'test')";
-				pg.exec(query.c_str());
-			}
-
-			pg.commit();
-			insert_ok = true;
-		}
-		catch (db::PostgreSQLException &e) {
-			std::cerr << e.what() << std::endl;
-		}
-
-		CPPUNIT_ASSERT_MESSAGE("PostgreSQL Transaction INSERT Test", insert_ok);
-	}
-
-	void pg_show_tables()
-	{
-		INIT_PG_CLIENT
-		pg.register_embedded_statements();
-		std::vector<std::string> res;
-		CPPUNIT_ASSERT(pg.show_tables("public", res) == PGRES_TUPLES_OK);
-	}
+	void pg_register_embedded_statements();
+	void pg_register_custom_statement();
+	void pg_add_admin_views();
+	void pg_drop_schema();
+	void pg_create_schema();
+	void pg_create_table();
+	void pg_drop_table();
+	void pg_insert();
+	void pg_transaction_insert();
+	void pg_show_tables();
 };
 }
 }
