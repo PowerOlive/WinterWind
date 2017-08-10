@@ -32,9 +32,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/ui/text/TestRunner.h>
 
-#include <iomanip>
-#include <regex>
-#include <core/utils/time.h>
 #include <extras/gitlabapiclient.h>
 
 using namespace winterwind::extras;

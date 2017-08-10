@@ -44,34 +44,6 @@ int main(int argc, const char *argv[])
 	CppUnit::TextUi::TestRunner runner;
 
 	if (!getenv("NO_REMOTE_TESTS")) {
-		if (!getenv("TWITTER_CONSUMER_KEY")) {
-			std::cerr << argv[0] << ": Missing Twitter consumer key" << std::endl;
-			return -1;
-		}
-		winterwind::unittests::TWITTER_CONSUMER_KEY =
-				std::string(getenv("TWITTER_CONSUMER_KEY"));
-
-		if (!getenv("TWITTER_CONSUMER_SECRET")) {
-			std::cerr << argv[0] << ": Missing Twitter consumer secret" << std::endl;
-			return -1;
-		}
-		winterwind::unittests::TWITTER_CONSUMER_SECRET =
-				std::string(getenv("TWITTER_CONSUMER_SECRET"));
-
-		if (!getenv("TWITTER_ACCESS_TOKEN")) {
-			std::cerr << argv[0] << ": Missing Twitter access token" << std::endl;
-			return -1;
-		}
-		winterwind::unittests::TWITTER_ACCESS_TOKEN =
-				std::string(getenv("TWITTER_ACCESS_TOKEN"));
-
-		if (!getenv("TWITTER_ACCESS_TOKEN_SECRET")) {
-			std::cerr << argv[0] << ": Missing Twitter access token secret" << std::endl;
-			return -1;
-		}
-		winterwind::unittests::TWITTER_ACCESS_TOKEN_SECRET =
-				std::string(getenv("TWITTER_ACCESS_TOKEN_SECRET"));
-
 		runner.addTest(winterwind::unittests::Test_Elasticsearch::suite());
 		runner.addTest(winterwind::unittests::Test_Gitlab::suite());
 		runner.addTest(winterwind::unittests::Test_MySQL::suite());

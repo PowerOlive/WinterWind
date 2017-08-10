@@ -36,6 +36,7 @@ if (ENABLE_UNITTESTS)
 		test_gitlab.cpp
 		test_string.cpp
 		test_threads.cpp
+		test_twitter.cpp
 	)
 
 	target_link_libraries(winterwind_unittests

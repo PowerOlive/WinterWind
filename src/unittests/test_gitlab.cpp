@@ -28,9 +28,6 @@
 #include <iomanip>
 #include <regex>
 #include <core/utils/time.h>
-#include <extras/gitlabapiclient.h>
-
-using namespace winterwind::extras;
 
 namespace winterwind {
 namespace unittests {
