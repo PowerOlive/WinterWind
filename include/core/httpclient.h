@@ -46,9 +46,9 @@ typedef std::unordered_map<std::string, std::string> HeadersMap;
 class HTTPClient
 {
 public:
-	HTTPClient(uint32_t max_file_size = 1024 * 1024);
+	explicit HTTPClient(uint32_t max_file_size = 1024 * 1024);
 
-	virtual ~HTTPClient();
+	virtual ~HTTPClient() = default;
 
 	enum ReqFlag: uint8_t
 	{
@@ -160,13 +160,12 @@ protected:
 	std::unordered_map<std::string, std::string> m_form_params = {};
 	long m_http_code = 0;
 
-	Json::Writer *json_writer();
-
-	Json::Reader *json_reader();
+	Json::Writer &json_writer();
+	Json::Reader &json_reader();
 
 private:
-	Json::FastWriter *m_json_writer = nullptr;
-	Json::Reader *m_json_reader = nullptr;
+	std::unique_ptr<Json::FastWriter> m_json_writer = nullptr;
+	std::unique_ptr<Json::Reader> m_json_reader = nullptr;
 	uint32_t m_maxfilesize = 0;
 
 	static std::atomic_bool m_inited;

@@ -132,7 +132,7 @@ void *SlackClient::run()
 					websocketpp::config::asio_client::message_type::ptr msg) {
 					Json::Value recv_msg;
 
-					if (!this->json_reader()->parse(msg->get_payload(), recv_msg)) {
+					if (!this->json_reader().parse(msg->get_payload(), recv_msg)) {
 						std::cerr << "Invalid slack payload, ignoring."
 							<< std::endl;
 						return;
@@ -200,7 +200,7 @@ SlackClient::register_callback(const std::string &method, const SlackMessageHand
 void SlackClient::send(websocketpp::connection_hdl hdl, const Json::Value &msg)
 {
 	websocketpp::lib::error_code ec;
-	ws_tls_client::send(hdl, json_writer()->write(msg), websocketpp::frame::opcode::text,
+	ws_tls_client::send(hdl, json_writer().write(msg), websocketpp::frame::opcode::text,
 		ec);
 }
 

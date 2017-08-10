@@ -71,7 +71,7 @@ TwitterClient::Response TwitterClient::get_oauth2_token()
 	}
 
 	Json::Value json_res;
-	if (!json_reader()->parse(res, json_res)) {
+	if (!json_reader().parse(res, json_res)) {
 		return TWITTER_INVALID_RESPONSE;
 	}
 

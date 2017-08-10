@@ -45,33 +45,27 @@ HTTPClient::HTTPClient(uint32_t max_file_size) : m_maxfilesize(max_file_size)
 	}
 }
 
-HTTPClient::~HTTPClient()
-{
-	delete m_json_writer;
-	delete m_json_reader;
-}
-
 void HTTPClient::deinit()
 {
 	curl_global_cleanup();
 }
 
-Json::Writer *HTTPClient::json_writer()
+Json::Writer &HTTPClient::json_writer()
 {
 	if (m_json_writer == nullptr) {
-		m_json_writer = new Json::FastWriter();
+		m_json_writer = std::make_unique<Json::FastWriter>();
 	}
 
-	return m_json_writer;
+	return *m_json_writer;
 }
 
-Json::Reader *HTTPClient::json_reader()
+Json::Reader &HTTPClient::json_reader()
 {
 	if (m_json_reader == nullptr) {
-		m_json_reader = new Json::Reader();
+		m_json_reader = std::make_unique<Json::Reader>();
 	}
 
-	return m_json_reader;
+	return *m_json_reader;
 }
 
 size_t HTTPClient::curl_writer(char *data, size_t size, size_t nmemb, void *read_buffer)
@@ -245,7 +239,7 @@ bool HTTPClient::_delete(const std::string &url, Json::Value &res, int32_t flag)
 	std::string res_str;
 	prepare_json_query();
 	_delete(url, res_str, flag);
-	if (!json_reader()->parse(res_str, res)) {
+	if (!json_reader().parse(res_str, res)) {
 		log_error(httpc_log, "Failed to parse query for " << url
 			<< ". Response was not a JSON");
 #if UNITTESTS
@@ -260,7 +254,7 @@ bool HTTPClient::_delete(const std::string &url, Json::Value &res, int32_t flag)
 bool HTTPClient::_get_json(const std::string &url, const Json::Value &req,
 		Json::Value &res, int32_t flag)
 {
-	return _get_json(url, res, flag, json_writer()->write(req));
+	return _get_json(url, res, flag, json_writer().write(req));
 }
 
 bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t flag,
@@ -276,7 +270,7 @@ bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t fla
 		_get(url, res_str, flag);
 	}
 
-	if (!json_reader()->parse(res_str, res)) {
+	if (!json_reader().parse(res_str, res)) {
 		log_error(httpc_log, "Failed to parse query for " << url
 			<< ". Response was not a JSON");
 #if UNITTESTS
@@ -294,7 +288,7 @@ HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Va
 {
 	std::string res_str;
 	prepare_json_query();
-	_post(url, json_writer()->write(data), res_str, flags);
+	_post(url, json_writer().write(data), res_str, flags);
 
 	if (m_http_code == 400) {
 		log_fatal(httpc_log, "Bad request for " << url << ", error was: '"
@@ -306,7 +300,7 @@ HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Va
 		return true;
 	}
 
-	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
+	if (res_str.empty() || !json_reader().parse(res_str, res)) {
 		log_error(httpc_log, "Failed to parse query for " << url);
 #if UNITTESTS
 		log_debug(httpc_log, "Response was: " << res_str << " http rc: " << m_http_code);
@@ -323,7 +317,7 @@ HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Val
 {
 	std::string res_str;
 	prepare_json_query();
-	_put(url, res_str, json_writer()->write(data), flags);
+	_put(url, res_str, json_writer().write(data), flags);
 
 	if (m_http_code == 400) {
 		log_fatal(httpc_log, "Bad request for " << url << ", error was: '"
@@ -335,7 +329,7 @@ HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Val
 		return true;
 	}
 
-	if (res_str.empty() || !json_reader()->parse(res_str, res)) {
+	if (res_str.empty() || !json_reader().parse(res_str, res)) {
 		log_error(httpc_log, "Failed to parse query for " << url);
 #if UNITTESTS
 		log_debug(httpc_log, "Response was: " << res_str << " http rc: " << m_http_code);
