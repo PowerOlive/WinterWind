@@ -44,18 +44,15 @@ public:
 		m_threads.reserve(m_thread_number);
 
 		for (uint32_t i = 0; i < m_thread_number; i++) {
-			m_threads[i] = new T();
+			m_threads[i] = std::make_unique<T>();
 			// Verify if we are working with Thread classes
-			assert(dynamic_cast<Thread *>(m_threads[i]));
+			assert(dynamic_cast<Thread *>(m_threads[i].get()));
 		}
 	}
 
 	virtual ~ThreadPool()
 	{
 		stop_threads();
-		for (uint32_t i = 0; i < m_thread_number; i++) {
-			delete m_threads[i];
-		}
 	}
 
 	/**
@@ -93,7 +90,7 @@ public:
 
 protected:
 	uint32_t m_thread_number = 0;
-	std::vector<T *> m_threads = {};
+	std::vector<std::unique_ptr<T>> m_threads = {};
 };
 
 /**
