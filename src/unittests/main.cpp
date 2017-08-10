@@ -44,13 +44,6 @@ int main(int argc, const char *argv[])
 	CppUnit::TextUi::TestRunner runner;
 
 	if (!getenv("NO_REMOTE_TESTS")) {
-		if (!getenv("GITLAB_API_KEY")) {
-			std::cerr << argv[0] << ": Missing gitlab token" << std::endl;
-			return -1;
-		}
-		winterwind::unittests::GITLAB_TOKEN =
-				std::string(getenv("GITLAB_API_KEY"));
-
 		if (!getenv("TWITTER_CONSUMER_KEY")) {
 			std::cerr << argv[0] << ": Missing Twitter consumer key" << std::endl;
 			return -1;
