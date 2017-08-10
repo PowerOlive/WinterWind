@@ -160,7 +160,7 @@ function(SETUP_TARGET_FOR_COVERAGE)
         # Capturing lcov counters and generating report
         COMMAND ${LCOV_PATH} --directory ${CMAKE_SOURCE_DIR} --capture --output-file ${Coverage_NAME}.info
         COMMAND ${LCOV_PATH} --remove ${Coverage_NAME}.info ${COVERAGE_EXCLUDES} --output-file ${Coverage_NAME}.info.cleaned
-        COMMAND ${GENHTML_PATH} -o ${Coverage_NAME} ${Coverage_NAME}.info.cleaned
+        COMMAND ${GENHTML_PATH} -o ${Coverage_NAME} --legend ${Coverage_NAME}.info.cleaned
         COMMAND ${CMAKE_COMMAND} -E remove ${Coverage_NAME}.info ${Coverage_NAME}.info.cleaned
 
         WORKING_DIRECTORY ${PROJECT_BINARY_DIR}
