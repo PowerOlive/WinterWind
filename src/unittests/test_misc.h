@@ -36,6 +36,8 @@
 #include <extras/luaextraengine.h>
 #include <core/utils/jsonwebtokens.h>
 #include <core/utils/base64.h>
+#include <core/utils/exception.h>
+#include <cstring>
 
 #include "cmake_config.h"
 
@@ -56,6 +58,7 @@ class Test_Misc : public CppUnit::TestFixture
 	CPPUNIT_TEST(jsonwebtokens_read_wrong_string);
 	CPPUNIT_TEST(jsonwebtokens_read_wrong_header);
 	CPPUNIT_TEST(jsonwebtokens_read_wrong_algo);
+	CPPUNIT_TEST(baseexception);
 	CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -187,6 +190,20 @@ protected:
 		JsonWebToken jwt("secret");
 		JWTDecoder::JWTStatus rc = JWTDecoder().read_and_verify(raw_jwt, jwt);
 		CPPUNIT_ASSERT(rc == JWTDecoder::STATUS_INVALID_ALGORITHM);
+	}
+
+	void baseexception()
+	{
+		bool exception_thrown = false;
+		try {
+			throw BaseException("test_message");
+		}
+		catch (const BaseException &e) {
+			CPPUNIT_ASSERT(strcmp(e.what(), "test_message") == 0);
+			exception_thrown = true;
+		}
+
+		CPPUNIT_ASSERT(exception_thrown);
 	}
 };
 }

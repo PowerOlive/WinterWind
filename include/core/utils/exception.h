@@ -41,7 +41,7 @@ public:
 	 */
 	BaseException(const std::string &what) throw(): m_what(what) {}
 
-	virtual ~BaseException() throw() {}
+	virtual ~BaseException() throw() = default;
 
 	/**
 	 *

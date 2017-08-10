@@ -56,9 +56,9 @@ static void time_now_string(std::string &res) { time_to_string(time(NULL), res);
 bool str_to_time(std::string str, std::tm &t);
 bool str_to_timestamp(const std::string &str, std::time_t &t);
 
-static int get_hour_now()
+static int get_current_hour()
 {
-	time_t now = time(NULL);
+	time_t now = time(nullptr);
 	std::tm *ptm = std::localtime(&now);
 	return ptm->tm_hour;
 }

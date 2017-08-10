@@ -23,36 +23,47 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
-
-#include <cppunit/TestAssert.h>
-#include <cppunit/TestCaller.h>
-#include <cppunit/TestFixture.h>
-#include <cppunit/TestSuite.h>
-#include <cppunit/extensions/HelperMacros.h>
-#include <cppunit/ui/text/TestRunner.h>
+#include "test_time.h"
 
 #include <core/utils/time.h>
-
-#include "cmake_config.h"
 
 namespace winterwind {
 namespace unittests {
 
-class Test_Time : public CppUnit::TestFixture
+void Test_Time::setUp()
 {
-	CPPUNIT_TEST_SUITE(Test_Time);
-	CPPUNIT_TEST(time_str_to_timestamp);
-	CPPUNIT_TEST(time_get_current_hour);
-	CPPUNIT_TEST_SUITE_END();
+	setenv("TZ", "/usr/share/zoneinfo/Europe/Paris", 1);
+}
 
-public:
-	void setUp() override;
-	void tearDown() override {}
+void Test_Time::time_str_to_timestamp()
+{
+	std::time_t t;
+	bool res = str_to_timestamp("2017-01-24 05:00:47", t);
+	CPPUNIT_ASSERT(res);
+	CPPUNIT_ASSERT(t == 1485230447);
 
-protected:
-	void time_str_to_timestamp();
-	void time_get_current_hour();
-};
+	res = str_to_timestamp("2017-01-24T05:00:49Z", t);
+	CPPUNIT_ASSERT(res);
+	CPPUNIT_ASSERT(t == 1485230449);
+
+	res = str_to_timestamp("1-1-1 00:00:00", t);
+	CPPUNIT_ASSERT(!res);
+
+	res = str_to_timestamp("017-01-24 36:00:00", t);
+	CPPUNIT_ASSERT(!res);
+
+	res = str_to_timestamp("017-01-24 05:68:00", t);
+	CPPUNIT_ASSERT(!res);
+
+	res = str_to_timestamp("017-01-24 05:28:99", t);
+	CPPUNIT_ASSERT(!res);
+}
+
+void Test_Time::time_get_current_hour()
+{
+	int hour = get_current_hour();
+	CPPUNIT_ASSERT(hour >= 0 && hour < 24);
+}
+
 }
 }

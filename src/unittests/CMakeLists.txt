@@ -37,6 +37,7 @@ if (ENABLE_UNITTESTS)
 		test_postgresql.cpp
 		test_string.cpp
 		test_threads.cpp
+		test_time.cpp
 		test_twitter.cpp
 	)
 
