@@ -69,7 +69,8 @@ public:
 	 *
 	 * @param config path to log4cplus.properties
 	 */
-	Logger(const std::string &config);
+	explicit Logger(const std::string &config);
+	Logger() = delete;
 
 	/**
 	 * Load configuration from m_config path

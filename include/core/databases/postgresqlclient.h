@@ -40,6 +40,7 @@ class PostgreSQLException : public DatabaseException
 {
 public:
 	PostgreSQLException(const std::string &what) : DatabaseException(what) {}
+	PostgreSQLException() = delete;
 	~PostgreSQLException() throw() {}
 };
 
@@ -60,7 +61,12 @@ public:
 	 * This object can only be moved
 	 * @param other
 	 */
-	PostgreSQLResult(PostgreSQLResult &&other);
+	PostgreSQLResult(PostgreSQLResult &&other) noexcept;
+
+	/**
+	 * Default constructor not allowed
+	 */
+	PostgreSQLResult() = delete;
 
 	/**
 	 * Copying this object is not allowed
@@ -110,6 +116,8 @@ public:
 	 */
 	PostgreSQLClient(const std::string &connect_string,
 		int32_t minimum_db_version = 90500);
+
+	PostgreSQLClient() = delete;
 
 	virtual ~PostgreSQLClient();
 

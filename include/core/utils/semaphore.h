@@ -40,7 +40,9 @@ public:
 	 *
 	 * @param val semaphore init value
 	 */
-	Semaphore(int val = 0);
+	explicit Semaphore(int val = 0);
+	Semaphore() = delete;
+
 	~Semaphore();
 
 	/**

@@ -57,8 +57,8 @@ public:
 		STATUS_ISSUED_AT_ERROR, // Validation failed for issued at
 	};
 
-	JWTDecoder() {}
-	~JWTDecoder() {}
+	JWTDecoder() = default;
+	~JWTDecoder() = default;
 
 	/**
 	 * Declare a callback function to check issuer
@@ -136,11 +136,12 @@ public:
 	 *
 	 * @param secret
 	 */
-	JsonWebToken(const std::string &secret) :
+	explicit JsonWebToken(const std::string &secret) :
 		m_secret(secret)
 	{}
+	JsonWebToken() = delete;
 
-	~JsonWebToken() {}
+	~JsonWebToken() = default;
 
 	JsonWebToken &issuedAt(std::time_t when);
 	JsonWebToken &expirationTime(std::time_t when);

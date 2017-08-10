@@ -34,8 +34,10 @@ namespace db {
 class DatabaseException : public BaseException
 {
 public:
-	DatabaseException(const std::string &what) : BaseException(what) {}
-	~DatabaseException() throw() {}
+	explicit DatabaseException(const std::string &what) : BaseException(what) {}
+	DatabaseException() = delete;
+
+	virtual ~DatabaseException() throw() = default;
 };
 
 struct DatabaseTableField

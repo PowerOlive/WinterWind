@@ -39,23 +39,26 @@ namespace db
 class MySQLException : public DatabaseException
 {
 public:
-	MySQLException(const std::string &what) :
+	explicit MySQLException(const std::string &what) :
 		DatabaseException("MySQL Exception: " + what)
 	{}
 
-	~MySQLException() throw()
-	{}
+	MySQLException() = delete;
+
+	virtual ~MySQLException() throw() = default;
 };
 
 class MySQLResult
 {
 public:
-	MySQLResult(MYSQL *conn);
+	explicit MySQLResult(MYSQL *conn);
+	MySQLResult() = delete;
+
 	~MySQLResult();
 
 	MYSQL_RES *operator*() { return m_result; }
 
-	MySQLResult(MySQLResult &&other);
+	MySQLResult(MySQLResult &&other) noexcept;
 	MySQLResult(MySQLResult &other) = delete;
 	MySQLResult operator=(MySQLResult &other) = delete;
 private:
@@ -92,6 +95,8 @@ public:
 	MySQLClient(const std::string &host, const std::string &user,
 		const std::string &password, uint16_t port = 3306,
 		const std::string &db = "");
+
+	MySQLClient() = delete;
 
 	virtual ~MySQLClient();
 

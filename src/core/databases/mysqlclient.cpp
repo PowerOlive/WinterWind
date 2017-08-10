@@ -55,7 +55,7 @@ MySQLResult::~MySQLResult()
 	}
 }
 
-MySQLResult::MySQLResult(MySQLResult &&other) :
+MySQLResult::MySQLResult(MySQLResult &&other) noexcept:
 	m_result(std::move(other.m_result))
 {
 }

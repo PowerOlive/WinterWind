@@ -39,7 +39,7 @@ public:
 	 * Creates the BaseException object
 	 * @param what reason string
 	 */
-	BaseException(const std::string &what) throw(): m_what(what) {}
+	explicit BaseException(const std::string &what) throw(): m_what(what) {}
 
 	virtual ~BaseException() throw() = default;
 

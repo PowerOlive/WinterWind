@@ -53,10 +53,8 @@ class Test_MySQL : public CppUnit::TestFixture
 	CPPUNIT_TEST_SUITE_END();
 
 public:
-	void setUp()
-	{}
-
-	void tearDown()
+	void setUp() override {}
+	void tearDown() override
 	{
 		INIT_MYSQL_CLIENT;
 		mysql.exec("DROP TABLE IF EXISTS " + MYSQL_TEST_TABLE);

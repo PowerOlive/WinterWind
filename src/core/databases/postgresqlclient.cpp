@@ -24,7 +24,6 @@
  */
 
 #include "databases/postgresqlclient.h"
-#include <array>
 #include <cmath>
 #include <cstring>
 #include <iostream>
@@ -57,7 +56,7 @@ PostgreSQLResult::PostgreSQLResult(PGresult *result):
 	}
 }
 
-PostgreSQLResult::PostgreSQLResult(PostgreSQLResult &&other):
+PostgreSQLResult::PostgreSQLResult(PostgreSQLResult &&other) noexcept:
 	m_result(std::move(other.m_result)),
 	m_status(std::move(other.m_status))
 {
@@ -231,7 +230,7 @@ void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 	static const std::array<std::string, 2> allowed_encoding = {"LATIN1", "UTF8"};
 	bool valid = false;
 	for (const auto &allowed_value : allowed_encoding) {
-		if (allowed_value.compare(encoding) == 0) {
+		if (allowed_value == encoding) {
 			valid = true;
 			break;
 		}
@@ -301,7 +300,7 @@ bool PostgreSQLClient::register_statement(const std::string &stn, const std::str
 		return false;
 	}
 
-	PostgreSQLResult(PQprepare(m_conn, stn.c_str(), st.c_str(), 0, NULL));
+	PostgreSQLResult stmt(PQprepare(m_conn, stn.c_str(), st.c_str(), 0, NULL));
 
 	m_statements[stn] = st;
 	return true;
@@ -327,7 +326,7 @@ ExecStatusType PostgreSQLClient::show_schemas(std::vector<std::string> &res)
 
 	int32_t nbres = PQntuples(*result);
 	for (int32_t i = 0; i < nbres; i++) {
-		res.push_back(PQgetvalue(*result, i, 0));
+		res.emplace_back(PQgetvalue(*result, i, 0));
 	}
 
 	return result.get_status();
@@ -335,7 +334,7 @@ ExecStatusType PostgreSQLClient::show_schemas(std::vector<std::string> &res)
 
 ExecStatusType PostgreSQLClient::create_schema(const std::string &name)
 {
-	std::string name_esc = "";
+	std::string name_esc;
 	escape_string(name, name_esc);
 	std::string query = "CREATE SCHEMA " + name_esc;
 
@@ -345,7 +344,7 @@ ExecStatusType PostgreSQLClient::create_schema(const std::string &name)
 
 ExecStatusType PostgreSQLClient::drop_schema(const std::string &name, bool if_exists)
 {
-	std::string name_esc = "";
+	std::string name_esc;
 	escape_string(name, name_esc);
 	std::string query = "DROP SCHEMA ";
 	if (if_exists)
@@ -363,7 +362,7 @@ ExecStatusType PostgreSQLClient::show_tables(const std::string &schema,
 		NULL, NULL, false);
 	int32_t nbres = PQntuples(*result);
 	for (int32_t i = 0; i < nbres; i++) {
-		res.push_back(PQgetvalue(*result, i, 0));
+		res.emplace_back(PQgetvalue(*result, i, 0));
 	}
 
 	return result.get_status();
