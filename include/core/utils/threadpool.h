@@ -41,10 +41,8 @@ public:
 	{
 		assert(m_thread_number > 0);
 
-		m_threads.reserve(m_thread_number);
-
 		for (uint32_t i = 0; i < m_thread_number; i++) {
-			m_threads[i] = std::make_unique<T>();
+			m_threads.push_back(std::make_unique<T>());
 			// Verify if we are working with Thread classes
 			assert(dynamic_cast<Thread *>(m_threads[i].get()));
 		}
