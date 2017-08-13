@@ -250,7 +250,7 @@ void PostgreSQLClient::set_client_encoding(const std::string &encoding)
 template<>
 bool PostgreSQLClient::read_field(PostgreSQLResult &res, int row, int col)
 {
-	return PQgetvalue(*res, row, col) == "t";
+	return strcmp(PQgetvalue(*res, row, col), "t") == 0;
 }
 
 template<>
