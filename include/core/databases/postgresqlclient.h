@@ -30,7 +30,10 @@
 #include <unordered_map>
 #include <vector>
 #include <json/json.h>
+
+extern "C" {
 #include <libpq-fe.h>
+}
 
 namespace winterwind
 {

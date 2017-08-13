@@ -27,10 +27,13 @@
 
 #include "core/utils/exception.h"
 #include "database.h"
-#include <my_global.h>
-#include <mysql.h>
 #include <string>
 #include <vector>
+
+extern "C" {
+#include <my_global.h>
+#include <mysql.h>
+}
 
 namespace winterwind
 {
