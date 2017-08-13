@@ -103,6 +103,7 @@ if (ENABLE_NAMEGENERATOR)
 endif()
 
 if (ENABLE_IRCCLIENT)
+	include_directories(/usr/include/libircclient)
 	set(SRC_FILES ${SRC_FILES} ircclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/ircclient.h)
 	set(PROJECT_LIBS ${PROJECT_LIBS} ircclient)

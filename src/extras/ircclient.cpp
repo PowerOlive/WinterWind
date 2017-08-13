@@ -24,7 +24,7 @@
  */
 
 #include "ircclient.h"
-#include <libircclient/libircclient.h>
+#include <libircclient.h>
 
 log4cplus::Logger irc_log = logger.getInstance(LOG4CPLUS_TEXT("irc"));
 
