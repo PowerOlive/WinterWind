@@ -29,11 +29,8 @@
 #include "database.h"
 #include <string>
 #include <vector>
-
-extern "C" {
 #include <my_global.h>
 #include <mysql.h>
-}
 
 namespace winterwind
 {
