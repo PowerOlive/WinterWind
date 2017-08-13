@@ -104,9 +104,10 @@ endif()
 
 if (ENABLE_IRCCLIENT)
 	include_directories(/usr/include/libircclient)
+	find_library(LIBIRCCLIENT_LIB NAMES libircclient.so)
 	set(SRC_FILES ${SRC_FILES} ircclient.cpp)
 	set(HEADER_FILES ${HEADER_FILES} ${EXTRAS_INCLUDE_PATH}/ircclient.h)
-	set(PROJECT_LIBS ${PROJECT_LIBS} ircclient)
+	set(PROJECT_LIBS ${PROJECT_LIBS} ${LIBIRCCLIENT_LIB})
 endif()
 
 include_directories(${EXTRAS_INCLUDE_PATH})
