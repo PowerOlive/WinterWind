@@ -136,7 +136,7 @@ doxygen:documentation:
     - build:clang
   before_script:
     - pacman --noconfirm -Sy archlinux-keyring > /dev/null 2>&1
-    - pacman --noconfirm -Sy doxygen cmake jsoncpp libxml2 > /dev/null 2>&1
+    - pacman --noconfirm -Sy doxygen cmake jsoncpp libxml2 libircclient > /dev/null 2>&1
   script:
     - mkdir -p build
     - cd build
