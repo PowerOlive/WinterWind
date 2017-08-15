@@ -75,7 +75,7 @@ LuaRefXMLParser *LuaRefXMLParser::checkobject(lua_State *L, int narg)
 
 void LuaRefXMLParser::create(lua_State *L, XMLParser *object)
 {
-	LuaRefXMLParser *o = new LuaRefXMLParser(object);
+	auto *o = new LuaRefXMLParser(object);
 	*(void **) (lua_newuserdata(L, sizeof(void *))) = o;
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);

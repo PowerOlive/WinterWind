@@ -38,7 +38,7 @@ inline std::string hmac_generic(const std::string &key, const std::string &data,
 	unsigned char *digest = HMAC(F(), key.c_str(), static_cast<int>(key.length()),
 		(unsigned char *)data.c_str(), data.length(), NULL, NULL);
 
-	std::string res = "";
+	std::string res;
 	for (int i = 0; i < hash_len; i++) {
 		res += digest[i];
 	}

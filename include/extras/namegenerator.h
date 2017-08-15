@@ -34,10 +34,9 @@ namespace extras
 class NameGenerator
 {
 public:
-	NameGenerator(const uint64_t &seed);
+	explicit NameGenerator(const uint64_t &seed);
 
-	~NameGenerator()
-	{}
+	~NameGenerator() = default;
 
 	std::string generate_name();
 

@@ -61,7 +61,7 @@ NameGenerator::NameGenerator(const uint64_t &seed) : m_seed(seed)
 std::string NameGenerator::generate_name()
 {
 	std::string res = name_prefixes[m_name_generators[0](m_random_generator)];
-	uint8_t stem_number = (uint8_t) (m_name_generators[3](m_random_generator) % 2);
+	auto stem_number = (uint8_t) (m_name_generators[3](m_random_generator) % 2);
 
 	for (uint8_t i = 0; i < stem_number; i++) {
 		res += vowels[m_vowel_generator(m_random_generator)];

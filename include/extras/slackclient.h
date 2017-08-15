@@ -49,7 +49,7 @@ class SlackClient : protected Thread, protected http::HTTPClient, private ws_tls
 public:
 	SlackClient(const std::string &api_token);
 
-	virtual ~SlackClient();
+	virtual ~SlackClient() = default;
 
 	bool auth_test();
 

@@ -97,7 +97,7 @@ LuaRefJiraClient *LuaRefJiraClient::checkobject(lua_State *L, int narg)
 
 void LuaRefJiraClient::create(lua_State *L, JiraClient *object)
 {
-	LuaRefJiraClient *o = new LuaRefJiraClient(object);
+	auto *o = new LuaRefJiraClient(object);
 	*(void **) (lua_newuserdata(L, sizeof(void *))) = o;
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
@@ -199,7 +199,7 @@ int LuaRefJiraClient::l_assign_issue(lua_State *L)
 	assert(jira);
 
 	Json::Value res;
-	std::string issue = "";
+	std::string issue;
 	std::string assignee = read<std::string>(L, 3);
 
 	if (lua_isinteger(L, 2)) {
@@ -224,7 +224,7 @@ int LuaRefJiraClient::l_comment_issue(lua_State *L)
 	assert(jira);
 
 	Json::Value res;
-	std::string issue = "";
+	std::string issue;
 	std::string body = read<std::string>(L, 3);
 
 	if (lua_isinteger(L, 2)) {
@@ -249,7 +249,7 @@ int LuaRefJiraClient::l_add_link_to_issue(lua_State *L)
 	assert(jira);
 
 	Json::Value res;
-	std::string issue = "";
+	std::string issue;
 
 	if (lua_isinteger(L, 2)) {
 		issue = std::to_string(read<uint32_t>(L, 2));
@@ -262,9 +262,9 @@ int LuaRefJiraClient::l_add_link_to_issue(lua_State *L)
 
 	std::string link = read<std::string>(L, 3);
 	std::string title = read<std::string>(L, 4);
-	std::string summary = "";
-	std::string relationship = "";
-	std::string icon_url = "";
+	std::string summary;
+	std::string relationship;
+	std::string icon_url;
 	if (lua_isstring(L, 5)) {
 		summary = read<std::string>(L, 5);
 	}
@@ -291,7 +291,7 @@ int LuaRefJiraClient::l_issue_transition(lua_State *L)
 	assert(jira);
 
 	Json::Value res;
-	std::string issue = "";
+	std::string issue;
 	std::string transition_id = read<std::string>(L, 3);
 
 	if (lua_isinteger(L, 2)) {
@@ -303,7 +303,7 @@ int LuaRefJiraClient::l_issue_transition(lua_State *L)
 		return 0;
 	}
 
-	std::string comment = "";
+	std::string comment;
 	if (!lua_isnoneornil(L, 4)) {
 		comment = read<std::string>(L, 4);
 	}
@@ -325,7 +325,7 @@ int LuaRefJiraClient::l_get_issue_transitions(lua_State *L)
 	assert(jira);
 
 	Json::Value res;
-	std::string issue = "";
+	std::string issue;
 	if (lua_isinteger(L, 2)) {
 		issue = std::to_string(read<uint32_t>(L, 2));
 	} else if (lua_isstring(L, 2)) {
@@ -336,7 +336,7 @@ int LuaRefJiraClient::l_get_issue_transitions(lua_State *L)
 	}
 
 	bool expand_transitions = false;
-	if (!lua_isnil(L, 3) && lua_isboolean(L, 3)) {
+	if (lua_isboolean(L, 3)) {
 		expand_transitions = read<bool>(L, 3);
 	}
 

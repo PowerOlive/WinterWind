@@ -40,17 +40,17 @@ inline void chrono_duration(const std::chrono::time_point<std::chrono::system_cl
 }
 
 #define PERIODIC_FUNCTION(F, TV, T, I)                                                                                 \
-	T -= I;                                                                                                        \
-	if (T <= I) {                                                                                                  \
+	T -= (I);                                                                                                        \
+	if ((T) <= (I)) {                                                                                                  \
 		F;                                                                                                     \
-		T = TV;                                                                                                \
+        (T) = TV;                                                                                                \
 	}
 
 std::string readable_chrono_duration(std::chrono::time_point<std::chrono::system_clock> start_time,
 					    std::chrono::time_point<std::chrono::system_clock> end_time);
 
-void timestamp_str_hour(const time_t t, std::string &res);
-void time_to_string(const time_t &t, std::string &res, const bool gmt = false);
+void timestamp_str_hour(time_t t, std::string &res);
+void time_to_string(const time_t &t, std::string &res, bool gmt = false);
 static void time_now_string(std::string &res) { time_to_string(time(NULL), res); }
 
 bool str_to_time(std::string str, std::tm &t);

@@ -41,11 +41,9 @@ namespace extras
 class LuaEngineExtras : public LuaEngine
 {
 public:
-	LuaEngineExtras()
-	{}
+	LuaEngineExtras() = default;
 
-	virtual ~LuaEngineExtras()
-	{}
+	~LuaEngineExtras() override = default;
 
 	LuaReturnCode init_winterwind_extra_bindings();
 

@@ -58,15 +58,11 @@ public:
 		RATP_LINE_MAX,
 	};
 
-	RATPClient(): http::HTTPClient()
-	{};
-
-	~RATPClient()
-	{};
+	RATPClient() = default;
+	~RATPClient() override = default;
 
 	const RATPScheduleList &
-	get_next_trains(const RATPClient::Line line, const std::string &stop,
-		const uint8_t direction);
+	get_next_trains(RATPClient::Line line, const std::string &stop, uint8_t direction);
 
 private:
 	std::map<RATPClient::Line, RATPStopMap> m_stop_cache;

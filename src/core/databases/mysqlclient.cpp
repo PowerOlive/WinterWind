@@ -34,9 +34,9 @@ namespace db
 #define MYSQL_ROWLOOP(_res, _row)                                         \
     int num_fields = mysql_num_fields(_res);                              \
     MYSQL_ROW _row;                                                       \
-    while ((_row = mysql_fetch_row(_res)))
+    while (((_row) = mysql_fetch_row(_res)))
 
-#define MYSQLROW_TO_STRING(_row, i) _row[i] ? std::string(_row[i], strlen(_row[i])) : "NULL"
+#define MYSQLROW_TO_STRING(_row, i) _row[i] ? std::string((_row)[i], strlen((_row)[i])) : "NULL"
 
 MySQLResult::MySQLResult(MYSQL *conn)
 {
@@ -56,7 +56,7 @@ MySQLResult::~MySQLResult()
 }
 
 MySQLResult::MySQLResult(MySQLResult &&other) noexcept:
-	m_result(std::move(other.m_result))
+	m_result(other.m_result)
 {
 }
 
@@ -151,7 +151,7 @@ void MySQLClient::list_tables(std::vector<std::string> &result)
 	MySQLResult mysql_res(m_conn);
 	MYSQL_ROWLOOP(*mysql_res, row) {
 		for (int i = 0; i < num_fields; i++) {
-			result.push_back(row[i] ? row[i] : "NULL");
+			result.emplace_back(row[i] ? row[i] : "NULL");
 		}
 	}
 }

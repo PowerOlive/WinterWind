@@ -34,8 +34,8 @@ public:                                                                         
 
 #define CL_HELPER_VAR_GETSET(type, name, default_value)                                                                \
 	CL_HELPER_VAR_GET(type, name, default_value)                                                                   \
-	void set_##name(const type &name) { m_##name = name; }
+	void set_##name(const type &(name)) { m_##name = name; }
 
 #define DISABLE_CLASS_COPY(C)                                                                                          \
 	C(const C &);                                                                                                  \
-	C &operator=(const C &)
+    (C) &operator=(const C &)

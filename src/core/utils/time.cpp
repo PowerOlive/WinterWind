@@ -80,6 +80,6 @@ bool str_to_timestamp(const std::string &str, std::time_t &t)
 	std::tm _tm = {};
 	bool r = str_to_time(str, _tm);
 	if (!r) { return r; }
-	t = std::move(std::mktime(&_tm));
+	t = std::mktime(&_tm);
 	return r;
 }

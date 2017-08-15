@@ -169,7 +169,7 @@ bool LuaHelper::write(lua_State *L, const int64_t &what)
 template<>
 bool LuaHelper::write(lua_State *L, const bool &what)
 {
-	lua_pushboolean(L, what);
+	lua_pushboolean(L, static_cast<int>(what));
 	return true;
 }
 
@@ -276,7 +276,7 @@ bool push_json_value(lua_State *L, const Json::Value &value, int32_t nullindex)
 
 	// The maximum number of Lua stack slots used at each recursion level
 	// of push_json_value_helper is 2, so make sure there a depth * 2 slots
-	if (lua_checkstack(L, depth * 2)) {
+	if (lua_checkstack(L, depth * 2) != 0) {
 		return push_json_value_helper(L, value, nullindex);
 	}
 
@@ -320,7 +320,7 @@ bool read_json_value(lua_State *L, Json::Value &root, int index, uint8_t recursi
 		}
 		case LUA_TTABLE: {
 			lua_pushnil(L);
-			while (lua_next(L, index)) {
+			while (lua_next(L, index) != 0) {
 				// Key is at -2 and value is at -1
 				Json::Value value;
 				if (!read_json_value(L, value, lua_gettop(L), recursion + 1)) {
@@ -334,10 +334,14 @@ bool read_json_value(lua_State *L, Json::Value &root, int index, uint8_t recursi
 					if (roottype != Json::nullValue && roottype != Json::arrayValue) {
 						//throw SerializationError("Can't mix array and object values in JSON");
 						return false;
-					} else if (key < 1) {
+					}
+
+					if (key < 1) {
 						//throw SerializationError("Can't use zero-based or negative indexes in JSON");
 						return false;
-					} else if (std::floor(key) != key) {
+					}
+
+					if (std::floor(key) != key) {
 						//throw SerializationError("Can't use indexes with a fractional part in JSON");
 						return false;
 					}
@@ -376,7 +380,7 @@ template<>
 bool LuaHelper::read(lua_State *L, int index, std::vector<std::string> &res)
 {
 	lua_pushnil(L);
-	while (lua_next(L, index)) {
+	while (lua_next(L, index) != 0) {
 		int cur_index = lua_gettop(L);
 		res.push_back(read<std::string>(L, cur_index));
 		lua_pop(L, 1);

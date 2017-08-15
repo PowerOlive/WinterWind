@@ -34,10 +34,10 @@ log4cplus::Logger irc_log = logger.getInstance(LOG4CPLUS_TEXT("irc"));
 void on_irc_event_##n(irc_session_t *session, const char *, \
 	const char *origin, const char **params, unsigned int count) \
 { \
-	IRCClient *client = (IRCClient *) irc_get_ctx(session); \
+	auto *client = (IRCClient *) irc_get_ctx(session); \
 	std::vector<std::string> vparams; \
 	for (uint32_t i = 0; i < count; i++) { \
-		vparams.push_back(std::string(params[i])); \
+		vparams.emplace_back(params[i]); \
 	} \
 	\
 	client->on_event_##n(std::string(origin), vparams); \
@@ -46,7 +46,7 @@ void on_irc_event_##n(irc_session_t *session, const char *, \
 void on_irc_event_numeric(irc_session_t *session, unsigned int event,
 	const char *origin, const char **params, unsigned int count)
 {
-	IRCClient *client = (IRCClient *) irc_get_ctx(session);
+	auto *client = (IRCClient *) irc_get_ctx(session);
 	std::vector<std::string> vparams;
 	for (uint32_t i = 0; i < count; i++) {
 		vparams.emplace_back(params[i]);

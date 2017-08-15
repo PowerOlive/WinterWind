@@ -73,7 +73,7 @@ LuaRefHTTPClient *LuaRefHTTPClient::checkobject(lua_State *L, int narg)
 
 void LuaRefHTTPClient::create(lua_State *L, HTTPClient *object)
 {
-	LuaRefHTTPClient *o = new LuaRefHTTPClient(object);
+	auto *o = new LuaRefHTTPClient(object);
 	*(void **) (lua_newuserdata(L, sizeof(void *))) = o;
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);
@@ -120,7 +120,7 @@ void LuaRefHTTPClient::Register(lua_State *L)
     LuaRefHTTPClient *ref = checkobject(L, 1);                                                 \
     HTTPClient *http = getobject(ref);                                                         \
     std::string url = read<std::string>(L, 2);                                                 \
-    std::string res = "";
+    std::string res;
 
 #define HTTPCLIENT_RESP_PUSH                                                                       \
     lua_newtable(L);                                                                           \

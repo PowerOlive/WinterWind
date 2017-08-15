@@ -98,7 +98,7 @@ const bool Thread::kill()
 
 void *Thread::the_thread(void *data)
 {
-	Thread *thread = (Thread *) data;
+	auto *thread = (Thread *) data;
 
 	thread->continuemutex2.lock();
 	thread->m_running = true;

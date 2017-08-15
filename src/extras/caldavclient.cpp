@@ -54,7 +54,7 @@ CaldavClient::CaldavClient(const std::string &url, const std::string &username,
 
 void CaldavClient::load_calendars()
 {
-	std::string res = "";
+	std::string res;
 	int32_t reqflag = HTTPClient::REQ_SIMPLE | HTTPClient::REQ_AUTH;
 	if (m_dont_verify_peer) {
 		reqflag |= HTTPClient::REQ_NO_VERIFY_PEER;

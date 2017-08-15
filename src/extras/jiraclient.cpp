@@ -41,7 +41,7 @@ namespace extras
 
 JiraClient::JiraClient(const std::string &instance_url, const std::string &user,
 	const std::string &password) :
-	HTTPClient(), m_instance_url(instance_url)
+	m_instance_url(instance_url)
 {
 	m_username = user;
 	m_password = password;

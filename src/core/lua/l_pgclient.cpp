@@ -73,7 +73,7 @@ LuaRefPostgreSQLClient *LuaRefPostgreSQLClient::checkobject(lua_State *L, int na
 
 void LuaRefPostgreSQLClient::create(lua_State *L, PostgreSQLClient *object)
 {
-	LuaRefPostgreSQLClient *o = new LuaRefPostgreSQLClient(object);
+	auto *o = new LuaRefPostgreSQLClient(object);
 	*(void **) (lua_newuserdata(L, sizeof(void *))) = o;
 	luaL_getmetatable(L, className);
 	lua_setmetatable(L, -2);

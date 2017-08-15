@@ -28,6 +28,7 @@
 #include <json/json.h>
 #include <ctime>
 #include <functional>
+#include <utility>
 
 namespace winterwind {
 namespace web {
@@ -136,8 +137,8 @@ public:
 	 *
 	 * @param secret
 	 */
-	explicit JsonWebToken(const std::string &secret) :
-		m_secret(secret)
+	explicit JsonWebToken(std::string secret) :
+		m_secret(std::move(secret))
 	{}
 	JsonWebToken() = delete;
 

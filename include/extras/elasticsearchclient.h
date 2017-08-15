@@ -31,6 +31,7 @@
 #include <chrono>
 #include <memory>
 #include <queue>
+#include <utility>
 
 namespace winterwind
 {
@@ -42,14 +43,13 @@ public:
 	explicit ElasticsearchException(const std::string &what) : BaseException(what)
 	{}
 
-	~ElasticsearchException() throw()
-	{}
+	~ElasticsearchException() throw() override = default;
 };
 
 struct ElasticsearchNode
 {
 public:
-	explicit ElasticsearchNode(const std::string &id) : tech_id(id)
+	explicit ElasticsearchNode(std::string id) : tech_id(std::move(id))
 	{}
 
 	std::string http_addr = "";
@@ -96,7 +96,7 @@ typedef std::shared_ptr<ElasticsearchBulkAction> ElasticsearchBulkActionPtr;
 class ElasticsearchClient : public http::HTTPClient
 {
 public:
-	ElasticsearchClient(const std::string &url);
+	explicit ElasticsearchClient(const std::string &url);
 
 	~ElasticsearchClient();
 
@@ -158,9 +158,10 @@ public:
 	 * @param tokenizer
 	 * @param filters a list for filters, by names
 	 */
-	Analyzer(const std::string &name, const std::string &tokenizer,
-		const std::vector<std::string> &filters):
-		m_name(name), m_tokenizer(tokenizer), m_filters(filters)
+	Analyzer(std::string name, std::string tokenizer,
+		std::vector<std::string> filters):
+		m_name(std::move(name)), m_tokenizer(std::move(tokenizer)), m_filters(
+		std::move(filters))
 	{
 	}
 

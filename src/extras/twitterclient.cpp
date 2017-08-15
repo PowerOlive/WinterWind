@@ -63,7 +63,7 @@ TwitterClient::Response TwitterClient::get_oauth2_token()
 	add_http_header("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
 	add_form_param("grant_type", "client_credentials");
 
-	std::string res = "";
+	std::string res;
 	_post(TWITTER_API_URL + TWITTER_OAUTH2_TOKEN, res);
 
 	if (get_http_code() == 403) {

@@ -176,7 +176,7 @@ int LuaString::l_string_to_hex(lua_State *L)
 	}
 
 	std::string key = read<std::string>(L, 1);
-	std::string hex = "";
+	std::string hex;
 	str_to_hex(key, hex);
 	write<std::string>(L, hex);
 	return 1;

@@ -27,6 +27,8 @@
 
 #include <core/httpclient.h>
 
+#include <utility>
+
 namespace winterwind
 {
 namespace extras
@@ -43,13 +45,14 @@ enum GitlabRetCod
 struct GitlabIssue
 {
 public:
-	GitlabIssue(const std::string &t) : title(t)
+	GitlabIssue(std::string t) : title(std::move(t))
 	{}
 
-	GitlabIssue(const std::string &t, const std::string &desc, bool c = false,
-		const std::string &dd = "",
-		const std::vector<std::string> &l = {})
-		: title(t), description(desc), confidential(c), due_date(dd), labels(l)
+	GitlabIssue(std::string t, std::string desc, bool c = false,
+		std::string dd = "",
+		std::vector<std::string> l = {})
+		: title(std::move(t)), description(std::move(desc)), confidential(c), due_date(
+		std::move(dd)), labels(std::move(l))
 	{}
 
 	std::string title = "";
@@ -62,12 +65,12 @@ public:
 struct GitlabTag
 {
 public:
-	GitlabTag(const std::string &n, const std::string &r) : name(n), ref(r)
+	GitlabTag(std::string n, std::string r) : name(std::move(n)), ref(std::move(r))
 	{}
 
-	GitlabTag(const std::string &n, const std::string &r, const std::string &m,
+	GitlabTag(std::string n, std::string r, const std::string &m,
 		const std::string &rd)
-		: name(n), ref(r), message(m), release_description(rd)
+		: name(std::move(n)), ref(std::move(r)), message(m), release_description(rd)
 	{}
 
 	std::string name = "";
@@ -141,8 +144,8 @@ enum GitlabProjectSearchScope
 class GitlabAPIClient : protected http::HTTPClient
 {
 public:
-	GitlabAPIClient(const std::string &server_uri, const std::string &api_token)
-		: m_server_uri(server_uri), m_api_token(api_token)
+	GitlabAPIClient(const std::string &server_uri, std::string api_token)
+		: m_server_uri(server_uri), m_api_token(std::move(api_token))
 	{}
 
 	// Issues

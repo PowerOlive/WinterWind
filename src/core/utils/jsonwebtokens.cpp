@@ -61,7 +61,7 @@ JsonWebToken::JWTGenStatus JsonWebToken::get(std::string &result) const
 	}
 
 	Json::FastWriter json_writer;
-	std::string tmp_result = "";
+	std::string tmp_result;
 
 	{
 		Json::Value header;

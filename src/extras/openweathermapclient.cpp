@@ -46,7 +46,7 @@ OpenWeatherMapReturnCode
 OpenWeatherMapClient::get(const std::string &city, Weather &result)
 {
 	Json::Value res;
-	std::string city_encoded = "";
+	std::string city_encoded;
 	http_string_escape(city, city_encoded);
 	if (!_get_json("http://api.openweathermap.org/data/2.5/"
 			"weather?mode=json&APPID=" +

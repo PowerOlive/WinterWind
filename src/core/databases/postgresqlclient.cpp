@@ -58,8 +58,8 @@ PostgreSQLResult::PostgreSQLResult(PGresult *result):
 }
 
 PostgreSQLResult::PostgreSQLResult(PostgreSQLResult &&other) noexcept:
-	m_result(std::move(other.m_result)),
-	m_status(std::move(other.m_status))
+	m_result(other.m_result),
+	m_status(other.m_status)
 {
 }
 
@@ -281,13 +281,13 @@ uint64_t PostgreSQLClient::read_field(PostgreSQLResult &res, int row, int col)
 template<>
 int64_t PostgreSQLClient::read_field(PostgreSQLResult &res, int row, int col)
 {
-	unsigned char *data = (unsigned char *) PQgetvalue(*res, row, col);
+	auto *data = (unsigned char *) PQgetvalue(*res, row, col);
 	return (const int64_t) atoll((char *) data);
 }
 
 void PostgreSQLClient::escape_string(const std::string &param, std::string &res)
 {
-	char *to = new char[(uint32_t) std::ceil(param.size() * 1.5f)];
+	auto *to = new char[(uint32_t) std::ceil(param.size() * 1.5f)];
 	size_t len = PQescapeStringConn(m_conn, to, param.c_str(), param.size(), NULL);
 	res = std::string(to, len);
 	delete[] to;

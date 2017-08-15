@@ -37,7 +37,7 @@ public:
 	explicit DatabaseException(const std::string &what) : BaseException(what) {}
 	DatabaseException() = delete;
 
-	virtual ~DatabaseException() throw() = default;
+	~DatabaseException() throw() override = default;
 };
 
 struct DatabaseTableField

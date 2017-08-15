@@ -49,12 +49,12 @@ public:
 	TwitterClient::Response authenticate()
 	{ return get_oauth2_token(); }
 
-	TwitterClient::Response get_user_timeline(Json::Value &res, const uint16_t count = 0,
-		const uint32_t since_id = 0, bool include_rts = false,
+	TwitterClient::Response get_user_timeline(Json::Value &res, uint16_t count = 0,
+		uint32_t since_id = 0, bool include_rts = false,
 		bool contributor_details = false);
 
-	TwitterClient::Response get_home_timeline(Json::Value &res, const uint16_t count = 0,
-		const uint32_t since_id = 0);
+	TwitterClient::Response get_home_timeline(Json::Value &res, uint16_t count = 0,
+		uint32_t since_id = 0);
 
 private:
 	void append_auth_header();

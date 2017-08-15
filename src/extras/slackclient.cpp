@@ -25,16 +25,15 @@
 
 #include "slackclient.h"
 
+#include <utility>
+
 namespace winterwind
 {
 namespace extras
 {
-SlackClient::SlackClient(const std::string &api_token) : Thread(), m_api_token(api_token)
+SlackClient::SlackClient(const std::string &api_token) : m_api_token(api_token)
 {
 }
-
-SlackClient::~SlackClient()
-{}
 
 bool SlackClient::auth_test()
 {
@@ -200,8 +199,8 @@ SlackClient::register_callback(const std::string &method, const SlackMessageHand
 void SlackClient::send(websocketpp::connection_hdl hdl, const Json::Value &msg)
 {
 	websocketpp::lib::error_code ec;
-	ws_tls_client::send(hdl, json_writer().write(msg), websocketpp::frame::opcode::text,
-		ec);
+	ws_tls_client::send(std::move(hdl), json_writer().write(msg),
+		websocketpp::frame::opcode::text, ec);
 }
 
 void
@@ -214,7 +213,7 @@ SlackClient::send_message(websocketpp::connection_hdl hdl, const std::string &ch
 	json_msg["text"] = msg;
 	json_msg["channel"] = channel;
 
-	send(hdl, json_msg);
+	send(std::move(hdl), json_msg);
 	m_internal_message_id++;
 }
 }

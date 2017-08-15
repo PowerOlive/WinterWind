@@ -27,6 +27,7 @@
 
 #include <exception>
 #include <string>
+#include <utility>
 
 /**
  * A base exception containing a string reason
@@ -39,15 +40,16 @@ public:
 	 * Creates the BaseException object
 	 * @param what reason string
 	 */
-	explicit BaseException(const std::string &what) throw(): m_what(what) {}
+	explicit BaseException(std::string what) throw(): m_what(std::move(what)) {}
 
-	virtual ~BaseException() throw() = default;
+	~BaseException() throw() override = default;
 
 	/**
 	 *
 	 * @return m_what reason
 	 */
-	virtual const char *what() const throw() { return m_what.c_str(); }
+	const char *what() const throw() override
+	{ return m_what.c_str(); }
 
 private:
 

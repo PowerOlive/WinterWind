@@ -72,7 +72,7 @@ const RATPScheduleList &RATPClient::get_next_trains(const RATPClient::Line line,
 	const std::string &xpath_rer = (direction == 1 ? xpath_rer_dir1 : xpath_rer_dir2);
 	std::vector<std::string> res;
 	get_html_tag_value(url, xpath_rer, res, XMLParser::Flag::FLAG_XML_WITHOUT_TAGS);
-	if (res.size() == 0) {
+	if (res.empty()) {
 		return EMPTY_SCHEDULE_LIST;
 	}
 

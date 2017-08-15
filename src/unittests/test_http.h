@@ -109,7 +109,7 @@ protected:
 		std::string res = "no";
 		CPPUNIT_ASSERT(q->get_type() == HTTPQUERY_TYPE_FORM);
 
-		HTTPFormQuery *fq = dynamic_cast<HTTPFormQuery *>(q.get());
+		auto *fq = dynamic_cast<HTTPFormQuery *>(q.get());
 		CPPUNIT_ASSERT(fq);
 
 		const auto it = fq->post_data.find("post_param");

@@ -31,8 +31,8 @@ namespace winterwind
 namespace extras
 {
 #define ADD_REQ_FIELD_IF_NOT_EMPTY(r, n, f)                                              \
-    if (!f.empty()) {                                                                    \
-        r[n] = f;                                                                        \
+    if (!(f).empty()) {                                                                    \
+        (r)[n] = f;                                                                        \
     }
 
 #define GITLAB_RC_HTTP_CODE(c) m_http_code == 503 ? GITLAB_RC_SERVICE_UNAVAILABLE : GITLAB_RC_##c
@@ -53,7 +53,7 @@ GitlabAPIClient::get_issues(const uint32_t project_id, const std::string &filter
 			"/issues" + (filter.length() ? "?" + filter : ""),
 		tmp_result);
 
-	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
+	if (m_http_code != 200 || tmp_result.empty()) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);
 	}
 
@@ -151,7 +151,7 @@ void GitlabAPIClient::build_issue_data(const GitlabIssue &issue, std::string &po
 		post_data += "&due_date=" + encoded_date;
 	}
 
-	if (issue.labels.size() > 0) {
+	if (!issue.labels.empty()) {
 		std::string encoded_labels = "";
 		for (const auto &l : issue.labels) {
 			if (!encoded_labels.empty()) {
@@ -212,7 +212,7 @@ const GitlabRetCod GitlabAPIClient::get_merge_requests(const uint32_t project_id
 			"/merge_requests" + (filter.length() ? "?" + filter : ""),
 		tmp_result);
 
-	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0) {
+	if (m_http_code != 200 || tmp_result.empty()) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);
 	}
 
@@ -276,8 +276,7 @@ GitlabAPIClient::get_labels(const uint32_t project_id, Json::Value &result)
 			"/labels",
 		tmp_result);
 
-	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0 ||
-		!tmp_result.isArray()) {
+	if (m_http_code != 200 || tmp_result.empty() || !tmp_result.isArray()) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);;
 	}
 
@@ -443,8 +442,7 @@ GitlabAPIClient::get_namespaces(const std::string &name, Json::Value &result)
 			(name.length() ? "?search=" + name : ""),
 		tmp_result);
 
-	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0 ||
-		!tmp_result.isArray()) {
+	if (m_http_code != 200 || tmp_result.empty() || !tmp_result.isArray()) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);;
 	}
 
@@ -616,7 +614,7 @@ GitlabAPIClient::get_projects(const std::string &name, Json::Value &result,
 	const GitlabProjectSearchScope search_scope)
 {
 	Json::Value tmp_result;
-	std::string endpoint_suffix = "";
+	std::string endpoint_suffix;
 	switch (search_scope) {
 		case GITLAB_PROJECT_SS_OWNED:
 			endpoint_suffix += "/owned";
@@ -644,8 +642,7 @@ GitlabAPIClient::get_projects(const std::string &name, Json::Value &result,
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);;
 	}
 
-	if (m_http_code != 200 || tmp_result.empty() || tmp_result.size() == 0 ||
-		!tmp_result.isArray()) {
+	if (m_http_code != 200 || tmp_result.empty() || !tmp_result.isArray()) {
 		return GITLAB_RC_INVALID_RESPONSE;
 	}
 

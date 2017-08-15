@@ -37,8 +37,7 @@ public:
 	JiraClient(const std::string &instance_url, const std::string &user,
 		const std::string &password);
 
-	~JiraClient()
-	{}
+	~JiraClient() override = default;
 
 	bool test_connection();
 
@@ -72,8 +71,7 @@ public:
 
 	bool list_projects(Json::Value &res);
 
-	virtual long get_http_code() const
-	{ return HTTPClient::get_http_code(); }
+	long get_http_code() const override { return HTTPClient::get_http_code(); }
 
 private:
 	std::string m_instance_url = "";
