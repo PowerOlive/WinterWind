@@ -35,7 +35,7 @@ cppcheck:clang-tidy:
   stage: cppcheck
   environment: staging
   script:
-    - pacman --noconfirm -Sy clang-tools-extra
+    - pacman --noconfirm -Sy clang-tools-extra clang
     - mkdir -p build
     - cd build
     - cmake -DCMAKE_CXX_COMPILER=g++ -DCMAKE_C_COMPILER=gcc -DENABLE_UNITTESTS=1 ..
