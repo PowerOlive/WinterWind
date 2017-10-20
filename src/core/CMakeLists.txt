@@ -22,6 +22,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+option(ENABLE_AMQP "AMQP features" TRUE)
 option(ENABLE_POSTGRESQL "PostgreSQL features" TRUE)
 option(ENABLE_MYSQL "MySQL features" TRUE)
 option(ENABLE_CONSOLE "Enable console features" TRUE)
@@ -72,6 +73,23 @@ if (ENABLE_CONSOLE)
 		set(PROJECT_LIBS ${PROJECT_LIBS} readline)
 		set(READLINE 1 PARENT_SCOPE)
 	endif()
+endif()
+
+if (ENABLE_AMQP)
+	set(ENABLE_AMQP 1 PARENT_SCOPE)
+	set(SRC_FILES ${SRC_FILES}
+		amqp/channel.cpp
+		amqp/connection.cpp
+		amqp/consumer.cpp
+		amqp/envelope.cpp
+		amqp/exchange.cpp
+		amqp/log.cpp
+		amqp/message.cpp
+		amqp/queue.cpp)
+	set(HEADER_FILES ${HEADER_FILES}
+		${INCLUDE_SRC_PATH}/core/amqp/channel.h
+		${INCLUDE_SRC_PATH}/core/amqp/connection.h)
+	set(PROJECT_LIBS ${PROJECT_LIBS} rabbitmq)
 endif()
 
 if (ENABLE_POSTGRESQL)

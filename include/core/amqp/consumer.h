@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
+/*
+ * Copyright (c) 2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -25,11 +25,42 @@
 
 #pragma once
 
-#cmakedefine READLINE @READLINE@
-#cmakedefine UNITTESTS @UNITTESTS@
-#cmakedefine UNITTESTS_LUA_FILE "@UNITTESTS_LUA_FILE@"
-#cmakedefine ENABLE_RATPCLIENT @ENABLE_RATPCLIENT@
-#cmakedefine ENABLE_JIRACLIENT @ENABLE_JIRACLIENT@
-#cmakedefine ENABLE_HTTPCLIENT @ENABLE_HTTPCLIENT@
-#cmakedefine ENABLE_POSTGRESQL @ENABLE_POSTGRESQL@
-#cmakedefine ENABLE_AMQP @ENABLE_AMQP@
+#include "connection.h"
+#include "types.h"
+
+namespace winterwind
+{
+namespace amqp
+{
+
+class Envelope;
+
+class Consumer : public Connection
+{
+public:
+	explicit Consumer(const std::string &url = "");
+
+	/**
+	 * Consume until m_stop has been set to true
+	 * @return false if an error occured
+	 */
+	bool start_consuming();
+
+	/**
+	 * Wait for and receive a single envelope to handle
+	 * @return false if an error occured
+	 */
+	bool consume_one();
+
+	void stop()
+	{
+		m_stop = true;
+	}
+private:
+	bool distribute_envelope(EnvelopePtr envelope, uint16_t channel_id);
+
+	bool m_stop{false};
+};
+
+}
+}

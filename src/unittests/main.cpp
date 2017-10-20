@@ -33,14 +33,23 @@
 #include "test_twitter.h"
 #include "test_threads.h"
 #include "test_mysql.h"
+#include "test_rabbitmq.h"
 
-#include <core/utils/log.h>
+#include <thread>
+#include <log4cplus/consoleappender.h>
+
+using namespace winterwind;
 
 log4cplus::Logger logger = log4cplus::Logger::getRoot();
 log4cplus::Logger irc_log = logger.getInstance(LOG4CPLUS_TEXT("irc"));
 
 int main(int argc, const char *argv[])
 {
+	log4cplus::helpers::SharedObjectPtr<log4cplus::Appender> amqp_appender(
+		new log4cplus::ConsoleAppender());
+	amqp_appender->setName(LOG4CPLUS_TEXT("amqp"));
+	logger.addAppender(amqp_appender);
+
 	CppUnit::TextUi::TestRunner runner;
 
 	if (!getenv("NO_REMOTE_TESTS")) {
@@ -48,6 +57,7 @@ int main(int argc, const char *argv[])
 		runner.addTest(winterwind::unittests::Test_Gitlab::suite());
 		runner.addTest(winterwind::unittests::Test_MySQL::suite());
 		runner.addTest(winterwind::unittests::Test_PostgreSQL::suite());
+		runner.addTest(winterwind::unittests::Test_RabbitMQ::suite());
 		runner.addTest(winterwind::unittests::Test_Twitter::suite());
 	}
 

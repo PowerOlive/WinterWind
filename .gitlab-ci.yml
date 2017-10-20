@@ -12,7 +12,10 @@ variables:
   MYSQL_ROOT_PASSWORD: "useless"
 
 before_script:
-  - pacman --noconfirm -Sy openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient lua websocketpp asio valgrind curl openssl-1.0 libircclient log4cplus jsoncpp curl libxml2 > /dev/null 2>&1
+  - pacman --noconfirm -Sy
+    openssl hiredis cppunit postgresql libmicrohttpd libmariadbclient
+    lua websocketpp asio valgrind curl openssl-1.0 libircclient log4cplus jsoncpp curl
+    libxml2 librabbitmq-c > /dev/null 2>&1
 
 stages:
   - cppcheck
@@ -95,7 +98,7 @@ unittests:elasticsearch2:
   <<: *tests_definition
   services:
     - elasticsearch:2
-    - postgres:latest
+    - postgres:9.6
     - mysql:latest
 
 unittests:valgrind:

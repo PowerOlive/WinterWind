@@ -25,30 +25,36 @@
 
 #pragma once
 
-#define CL_HELPER_VAR_GET(type, name, default_value)                                                                   \
-private:                                                                                                               \
-	type m_##name = default_value;                                                                                 \
-                                                                                                                       \
-public:                                                                                                                \
-	const type get_##name() const { return m_##name; }
+#include <cppunit/TestAssert.h>
+#include <cppunit/TestCaller.h>
+#include <cppunit/TestFixture.h>
+#include <cppunit/TestSuite.h>
+#include <cppunit/extensions/HelperMacros.h>
+#include <cppunit/ui/text/TestRunner.h>
 
-#define CL_HELPER_VAR_GETSET(type, name, default_value)                                                                \
-	CL_HELPER_VAR_GET(type, name, default_value)                                                                   \
-	void set_##name(const type &(name)) { m_##name = name; }
+#include <core/databases/postgresqlclient.h>
 
-#define DISABLE_CLASS_COPY(C)                                                                                          \
-	C(const C &);                                                                                                  \
-    C &operator=(const C &)
+namespace winterwind {
 
-namespace winterwind
+namespace unittests {
+
+class Test_RabbitMQ : public CppUnit::TestFixture
 {
-class non_copyable
-{
+	CPPUNIT_TEST_SUITE(Test_RabbitMQ);
+	CPPUNIT_TEST(create_connection);
+	CPPUNIT_TEST(create_channel);
+
+	CPPUNIT_TEST_SUITE_END();
+
 public:
-	non_copyable() = default;
-	virtual ~non_copyable() = default;
+	void setUp() override {}
 
-	non_copyable(const non_copyable &) = delete;
-	non_copyable &operator=(const non_copyable&) = delete;
+	void tearDown() override;
+
+protected:
+	void create_connection();
+	void create_channel();
+
 };
+}
 }

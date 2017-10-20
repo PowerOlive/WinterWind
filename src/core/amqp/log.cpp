@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2016, Loic Blot <loic.blot@unix-experience.fr>
+/*
+ * Copyright (c) 2017, Loic Blot <loic.blot@unix-experience.fr>
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
@@ -23,13 +23,42 @@
  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#pragma once
+#include "core/amqp/log.h"
+#include "core/utils/log.h"
 
-#cmakedefine READLINE @READLINE@
-#cmakedefine UNITTESTS @UNITTESTS@
-#cmakedefine UNITTESTS_LUA_FILE "@UNITTESTS_LUA_FILE@"
-#cmakedefine ENABLE_RATPCLIENT @ENABLE_RATPCLIENT@
-#cmakedefine ENABLE_JIRACLIENT @ENABLE_JIRACLIENT@
-#cmakedefine ENABLE_HTTPCLIENT @ENABLE_HTTPCLIENT@
-#cmakedefine ENABLE_POSTGRESQL @ENABLE_POSTGRESQL@
-#cmakedefine ENABLE_AMQP @ENABLE_AMQP@
+namespace winterwind
+{
+namespace amqp
+{
+
+log4cplus::Logger amqp_log = logger.getInstance(LOG4CPLUS_TEXT("amqp"));
+
+void handle_reply_error(amqp_rpc_reply_t reply)
+{
+	switch (reply.reply.id) {
+		case AMQP_CHANNEL_CLOSE_METHOD: {
+			auto *error = reinterpret_cast<amqp_channel_close_t *>(reply.reply.decoded);
+			std::stringstream ss;
+			ss << std::string((char *) error->reply_text.bytes, error->reply_text.len)
+				<< std::endl;
+			log_error(amqp_log, ss.str());
+			break;
+		}
+		case AMQP_CONNECTION_CLOSE_METHOD: {
+			auto *error =
+				reinterpret_cast<amqp_connection_close_t *>(reply.reply.decoded);
+			std::stringstream ss;
+			ss << std::string((char *) error->reply_text.bytes, error->reply_text.len)
+				<< std::endl;
+			log_error(amqp_log, ss.str());
+			break;
+		}
+		case 0:
+			break;
+		default:
+			log_warn(amqp_log, "Unhandled error id " + std::to_string(reply.reply.id));
+			break;
+	}
+}
+}
+}

@@ -35,6 +35,7 @@ if (ENABLE_UNITTESTS)
 		test_elasticsearch.cpp
 		test_gitlab.cpp
 		test_postgresql.cpp
+		test_rabbitmq.cpp
 		test_string.cpp
 		test_threads.cpp
 		test_time.cpp

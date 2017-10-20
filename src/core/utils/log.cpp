@@ -26,6 +26,7 @@
 #include <core/utils/log.h>
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
+#include "cmake_config.h"
 
 log4cplus::Logger logger = log4cplus::Logger::getRoot();
 
@@ -51,6 +52,14 @@ void Logger::init()
 		new log4cplus::ConsoleAppender());
 	console_appender->setName(LOG4CPLUS_TEXT("console"));
 	logger.addAppender(console_appender);
+
+#if ENABLE_AMQP
+	// Create console appender
+	log4cplus::helpers::SharedObjectPtr<log4cplus::Appender> amqp_appender(
+		new log4cplus::ConsoleAppender());
+	amqp_appender->setName(LOG4CPLUS_TEXT("amqp"));
+	logger.addAppender(amqp_appender);
+#endif
 
 	// Set log levels to INFO
 	logger.setLogLevel(log4cplus::INFO_LOG_LEVEL);
