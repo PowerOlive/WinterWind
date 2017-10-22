@@ -25,6 +25,7 @@
 
 #include "extras/twitterclient.h"
 #include <core/utils/base64.h>
+#include <core/http/query.h>
 
 namespace winterwind
 {
@@ -64,7 +65,7 @@ TwitterClient::Response TwitterClient::get_oauth2_token()
 	add_form_param("grant_type", "client_credentials");
 
 	std::string res;
-	_post(TWITTER_API_URL + TWITTER_OAUTH2_TOKEN, res);
+	request(http::Query(TWITTER_API_URL + TWITTER_OAUTH2_TOKEN, http::POST), res);
 
 	if (get_http_code() == 403) {
 		return TWITTER_FORBIDDEN;
@@ -108,7 +109,8 @@ TwitterClient::get_user_timeline(Json::Value &res, const uint16_t count,
 
 	append_oauth_header("GET", request);
 
-	_get_json(request, res);
+	http::Query query(request);
+	_get_json(query, res);
 
 	switch (get_http_code()) {
 		case 401:
@@ -138,7 +140,8 @@ TwitterClient::get_home_timeline(Json::Value &res, const uint16_t count,
 
 	append_oauth_header("GET", request);
 
-	_get_json(request, res);
+	http::Query query(request);
+	_get_json(query, res);
 
 	switch (get_http_code()) {
 		case 401:

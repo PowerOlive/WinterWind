@@ -26,6 +26,7 @@
 #include "caldavclient.h"
 #include <iostream>
 #include <regex>
+#include <core/http/query.h>
 
 namespace winterwind
 {
@@ -55,16 +56,17 @@ CaldavClient::CaldavClient(const std::string &url, const std::string &username,
 void CaldavClient::load_calendars()
 {
 	std::string res;
-	int32_t reqflag = HTTPClient::REQ_SIMPLE | HTTPClient::REQ_AUTH;
+	uint8_t reqflag = http::Query::FLAG_SIMPLE | http::Query::FLAG_AUTH;
 	if (m_dont_verify_peer) {
-		reqflag |= HTTPClient::REQ_NO_VERIFY_PEER;
+		reqflag |= http::Query::FLAG_NO_VERIFY_PEER;
 	}
 
 	add_http_header("Content-Type", "application/xml; charset=utf-8");
 	add_http_header("Depth", "1");
 	add_http_header("Prefer", "return-minimal");
-	_propfind(m_url + "/calendars/" + m_username + "/", res, reqflag,
-		calendar_list_request);
+	std::string post_data = calendar_list_request;
+	request(http::Query(m_url + "/calendars/" + m_username + "/", post_data,
+						http::PROPFIND, (http::Query::Flag) reqflag), res);
 
 	reqflag |= XMLParser::Flag::FLAG_XML_SIMPLE | XMLParser::Flag::FLAG_XML_STRIP_NEWLINE;
 

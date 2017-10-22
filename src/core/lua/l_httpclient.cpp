@@ -26,6 +26,7 @@
 #include "l_httpclient.h"
 #include "luaengine.h"
 #include <iostream>
+#include <core/http/query.h>
 
 namespace winterwind
 {
@@ -132,7 +133,8 @@ void LuaRefHTTPClient::Register(lua_State *L)
 int LuaRefHTTPClient::l_get(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
-	http->_get(url, res);
+	Query query(url);
+	http->request(query, res);
 	HTTPCLIENT_RESP_PUSH
 	return 1;
 }
@@ -171,7 +173,8 @@ int LuaRefHTTPClient::l_get_json(lua_State *L)
 	std::string url = read<std::string>(L, 2);
 
 	Json::Value res;
-	if (!http->_get_json(url, res)) {
+	Query query(url);
+	if (!http->_get_json(query, res)) {
 		return 0;
 	}
 
@@ -182,7 +185,7 @@ int LuaRefHTTPClient::l_get_json(lua_State *L)
 int LuaRefHTTPClient::l_delete(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
-	http->_delete(url, res);
+	http->request(Query(url, DELETE), res);
 	HTTPCLIENT_RESP_PUSH
 	return 1;
 }
@@ -190,7 +193,7 @@ int LuaRefHTTPClient::l_delete(lua_State *L)
 int LuaRefHTTPClient::l_head(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
-	http->_head(url, res);
+	http->request(Query(url, HEAD), res);
 	HTTPCLIENT_RESP_PUSH
 	return 1;
 }
@@ -198,7 +201,7 @@ int LuaRefHTTPClient::l_head(lua_State *L)
 int LuaRefHTTPClient::l_post(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
-	http->_post(url, res);
+	http->request(Query(url, POST), res);
 	HTTPCLIENT_RESP_PUSH
 	return 1;
 }
@@ -206,7 +209,7 @@ int LuaRefHTTPClient::l_post(lua_State *L)
 int LuaRefHTTPClient::l_propfind(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
-	http->_propfind(url, res);
+	http->request(Query(url, PROPFIND), res);
 	HTTPCLIENT_RESP_PUSH
 	return 1;
 }
@@ -214,7 +217,7 @@ int LuaRefHTTPClient::l_propfind(lua_State *L)
 int LuaRefHTTPClient::l_put(lua_State *L)
 {
 	HTTPCLIENT_PARAM_INIT
-	http->_put(url, res);
+	http->request(Query(url, PUT), res);
 	HTTPCLIENT_RESP_PUSH
 	return 1;
 }

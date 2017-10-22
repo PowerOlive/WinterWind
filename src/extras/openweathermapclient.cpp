@@ -26,6 +26,7 @@
 #include "openweathermapclient.h"
 #include <cmath>
 #include <iostream>
+#include <core/http/query.h>
 
 namespace winterwind
 {
@@ -48,10 +49,10 @@ OpenWeatherMapClient::get(const std::string &city, Weather &result)
 	Json::Value res;
 	std::string city_encoded;
 	http_string_escape(city, city_encoded);
-	if (!_get_json("http://api.openweathermap.org/data/2.5/"
-			"weather?mode=json&APPID=" +
-			m_api_key + "&units=metric&q=" + city_encoded,
-		res)) {
+	http::Query query("http://api.openweathermap.org/data/2.5/"
+		"weather?mode=json&APPID=" +
+		m_api_key + "&units=metric&q=" + city_encoded);
+	if (!_get_json(query, res)) {
 		return OWMRC_INVALID_RESPONSE;
 	}
 

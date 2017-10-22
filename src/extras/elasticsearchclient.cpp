@@ -26,6 +26,7 @@
 #include "elasticsearchclient.h"
 #include <cassert>
 #include <iostream>
+#include <core/http/query.h>
 
 namespace winterwind
 {
@@ -53,7 +54,9 @@ ElasticsearchClient::~ElasticsearchClient()
 void ElasticsearchClient::discover_cluster()
 {
 	Json::Value res;
-	if (!_get_json(m_init_url + ES_URL_CLUSTER_STATE, res) ||
+	Query query(m_init_url + ES_URL_CLUSTER_STATE);
+
+	if (!_get_json(query, res) ||
 		!res.isMember("cluster_name") ||
 		!res["cluster_name"].isString()) {
 		throw ElasticsearchException("Unable to parse Elasticsearch cluster state");
@@ -61,7 +64,7 @@ void ElasticsearchClient::discover_cluster()
 
 	m_cluster_name = res["cluster_name"].asString();
 
-	if (!_get_json(m_init_url + ES_URL_NODES, res) || !res.isMember("nodes") ||
+	if (!_get_json(query, res) || !res.isMember("nodes") ||
 		!res["nodes"].isObject()) {
 		throw ElasticsearchException("Unable to parse Elasticsearch nodes");
 	}
@@ -116,8 +119,9 @@ void ElasticsearchClient::create_doc(const std::string &index, const std::string
 	const ElasticsearchNode &node = get_fresh_node();
 	std::string res;
 	Json::FastWriter writer;
-	request(node.http_addr + "/" + index + "/" + type + "/", res, HTTPClient::REQ_SIMPLE,
-		GET, writer.write(doc));
+	std::string post_data = writer.write(doc);
+	Query query(node.http_addr + "/" + index + "/" + type + "/", post_data);
+	request(query, post_data);
 }
 
 void ElasticsearchClient::insert_doc(const std::string &index, const std::string &type,
@@ -126,8 +130,10 @@ void ElasticsearchClient::insert_doc(const std::string &index, const std::string
 	const ElasticsearchNode &node = get_fresh_node();
 	std::string res;
 	Json::FastWriter writer;
-	_put(node.http_addr + "/" + index + "/" + type + "/" + doc_id, res,
-		writer.write(doc));
+
+	std::string post_data = writer.write(doc);
+	Query query(node.http_addr + "/" + index + "/" + type + "/" + doc_id, post_data, PUT);
+	request(query, res);
 }
 
 void ElasticsearchClient::delete_doc(const std::string &index, const std::string &type,
@@ -135,7 +141,7 @@ void ElasticsearchClient::delete_doc(const std::string &index, const std::string
 {
 	const ElasticsearchNode &node = get_fresh_node();
 	std::string res;
-	_delete(node.http_addr + "/" + index + "/" + type + "/" + doc_id, res);
+	request(Query(node.http_addr + "/" + index + "/" + type + "/" + doc_id, DELETE), res);
 }
 
 // related to ElasticsearchBulkActionType
@@ -192,7 +198,8 @@ void ElasticsearchClient::process_bulkaction_queue(std::string &res,
 		m_bulk_queue.pop();
 	}
 
-	_post(node.http_addr + ES_BULK, post_data, res);
+	Query query(node.http_addr + ES_BULK, post_data, POST);
+	request(query, res);
 }
 
 bool ElasticsearchClient::analyze(const std::string &index, const std::string &analyzer,
@@ -203,7 +210,8 @@ bool ElasticsearchClient::analyze(const std::string &index, const std::string &a
 	request["analyzer"] = analyzer;
 	request["text"] = str;
 
-	return _get_json(node.http_addr + "/" + index + ES_ANALYZE, request, res);
+	Query query(node.http_addr + "/" + index + ES_ANALYZE);
+	return _get_json(query, request, res);
 }
 
 namespace elasticsearch {
@@ -217,7 +225,8 @@ Index::Index(const std::string &name, ElasticsearchClient *es_client):
 bool Index::exists()
 {
 	Json::Value res;
-	if (!m_es_client->_get_json(m_es_client->get_node_addr() + "/" + m_name, res)) {
+	Query query(m_es_client->get_node_addr() + "/" + m_name);
+	if (!m_es_client->_get_json(query, res)) {
 		return false;
 	}
 
@@ -247,7 +256,8 @@ bool Index::create()
 		}
 	}
 
-	if (!m_es_client->_put_json(m_es_client->get_node_addr() + "/" + m_name, req, res)) {
+	Query query(m_es_client->get_node_addr() + "/" + m_name, PUT);
+	if (!m_es_client->_put_json(query, req, res)) {
 		return false;
 	}
 

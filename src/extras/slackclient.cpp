@@ -26,6 +26,7 @@
 #include "slackclient.h"
 
 #include <utility>
+#include <core/http/query.h>
 
 namespace winterwind
 {
@@ -38,40 +39,41 @@ SlackClient::SlackClient(const std::string &api_token) : m_api_token(api_token)
 bool SlackClient::auth_test()
 {
 	Json::Value res;
-	_get_json("https://slack.com/api/auth.test?token=" + m_api_token, res);
+	http::Query query("https://slack.com/api/auth.test?token=" + m_api_token);
+	_get_json(query, res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
 bool SlackClient::create_channel(const std::string &channel)
 {
 	Json::Value res;
-	_get_json(
-		"https://slack.com/api/channels.create?token=" + m_api_token + "&name=" + channel,
-		res);
+	http::Query query("https://slack.com/api/channels.create?token=" + m_api_token + "&name=" + channel);
+	_get_json(query, res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
 bool SlackClient::join_channel(const std::string &channel)
 {
 	Json::Value res;
-	_get_json("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" +
-			channel,
-		res);
+	http::Query query("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" +
+		channel);
+	_get_json(query, res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
 bool SlackClient::post_message(const std::string &channel, const std::string &message)
 {
 	Json::Value res;
-	_get_json("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" +
-			channel + "&text=" + message + "&as_user=true&username=Icecrown",
-		res);
+	http::Query query("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" +
+		channel + "&text=" + message + "&as_user=true&username=Icecrown");
+	_get_json(query, res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 
 bool SlackClient::rtm_start(Json::Value &res)
 {
-	_get_json("https://slack.com/api/rtm.start?token=" + m_api_token, res);
+	http::Query query("https://slack.com/api/rtm.start?token=\" + m_api_token");
+	_get_json(query, res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
 

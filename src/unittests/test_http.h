@@ -33,6 +33,7 @@
 #include <cppunit/ui/text/TestRunner.h>
 
 #include <core/httpserver.h>
+#include <core/http/query.h>
 
 #include "cmake_config.h"
 
@@ -141,7 +142,7 @@ protected:
 	{
 		HTTPClient cli;
 		std::string res;
-		cli._get("http://localhost:58080/unittest.html", res);
+		cli.request(http::Query("http://localhost:58080/unittest.html"), res);
 		CPPUNIT_ASSERT(res == HTTPSERVER_TEST01_STR);
 	}
 
@@ -150,7 +151,7 @@ protected:
 		HTTPClient cli;
 		std::string res;
 		cli.add_http_header("UnitTest-Header", "1");
-		cli._get("http://localhost:58080/unittest2.html", res);
+		cli.request(http::Query("http://localhost:58080/unittest2.html"), res);
 		CPPUNIT_ASSERT_MESSAGE("Server header answer: " + res, res == "yes");
 	}
 
@@ -158,7 +159,7 @@ protected:
 	{
 		HTTPClient cli;
 		std::string res;
-		cli._get("http://localhost:58080/unittest3.html?UnitTestParam=thisistestparam",
+		cli.request(http::Query("http://localhost:58080/unittest3.html?UnitTestParam=thisistestparam"),
 				res);
 		CPPUNIT_ASSERT(res == "yes");
 	}
@@ -169,17 +170,18 @@ protected:
 		std::string res;
 		cli.add_http_header("Content-Type", "application/x-www-form-urlencoded");
 		cli.add_form_param("post_param", "ilikedogs");
-		cli._post("http://localhost:58080/unittest4.html", res);
+		cli.request(http::Query("http://localhost:58080/unittest4.html", http::POST), res);
 		CPPUNIT_ASSERT(res == "yes");
 	}
 
 	void httpserver_handle_post_json()
 	{
 		HTTPClient cli;
-		Json::Value query;
-		query["json_param"] = "catsarebeautiful";
+		Json::Value req;
+		req["json_param"] = "catsarebeautiful";
 		Json::Value res;
-		cli._post_json("http://localhost:58080/unittest5.html", query, res);
+		http::Query query("http://localhost:58080/unittest5.html", http::POST);
+		cli._post_json(query, req, res);
 		CPPUNIT_ASSERT(res.isMember("status") && res["status"] == "yes");
 	}
 

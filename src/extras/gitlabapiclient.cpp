@@ -25,6 +25,7 @@
 
 #include "gitlabapiclient.h"
 #include <iostream>
+#include <core/http/query.h>
 
 namespace winterwind
 {
@@ -49,9 +50,9 @@ GitlabAPIClient::get_issues(const uint32_t project_id, const std::string &filter
 {
 	Json::Value tmp_result;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_get_json(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-			"/issues" + (filter.length() ? "?" + filter : ""),
-		tmp_result);
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+				"/issues" + (filter.length() ? "?" + filter : ""));
+	_get_json(query, tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty()) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);
@@ -100,9 +101,9 @@ const GitlabRetCod GitlabAPIClient::create_issue(const uint32_t project_id,
 	build_issue_data(issue, post_data);
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_post(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-			"/issues",
-		post_data, res);
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+				"/issues", post_data, http::POST);
+	request(query, res);
 	return (m_http_code == 201 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 
@@ -123,8 +124,9 @@ GitlabAPIClient::modify_issue(const uint32_t project_id, const uint32_t issue_id
 	build_issue_data(issue, post_data);
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_put(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-		"/issues/" + issue_res.asString(), res, post_data);
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+					  "/issues/" + issue_res.asString(), post_data, http::PUT);
+	request(query, res);
 	return (m_http_code == 201 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 
@@ -177,8 +179,10 @@ GitlabAPIClient::close_issue(const uint32_t project_id, const uint32_t issue_id)
 
 	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_put(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-		"/issues/" + issue_res["id"].asString(), res, "state_event=close");
+	std::string post_data = "state_event=close";
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+				"/issues/" + issue_res["id"].asString(), post_data, http::PUT);
+	request(query, res);
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 
@@ -192,9 +196,9 @@ GitlabAPIClient::delete_issue(const uint32_t project_id, const uint32_t issue_id
 
 	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_delete(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-			"/issues/" + issue_result["id"].asString(),
-		res);
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+					  "/issues/" + issue_result["id"].asString(), http::DELETE);
+	request(query, res);
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 
@@ -208,9 +212,9 @@ const GitlabRetCod GitlabAPIClient::get_merge_requests(const uint32_t project_id
 {
 	Json::Value tmp_result;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_get_json(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-			"/merge_requests" + (filter.length() ? "?" + filter : ""),
-		tmp_result);
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+				"/merge_requests" + (filter.length() ? "?" + filter : ""));
+	_get_json(query, tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty()) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);
@@ -242,8 +246,10 @@ const GitlabRetCod GitlabAPIClient::close_merge_request(const uint32_t project_i
 
 	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_put(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-		"/merge_requests/" + mr_result["id"].asString(), res, "state_event=close");
+	std::string post_data = "state_event=close";
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+				"/merge_requests/" + mr_result["id"].asString(), post_data, http::PUT);
+	request(query, res);
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 
@@ -257,9 +263,9 @@ const GitlabRetCod GitlabAPIClient::delete_merge_request(const uint32_t project_
 
 	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_delete(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-			"/merge_requests/" + mr_result["id"].asString(),
-		res);
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+					  "/merge_requests/" + mr_result["id"].asString(), http::DELETE);
+	request(query, res);
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 
@@ -272,9 +278,9 @@ GitlabAPIClient::get_labels(const uint32_t project_id, Json::Value &result)
 {
 	Json::Value tmp_result;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_get_json(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-			"/labels",
-		tmp_result);
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+					  "/labels");
+	_get_json(query, tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty() || !tmp_result.isArray()) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);;
@@ -323,10 +329,9 @@ const GitlabRetCod GitlabAPIClient::create_label(const uint32_t project_id,
 	request["color"] = color_id;
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	if (!_post_json(
-		m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-			"/labels",
-		request, res)) {
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" +
+					  std::to_string(project_id) + "/labels", http::POST);
+	if (!_post_json(query, request, res)) {
 		return GITLAB_RC_INVALID_RESPONSE;
 	}
 
@@ -372,9 +377,9 @@ const GitlabRetCod GitlabAPIClient::delete_label(const uint32_t project_id,
 
 	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_delete(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-			"/labels?name=" + encoded_label,
-		res);
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+					  "/labels?name=" + encoded_label, http::DELETE);
+	request(query, res);
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
 
@@ -405,10 +410,9 @@ GitlabAPIClient::create_tag(const uint32_t project_id, const GitlabTag &tag)
 	request["release_description"] = tag.release_description;
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	if (!_post_json(
-		m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-			"/labels",
-		request, res)) {
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" +
+					  std::to_string(project_id) + "/labels", http::POST);
+	if (!_post_json(query, request, res)) {
 		return GITLAB_RC_INVALID_RESPONSE;
 	}
 
@@ -423,9 +427,9 @@ const GitlabRetCod GitlabAPIClient::delete_tag(const uint32_t project_id,
 
 	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_delete(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
-			"/tags/" + encoded_tag,
-		res);
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + std::to_string(project_id) +
+					  "/tags/" + encoded_tag, http::DELETE);
+	request(query, res);
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_NOT_FOUND);
 }
 
@@ -438,9 +442,9 @@ GitlabAPIClient::get_namespaces(const std::string &name, Json::Value &result)
 {
 	Json::Value tmp_result;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_get_json(m_server_uri + api_v3_endpoint + "/namespaces" +
-			(name.length() ? "?search=" + name : ""),
-		tmp_result);
+	http::Query query(m_server_uri + api_v3_endpoint + "/namespaces" +
+				(name.length() ? "?search=" + name : ""));
+	_get_json(query, tmp_result);
 
 	if (m_http_code != 200 || tmp_result.empty() || !tmp_result.isArray()) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);;
@@ -488,9 +492,9 @@ GitlabAPIClient::get_groups(const std::string &filter, Json::Value &result)
 {
 	Json::Value tmp_result;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_get_json(m_server_uri + api_v3_endpoint + "/groups" +
-			(filter.length() ? "?" + filter : ""),
-		tmp_result);
+	http::Query query(m_server_uri + api_v3_endpoint + "/groups" +
+					  (filter.length() ? "?" + filter : ""));
+	_get_json(query, tmp_result);
 
 	if (m_http_code != 200 || !tmp_result.isArray()) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);
@@ -541,8 +545,9 @@ bool GitlabAPIClient::create_group(const GitlabGroup &group, Json::Value &res)
 	request["request_access_enabled"] = group.access_requests;
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	return _post_json(m_server_uri + api_v3_endpoint + "/groups", request, res) &&
-		m_http_code == 201;
+
+	http::Query query(m_server_uri + api_v3_endpoint + "/groups", http::POST);
+	return _post_json(query, request, res) && m_http_code == 201;
 }
 
 const GitlabRetCod GitlabAPIClient::delete_group(const std::string &name)
@@ -555,7 +560,8 @@ const GitlabRetCod GitlabAPIClient::delete_group(const std::string &name)
 
 	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_delete(m_server_uri + api_v3_endpoint + "/groups/" + result["id"].asString(), res);
+	http::Query query(m_server_uri + api_v3_endpoint + "/groups/" + result["id"].asString(), http::DELETE);
+	request(query, res);
 
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }
@@ -602,7 +608,9 @@ GitlabAPIClient::create_project(const GitlabProject &project, Json::Value &res)
 	request["request_access_enabled"] = project.request_access_enabled;
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	if (!_post_json(m_server_uri + api_v3_endpoint + "/projects", request, res)) {
+
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects", http::POST);
+	if (!_post_json(query, request, res)) {
 		return GITLAB_RC_INVALID_RESPONSE;
 	}
 
@@ -637,8 +645,8 @@ GitlabAPIClient::get_projects(const std::string &name, Json::Value &result,
 	}
 
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	if (!_get_json(m_server_uri + api_v3_endpoint + "/projects" + endpoint_suffix,
-		tmp_result)) {
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects" + endpoint_suffix);
+	if (!_get_json(query, tmp_result)) {
 		return GITLAB_RC_HTTP_CODE(INVALID_RESPONSE);;
 	}
 
@@ -717,7 +725,8 @@ const GitlabRetCod GitlabAPIClient::delete_project(const std::string &name)
 
 	std::string res;
 	add_http_header("PRIVATE-TOKEN", m_api_token);
-	_delete(m_server_uri + api_v3_endpoint + "/projects/" + result["id"].asString(), res);
+	http::Query query(m_server_uri + api_v3_endpoint + "/projects/" + result["id"].asString(), http::DELETE);
+	request(query, res);
 
 	return (m_http_code == 200 ? GITLAB_RC_OK : GITLAB_RC_INVALID_RESPONSE);
 }

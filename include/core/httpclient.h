@@ -41,6 +41,7 @@ extern log4cplus::Logger httpc_log;
 namespace http
 {
 
+class Query;
 typedef std::unordered_map<std::string, std::string> HeadersMap;
 
 class HTTPClient
@@ -50,75 +51,21 @@ public:
 
 	virtual ~HTTPClient() = default;
 
-	enum ReqFlag: uint8_t
-	{
-		REQ_SIMPLE = 0x01,
-		REQ_AUTH = 0x02,
-		REQ_NO_VERIFY_PEER = 0x04,
-		REQ_KEEP_HEADER_CACHE_AFTER_REQUEST = 0x08,
-		REQ_NO_RESPONSE_AWAITED = 0x10,
-	};
-
 	/**
 	 * This function should be called at the binary lifetime ending
 	 */
 	static void deinit();
 
-	inline void
-	_post(const std::string &url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE)
-	{
-		_post(url, "", res, flag);
-	}
+	void request(const Query &query, std::string &res);
 
-	inline void _post(const std::string &url, const std::string &post_data,
-		std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE)
-	{
-		request(url, res, flag, POST, post_data);
-	}
-
-	inline void _get(const std::string &url, std::string &res,
-		int32_t flag = HTTPClient::REQ_SIMPLE)
-	{
-		request(url, res, flag, GET);
-	}
-
-	bool _delete(const std::string &url, Json::Value &res,
-		int32_t flag = HTTPClient::REQ_SIMPLE);
-
-	inline void _delete(const std::string &url, std::string &res,
-		int32_t flag = HTTPClient::REQ_SIMPLE)
-	{
-		request(url, res, flag, DELETE);
-	}
-
-	inline void
-	_head(const std::string &url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE)
-	{
-		request(url, res, flag, HEAD);
-	}
-
-	inline void _propfind(const std::string &url, std::string &res,
-		int32_t flag = HTTPClient::REQ_SIMPLE,
-		const std::string &post_data = "")
-	{
-		request(url, res, flag, PROPFIND, post_data);
-	}
-
-	inline void
-	_put(const std::string &url, std::string &res, const std::string &post_data = "",
-		int32_t flag = HTTPClient::REQ_SIMPLE)
-	{
-		request(url, res, flag, PUT, post_data);
-	}
+	bool _delete(const Query &query, Json::Value &res);
 
 	void get_html_tag_value(const std::string &url, const std::string &xpath,
 		std::vector<std::string> &res,
 		int32_t pflag = XMLParser::Flag::FLAG_XML_SIMPLE);
 
-	bool _get_json(const std::string &url, const Json::Value &req, Json::Value &res,
-		int32_t flag = HTTPClient::REQ_SIMPLE);
-	bool _get_json(const std::string &url, Json::Value &res,
-		int32_t flag = HTTPClient::REQ_SIMPLE, const std::string &reqdata = "");
+	bool _get_json(Query &query, const Json::Value &req, Json::Value &res);
+	bool _get_json(Query &query, Json::Value &res, const std::string &reqdata = "");
 
 	void add_http_header(const std::string &header, const std::string &value)
 	{ m_http_headers[header] = value; }
@@ -129,11 +76,9 @@ public:
 	void add_form_param(const std::string &param, const std::string &value,
 		bool escape = true);
 
-	bool _post_json(const std::string &url, const Json::Value &data, Json::Value &res,
-		int32_t flags = HTTPClient::REQ_SIMPLE);
+	bool _post_json(Query &query, const Json::Value &data, Json::Value &res);
 
-	bool _put_json(const std::string &url, const Json::Value &data, Json::Value &res,
-		int32_t flags = HTTPClient::REQ_SIMPLE);
+	bool _put_json(Query &query, const Json::Value &data, Json::Value &res);
 
 	virtual long get_http_code() const { return m_http_code; }
 
@@ -147,9 +92,6 @@ public:
 
 protected:
 	static size_t curl_writer(char *data, size_t size, size_t nmemb, void *user_data);
-
-	void request(std::string url, std::string &res, int32_t flag = HTTPClient::REQ_SIMPLE,
-		Method method = GET, std::string post_data = "");
 
 	void prepare_json_query();
 

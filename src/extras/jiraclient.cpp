@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include "jiraclient.h"
+#include <core/http/query.h>
 
 namespace winterwind
 {
@@ -50,7 +51,8 @@ JiraClient::JiraClient(const std::string &instance_url, const std::string &user,
 bool JiraClient::test_connection()
 {
 	Json::Value res;
-	if (!_get_json(m_instance_url + JIRA_API_V1_SESSION, res, ReqFlag::REQ_AUTH)) {
+	http::Query query(m_instance_url + JIRA_API_V1_SESSION, http::GET, http::Query::FLAG_AUTH);
+	if (!_get_json(query, res)) {
 		return false;
 	}
 	return res.isMember("name") && res.isMember("self") && res.isMember("loginInfo");
@@ -58,8 +60,8 @@ bool JiraClient::test_connection()
 
 bool JiraClient::get_issue(const std::string &issue_id, Json::Value &result)
 {
-	return _get_json(m_instance_url + JIRA_API_V2_ISSUE + issue_id, result,
-		ReqFlag::REQ_AUTH);
+	http::Query query(m_instance_url + JIRA_API_V2_ISSUE + issue_id, http::GET, http::Query::FLAG_AUTH);
+	return _get_json(query, result);
 }
 
 inline Json::Value
@@ -82,7 +84,8 @@ JiraClient::create_issue(const std::string &project_name, const std::string &iss
 	req["fields"]["project"]["key"] = project_name;
 	req["fields"]["issuetype"]["name"] = issue_type;
 
-	return _post_json(m_instance_url + JIRA_API_V2_ISSUE, req, res, ReqFlag::REQ_AUTH);
+	http::Query query(m_instance_url + JIRA_API_V2_ISSUE, http::POST, http::Query::FLAG_AUTH);
+	return _post_json(query, req, res);
 }
 
 bool JiraClient::create_issue(const uint32_t project_id, const uint32_t issue_type_id,
@@ -91,7 +94,8 @@ bool JiraClient::create_issue(const uint32_t project_id, const uint32_t issue_ty
 	Json::Value req = create_jira_issue_object(description, summary);
 	req["fields"]["project"]["id"] = project_id;
 	req["fields"]["issuetype"]["id"] = issue_type_id;
-	return _post_json(m_instance_url + JIRA_API_V2_ISSUE, req, res, ReqFlag::REQ_AUTH);
+	http::Query query(m_instance_url + JIRA_API_V2_ISSUE, http::POST, http::Query::FLAG_AUTH);
+	return _post_json(query, req, res);
 }
 
 bool JiraClient::assign_issue(const std::string &issue, const std::string &who,
@@ -119,9 +123,10 @@ bool JiraClient::assign_issue(const std::string &issue, const std::string &who,
 	Json::Value req;
 	req["name"] = who;
 
-	return _put_json(
-		m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_ASSIGNEE, req,
-		res, ReqFlag::REQ_AUTH | ReqFlag::REQ_NO_RESPONSE_AWAITED);
+	http::Query query(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_ASSIGNEE,
+		http::PUT, http::Query::FLAG_AUTH | http::Query::FLAG_NO_RESPONSE_AWAITED);
+
+	return _put_json(query, req, res);
 }
 
 bool JiraClient::comment_issue(const std::string &issue, const std::string &body,
@@ -134,9 +139,10 @@ bool JiraClient::comment_issue(const std::string &issue, const std::string &body
 	Json::Value req;
 	req["body"] = body;
 
-	return _post_json(
-		m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_COMMENT, req,
-		res, ReqFlag::REQ_AUTH);
+	http::Query query(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_COMMENT,
+		http::POST, http::Query::FLAG_AUTH);
+
+	return _post_json(query, req, res);
 }
 
 bool
@@ -166,22 +172,24 @@ JiraClient::issue_transition(const std::string &issue, const std::string &transi
 		req["update"]["comment"].append(comment_add);
 	}
 
-	return _post_json(
-		m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_TRANSITION, req,
-		res, ReqFlag::REQ_AUTH | ReqFlag::REQ_NO_RESPONSE_AWAITED);
+	http::Query query(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_TRANSITION,
+		http::POST, http::Query::FLAG_AUTH | http::Query::FLAG_NO_RESPONSE_AWAITED);
+	return _post_json(query, req, res);
 }
 
 bool JiraClient::get_issue_transitions(const std::string &issue, Json::Value &res,
 	bool transition_fields)
 {
-	return _get_json(
-		m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_TRANSITION
-			+ (transition_fields ? JIRA_TRANSITION_EXPAND : ""), res, ReqFlag::REQ_AUTH);
+	http::Query query(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_TRANSITION
+		+ (transition_fields ? JIRA_TRANSITION_EXPAND : ""),
+		http::GET, http::Query::FLAG_AUTH);
+	return _get_json(query, res);
 }
 
 bool JiraClient::list_projects(Json::Value &res)
 {
-	return _get_json(m_instance_url + JIRA_API_V2_PROJECT, res, ReqFlag::REQ_AUTH);
+	http::Query query(m_instance_url + JIRA_API_V2_PROJECT, http::GET, http::Query::FLAG_AUTH);
+	return _get_json(query, res);
 }
 
 bool JiraClient::add_link_to_issue(const std::string &issue, Json::Value &res,
@@ -208,9 +216,9 @@ bool JiraClient::add_link_to_issue(const std::string &issue, Json::Value &res,
 		req["object"]["icon"]["url16x16"] = icon_url;
 	}
 
-	return _post_json(
-		m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_REMOTELINK,
-		req, res, ReqFlag::REQ_AUTH);
+	http::Query query(m_instance_url + JIRA_API_V2_ISSUE + issue + JIRA_API_V2_ISSUE_REMOTELINK,
+		http::POST, http::Query::FLAG_AUTH);
+	return _post_json(query, req, res);
 }
 }
 }

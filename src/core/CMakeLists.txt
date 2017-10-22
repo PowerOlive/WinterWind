@@ -43,7 +43,8 @@ set(SRC_FILES
 	utils/stringutils.cpp
 	utils/threads.cpp
 	utils/time.cpp
-	xmlparser.cpp)
+	xmlparser.cpp
+	http/log.cpp)
 
 set(HEADER_FILES
 	${INCLUDE_SRC_PATH}/core/utils/base64.h
@@ -57,7 +58,9 @@ set(HEADER_FILES
 	${INCLUDE_SRC_PATH}/core/utils/threadpool.h
 	${INCLUDE_SRC_PATH}/core/utils/threadsafequeue.h
 	${INCLUDE_SRC_PATH}/core/utils/time.h
-	${INCLUDE_SRC_PATH}/core/xmlparser.h)
+	${INCLUDE_SRC_PATH}/core/xmlparser.h
+	${INCLUDE_SRC_PATH}/core/http/query.h
+	${INCLUDE_SRC_PATH}/core/http/log.h)
 
 set(PROJECT_LIBS
 	jsoncpp

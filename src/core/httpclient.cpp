@@ -28,6 +28,7 @@
 #include <cstring>
 #include <curl/curl.h>
 #include "cmake_config.h"
+#include "http/query.h"
 
 namespace winterwind
 {
@@ -76,10 +77,10 @@ size_t HTTPClient::curl_writer(char *data, size_t size, size_t nmemb, void *read
 }
 
 void
-HTTPClient::request(std::string url, std::string &res, int32_t flag, Method method,
-	std::string post_data)
+HTTPClient::request(const Query &query, std::string &res)
 {
-	log_debug(httpc_log, "request: " << url << " method " << method);
+	std::string url = query.get_url();
+	log_debug(httpc_log, "request: " << url << " method " << query.get_method());
 
 	CURL *curl = curl_easy_init();
 	m_http_code = 0;
@@ -111,10 +112,10 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_writer);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &res);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER,
-		(flag & HTTPClient::REQ_NO_VERIFY_PEER) ? 0 : 1);
+		(query.get_flag() & Query::FLAG_NO_VERIFY_PEER) ? 0 : 1);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1);
 
-	switch (method) {
+	switch (query.get_method()) {
 		case DELETE: {
 			static const std::string method_propfind = "DELETE";
 			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
@@ -146,7 +147,7 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 			break;
 	}
 
-	if ((flag & HTTPClient::REQ_AUTH) != 0) {
+	if ((query.get_flag() & Query::FLAG_AUTH) != 0) {
 		std::string auth_str = m_username + ":" + m_password;
 		curl_easy_setopt(curl, CURLOPT_USERPWD, auth_str.c_str());
 	}
@@ -160,13 +161,14 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 		curl_easy_setopt(curl, CURLOPT_HTTPHEADER, chunk);
 	}
 
+	std::string post_data = query.get_post_data();
+
 	if (!m_form_params.empty()) {
-		if (!post_data.empty()) {
+		if (!query.get_post_data().empty()) {
 			log_error(httpc_log, "HTTPClient: post_data is not empty while form_params "
 				"storage has elements. This will ignore "
 				" post_data. (url was: " << url << ").");
 		}
-
 		post_data.clear();
 		std::string buf = "";
 		bool first_param = true;
@@ -209,7 +211,7 @@ HTTPClient::request(std::string url, std::string &res, int32_t flag, Method meth
 
 	curl_easy_cleanup(curl);
 
-	if ((flag & HTTPClient::REQ_KEEP_HEADER_CACHE_AFTER_REQUEST) == 0) {
+	if ((query.get_flag() & Query::FLAG_KEEP_HEADER_CACHE_AFTER_REQUEST) == 0) {
 		m_http_headers.clear();
 	}
 
@@ -223,7 +225,9 @@ void HTTPClient::get_html_tag_value(const std::string &url, const std::string &x
 	std::string page_res;
 	assert(!((pflag & XMLParser::Flag::FLAG_XML_SIMPLE) &&
 		(pflag & XMLParser::Flag::FLAG_XML_WITHOUT_TAGS)));
-	_get(url, page_res);
+
+	Query query(url);
+	request(query, page_res);
 
 	XMLParser parser(XMLParser::Mode::MODE_HTML);
 	parser.parse(page_res, xpath, pflag, res);
@@ -234,13 +238,14 @@ void HTTPClient::prepare_json_query()
 	add_http_header("Content-Type", "application/json");
 }
 
-bool HTTPClient::_delete(const std::string &url, Json::Value &res, int32_t flag)
+bool HTTPClient::_delete(const Query &query, Json::Value &res)
 {
 	std::string res_str;
 	prepare_json_query();
-	_delete(url, res_str, flag);
+
+	request(query, res_str);
 	if (!json_reader().parse(res_str, res)) {
-		log_error(httpc_log, "Failed to parse query for " << url
+		log_error(httpc_log, "Failed to parse query for " << query.get_url()
 			<< ". Response was not a JSON");
 #if UNITTESTS
 		log_debug(httpc_log, "Response was: " << res_str << " http rc: " << m_http_code);
@@ -251,27 +256,25 @@ bool HTTPClient::_delete(const std::string &url, Json::Value &res, int32_t flag)
 	return true;
 }
 
-bool HTTPClient::_get_json(const std::string &url, const Json::Value &req,
-		Json::Value &res, int32_t flag)
+bool HTTPClient::_get_json(Query &query, const Json::Value &req,
+		Json::Value &res)
 {
-	return _get_json(url, res, flag, json_writer().write(req));
+	return _get_json(query, res, json_writer().write(req));
 }
 
-bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t flag,
-		const std::string &reqdata)
+bool HTTPClient::_get_json(Query &query, Json::Value &res, const std::string &reqdata)
 {
 	std::string res_str;
 	prepare_json_query();
 
 	if (!reqdata.empty()) {
-		request(url, res_str, flag, GET, reqdata);
-	}
-	else {
-		_get(url, res_str, flag);
+		query.set_post_data(reqdata);
 	}
 
+	request(query, res_str);
+
 	if (!json_reader().parse(res_str, res)) {
-		log_error(httpc_log, "Failed to parse query for " << url
+		log_error(httpc_log, "Failed to parse query for " << query.get_url()
 			<< ". Response was not a JSON");
 #if UNITTESTS
 		log_debug(httpc_log, "Response was: " << res_str << " http rc: " << m_http_code);
@@ -283,25 +286,27 @@ bool HTTPClient::_get_json(const std::string &url, Json::Value &res, int32_t fla
 }
 
 bool
-HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Value &res,
-	int32_t flags)
+HTTPClient::_post_json(Query &query, const Json::Value &data, Json::Value &res)
 {
 	std::string res_str;
 	prepare_json_query();
-	_post(url, json_writer().write(data), res_str, flags);
+
+	// @Todo delete set_post_data after
+	query.set_post_data(json_writer().write(data));
+	request(query, res_str);
 
 	if (m_http_code == 400) {
-		log_fatal(httpc_log, "Bad request for " << url << ", error was: '"
+		log_fatal(httpc_log, "Bad request for " << query.get_url() << ", error was: '"
 			<< res_str << "'");
 		return false;
 	}
 
-	if (((flags & ReqFlag::REQ_NO_RESPONSE_AWAITED) != 0) && res_str.empty()) {
+	if (((query.get_flag() & Query::FLAG_NO_RESPONSE_AWAITED) != 0) && res_str.empty()) {
 		return true;
 	}
 
 	if (res_str.empty() || !json_reader().parse(res_str, res)) {
-		log_error(httpc_log, "Failed to parse query for " << url);
+		log_error(httpc_log, "Failed to parse query for " << query.get_url());
 #if UNITTESTS
 		log_debug(httpc_log, "Response was: " << res_str << " http rc: " << m_http_code);
 #endif
@@ -312,25 +317,25 @@ HTTPClient::_post_json(const std::string &url, const Json::Value &data, Json::Va
 }
 
 bool
-HTTPClient::_put_json(const std::string &url, const Json::Value &data, Json::Value &res,
-	int32_t flags)
+HTTPClient::_put_json(Query &query, const Json::Value &data, Json::Value &res)
 {
 	std::string res_str;
 	prepare_json_query();
-	_put(url, res_str, json_writer().write(data), flags);
+	query.set_post_data(json_writer().write(data));
+	request(query, res_str);
 
 	if (m_http_code == 400) {
-		log_fatal(httpc_log, "Bad request for " << url << ", error was: '"
+		log_fatal(httpc_log, "Bad request for " << query.get_url() << ", error was: '"
 			<< res_str << "'");
 		return false;
 	}
 
-	if (((flags & ReqFlag::REQ_NO_RESPONSE_AWAITED) != 0) && res_str.empty()) {
+	if (((query.get_flag() & Query::FLAG_NO_RESPONSE_AWAITED) != 0) && res_str.empty()) {
 		return true;
 	}
 
 	if (res_str.empty() || !json_reader().parse(res_str, res)) {
-		log_error(httpc_log, "Failed to parse query for " << url);
+		log_error(httpc_log, "Failed to parse query for " << query.get_url());
 #if UNITTESTS
 		log_debug(httpc_log, "Response was: " << res_str << " http rc: " << m_http_code);
 #endif
