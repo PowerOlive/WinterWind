@@ -43,7 +43,7 @@ Connection::Connection(const std::string &url)
 		amqp_default_connection_info(&info);
 	}
 	else if (amqp_parse_url((char *) url.c_str(), &info) != AMQP_STATUS_OK) {
-		throw amqp::exception("Unable to login to AMQP connection");
+		throw amqp::exception("Unable to parse AMQP URL.");
 	}
 
 	connect(info.host, (uint16_t) info.port, info.user, info.password, info.vhost);

@@ -41,8 +41,21 @@ namespace unittests {
 class Test_RabbitMQ : public CppUnit::TestFixture
 {
 	CPPUNIT_TEST_SUITE(Test_RabbitMQ);
+
 	CPPUNIT_TEST(create_connection);
 	CPPUNIT_TEST(create_channel);
+	CPPUNIT_TEST(remove_channel);
+	CPPUNIT_TEST(basic_qos);
+	CPPUNIT_TEST(declare_exchange);
+	CPPUNIT_TEST(bind_exchange);
+	CPPUNIT_TEST(unbind_exchange);
+	CPPUNIT_TEST(delete_exchange);
+	CPPUNIT_TEST(declare_queue);
+	CPPUNIT_TEST(bind_queue_to_exchange);
+	CPPUNIT_TEST(purge_queue);
+	CPPUNIT_TEST(remove_queue);
+	CPPUNIT_TEST(publish_to_exchange);
+	CPPUNIT_TEST(consume_queue);
 
 	CPPUNIT_TEST_SUITE_END();
 
@@ -54,7 +67,18 @@ public:
 protected:
 	void create_connection();
 	void create_channel();
-
+	void remove_channel();
+	void basic_qos();
+	void declare_exchange();
+	void bind_exchange();
+	void unbind_exchange();
+	void delete_exchange();
+	void declare_queue();
+	void bind_queue_to_exchange();
+	void purge_queue();
+	void remove_queue();
+	void publish_to_exchange();
+	void consume_queue();
 };
 }
 }

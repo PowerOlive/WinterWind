@@ -24,7 +24,12 @@
  */
 
 #include <core/amqp/connection.h>
+#include <core/amqp/channel.h>
+#include <core/amqp/consumer.h>
 #include <core/amqp/exception.h>
+#include <core/amqp/exchange.h>
+#include <core/amqp/message.h>
+#include <core/amqp/queue.h>
 #include "test_rabbitmq.h"
 
 namespace winterwind {
@@ -35,11 +40,13 @@ void Test_RabbitMQ::tearDown()
 {
 }
 
+#define RABBITMQ_URL "amqp://rabbitmq/"
 void Test_RabbitMQ::create_connection()
 {
 	bool connection_success = false;
 	try {
-		std::shared_ptr<amqp::Connection> conn = std::make_shared<amqp::Connection>();
+		std::shared_ptr<amqp::Connection> conn =
+			std::make_shared<amqp::Connection>(RABBITMQ_URL);
 		connection_success = true;
 	}
 	catch (amqp::exception &e) {
@@ -53,7 +60,8 @@ void Test_RabbitMQ::create_channel()
 {
 	bool channel_open = false;
 	try {
-		std::shared_ptr<amqp::Connection> conn = std::make_shared<amqp::Connection>();
+		std::shared_ptr<amqp::Connection> conn =
+			std::make_shared<amqp::Connection>(RABBITMQ_URL);
 		std::shared_ptr<amqp::Channel> channel = conn->create_channel();
 		channel_open = true;
 	}
@@ -64,76 +72,233 @@ void Test_RabbitMQ::create_channel()
 	CPPUNIT_ASSERT(channel_open);
 }
 
-#if 0
-try {
-		channel->basic_qos(1, false);
-		std::shared_ptr<amqp::Exchange> wwExchange =
-			channel->declare_exchange("ww_ex_direct", amqp::Channel::DIRECT, false, true);
-		std::shared_ptr<amqp::Queue> dq1 = channel->declare_queue("direct_queue_1");
-		std::shared_ptr<amqp::Queue> dq2 = channel->declare_queue("direct_queue_2");
-		conn->create_channel()->exchange_exists("ww_ex_direct3");
-		conn->create_channel()->exchange_exists("ww_ex_direct4");
-		conn->create_channel()->exchange_exists("ww_ex_direct");
-		std::shared_ptr<amqp::Exchange> wwFanoutExchange =
-			channel->declare_exchange("ww_ex_fanout2", amqp::Channel::FANOUT);
-		std::shared_ptr<amqp::Exchange> wwTopicExchange =
-			channel->declare_exchange("ww_ex_topic2", amqp::Channel::TOPIC);
-		std::shared_ptr<amqp::Exchange> wwExchange4 =
-			channel->declare_exchange("ww_ex_direct4", amqp::Channel::DIRECT);
-
-		channel->bind_exchange("ww_ex_fanout2", "ww_ex_topic2", "routeme");
-		channel->bind_exchange("ww_ex_direct", "ww_ex_fanout2", "routeme2");
-		channel->bind_exchange("ww_ex_fanout2", "ww_ex_topic2", "routeme2");
-		channel->unbind_exchange("ww_ex_fanout2", "ww_ex_topic2", "routeme");
-		channel->bind_exchange(wwFanoutExchange, wwExchange4, "routeme4");
-		channel->delete_exchange("ww_ex_direct");
-		channel->delete_exchange(wwFanoutExchange);
-
-		std::shared_ptr<amqp::Queue> fq = channel->declare_queue("ww_q_fanout");
-		//fq->purge();
-		fq->bind_exchange(wwExchange4, "routeme7");
-		fq->bind_exchange(wwTopicExchange, "routemetopic");
-		fq->unbind_exchange(wwExchange4, "routeme3");
-
-		fq->consume("rabbit_test", nullptr);
-		channel->remove_queue(dq1);
-		dq2->remove();
-
-		for (int i = 0; i < 50; i++) {
-
-			amqp::Message msg("test_data777");
-			wwExchange4->basic_publish("routeme7", msg
-				.set_immediate(false)
-				.set_mandatory(true)
-				.set_app_id("winterwind_unittests")
-				.set_timestamp()
-				.set_reply_to("nobody")
-				.set_priority(7)
-				.set_expiration(60000)
-			);
-		}
-
-		conn->destroy_channel(channel);
-
-		std::this_thread::sleep_for(std::chrono::seconds(5));
+#define RABBITMQ_STARTUP \
+	std::shared_ptr<amqp::Connection> conn; \
+	std::shared_ptr<amqp::Channel> channel; \
+	try { \
+		conn = std::make_shared<amqp::Connection>(RABBITMQ_URL); \
+		channel = conn->create_channel(); \
+	} \
+		catch (amqp::exception &e) { \
+		std::cerr << "AMQP Exception: " <<  e.what() << std::endl; \
+		CPPUNIT_ASSERT(false);\
+		return; \
 	}
-	catch (amqp::exception &e) {
-		std::cerr << "AMQP Exception: " <<  e.what() << std::endl;
+
+
+void Test_RabbitMQ::remove_channel()
+{
+	RABBITMQ_STARTUP
+	conn->destroy_channel(channel);
+	CPPUNIT_ASSERT(true);
+}
+
+void Test_RabbitMQ::basic_qos()
+{
+	RABBITMQ_STARTUP
+
+	CPPUNIT_ASSERT(channel->basic_qos(1, false));
+}
+
+void Test_RabbitMQ::declare_exchange()
+{
+	RABBITMQ_STARTUP
+
+	std::shared_ptr<amqp::Exchange> wwExchange =
+		channel->declare_exchange("ww_ex_direct", amqp::Channel::DIRECT, false, true);
+	CPPUNIT_ASSERT(wwExchange != nullptr);
+
+	std::shared_ptr<amqp::Exchange> wwFanoutExchange =
+		channel->declare_exchange("ww_ex_fanout", amqp::Channel::FANOUT);
+	CPPUNIT_ASSERT(wwFanoutExchange != nullptr);
+
+	std::shared_ptr<amqp::Exchange> wwTopicExchange =
+		channel->declare_exchange("ww_ex_topic", amqp::Channel::TOPIC);
+	CPPUNIT_ASSERT(wwTopicExchange != nullptr);
+
+	std::shared_ptr<amqp::Exchange> wwExchange2 =
+		channel->declare_exchange("ww_ex_direct2", amqp::Channel::DIRECT);
+	CPPUNIT_ASSERT(wwExchange2 != nullptr);
+}
+
+void Test_RabbitMQ::bind_exchange()
+{
+	RABBITMQ_STARTUP
+
+	std::shared_ptr<amqp::Exchange> wwExchange =
+		channel->declare_exchange("ww_ex_direct", amqp::Channel::DIRECT, false, true);
+	CPPUNIT_ASSERT(wwExchange != nullptr);
+
+	std::shared_ptr<amqp::Exchange> wwFanoutExchange =
+		channel->declare_exchange("ww_ex_fanout", amqp::Channel::FANOUT);
+	CPPUNIT_ASSERT(wwFanoutExchange != nullptr);
+
+	CPPUNIT_ASSERT(channel->bind_exchange(wwExchange, wwFanoutExchange,
+		"route-to-heaven"));
+
+	std::shared_ptr<amqp::Exchange> wwTopicExchange =
+		channel->declare_exchange("ww_ex_topic", amqp::Channel::TOPIC);
+	CPPUNIT_ASSERT(wwTopicExchange != nullptr);
+
+	CPPUNIT_ASSERT(channel->bind_exchange("ww_ex_topic", "ww_ex_fanout",
+		"route-to-hell"));
+}
+
+void Test_RabbitMQ::unbind_exchange()
+{
+	RABBITMQ_STARTUP
+
+	std::shared_ptr<amqp::Exchange> wwExchange =
+		channel->declare_exchange("ww_ex_direct", amqp::Channel::DIRECT, false, true);
+	CPPUNIT_ASSERT(wwExchange != nullptr);
+
+	std::shared_ptr<amqp::Exchange> wwFanoutExchange =
+		channel->declare_exchange("ww_ex_fanout", amqp::Channel::FANOUT);
+	CPPUNIT_ASSERT(wwFanoutExchange != nullptr);
+
+	CPPUNIT_ASSERT(channel->bind_exchange(wwExchange, wwFanoutExchange,
+		"route-to-heaven"));
+
+	CPPUNIT_ASSERT(channel->unbind_exchange(wwExchange, wwFanoutExchange,
+		"route-to-heaven"));
+
+	std::shared_ptr<amqp::Exchange> wwTopicExchange =
+		channel->declare_exchange("ww_ex_topic", amqp::Channel::TOPIC);
+	CPPUNIT_ASSERT(wwTopicExchange != nullptr);
+
+	CPPUNIT_ASSERT(channel->bind_exchange("ww_ex_topic", "ww_ex_fanout",
+		"route-to-hell"));
+
+	CPPUNIT_ASSERT(channel->unbind_exchange("ww_ex_topic", "ww_ex_fanout",
+		"route-to-hell"));
+}
+
+void Test_RabbitMQ::delete_exchange()
+{
+	RABBITMQ_STARTUP
+
+	std::shared_ptr<amqp::Exchange> wwExchange =
+		channel->declare_exchange("ww_ex_direct", amqp::Channel::DIRECT, false, true);
+	CPPUNIT_ASSERT(wwExchange != nullptr);
+
+	CPPUNIT_ASSERT(channel->delete_exchange(wwExchange));
+
+	std::shared_ptr<amqp::Exchange> wwFanoutExchange =
+		channel->declare_exchange("ww_ex_fanout", amqp::Channel::FANOUT);
+	CPPUNIT_ASSERT(wwFanoutExchange != nullptr);
+
+	CPPUNIT_ASSERT(channel->delete_exchange("ww_ex_fanout"));
+}
+
+void Test_RabbitMQ::declare_queue()
+{
+	RABBITMQ_STARTUP
+
+	std::shared_ptr<amqp::Queue> uq = channel->declare_queue("unittest_queue");
+	CPPUNIT_ASSERT(uq != nullptr);
+
+	std::shared_ptr<amqp::Queue> uq2 = channel->declare_queue("unittest_queue2", true);
+	CPPUNIT_ASSERT(uq2 != nullptr);
+
+	std::shared_ptr<amqp::Queue> uq3 = channel->declare_queue("unittest_queue3", false, true);
+	CPPUNIT_ASSERT(uq3 != nullptr);
+
+	std::shared_ptr<amqp::Queue> uq4 = channel->declare_queue("unittest_queue4", false, false, true);
+	CPPUNIT_ASSERT(uq4 != nullptr);
+}
+
+void Test_RabbitMQ::bind_queue_to_exchange()
+{
+	RABBITMQ_STARTUP
+
+	std::shared_ptr<amqp::Queue> uq = channel->declare_queue("unittest_queue");
+	CPPUNIT_ASSERT(uq != nullptr);
+
+	std::shared_ptr<amqp::Exchange> wwExchange =
+		channel->declare_exchange("ww_ex_direct", amqp::Channel::DIRECT, false, true);
+	CPPUNIT_ASSERT(wwExchange != nullptr);
+
+	CPPUNIT_ASSERT(uq->bind_exchange(wwExchange, "exchange-to-queue"));
+}
+
+void Test_RabbitMQ::purge_queue()
+{
+	RABBITMQ_STARTUP
+
+	std::shared_ptr<amqp::Queue> uq = channel->declare_queue("unittest_queue");
+	CPPUNIT_ASSERT(uq != nullptr);
+
+	CPPUNIT_ASSERT(uq->purge());
+}
+
+void Test_RabbitMQ::remove_queue()
+{
+	RABBITMQ_STARTUP
+
+	std::shared_ptr<amqp::Queue> uq = channel->declare_queue("unittest_queue");
+	CPPUNIT_ASSERT(uq != nullptr);
+
+	CPPUNIT_ASSERT(uq->remove());
+}
+
+#define MESSAGES_TO_QUEUE 20
+
+void Test_RabbitMQ::publish_to_exchange()
+{
+	RABBITMQ_STARTUP
+
+	std::shared_ptr<amqp::Exchange> wwExchange =
+		channel->declare_exchange("ww_ex_direct", amqp::Channel::DIRECT, false, true);
+	CPPUNIT_ASSERT(wwExchange != nullptr);
+
+	std::shared_ptr<amqp::Queue> uq = channel->declare_queue("unittest_queue");
+	CPPUNIT_ASSERT(uq != nullptr);
+
+	CPPUNIT_ASSERT(uq->bind_exchange(wwExchange, "publish-route"));
+
+	for (uint16_t i = 0; i < MESSAGES_TO_QUEUE; i++) {
+
+		amqp::Message msg("unittest-" + std::to_string(i));
+		CPPUNIT_ASSERT(wwExchange->basic_publish("publish-route", msg
+			.set_immediate(false)
+			.set_mandatory(true)
+			.set_app_id("winterwind_unittests")
+			.set_timestamp()
+			.set_reply_to("nobody")
+			.set_priority(static_cast<uint8_t>(rand() % 10))
+			.set_expiration(static_cast<uint64_t>(rand() % 60000))
+		) == AMQP_STATUS_OK);
 	}
+}
+
+void Test_RabbitMQ::consume_queue()
+{
+	publish_to_exchange();
 
 	try {
-		std::shared_ptr<amqp::Consumer> consumer = std::make_shared<amqp::Consumer>();
+		std::shared_ptr<amqp::Consumer> consumer =
+			std::make_shared<amqp::Consumer>(RABBITMQ_URL);
 		std::shared_ptr<amqp::Channel> channel = consumer->create_channel();
-		std::shared_ptr<amqp::Queue> fq = channel->declare_queue("ww_q_fanout");
-		fq->consume("consumer-pure", [] (amqp::EnvelopePtr) {
+		std::shared_ptr<amqp::Queue> fq = channel->declare_queue("unittest_queue");
+
+		uint32_t consumed_messages = 0;
+		fq->consume("consumer-pure", [&consumed_messages] (amqp::EnvelopePtr) {
+			consumed_messages++;
 			return true;
 		});
-		consumer->start_consuming();
+
+		for (uint16_t i = 0; i < MESSAGES_TO_QUEUE; i++) {
+			consumer->consume_one();
+		}
+
+		CPPUNIT_ASSERT(consumed_messages == MESSAGES_TO_QUEUE);
 
 	}
 	catch (amqp::exception &e) {
 		std::cerr << "AMQP Exception: " <<  e.what() << std::endl;
+		CPPUNIT_ASSERT(false);
 	}
-#endif
+}
+
 }
 }

@@ -80,6 +80,7 @@ build:clang:
     - elasticsearch:5.4
     - postgres:latest
     - mysql:latest
+    - rabbitmq:latest
   dependencies:
     - build:clang
   script:
@@ -98,8 +99,9 @@ unittests:elasticsearch2:
   <<: *tests_definition
   services:
     - elasticsearch:2
-    - postgres:9.6
+    - postgres:latest
     - mysql:latest
+    - rabbitmq:latest
 
 unittests:valgrind:
   <<: *tests_definition
