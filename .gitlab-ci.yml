@@ -10,6 +10,7 @@ variables:
   MYSQL_USER: unittests
   MYSQL_PASSWORD: "un1Ttests"
   MYSQL_ROOT_PASSWORD: "useless"
+  RABBITMQ_DEFAULT_VHOST: "unittests"
 
 before_script:
   - pacman --noconfirm -Sy

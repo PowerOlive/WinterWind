@@ -40,7 +40,8 @@ void Test_RabbitMQ::tearDown()
 {
 }
 
-#define RABBITMQ_URL "amqp://rabbitmq/"
+#define RABBITMQ_URL "amqp://rabbitmq/unittests"
+
 void Test_RabbitMQ::create_connection()
 {
 	bool connection_success = false;
