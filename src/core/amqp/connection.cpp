@@ -112,6 +112,19 @@ bool Connection::login(const std::string &user, const std::string &password,
 {
 	amqp_rpc_reply_t result = amqp_login(m_conn, vhost.c_str(), 0, frame_max,
 		HEARTBEAT_INTERVAL, AMQP_SASL_METHOD_PLAIN, user.c_str(), password.c_str());
+	if (result.reply_type != AMQP_RESPONSE_NORMAL) {
+		std::stringstream ss;
+		ss << std::string(__FUNCTION__) << ": login failure (reply_type: "
+			<< result.reply_type << ").";
+		if (result.reply_type == AMQP_RESPONSE_SERVER_EXCEPTION) {
+			auto login_exception = (amqp_channel_close_t *)result.reply.decoded;
+
+			ss << " Reply ID: " << result.reply.id << ", exception was: "
+				<< std::string((const char *) login_exception->reply_text.bytes,
+					login_exception->reply_text.len) << std::endl;
+		}
+		log_error(amqp_log, ss.str());
+	}
 	return result.reply_type == AMQP_RESPONSE_NORMAL;
 
 }
