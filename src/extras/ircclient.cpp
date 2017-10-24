@@ -31,7 +31,7 @@ extern "C" {
 log4cplus::Logger irc_log = logger.getInstance(LOG4CPLUS_TEXT("irc"));
 
 #define IRC_CB_EVENT(n) \
-void on_irc_event_##n(irc_session_t *session, const char *, \
+static void on_irc_event_##n(irc_session_t *session, const char *, \
 	const char *origin, const char **params, unsigned int count) \
 { \
 	auto *client = (IRCClient *) irc_get_ctx(session); \
@@ -43,8 +43,9 @@ void on_irc_event_##n(irc_session_t *session, const char *, \
 	client->on_event_##n(std::string(origin), vparams); \
 }
 
-void on_irc_event_numeric(irc_session_t *session, unsigned int event,
+static void on_irc_event_numeric(irc_session_t *session, unsigned int event,
 	const char *origin, const char **params, unsigned int count)
+
 {
 	auto *client = (IRCClient *) irc_get_ctx(session);
 	std::vector<std::string> vparams;
@@ -132,14 +133,14 @@ bool IRCClient::run_loop()
 }
 
 bool IRCClient::connect(const std::string &server, uint16_t port,
-	const std::string &nickname, const std::string &server_password,
-	const std::string &username, const std::string &password)
+	const std::string &server_password, const std::string &nickname,
+	const std::string &username, const std::string &real_name)
 {
 	if (irc_connect(m_irc_session, server.c_str(), port,
-		server_password.empty() ? nullptr : server_password.c_str(),
+		server_password.empty() ? NULL : server_password.c_str(),
 		nickname.c_str(),
-		username.empty() ? nullptr : username.c_str(),
-		password.empty() ? nullptr : password.c_str())) {
+		username.empty() ? NULL : username.c_str(),
+		real_name.empty() ? NULL : real_name.c_str()) != 0) {
 		std::stringstream ss;
 		ss << "Unable to connect to IRC server " << server << ", aborting." << std::endl;
 		log_error(irc_log, ss.str());

@@ -56,12 +56,12 @@ public:
 	 * @param server_password If server doesn't have password, send empty string
 	 * @param nickname Nickname of the user
 	 * @param username Login username, set an empty string for no authentication
-	 * @param password Login password, set an empty string for no authentication
+	 * @param real_name Real user name
 	 * @return true on successful connection
 	 */
 	bool connect(const std::string &server, uint16_t port,
 		const std::string &server_password, const std::string &nickname,
-		const std::string &username = "", const std::string &password = "");
+		const std::string &username = "", const std::string &real_name = "");
 
 	/**
 	 * Disconnects a connected session
