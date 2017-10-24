@@ -94,6 +94,7 @@ IRCClient::IRCClient()
 
 IRCClient::~IRCClient()
 {
+	disconnect();
 	destroy_session();
 }
 
@@ -146,6 +147,15 @@ bool IRCClient::connect(const std::string &server, uint16_t port,
 	}
 
 	return true;
+}
+
+void IRCClient::disconnect()
+{
+	if (!is_connected()) {
+		return;
+	}
+
+	irc_disconnect(m_irc_session);
 }
 
 bool IRCClient::join_channel(const std::string &channel)

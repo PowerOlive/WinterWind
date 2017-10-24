@@ -64,6 +64,11 @@ public:
 		const std::string &username = "", const std::string &password = "");
 
 	/**
+	 * Disconnects a connected session
+	 */
+	void disconnect();
+
+	/**
 	 * Callback after a successful connection. Should be overrided by child class
 	 * @param origin
 	 * @param params
