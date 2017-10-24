@@ -86,7 +86,7 @@ void ElasticsearchClient::discover_cluster()
 		else {
 			Json::Value res_http;
 			Query query_http(m_init_url + ES_URL_NODES + "/" + member + "/http");
-			if (_get_json(query, res_http) &&
+			if (_get_json(query_http, res_http) &&
 				res_http.isMember("cluster_name") &&
 				res_http["cluster_name"].isString() &&
 				res_http["cluster_name"].asString() == m_cluster_name &&
