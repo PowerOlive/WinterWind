@@ -61,6 +61,14 @@ void Logger::init()
 	logger.addAppender(amqp_appender);
 #endif
 
+#if ENABLE_IRCCLIENT
+	// Create console appender
+	log4cplus::helpers::SharedObjectPtr<log4cplus::Appender> irc_appender(
+		new log4cplus::ConsoleAppender());
+	amqp_appender->setName(LOG4CPLUS_TEXT("irc"));
+	logger.addAppender(amqp_appender);
+#endif
+
 	// Set log levels to INFO
 	logger.setLogLevel(log4cplus::INFO_LOG_LEVEL);
 }

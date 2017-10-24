@@ -27,6 +27,7 @@
 
 #include <log4cplus/logger.h>
 #include <log4cplus/loggingmacros.h>
+#include "cmake_config.h"
 
 /**
  * Global logger
@@ -55,6 +56,9 @@ extern log4cplus::Logger logger;
 namespace winterwind
 {
 
+#if ENABLE_IRCCLIENT
+extern log4cplus::Logger irc_log;
+#endif
 /**
  * The logging wrapper class
  * You should instanciate it only one time.
