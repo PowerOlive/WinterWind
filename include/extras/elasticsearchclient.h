@@ -40,7 +40,7 @@ namespace extras
 class ElasticsearchException : public BaseException
 {
 public:
-	explicit ElasticsearchException(const std::string &what): BaseException(what)
+	explicit ElasticsearchException(const std::string &what) noexcept: BaseException(what)
 	{}
 
 	~ElasticsearchException() noexcept override = default;
