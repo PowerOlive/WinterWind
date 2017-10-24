@@ -94,9 +94,7 @@ IRCClient::IRCClient()
 
 IRCClient::~IRCClient()
 {
-	if (m_irc_session) {
-		irc_destroy_session(m_irc_session);
-	}
+	destroy_session();
 }
 
 bool IRCClient::create_session()
@@ -111,40 +109,85 @@ bool IRCClient::create_session()
 	return true;
 }
 
-void IRCClient::join_channel(const std::string &channel)
+bool IRCClient::destroy_session()
+{
+	if (m_irc_session) {
+		irc_destroy_session(m_irc_session);
+		return true;
+	}
+
+	return false;
+}
+
+bool IRCClient::run()
+{
+	if (!m_irc_session) {
+		log_fatal(irc_log, std::string(__FUNCTION__) + " function called without valid "
+			"session, aborting");
+		return false;
+	}
+
+	return irc_run(m_irc_session) != 0;
+}
+
+bool IRCClient::connect(const std::string &server, uint16_t port,
+	const std::string &nickname, const std::string &server_password,
+	const std::string &username, const std::string &password)
+{
+	if (irc_connect(m_irc_session, server.c_str(), port,
+		server_password.empty() ? nullptr : server_password.c_str(),
+		nickname.c_str(),
+		username.empty() ? nullptr : username.c_str(),
+		password.empty() ? nullptr : password.c_str())) {
+		std::stringstream ss;
+		ss << "Unable to connect to IRC server " << server << ", aborting." << std::endl;
+		log_error(irc_log, ss.str());
+		return false;
+	}
+
+	return true;
+}
+
+bool IRCClient::join_channel(const std::string &channel)
 {
 	if (irc_cmd_join(m_irc_session, channel.c_str(), NULL) != 0) {
 		log_warn(irc_log, "IRC join channel error: "
 			<< irc_strerror(irc_errno(m_irc_session)));
+		return false;
 	}
+
+	return true;
 }
 
-void IRCClient::leave_channel(const std::string &channel)
+bool IRCClient::leave_channel(const std::string &channel)
 {
 	if (irc_cmd_part(m_irc_session, channel.c_str()) != 0) {
 		log_warn(irc_log, "IRC leave channel error: "
 			<< irc_strerror(irc_errno(m_irc_session)));
+		return false;
 	}
+
+	return true;
 }
 
-void IRCClient::send_message(const std::string &channel, const std::string &what)
+bool IRCClient::send_message(const std::string &channel, const std::string &what)
 {
 	if (!is_connected()) {
 		log_error(irc_log, "Not connected to IRC " << __FUNCTION__);
-		return;
+		return false;
 	}
 
-	irc_cmd_msg(m_irc_session, channel.c_str(), what.c_str());
+	return irc_cmd_msg(m_irc_session, channel.c_str(), what.c_str()) != 0;
 }
 
-void IRCClient::send_notice(const std::string &channel, const std::string &what)
+bool IRCClient::send_notice(const std::string &channel, const std::string &what)
 {
 	if (!is_connected()) {
 		log_error(irc_log, "Not connected to IRC " << __FUNCTION__);
-		return;
+		return false;
 	}
 
-	irc_cmd_notice(m_irc_session, channel.c_str(), what.c_str());
+	return irc_cmd_notice(m_irc_session, channel.c_str(), what.c_str()) != 0;
 }
 
 bool IRCClient::send_ctcp_ping(const std::string &who)

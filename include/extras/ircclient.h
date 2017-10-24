@@ -43,12 +43,31 @@ public:
 	 */
 	const bool is_connected() const;
 
-	void join_channel(const std::string &channel);
-	void leave_channel(const std::string &channel);
-	void send_message(const std::string &channel, const std::string &what);
-	void send_notice(const std::string &channel, const std::string &what);
+	bool join_channel(const std::string &channel);
+	bool leave_channel(const std::string &channel);
+	bool send_message(const std::string &channel, const std::string &what);
+	bool send_notice(const std::string &channel, const std::string &what);
 	bool send_ctcp_ping(const std::string &who);
 
+	/**
+	 * Connects to IRC server
+	 * @param server IP or server DNS name
+	 * @param port IRC server port
+	 * @param server_password If server doesn't have password, send empty string
+	 * @param nickname Nickname of the user
+	 * @param username Login username, set an empty string for no authentication
+	 * @param password Login password, set an empty string for no authentication
+	 * @return true on successful connection
+	 */
+	bool connect(const std::string &server, uint16_t port,
+		const std::string &server_password, const std::string &nickname,
+		const std::string &username = "", const std::string &password = "");
+
+	/**
+	 * Callback after a successful connection. Should be overrided by child class
+	 * @param origin
+	 * @param params
+	 */
 	virtual void on_event_connect(const std::string &origin,
 		const std::vector<std::string> &params) {}
 	virtual void on_event_join(const std::string &origin,
@@ -80,6 +99,26 @@ public:
 	virtual void on_event_numeric(uint32_t event_id, const std::string &origin,
 		const std::vector<std::string> &params) {}
 protected:
+	/**
+	 * Create IRC session
+	 * @return true when session was created.
+	 */
 	bool create_session();
+
+	/**
+	 * Destroy IRC session
+	 * @return true if session has been destroyed.
+	 */
+	bool destroy_session();
+
+	/**
+	 * Start is client event loop
+	 * This is a blocking function, until client disconnects or there is a
+	 * connection error.
+	 * @return true if session was terminated normally, false if an error occured.
+	 */
+	bool run();
+
+private:
 	irc_session_t *m_irc_session = nullptr;
 };
