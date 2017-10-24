@@ -145,7 +145,7 @@ void ElasticsearchClient::create_doc(const std::string &index, const std::string
 	Json::FastWriter writer;
 	std::string post_data = writer.write(doc);
 	Query query(node.http_addr + "/" + index + "/" + type + "/", post_data);
-	request(query, post_data);
+	request(query, res);
 }
 
 void ElasticsearchClient::insert_doc(const std::string &index, const std::string &type,
