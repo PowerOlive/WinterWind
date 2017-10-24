@@ -41,7 +41,6 @@
 using namespace winterwind;
 
 log4cplus::Logger logger = log4cplus::Logger::getRoot();
-log4cplus::Logger irc_log = logger.getInstance(LOG4CPLUS_TEXT("irc"));
 
 int main(int argc, const char *argv[])
 {
