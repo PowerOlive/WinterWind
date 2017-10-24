@@ -142,7 +142,7 @@ bool IRCClient::connect(const std::string &server, uint16_t port,
 		username.empty() ? NULL : username.c_str(),
 		real_name.empty() ? NULL : real_name.c_str()) != 0) {
 		std::stringstream ss;
-		ss << "Unable to connect to IRC server " << server << ", aborting." << std::endl;
+		ss << "Unable to connect to IRC server " << server << ".";
 		log_error(irc_log, ss.str());
 		return false;
 	}
