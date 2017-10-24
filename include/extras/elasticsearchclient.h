@@ -137,7 +137,7 @@ private:
 	std::string m_init_url = "";
 	std::chrono::time_point<std::chrono::system_clock> m_last_discovery_time;
 
-	std::vector<ElasticsearchNode> m_nodes;
+	std::vector<ElasticsearchNode> m_nodes; // @TODO use unordered_map with node id as index
 	std::queue<ElasticsearchBulkActionPtr> m_bulk_queue;
 
 	CL_HELPER_VAR_GET(std::string, cluster_name, "");
