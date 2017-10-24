@@ -83,7 +83,10 @@ void ElasticsearchClient::discover_cluster()
 			node.http_addr =
 				"http://" + member_obj["http"]["publish_address"].asString();
 		}
-		else {
+
+
+		// If node HTTP_ADDR is empty, try nodes API
+		if (node.http_addr.empty()) {
 			Json::Value res_http;
 			Query query_http(m_init_url + ES_URL_NODES + "/" + member + "/http");
 			if (_get_json(query_http, res_http) &&
