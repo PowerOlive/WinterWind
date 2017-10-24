@@ -120,7 +120,7 @@ bool IRCClient::destroy_session()
 	return false;
 }
 
-bool IRCClient::run()
+bool IRCClient::run_loop()
 {
 	if (!m_irc_session) {
 		log_fatal(irc_log, std::string(__FUNCTION__) + " function called without valid "

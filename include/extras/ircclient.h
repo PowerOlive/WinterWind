@@ -122,7 +122,7 @@ protected:
 	 * connection error.
 	 * @return true if session was terminated normally, false if an error occured.
 	 */
-	bool run();
+	bool run_loop();
 
 private:
 	irc_session_t *m_irc_session = nullptr;
