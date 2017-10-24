@@ -69,22 +69,39 @@ void ElasticsearchClient::discover_cluster()
 		throw ElasticsearchException("Unable to parse Elasticsearch nodes");
 	}
 
-	bool http_addr_found = true;
 	Json::Value::Members cluster_members = res["nodes"].getMemberNames();
 	for (const auto &member : cluster_members) {
 		ElasticsearchNode node(member);
-		Json::Value member_obj = res["nodes"][member];
+		const Json::Value &member_obj = res["nodes"][member];
 		if (member_obj.isMember("http_address") &&
 			member_obj["http_address"].isString()) {
 			node.http_addr = "http://" + member_obj["http_address"].asString();
-		} else if (member_obj.isMember("http") && member_obj["http"].isObject() &&
+		} else if (member_obj.isMember("http") &&
+			member_obj["http"].isObject() &&
 			member_obj["http"].isMember("publish_address") &&
 			member_obj["http"]["publish_address"].isString()) {
 			node.http_addr =
 				"http://" + member_obj["http"]["publish_address"].asString();
 		}
 		else {
-			http_addr_found = false;
+			Json::Value res_http;
+			Query query_http(m_init_url + ES_URL_NODES + "/" + member + "/http");
+			if (_get_json(query, res_http) &&
+				res_http.isMember("cluster_name") &&
+				res_http["cluster_name"].isString() &&
+				res_http["cluster_name"].asString() == m_cluster_name &&
+				res_http.isMember("nodes") &&
+				res_http["nodes"].isObject() &&
+				res_http["nodes"].isMember(member) &&
+				res_http["nodes"][member].isObject() &&
+				res_http["nodes"][member].isMember("http") &&
+				res_http["nodes"][member]["http"].isObject() &&
+				res_http["nodes"][member]["http"].isMember("publish_address") &&
+				res_http["nodes"][member]["http"]["publish_address"].isString()) {
+				const Json::Value &http_member_obj = res_http["nodes"][member];
+				node.http_addr =
+					"http://" + http_member_obj["http"]["publish_address"].asString();
+			}
 		}
 
 		if (member_obj.isMember("version") && member_obj["version"].isString()) {
@@ -101,13 +118,6 @@ void ElasticsearchClient::discover_cluster()
 		}
 
 		m_nodes.push_back(node);
-	}
-
-	if (!http_addr_found) {
-		Json::Value res;
-		Query query(m_init_url + ES_URL_NODES);
-
-		// @TODO perform this query
 	}
 
 	m_last_discovery_time = std::chrono::system_clock::now();
