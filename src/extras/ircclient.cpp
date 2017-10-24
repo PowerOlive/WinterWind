@@ -158,6 +158,15 @@ void IRCClient::disconnect()
 	irc_disconnect(m_irc_session);
 }
 
+void IRCClient::enable_strip_nicks_option()
+{
+	if (!is_connected()) {
+		return;
+	}
+
+	irc_option_set(m_irc_session, LIBIRC_OPTION_STRIPNICKS);
+}
+
 bool IRCClient::join_channel(const std::string &channel)
 {
 	if (irc_cmd_join(m_irc_session, channel.c_str(), NULL) != 0) {

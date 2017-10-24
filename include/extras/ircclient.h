@@ -68,6 +68,8 @@ public:
 	 */
 	void disconnect();
 
+	void enable_strip_nicks_option();
+
 	/**
 	 * Callback after a successful connection. Should be overrided by child class
 	 * @param origin
