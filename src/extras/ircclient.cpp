@@ -161,7 +161,8 @@ void IRCClient::disconnect()
 
 void IRCClient::enable_strip_nicks_option()
 {
-	if (!is_connected()) {
+	// A session is required
+	if (!m_irc_session) {
 		return;
 	}
 
