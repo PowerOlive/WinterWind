@@ -25,7 +25,6 @@
 
 #include "slackclient.h"
 
-#include <utility>
 #include <core/http/query.h>
 
 namespace winterwind

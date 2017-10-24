@@ -72,8 +72,8 @@ void Semaphore::wait()
 
 bool Semaphore::wait(unsigned int time_ms)
 {
-	timespec wait_time;
-	timeval now;
+	timespec wait_time{};
+	timeval now{};
 
 	if (gettimeofday(&now, NULL) == -1) {
 		std::cerr << "Semaphore::wait(ms): Unable to get time with gettimeofday!"

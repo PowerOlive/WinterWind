@@ -123,7 +123,7 @@ bool RedisClient::set(const std::string &key, const std::string &value,
 		(redisReply *) redisCommand(m_context, "SET %s %s", key.c_str(), value.c_str());
 	REDIS_REPLY_HANDLER;
 	freeReplyObject(reply);
-	return expire_value ? expire(key, expire_value) : true;
+	return expire_value == 0 || expire(key, expire_value);
 }
 
 bool RedisClient::get(const std::string &key, std::string &res)

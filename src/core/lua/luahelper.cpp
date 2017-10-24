@@ -276,11 +276,9 @@ bool push_json_value(lua_State *L, const Json::Value &value, int32_t nullindex)
 
 	// The maximum number of Lua stack slots used at each recursion level
 	// of push_json_value_helper is 2, so make sure there a depth * 2 slots
-	if (lua_checkstack(L, depth * 2) != 0) {
-		return push_json_value_helper(L, value, nullindex);
-	}
+	return lua_checkstack(L, depth * 2) != 0 &&
+		push_json_value_helper(L, value, nullindex);
 
-	return false;
 }
 
 template<>

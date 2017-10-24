@@ -24,7 +24,6 @@
  */
 
 #include "ratpclient.h"
-#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <core/utils/stringutils.h>

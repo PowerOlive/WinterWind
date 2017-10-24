@@ -57,7 +57,7 @@ int Server::request_handler(void *http_server, struct MHD_Connection *connection
 	const char *url, const char *method, const char *,
 	const char *upload_data, size_t *upload_data_size, void **con_cls)
 {
-	Server *httpd = (Server *) http_server;
+	auto *httpd = (Server *) http_server;
 	Method http_method;
 	struct MHD_Response *response;
 	int ret;
@@ -84,13 +84,13 @@ int Server::request_handler(void *http_server, struct MHD_Connection *connection
 		// The first time only the headers are valid,
 		//   do not respond in the first round...
 		//   Just init our response
-		ServerRequestSession *session = new ServerRequestSession();
+		auto *session = new ServerRequestSession();
 		*con_cls = session;
 		return MHD_YES;
 	}
 
 	// Handle request
-	ServerRequestSession *session = (ServerRequestSession *) *con_cls;
+	auto *session = (ServerRequestSession *) *con_cls;
 	if (!session->data_handled &&
 		!httpd->handle_query(http_method, connection, std::string(url),
 			std::string(upload_data, *upload_data_size), session)) {
@@ -179,7 +179,7 @@ bool Server::handle_query(Method m, MHD_Connection *conn, const std::string &url
 int
 Server::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key, const char *value)
 {
-	HTTPQuery *q = (HTTPQuery *) cls;
+	auto *q = (HTTPQuery *) cls;
 	if (q && key && value) {
 		q->headers[std::string(key, strlen(key))] = std::string(value, strlen(value));
 	}
@@ -189,7 +189,7 @@ Server::mhd_iter_headers(void *cls, MHD_ValueKind, const char *key, const char *
 int
 Server::mhd_iter_getargs(void *cls, MHD_ValueKind, const char *key, const char *value)
 {
-	HTTPQuery *q = (HTTPQuery *) cls;
+	auto *q = (HTTPQuery *) cls;
 	if (q && key && value) {
 		q->get_params[std::string(key, strlen(key))] = std::string(value, strlen(value));
 	}

@@ -27,7 +27,6 @@
 #include <sstream>
 #include <cstring>
 #include <iomanip>
-#include <string>
 
 #define IF_WORD_SEPARATOR                                                                \
 	if (c == ' ' || c == '\'' || c == '\n' || c == '\t' || c == ';' || c == '\r' ||      \

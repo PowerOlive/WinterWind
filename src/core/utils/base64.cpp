@@ -121,8 +121,8 @@ std::string base64_decode_priv(const std::string &encoded_string,
 		for (int j = i; j < 4; j++)
 			char_array_4[j] = 0;
 
-		for (int j = 0; j < 4; j++)
-			char_array_4[j] = chars.find(char_array_4[j]);
+		for (unsigned char &j : char_array_4)
+			j = chars.find(j);
 
 		char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
 		char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);

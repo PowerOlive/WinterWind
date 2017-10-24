@@ -26,9 +26,7 @@
 #include "oauthclient.h"
 #include "utils/base64.h"
 #include "utils/hmac.h"
-#include <algorithm>
 #include <ctime>
-#include <sstream>
 
 namespace winterwind
 {

@@ -170,7 +170,7 @@ HTTPClient::request(const Query &query, std::string &res)
 				" post_data. (url was: " << url << ").");
 		}
 		post_data.clear();
-		std::string buf = "";
+		std::string buf;
 		bool first_param = true;
 		for (const auto &p : m_form_params) {
 			if (first_param) {

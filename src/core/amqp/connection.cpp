@@ -25,7 +25,6 @@
 
 #include "amqp/connection.h"
 #include <iostream>
-#include <utility>
 #include "utils/log.h"
 #include "amqp/exception.h"
 #include "amqp/channel.h"

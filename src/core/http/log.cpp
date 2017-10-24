@@ -24,7 +24,6 @@
  */
 
 #include "core/http/log.h"
-#include "core/utils/log.h"
 
 namespace winterwind
 {

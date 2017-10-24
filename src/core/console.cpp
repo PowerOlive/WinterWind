@@ -33,7 +33,6 @@
 #if READLINE
 #include <readline/history.h>
 #include <readline/readline.h>
-#include <stdlib.h>
 
 namespace winterwind
 {
@@ -61,7 +60,7 @@ char *ConsoleThread::rl_gets()
 
 inline static char *dupstr(const std::string &s)
 {
-	char *r = (char *) malloc(s.length() + 1);
+	auto *r = (char *) malloc(s.length() + 1);
 	strcpy(r, s.c_str());
 	return r;
 }
@@ -71,7 +70,7 @@ static char *console_rl_generator(const char *text, int state)
 	// The console thread should be pointed
 	assert(g_console_thread);
 	static uint32_t list_index, len;
-	std::string name = "";
+	std::string name;
 
 	if (!state) {
 		list_index = 0;

@@ -53,7 +53,7 @@ namespace amqp
 
 Channel::Channel(amqp_channel_t id, std::shared_ptr<Connection> conn) :
 	m_id(id),
-	m_conn(std::move(conn))
+	m_conn(conn)
 {
 	open();
 }

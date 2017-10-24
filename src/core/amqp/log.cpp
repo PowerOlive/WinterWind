@@ -24,7 +24,6 @@
  */
 
 #include "core/amqp/log.h"
-#include "core/utils/log.h"
 
 namespace winterwind
 {
