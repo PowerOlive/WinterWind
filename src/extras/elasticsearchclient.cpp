@@ -304,7 +304,8 @@ bool Index::remove()
 	}
 
 	Json::Value res;
-	if (!m_es_client->_delete(m_es_client->get_node_addr() + "/" + m_name, res)) {
+	if (!m_es_client->_delete(Query(m_es_client->get_node_addr() + "/" + m_name, DELETE),
+			res)) {
 		return false;
 	}
 

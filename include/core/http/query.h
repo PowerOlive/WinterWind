@@ -52,7 +52,7 @@ public:
 		m_url(url), m_flag((Flag) flag), m_method(method), m_post_data(post_data)
 	{}
 
-	Query(const std::string &url, const Method method = GET, const int32_t flag = FLAG_SIMPLE) :
+	explicit Query(const std::string &url, const Method method = GET, const int32_t flag = FLAG_SIMPLE) :
 		m_url(url), m_method(method), m_flag((Flag) flag)
 	{}
 
