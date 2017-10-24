@@ -35,13 +35,13 @@
 namespace winterwind {
 namespace web {
 
-static const std::string jwt_alg_str[JWTAlgorithm::JWT_ALG_MAX] {
+static const std::string jwt_alg_str[JsonWebToken::Algorithm::JWT_ALG_MAX] {
 	"HS256",
 	"HS384",
 	"HS512",
 };
 
-JsonWebToken::JsonWebToken(JWTAlgorithm alg, const Json::Value &payload,
+JsonWebToken::JsonWebToken(Algorithm alg, const Json::Value &payload,
 		const std::string &secret):
 	m_algorithm(alg),
 	m_payload(payload),
@@ -49,14 +49,14 @@ JsonWebToken::JsonWebToken(JWTAlgorithm alg, const Json::Value &payload,
 {
 }
 
-JsonWebToken::JWTGenStatus JsonWebToken::get(std::string &result) const
+JsonWebToken::GenStatus JsonWebToken::get(std::string &result) const
 {
-	assert(m_algorithm < JWTAlgorithm::JWT_ALG_MAX);
+	assert(m_algorithm < Algorithm::JWT_ALG_MAX);
 
 	// Forbid JWT reserved claim in payload
 	for (const auto &m: {"iss", "exp", "iat", "sub"}) {
 		if (m_payload.isMember(m)) {
-			return JWTGenStatus::GENSTATUS_JWT_CLAIM_IN_PAYLOAD;
+			return GenStatus::GENSTATUS_JWT_CLAIM_IN_PAYLOAD;
 		}
 	}
 
@@ -104,7 +104,7 @@ JsonWebToken::JWTGenStatus JsonWebToken::get(std::string &result) const
 	str_remove_substr(tmp_result, "=");
 
 	result = std::move(tmp_result);
-	return JWTGenStatus::GENSTATUS_OK;
+	return GenStatus::GENSTATUS_OK;
 }
 
 void JsonWebToken::sign(const std::string &payload, std::string &signature) const
@@ -205,9 +205,9 @@ JWTDecoder::JWTStatus JWTDecoder::read_and_verify(std::string raw_token,
 	{
 		bool alg_found = false;
 		const std::string &alg = jwt.m_header["alg"].asString();
-		for (uint8_t i = 0; i < JWTAlgorithm::JWT_ALG_MAX; i++) {
+		for (uint8_t i = 0; i < JsonWebToken::Algorithm::JWT_ALG_MAX; i++) {
 			if (jwt_alg_str[i] == alg) {
-				jwt.m_algorithm = (JWTAlgorithm) i;
+				jwt.m_algorithm = (JsonWebToken::Algorithm) i;
 				alg_found = true;
 				break;
 			}

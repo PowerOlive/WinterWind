@@ -105,21 +105,20 @@ private:
 	std::vector<JWTValidationFctTime> m_expiration_time_validators = {};
 };
 
-enum JWTAlgorithm: uint8_t
-{
-	ALG_HS256,
-	ALG_HS384,
-	ALG_HS512,
-	JWT_ALG_MAX,
-};
-
 class JsonWebToken
 {
 	friend class JWTDecoder;
 public:
+	enum Algorithm: uint8_t
+	{
+		ALG_HS256,
+		ALG_HS384,
+		ALG_HS512,
+		JWT_ALG_MAX,
+	};
 
-
-	enum JWTGenStatus: uint8_t {
+	enum GenStatus: uint8_t
+	{
 		GENSTATUS_OK,
 		GENSTATUS_JWT_CLAIM_IN_PAYLOAD,
 	};
@@ -130,7 +129,7 @@ public:
 	 * @param payload
 	 * @param secret
 	 */
-	JsonWebToken(JWTAlgorithm alg, const Json::Value &payload, const std::string &secret);
+	JsonWebToken(Algorithm alg, const Json::Value &payload, const std::string &secret);
 
 	/**
 	 * Used to validate the JsonWebToken
@@ -155,13 +154,13 @@ public:
 	 * @param result
 	 * @returns successful generation
 	 */
-	JWTGenStatus get(std::string &result) const;
+	GenStatus get(std::string &result) const;
 
 	Json::Value get_payload() const { return m_payload; }
 private:
 	void sign(const std::string &payload, std::string &signature) const;
 
-	JWTAlgorithm m_algorithm = ALG_HS256;
+	Algorithm m_algorithm = ALG_HS256;
 	Json::Value m_header = {};
 	Json::Value m_payload = {};
 	std::string m_secret = "";

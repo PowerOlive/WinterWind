@@ -102,10 +102,10 @@ protected:
 		payload["sub"] = "1234567890";
 		payload["name"] = "John Doe";
 		payload["admin"] = true;
-		JsonWebToken jwt(JWTAlgorithm::ALG_HS256, payload, "secret");
+		JsonWebToken jwt(JsonWebToken::Algorithm::ALG_HS256, payload, "secret");
 
 		std::string res;
-		CPPUNIT_ASSERT(jwt.get(res) == JsonWebToken::JWTGenStatus::GENSTATUS_JWT_CLAIM_IN_PAYLOAD);
+		CPPUNIT_ASSERT(jwt.get(res) == JsonWebToken::GenStatus::GENSTATUS_JWT_CLAIM_IN_PAYLOAD);
 	}
 
 	void jsonwebtokens_write_hs256()
@@ -113,11 +113,11 @@ protected:
 		Json::Value payload;
 		payload["name"] = "John Doe";
 		payload["admin"] = true;
-		JsonWebToken jwt(JWTAlgorithm::ALG_HS256, payload, "secret");
+		JsonWebToken jwt(JsonWebToken::Algorithm::ALG_HS256, payload, "secret");
 		jwt.subject("1234567890");
 
 		std::string res;
-		CPPUNIT_ASSERT(jwt.get(res) == JsonWebToken::JWTGenStatus::GENSTATUS_OK);
+		CPPUNIT_ASSERT(jwt.get(res) == JsonWebToken::GenStatus::GENSTATUS_OK);
 
 		static const std::string raw_jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9Cg.eyJhZG1pbiI6dHJ1ZSwibmFtZSI6IkpvaG4gRG9lIiwic3ViIjoiMTIzNDU2Nzg5MCJ9Cg.tyCpKsAQHAVmicQEgpaoYO1VGeg6kCmFeheW0oJ+U7A";
 		const std::string message = res + " != " + raw_jwt;
