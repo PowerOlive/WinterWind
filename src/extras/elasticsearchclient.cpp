@@ -69,6 +69,7 @@ void ElasticsearchClient::discover_cluster()
 		throw ElasticsearchException("Unable to parse Elasticsearch nodes");
 	}
 
+	bool http_addr_found = true;
 	Json::Value::Members cluster_members = res["nodes"].getMemberNames();
 	for (const auto &member : cluster_members) {
 		ElasticsearchNode node(member);
@@ -81,6 +82,9 @@ void ElasticsearchClient::discover_cluster()
 			member_obj["http"]["publish_address"].isString()) {
 			node.http_addr =
 				"http://" + member_obj["http"]["publish_address"].asString();
+		}
+		else {
+			http_addr_found = false;
 		}
 
 		if (member_obj.isMember("version") && member_obj["version"].isString()) {
@@ -97,6 +101,13 @@ void ElasticsearchClient::discover_cluster()
 		}
 
 		m_nodes.push_back(node);
+	}
+
+	if (!http_addr_found) {
+		Json::Value res;
+		Query query(m_init_url + ES_URL_NODES);
+
+		// @TODO perform this query
 	}
 
 	m_last_discovery_time = std::chrono::system_clock::now();
