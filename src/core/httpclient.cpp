@@ -76,11 +76,11 @@ size_t HTTPClient::curl_writer(char *data, size_t size, size_t nmemb, void *read
 	return realsize;
 }
 
-void
-HTTPClient::request(const Query &query, std::string &res)
+void HTTPClient::request(const Query &query, std::string &res)
 {
+	assert(query.get_method() < METHOD_MAX);
+
 	std::string url = query.get_url();
-	log_debug(httpc_log, "request: " << url << " method " << query.get_method());
 
 	CURL *curl = curl_easy_init();
 	m_http_code = 0;
@@ -115,32 +115,24 @@ HTTPClient::request(const Query &query, std::string &res)
 		(query.get_flag() & Query::FLAG_NO_VERIFY_PEER) ? 0 : 1);
 	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 1);
 
+	static const char *method_str[METHOD_MAX] = {
+		"DELETE",
+		"GET",
+		"HEAD",
+		"PATCH",
+		"POST",
+		"PROPFIND",
+		"PUT",
+	};
+
 	switch (query.get_method()) {
-		case DELETE: {
-			static const std::string method_propfind = "DELETE";
-			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
+		case DELETE:
+		case HEAD:
+		case PATCH:
+		case PROPFIND:
+		case PUT:
+			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_str[query.get_method()]);
 			break;
-		}
-		case HEAD: {
-			static const std::string method_propfind = "HEAD";
-			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
-			break;
-		}
-		case PATCH: {
-			static const std::string method_propfind = "PATCH";
-			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
-			break;
-		}
-		case PROPFIND: {
-			static const std::string method_propfind = "PROPFIND";
-			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
-			break;
-		}
-		case PUT: {
-			static const std::string method_propfind = "PUT";
-			curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, method_propfind.c_str());
-			break;
-		}
 		case POST:
 		case GET:
 		default:
@@ -217,6 +209,8 @@ HTTPClient::request(const Query &query, std::string &res)
 
 	m_uri_params.clear();
 	m_form_params.clear();
+
+	log_debug(httpc_log, "request: " << method_str[query.get_method()] << " " << url);
 }
 
 void HTTPClient::get_html_tag_value(const std::string &url, const std::string &xpath,
