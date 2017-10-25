@@ -46,12 +46,12 @@ class Connection : non_copyable, public std::enable_shared_from_this<amqp::Conne
 {
 	friend class Channel;
 public:
-	Connection(const std::string &url = "");
+	explicit Connection(const std::string &url = "");
 	Connection(const std::string &host, uint16_t port,
 		const std::string &username = "guest", const std::string &password = "guest",
 		const std::string &vhost = "/", int32_t frame_max = 131072);
 
-	~Connection();
+	virtual ~Connection();
 
 	bool login(const std::string &user, const std::string &password,
 		const std::string &vhost, int32_t frame_max);
