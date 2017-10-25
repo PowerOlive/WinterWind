@@ -56,6 +56,13 @@ public:
 	bool login(const std::string &user, const std::string &password,
 		const std::string &vhost, int32_t frame_max);
 
+	/**
+	 * Sets heartbeat interval on an active amqp connection
+	 * @param interval
+	 * @return true if new options has been applied
+	 */
+	bool set_heartbeat_interval(uint32_t interval);
+
 	int32_t get_channel_max();
 
 	std::shared_ptr<Channel> create_channel();
@@ -74,13 +81,14 @@ protected:
 private:
 	void connect(const std::string &host = "127.0.0.1", uint16_t port = 5672,
 		const std::string &username = "guest", const std::string &password = "guest",
-		const std::string &vhost = "/", int32_t frame_max = 131072);
+		const std::string &vhost = "/");
 
 	bool open(const std::string &host, uint16_t port);
 
 	amqp_socket_t *socket = nullptr;
 
-	static const uint32_t HEARTBEAT_INTERVAL = 10;
+	uint32_t m_heartbeat_interval = 0;
+	int32_t m_frame_max = 131072;
 
 	amqp_channel_t m_next_channel_id = 0;
 	std::unordered_map<uint16_t, std::shared_ptr<Channel>> m_channels;

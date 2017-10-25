@@ -50,9 +50,10 @@ Connection::Connection(const std::string &url)
 
 Connection::Connection(const std::string &host, uint16_t port,
 	const std::string &username, const std::string &password, const std::string &vhost,
-	int32_t frame_max)
+	int32_t frame_max) :
+	m_frame_max(frame_max)
 {
-	connect(host, port, username, password, vhost, frame_max);
+	connect(host, port, username, password, vhost);
 }
 
 Connection::~Connection()
@@ -69,8 +70,7 @@ Connection::~Connection()
 }
 
 void Connection::connect(const std::string &host, uint16_t port,
-	const std::string &username, const std::string &password, const std::string &vhost,
-	int32_t frame_max)
+	const std::string &username, const std::string &password, const std::string &vhost)
 {
 	m_conn = amqp_new_connection();
 	if (!m_conn) {
@@ -88,7 +88,7 @@ void Connection::connect(const std::string &host, uint16_t port,
 		throw amqp::exception("Unable to open AMQP connection");
 	}
 
-	if (!login(username, password, vhost, frame_max)) {
+	if (!login(username, password, vhost, m_frame_max)) {
 		throw amqp::exception("Unable to login to AMQP connection");
 	}
 }
@@ -110,7 +110,7 @@ bool Connection::login(const std::string &user, const std::string &password,
 	const std::string &vhost, int32_t frame_max)
 {
 	amqp_rpc_reply_t result = amqp_login(m_conn, vhost.c_str(), 0, frame_max,
-		HEARTBEAT_INTERVAL, AMQP_SASL_METHOD_PLAIN, user.c_str(), password.c_str());
+		m_heartbeat_interval, AMQP_SASL_METHOD_PLAIN, user.c_str(), password.c_str());
 	if (result.reply_type != AMQP_RESPONSE_NORMAL) {
 		std::stringstream ss;
 		ss << "login failure (reply_type: " << result.reply_type << ").";
@@ -123,8 +123,17 @@ bool Connection::login(const std::string &user, const std::string &password,
 		}
 		log_error(amqp_log, ss.str());
 	}
-	return result.reply_type == AMQP_RESPONSE_NORMAL;
 
+	return result.reply_type == AMQP_RESPONSE_NORMAL;
+}
+
+bool Connection::set_heartbeat_interval(uint32_t interval)
+{
+	if (amqp_tune_connection(m_conn, 0, m_frame_max, interval) != AMQP_STATUS_OK) {
+		return false;
+	}
+	m_heartbeat_interval = interval;
+	return true;
 }
 
 int32_t Connection::get_channel_max()
