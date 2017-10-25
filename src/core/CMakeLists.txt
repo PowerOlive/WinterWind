@@ -83,7 +83,6 @@ if (ENABLE_AMQP)
 	set(SRC_FILES ${SRC_FILES}
 		amqp/channel.cpp
 		amqp/connection.cpp
-		amqp/consumer.cpp
 		amqp/envelope.cpp
 		amqp/exchange.cpp
 		amqp/log.cpp

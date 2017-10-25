@@ -33,6 +33,7 @@
 #include <unordered_map>
 #include <memory>
 #include "core/utils/classhelpers.h"
+#include "types.h"
 
 namespace winterwind
 {
@@ -40,6 +41,7 @@ namespace amqp
 {
 
 class Channel;
+class Envelope;
 class Message;
 
 class Connection : non_copyable, public std::enable_shared_from_this<amqp::Connection>
@@ -68,6 +70,23 @@ public:
 	std::shared_ptr<Channel> create_channel();
 	void destroy_channel(std::shared_ptr<Channel> channel);
 
+	/**
+	 * Consume until m_stop has been set to true
+	 * @return false if an error occured
+	 */
+	bool start_consuming();
+
+	/**
+	 * Wait for and receive a single envelope to handle
+	 * @return false if an error occured
+	 */
+	bool consume_one();
+
+	void stop()
+	{
+		m_stop = true;
+	}
+
 protected:
 	amqp_connection_state_t m_conn = nullptr;
 
@@ -85,13 +104,17 @@ private:
 
 	bool open(const std::string &host, uint16_t port);
 
-	amqp_socket_t *socket = nullptr;
+	bool distribute_envelope(EnvelopePtr envelope, uint16_t channel_id);
 
-	uint32_t m_heartbeat_interval = 0;
-	int32_t m_frame_max = 131072;
+	amqp_socket_t *socket{nullptr};
 
-	amqp_channel_t m_next_channel_id = 0;
+	uint32_t m_heartbeat_interval{0};
+	int32_t m_frame_max{131072};
+
+	amqp_channel_t m_next_channel_id{0};
 	std::unordered_map<uint16_t, std::shared_ptr<Channel>> m_channels;
+
+	bool m_stop{false};
 };
 
 }

@@ -25,7 +25,6 @@
 
 #include <core/amqp/connection.h>
 #include <core/amqp/channel.h>
-#include <core/amqp/consumer.h>
 #include <core/amqp/exception.h>
 #include <core/amqp/exchange.h>
 #include <core/amqp/message.h>
@@ -277,8 +276,8 @@ void Test_RabbitMQ::consume_queue()
 	publish_to_exchange();
 
 	try {
-		std::shared_ptr<amqp::Consumer> consumer =
-			std::make_shared<amqp::Consumer>(RABBITMQ_URL);
+		std::shared_ptr<amqp::Connection> consumer =
+			std::make_shared<amqp::Connection>(RABBITMQ_URL);
 		std::shared_ptr<amqp::Channel> channel = consumer->create_channel();
 		std::shared_ptr<amqp::Queue> fq = channel->declare_queue("unittest_queue");
 
