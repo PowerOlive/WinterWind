@@ -98,12 +98,26 @@ protected:
 	std::shared_ptr<Channel> find_channel(uint16_t channel_id);
 
 private:
+	/**
+	 * Perform connection to RabbitMQ
+	 * @param host
+	 * @param port
+	 * @param username
+	 * @param password
+	 * @param vhost
+	 */
 	void connect(const std::string &host = "127.0.0.1", uint16_t port = 5672,
 		const std::string &username = "guest", const std::string &password = "guest",
 		const std::string &vhost = "/");
 
 	bool open(const std::string &host, uint16_t port);
 
+	/**
+	 * Distribute received envelope to Channel
+	 * @param envelope
+	 * @param channel_id
+	 * @return
+	 */
 	bool distribute_envelope(EnvelopePtr envelope, uint16_t channel_id);
 
 	amqp_socket_t *socket{nullptr};
