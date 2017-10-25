@@ -41,7 +41,7 @@ namespace amqp
 
 #define VERIFY_CHANNEL(R) \
 	if (!m_valid) { \
-		log_fatal(amqp_log, std::string(__FUNCTION__) + ": channel is invalid."); \
+		log_fatal(amqp_log, "channel is invalid."); \
 		return R; \
 	}
 
@@ -348,9 +348,8 @@ bool Channel::basic_consume(Queue *queue, const std::string &consumer_tag,
 	CONN_PTR
 
 	if (m_consumers_callbacks.find(consumer_tag) != m_consumers_callbacks.end()) {
-		log_error(amqp_log, std::string(__FUNCTION__)
-			+ ": Forbid to perform basic consume on already registered consumer_tag for "
-			"channel ID " + std::to_string(m_id))
+		log_error(amqp_log, "Forbid to perform basic consume on already registered "
+			"consumer_tag for channel ID " + std::to_string(m_id))
 		return false;
 	}
 
@@ -391,7 +390,7 @@ bool Channel::basic_qos(uint16_t prefetch_count, bool global)
 
 bool Channel::on_unsent_message(std::shared_ptr<Message> message)
 {
-	log_error(amqp_log, std::string(__FUNCTION__) + ": received unsent message.")
+	log_error(amqp_log, "received unsent message.")
 
 	for (const auto &hdl : m_error_message_handlers) {
 		hdl(message);
@@ -405,8 +404,7 @@ bool Channel::on_envelope_received(EnvelopePtr envelope)
 	VERIFY_CHANNEL(false)
 	CONN_PTR
 
-	log_debug(amqp_log, std::string(__FUNCTION__)
-		+ ": received envelope for consumer tag "
+	log_debug(amqp_log, "received envelope for consumer tag "
 		+ envelope->get_consumer_tag() + " with delivery tag "
 		+ std::to_string(envelope->get_delivery_tag()))
 

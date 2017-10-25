@@ -62,8 +62,7 @@ bool Consumer::consume_one()
 		if (AMQP_RESPONSE_LIBRARY_EXCEPTION == ret.reply_type &&
 			AMQP_STATUS_UNEXPECTED_STATE == ret.library_error) {
 			if (AMQP_STATUS_OK != amqp_simple_wait_frame(m_conn, &frame)) {
-				log_error(amqp_log, std::string(__FUNCTION__)
-					+ ": amqp_simple_wait_frame consuming error")
+				log_error(amqp_log, "amqp_simple_wait_frame consuming error")
 				return false;
 			}
 
@@ -89,9 +88,8 @@ bool Consumer::consume_one()
 
 						std::shared_ptr<Channel> channel = find_channel(frame.channel);
 						if (channel == nullptr) {
-							log_error(amqp_log, std::string(__FUNCTION__)
-								+ ": failed to reroute unsent message to channel id "
-								+ std::to_string(frame.channel))
+							log_error(amqp_log, "failed to reroute unsent message to "
+								"channel id " + std::to_string(frame.channel))
 							return false;
 						}
 
@@ -146,8 +144,7 @@ bool Consumer::distribute_envelope(EnvelopePtr envelope, uint16_t channel_id)
 {
 	std::shared_ptr<Channel> channel = find_channel(channel_id);
 	if (channel == nullptr) {
-		log_error(amqp_log, std::string(__FUNCTION__)
-			+ ": failed to distribute envelope to channel id "
+		log_error(amqp_log, "failed to distribute envelope to channel id "
 			+ std::to_string(channel_id))
 		return false;
 	}
