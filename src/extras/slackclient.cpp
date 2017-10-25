@@ -71,7 +71,7 @@ bool SlackClient::post_message(const std::string &channel, const std::string &me
 
 bool SlackClient::rtm_start(Json::Value &res)
 {
-	http::Query query("https://slack.com/api/rtm.start?token=\" + m_api_token");
+	http::Query query("https://slack.com/api/rtm.start?token=" + m_api_token);
 	_get_json(query, res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
