@@ -37,7 +37,8 @@ namespace winterwind
 namespace amqp
 {
 
-Connection::Connection(const std::string &url)
+Connection::Connection(const std::string &url, uint64_t wait_timeout) :
+	m_wait_timeout_ms(wait_timeout)
 {
 	amqp_connection_info info{};
 	if (url.empty()) {
@@ -52,8 +53,9 @@ Connection::Connection(const std::string &url)
 
 Connection::Connection(const std::string &host, uint16_t port,
 	const std::string &username, const std::string &password, const std::string &vhost,
-	int32_t frame_max) :
-	m_frame_max(frame_max)
+	int32_t frame_max, uint64_t wait_timeout) :
+	m_frame_max(frame_max),
+	m_wait_timeout_ms(wait_timeout)
 {
 	connect(host, port, username, password, vhost);
 }
@@ -194,9 +196,21 @@ bool Connection::consume_one()
 {
 	amqp_frame_t frame{};
 	amqp_envelope_t envelope{};
+	amqp_rpc_reply_t ret;
 
 	amqp_maybe_release_buffers(m_conn);
-	amqp_rpc_reply_t ret = amqp_consume_message(m_conn, &envelope, nullptr, 0);
+
+
+	if (m_wait_timeout_ms) {
+		timeval tv;
+		tv.tv_sec = 0;
+		tv.tv_usec = m_wait_timeout_ms;
+		ret = amqp_consume_message(m_conn, &envelope, &tv, 0);
+	}
+	else {
+		ret = amqp_consume_message(m_conn, &envelope, nullptr, 0);
+	}
+
 
 	if (AMQP_RESPONSE_NORMAL != ret.reply_type) {
 		if (AMQP_RESPONSE_LIBRARY_EXCEPTION == ret.reply_type &&

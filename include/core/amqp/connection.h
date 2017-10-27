@@ -48,10 +48,11 @@ class Connection : non_copyable, public std::enable_shared_from_this<amqp::Conne
 {
 	friend class Channel;
 public:
-	explicit Connection(const std::string &url = "");
+	explicit Connection(const std::string &url = "", uint64_t wait_timeout = 0);
 	Connection(const std::string &host, uint16_t port,
 		const std::string &username = "guest", const std::string &password = "guest",
-		const std::string &vhost = "/", int32_t frame_max = 131072);
+		const std::string &vhost = "/", int32_t frame_max = 131072,
+		uint64_t wait_timeout = 0);
 
 	virtual ~Connection();
 
@@ -85,6 +86,11 @@ public:
 	void stop()
 	{
 		m_stop = true;
+	}
+
+	void set_wait_timeout(uint64_t wait_timeout)
+	{
+		m_wait_timeout_ms = wait_timeout;
 	}
 
 protected:
@@ -124,6 +130,7 @@ private:
 
 	uint32_t m_heartbeat_interval{0};
 	int32_t m_frame_max{131072};
+	uint64_t m_wait_timeout_ms{0};
 
 	amqp_channel_t m_next_channel_id{0};
 	std::unordered_map<uint16_t, std::shared_ptr<Channel>> m_channels;
