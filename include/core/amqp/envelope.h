@@ -39,6 +39,11 @@ class Envelope
 {
 public:
 	Envelope() = delete;
+	/**
+	 * Create Envelope from librabbitmq-c envelope
+	 *
+	 * @param envelope
+	 */
 	explicit Envelope(amqp_envelope_t *envelope);
 	~Envelope() = default;
 
@@ -65,6 +70,15 @@ public:
 	const std::string &get_routing_key() const
 	{
 		return m_routing_key;
+	}
+
+	/**
+	 * Get message stored in the envelope
+	 * @return message stored in envelope
+	 */
+	std::shared_ptr<Message> get_message()
+	{
+		return m_message;
 	}
 private:
 	std::shared_ptr<Message> m_message;

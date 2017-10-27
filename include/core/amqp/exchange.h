@@ -45,6 +45,29 @@ public:
 	const std::string &get_name() const { return m_name; }
 	// @TODO implement (un)bind_to, (un)bind_from
 
+	/**
+	 * Publish message to exchange with routing_key
+	 * @param routing_key
+	 * @param message
+	 * @return AMQP_STATUS_OK on success, amqp_status_enum value on failure. Note
+	 *         that basic.publish is an async method, the return value from this
+	 *         function only indicates that the message data was successfully
+	 *         transmitted to the broker. It does not indicate failures that occur
+	 *         on the broker, such as publishing to a non-existent exchange.
+	 *         Possible error values:
+	 *         - AMQP_STATUS_TIMER_FAILURE: system timer facility returned an error
+	 *           the message was not sent.
+	 *         - AMQP_STATUS_HEARTBEAT_TIMEOUT: connection timed out waiting for a
+	 *           heartbeat from the broker. The message was not sent.
+	 *         - AMQP_STATUS_NO_MEMORY: memory allocation failed. The message was
+	 *           not sent.
+	 *         - AMQP_STATUS_TABLE_TOO_BIG: a table in the properties was too large
+	 *           to fit in a single frame. Message was not sent.
+	 *         - AMQP_STATUS_CONNECTION_CLOSED: the connection was closed.
+	 *         - AMQP_STATUS_SSL_ERROR: a SSL error occurred.
+	 *         - AMQP_STATUS_TCP_ERROR: a TCP error occurred. errno or
+	 *           WSAGetLastError() may provide more information
+	 */
 	int32_t basic_publish(const std::string &routing_key, const Message &message);
 private:
 	std::string m_name;
