@@ -86,7 +86,7 @@ public:
 	 * This function is thread-safe
 	 * @param response
 	 */
-	void push_response(const std::pair<std::string, std::string> &response)
+	void push_response(const std::pair<std::string, amqp::Message> &response)
 	{
 		std::unique_lock<std::mutex> lock(m_response_queue_mtx);
 		m_response_queue.push(response);
@@ -137,7 +137,7 @@ private:
 	 */
 	uint32_t m_connection_retry_interval = 30;
 
-	std::queue<std::pair<std::string, std::string>> m_response_queue;
+	std::queue<std::pair<std::string, amqp::Message>> m_response_queue;
 	std::mutex m_response_queue_mtx;
 };
 
