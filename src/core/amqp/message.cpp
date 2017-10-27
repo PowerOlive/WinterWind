@@ -248,7 +248,7 @@ std::string Message::get_message_id() const
 	return "";
 }
 
-Message& Message::set_timestamp(uint64_t timestamp)
+Message& Message::set_timestamp(int64_t timestamp)
 {
 	m_properties._flags |= AMQP_BASIC_TIMESTAMP_FLAG;
 	m_properties.timestamp = timestamp;

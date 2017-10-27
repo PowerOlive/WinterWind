@@ -104,7 +104,7 @@ public:
 	Message &set_message_id(const std::string &message_id);
 	std::string get_message_id() const;
 
-	Message &set_timestamp(uint64_t timestamp = std::time(nullptr));
+	Message &set_timestamp(int64_t timestamp = std::time(nullptr));
 	std::time_t get_timestamp() const;
 
 	Message &set_type(const std::string &type);
@@ -118,6 +118,11 @@ public:
 
 	Message &set_cluster_id(const std::string &cluster_id);
 	std::string get_cluster_id() const;
+
+	const std::vector<uint8_t> &get_data() const
+	{
+		return m_data;
+	}
 
 private:
 	// Internal function to set expiration as string
