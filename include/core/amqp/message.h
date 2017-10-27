@@ -74,19 +74,50 @@ public:
 	}
 
 	Message &set_content_type(const std::string &content_type);
+	std::string get_content_type() const;
+
 	Message &set_content_encoding(const std::string &content_encoding);
+	std::string get_content_encoding() const;
+
 	// @TODO Message &set_headers(const std::unordered_map<std::string, std::string> &headers);
 	Message &set_delivery_mode(uint8_t delivery_mode);
+	/**
+	 * @return message delivery mode. If not set returns UINT8_MAX
+	 */
+	uint8_t get_delivery_mode() const;
+
 	Message &set_priority(uint8_t priority);
+	/**
+	 * @return message priority. If not set returns UINT8_MAX
+	 */
+	uint8_t get_priority() const;
+
 	Message &set_correlation_id(const std::string &correlation_id);
+	std::string get_correlation_id() const;
+
 	Message &set_reply_to(const std::string &reply_to);
+	std::string get_reply_to() const;
+
 	Message &set_expiration(uint64_t expiration_ms);
+	int64_t get_expiration() const;
+
 	Message &set_message_id(const std::string &message_id);
+	std::string get_message_id() const;
+
 	Message &set_timestamp(uint64_t timestamp = std::time(nullptr));
+	std::time_t get_timestamp() const;
+
 	Message &set_type(const std::string &type);
+	std::string get_type() const;
+
 	Message &set_user_id(const std::string &user_id);
+	std::string get_user_id() const;
+
 	Message &set_app_id(const std::string &app_id);
+	std::string get_app_id() const;
+
 	Message &set_cluster_id(const std::string &cluster_id);
+	std::string get_cluster_id() const;
 
 private:
 	// Internal function to set expiration as string

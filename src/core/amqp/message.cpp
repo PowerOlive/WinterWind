@@ -129,11 +129,27 @@ Message& Message::set_content_type(const std::string &content_type)
 	return *this;
 }
 
+std::string Message::get_content_type() const
+{
+	if (m_properties._flags & AMQP_BASIC_CONTENT_TYPE_FLAG)
+		return TO_CPP_STR(m_properties.content_type);
+
+	return "";
+}
+
 Message& Message::set_content_encoding(const std::string &content_encoding)
 {
 	m_properties._flags |= AMQP_BASIC_CONTENT_ENCODING_FLAG;
 	m_properties.content_encoding = TO_AMQP_STR(content_encoding);
 	return *this;
+}
+
+std::string Message::get_content_encoding() const
+{
+	if (m_properties._flags & AMQP_BASIC_CONTENT_ENCODING_FLAG)
+		return TO_CPP_STR(m_properties.content_encoding);
+
+	return "";
 }
 
 Message& Message::set_delivery_mode(uint8_t delivery_mode)
@@ -143,11 +159,27 @@ Message& Message::set_delivery_mode(uint8_t delivery_mode)
 	return *this;
 }
 
+uint8_t Message::get_delivery_mode() const
+{
+	if (m_properties._flags & AMQP_BASIC_DELIVERY_MODE_FLAG)
+		return m_properties.delivery_mode;
+
+	return UINT8_MAX;
+}
+
 Message& Message::set_priority(uint8_t priority)
 {
 	m_properties._flags |= AMQP_BASIC_PRIORITY_FLAG;
 	m_properties.priority = priority;
 	return *this;
+}
+
+uint8_t Message::get_priority() const
+{
+	if (m_properties._flags & AMQP_BASIC_PRIORITY_FLAG)
+		return m_properties.priority;
+
+	return UINT8_MAX;
 }
 
 Message& Message::set_correlation_id(const std::string &correlation_id)
@@ -157,11 +189,27 @@ Message& Message::set_correlation_id(const std::string &correlation_id)
 	return *this;
 }
 
+std::string Message::get_correlation_id() const
+{
+	if (m_properties._flags & AMQP_BASIC_CORRELATION_ID_FLAG)
+		return TO_CPP_STR(m_properties.correlation_id);
+
+	return "";
+}
+
 Message& Message::set_reply_to(const std::string &reply_to)
 {
 	m_properties._flags |= AMQP_BASIC_REPLY_TO_FLAG;
 	m_properties.reply_to = TO_AMQP_STR(reply_to);
 	return *this;
+}
+
+std::string Message::get_reply_to() const
+{
+	if (m_properties._flags & AMQP_BASIC_REPLY_TO_FLAG)
+		return TO_CPP_STR(m_properties.reply_to);
+
+	return "";
 }
 
 Message& Message::set_expiration(uint64_t expiration_ms)
@@ -177,11 +225,27 @@ Message& Message::set_expiration(const std::string &expiration)
 	return *this;
 }
 
+int64_t Message::get_expiration() const
+{
+	if (m_properties._flags & AMQP_BASIC_EXPIRATION_FLAG)
+		return std::atoll(TO_CPP_STR(m_properties.expiration).c_str());
+
+	return 0;
+}
+
 Message& Message::set_message_id(const std::string &message_id)
 {
 	m_properties._flags |= AMQP_BASIC_MESSAGE_ID_FLAG;
 	m_properties.message_id = TO_AMQP_STR(message_id);
 	return *this;
+}
+
+std::string Message::get_message_id() const
+{
+	if (m_properties._flags & AMQP_BASIC_MESSAGE_ID_FLAG)
+		return TO_CPP_STR(m_properties.message_id);
+
+	return "";
 }
 
 Message& Message::set_timestamp(uint64_t timestamp)
@@ -191,11 +255,27 @@ Message& Message::set_timestamp(uint64_t timestamp)
 	return *this;
 }
 
+std::time_t Message::get_timestamp() const
+{
+	if (m_properties._flags & AMQP_BASIC_TIMESTAMP_FLAG)
+		return m_properties.timestamp;
+
+	return 0;
+}
+
 Message& Message::set_type(const std::string &type)
 {
 	m_properties._flags |= AMQP_BASIC_TYPE_FLAG;
 	m_properties.type = TO_AMQP_STR(type);
 	return *this;
+}
+
+std::string Message::get_type() const
+{
+	if (m_properties._flags & AMQP_BASIC_TYPE_FLAG)
+		return TO_CPP_STR(m_properties.type);
+
+	return "";
 }
 
 Message& Message::set_user_id(const std::string &user_id)
@@ -205,6 +285,14 @@ Message& Message::set_user_id(const std::string &user_id)
 	return *this;
 }
 
+std::string Message::get_user_id() const
+{
+	if (m_properties._flags & AMQP_BASIC_USER_ID_FLAG)
+		return TO_CPP_STR(m_properties.user_id);
+
+	return "";
+}
+
 Message& Message::set_app_id(const std::string &app_id)
 {
 	m_properties._flags |= AMQP_BASIC_APP_ID_FLAG;
@@ -212,11 +300,27 @@ Message& Message::set_app_id(const std::string &app_id)
 	return *this;
 }
 
+std::string Message::get_app_id() const
+{
+	if (m_properties._flags & AMQP_BASIC_APP_ID_FLAG)
+		return TO_CPP_STR(m_properties.app_id);
+
+	return "";
+}
+
 Message& Message::set_cluster_id(const std::string &cluster_id)
 {
 	m_properties._flags |= AMQP_BASIC_CLUSTER_ID_FLAG;
 	m_properties.cluster_id = TO_AMQP_STR(cluster_id);
 	return *this;
+}
+
+std::string Message::get_cluster_id() const
+{
+	if (m_properties._flags & AMQP_BASIC_CLUSTER_ID_FLAG)
+		return TO_CPP_STR(m_properties.cluster_id);
+
+	return "";
 }
 }
 }
