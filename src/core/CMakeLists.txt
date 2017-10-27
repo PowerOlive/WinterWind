@@ -85,6 +85,7 @@ if (ENABLE_AMQP)
 		amqp/connection.cpp
 		amqp/envelope.cpp
 		amqp/exchange.cpp
+		amqp/inoutexchange.cpp
 		amqp/log.cpp
 		amqp/message.cpp
 		amqp/queue.cpp)
