@@ -25,10 +25,10 @@
 
 #pragma once
 
-#include "utils/threads.h"
-#include "amqp/connection.h"
-#include "amqp/exchange.h"
-#include "amqp/queue.h"
+#include "core/utils/threads.h"
+#include "core/amqp/connection.h"
+#include "core/amqp/exchange.h"
+#include "core/amqp/queue.h"
 #include <queue>
 #include <utility>
 
