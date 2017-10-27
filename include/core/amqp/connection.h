@@ -50,7 +50,7 @@ class Connection : non_copyable, public std::enable_shared_from_this<amqp::Conne
 public:
 	explicit Connection(const std::string &url = "", uint64_t wait_timeout = 0);
 	Connection(const std::string &host, uint16_t port,
-		const std::string &username = "guest", const std::string &password = "guest",
+		const std::string &username, const std::string &password,
 		const std::string &vhost = "/", int32_t frame_max = 131072,
 		uint64_t wait_timeout = 0);
 
