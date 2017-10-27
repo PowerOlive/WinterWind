@@ -28,6 +28,7 @@
 #include "core/utils/threads.h"
 #include "core/amqp/connection.h"
 #include "core/amqp/exchange.h"
+#include "core/amqp/message.h"
 #include "core/amqp/queue.h"
 #include <queue>
 #include <utility>
