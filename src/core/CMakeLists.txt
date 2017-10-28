@@ -43,6 +43,7 @@ set(SRC_FILES
 	utils/stringutils.cpp
 	utils/threads.cpp
 	utils/time.cpp
+	utils/uuid.cpp
 	xmlparser.cpp
 	http/log.cpp)
 
@@ -65,6 +66,7 @@ set(HEADER_FILES
 set(PROJECT_LIBS
 	jsoncpp
 	log4cplus
+	uuid
 	xml2)
 
 set(READLINE 0 PARENT_SCOPE)
@@ -158,6 +160,7 @@ if (ENABLE_LUA_ENGINE)
 endif()
 
 include_directories(
+	/usr/include/uuid
 	${INCLUDE_SRC_PATH}/core
 )
 
