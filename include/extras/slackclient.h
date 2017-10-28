@@ -47,7 +47,7 @@ typedef websocketpp::client<websocketpp::config::asio_tls_client> ws_tls_client;
 class SlackClient : protected Thread, protected http::HTTPClient, private ws_tls_client
 {
 public:
-	SlackClient(const std::string &api_token);
+	SlackClient(const std::string &api_token, const std::string &username);
 
 	virtual ~SlackClient() = default;
 
@@ -89,7 +89,8 @@ private:
 
 	bool rtm_start(Json::Value &res);
 
-	std::string m_api_token;
+	const std::string m_api_token;
+	const std::string m_username;
 
 	uint32_t m_internal_message_id = 1;
 

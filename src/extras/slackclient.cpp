@@ -31,7 +31,9 @@ namespace winterwind
 {
 namespace extras
 {
-SlackClient::SlackClient(const std::string &api_token) : m_api_token(api_token)
+SlackClient::SlackClient(const std::string &api_token, const std::string &username) :
+	m_api_token(api_token),
+	m_username(username)
 {
 }
 
@@ -64,7 +66,7 @@ bool SlackClient::post_message(const std::string &channel, const std::string &me
 {
 	Json::Value res;
 	http::Query query("https://slack.com/api/channels.join?token=" + m_api_token + "&channel=" +
-		channel + "&text=" + message + "&as_user=true&username=Icecrown");
+		channel + "&text=" + message + "&as_user=true&username=" + m_username);
 	_get_json(query, res);
 	return res.isMember("ok") && res["ok"].asBool();
 }
