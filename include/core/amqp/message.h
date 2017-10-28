@@ -26,10 +26,12 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <vector>
 #include <string>
 #include <amqp.h>
 #include <ctime>
+#include "core/utils/classhelpers.h"
 
 namespace winterwind
 {
@@ -38,7 +40,7 @@ namespace amqp
 
 class Channel;
 
-class Message
+class Message : non_copyable
 {
 	friend class Channel;
 public:
@@ -134,5 +136,7 @@ private:
 
 	amqp_basic_properties_t m_properties{};
 };
+
+typedef std::shared_ptr<Message> MessagePtr;
 }
 }

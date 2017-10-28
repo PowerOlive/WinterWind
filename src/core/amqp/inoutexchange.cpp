@@ -92,9 +92,9 @@ void* InOutExchange::run()
 
 		if (m_response_queue_mtx.try_lock()) {
 			if (!m_response_queue.empty()) {
-				const std::pair<std::string, amqp::Message> &response =
+				const std::pair<std::string, amqp::MessagePtr> &response =
 					m_response_queue.front();
-				exchange->basic_publish(response.first, response.second);
+				exchange->basic_publish(response.first, *response.second);
 				m_response_queue.pop();
 			}
 			m_response_queue_mtx.unlock();
