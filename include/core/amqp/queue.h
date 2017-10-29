@@ -28,6 +28,7 @@
 #include <memory>
 #include <functional>
 #include <unordered_map>
+#include <string>
 #include "types.h"
 
 namespace winterwind

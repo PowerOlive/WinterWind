@@ -27,6 +27,7 @@
 
 #include <amqp.h>
 #include <memory>
+#include <string>
 
 namespace winterwind
 {
