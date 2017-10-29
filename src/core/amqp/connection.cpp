@@ -25,6 +25,7 @@
 
 #include "amqp/connection.h"
 #include <iostream>
+#include <cstring>
 #include "utils/log.h"
 #include "amqp/exception.h"
 #include "amqp/channel.h"
@@ -40,11 +41,15 @@ namespace amqp
 Connection::Connection(const std::string &url, uint64_t wait_timeout) :
 	m_wait_timeout_ms(wait_timeout)
 {
+	char url_buf[1024];
+	memset(url_buf, 0, sizeof(url_buf));
+	memcpy(url_buf, url.data(), url.size());
+
 	amqp_connection_info info{};
 	if (url.empty()) {
 		amqp_default_connection_info(&info);
 	}
-	else if (amqp_parse_url((char *) url.c_str(), &info) != AMQP_STATUS_OK) {
+	else if (amqp_parse_url(url_buf, &info) != AMQP_STATUS_OK) {
 		throw amqp::exception("Unable to parse AMQP URL.");
 	}
 
