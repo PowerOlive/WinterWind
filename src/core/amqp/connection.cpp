@@ -57,7 +57,7 @@ Connection::Connection(const std::string &host, uint16_t port,
 	m_frame_max(frame_max),
 	m_wait_timeout_ms(wait_timeout)
 {
-	connect(host, port, username, password, vhost);
+	connect(host.c_str(), port, username.c_str(), password.c_str(), vhost.c_str());
 }
 
 Connection::~Connection()
@@ -73,8 +73,8 @@ Connection::~Connection()
 	}
 }
 
-void Connection::connect(const std::string &host, uint16_t port,
-	const std::string &username, const std::string &password, const std::string &vhost)
+void Connection::connect(const char *host, uint16_t port,
+	const char *username, const char *password, const char *vhost)
 {
 	m_conn = amqp_new_connection();
 	if (!m_conn) {
@@ -97,9 +97,9 @@ void Connection::connect(const std::string &host, uint16_t port,
 	}
 }
 
-bool Connection::open(const std::string &host, uint16_t port)
+bool Connection::open(const char *host, uint16_t port)
 {
-	int status = amqp_socket_open(socket, host.c_str(), port);
+	int status = amqp_socket_open(socket, host, port);
 	if (status != AMQP_STATUS_OK) {
 		log_error(amqp_log, "Failed to open AMQP connection (code: " +
 			std::to_string(status) + ")");

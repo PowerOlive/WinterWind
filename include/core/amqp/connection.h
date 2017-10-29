@@ -112,11 +112,11 @@ private:
 	 * @param password
 	 * @param vhost
 	 */
-	void connect(const std::string &host = "127.0.0.1", uint16_t port = 5672,
-		const std::string &username = "guest", const std::string &password = "guest",
-		const std::string &vhost = "/");
+	void connect(const char *host = "127.0.0.1", uint16_t port = 5672,
+		const char *username = "guest", const char *password = "guest",
+		const char *vhost = "/");
 
-	bool open(const std::string &host, uint16_t port);
+	bool open(const char *host, uint16_t port);
 
 	/**
 	 * Distribute received envelope to Channel
