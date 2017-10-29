@@ -29,6 +29,7 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <array>
 
 namespace winterwind
 {

@@ -66,8 +66,11 @@ set(HEADER_FILES
 set(PROJECT_LIBS
 	jsoncpp
 	log4cplus
-	uuid
 	xml2)
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	set(PROJECT_LIBS ${PROJECT_LIBS} uuid)
+endif()
 
 set(READLINE 0 PARENT_SCOPE)
 

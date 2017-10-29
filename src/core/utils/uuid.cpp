@@ -26,6 +26,7 @@
 #include "utils/uuid.h"
 #include <uuid.h>
 #include <cstring>
+#include <cstdlib>
 
 namespace winterwind
 {
@@ -33,11 +34,23 @@ namespace winterwind
 std::string generate_uuid()
 {
 	uuid_t uuid{};
+#if defined(__FreeBSD__)
+	uint32_t status = 0;
+	uuid_create(&uuid, &status);
+#else
 	uuid_generate_random(uuid);
+#endif
 	std::string uuid_generated;
+#if defined(__FreeBSD__)
+	char *uuid_buf;
+	uuid_to_string(&uuid, &uuid_buf, &status);
+	uuid_generated.append(uuid_buf);
+	free(uuid_buf);
+#else
 	uuid_generated.resize(36);
 	memset(&uuid_generated[0], 0, 36);
 	uuid_unparse(uuid, &uuid_generated[0]);
+#endif
 	return uuid_generated;
 }
 
