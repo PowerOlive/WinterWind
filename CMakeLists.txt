@@ -27,6 +27,7 @@ project(winterwind)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 set(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib")
 set(BINDIR "${CMAKE_INSTALL_PREFIX}/bin")
 set(INCLUDEDIR "${CMAKE_INSTALL_PREFIX}/include/winterwind")
@@ -35,9 +36,11 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Mo
 
 set(INCLUDE_SRC_PATH ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
+find_package(Json REQUIRED)
+
 include_directories(
 	/usr/include/libxml2
-	/usr/include/jsoncpp
+	${JSON_INCLUDE_DIR}
 	/usr/include/mysql
 	/usr/local/include
 	/usr/local/include/libxml2
